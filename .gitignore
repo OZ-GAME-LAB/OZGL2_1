@@ -104,3 +104,10 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Externally-imported / paid asset packages staged here for local use only.
+# Each teammate imports the .unitypackage themselves (shared via Drive) instead of
+# committing the raw asset files — keeps the repo light and avoids redistributing
+# paid Asset Store content through git. The folder itself (and its own .meta) stays
+# tracked so the staging location shows up for everyone; only its contents are ignored.
+/Assets/98.ExternalAssets/00.LocalStaging/00.Packages/*
