@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637c1ad2f3ace2c4cb69b6d21e5bdbda, type: 3}
+  m_Name: SO_Skill_FrostField
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Skill.SkillData
+  skillId: frost_field
+  displayName: "\uBE59\uACB0 \uACB0\uACC4"
+  tier: 2
+  castMode: 1
+  cooldown: 20
+  effectType: 2
+  skillPower: 100
+  radius: 2
+  chainCount: 3
+  duration: 2
+  projectileVfx: {fileID: 0}
+  castVfx: {fileID: 4748681987041982144, guid: 13bf90c452825d54bb86f82e161d54b0, type: 3}
+  perTargetVfx: {fileID: 0}
+  scaleCastVfxToRadius: 1

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -273,16 +272,10 @@ namespace OZGL2.Skill
             if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 bool overBar = RectTransformUtility.RectangleContainsScreenPoint(_barRect, mouse, null);
-                if (!overBar && ScreenToWorld(mouse, out Vector3 castPoint)
-                    && _manager.TryCastTargeted(_aiming.Skill, castPoint))
+                if (!overBar && ScreenToWorld(mouse, out Vector3 castPoint))
                 {
-                    // VFX 프리팹이 지정돼 있으면 SkillVfxController 가 발사체를 재생하므로 코드 폴백은 생략
-                    bool needsFallbackProjectile = _aiming.Skill.Data.effectType == SkillEffectType.AreaDamage
-                        && _aiming.Skill.Data.projectileVfx == null;
-                    if (needsFallbackProjectile)
-                    {
-                        StartCoroutine(FlyProjectile(_casterPosition, castPoint));
-                    }
+                    // 발동만 요청. 발사체·착탄 연출은 SkillVfxController(Casted 구독)가 담당.
+                    _manager.TryCastTargeted(_aiming.Skill, castPoint);
                 }
 
                 EndAim();
@@ -387,27 +380,6 @@ namespace OZGL2.Skill
             o.effectDistance = new Vector2(2f, -2f);
         }
 
-        private IEnumerator FlyProjectile(Vector3 from, Vector3 to)
-        {
-            var proj = new GameObject("Projectile");
-            proj.transform.SetParent(transform);
-            proj.transform.localScale = Vector3.one * 0.4f;
-            var sr = proj.AddComponent<SpriteRenderer>();
-            sr.sprite = GetDiscSprite();
-            sr.color = new Color(1f, 0.62f, 0.16f);
-            sr.sortingOrder = 22;
-
-            const float duration = 0.2f;
-            float t = 0f;
-            while (t < duration)
-            {
-                t += Time.deltaTime;
-                proj.transform.position = Vector3.Lerp(from, to, t / duration);
-                yield return null;
-            }
-
-            Destroy(proj);
-        }
 
         private bool ScreenToWorld(Vector2 screenPos, out Vector3 world)
         {
