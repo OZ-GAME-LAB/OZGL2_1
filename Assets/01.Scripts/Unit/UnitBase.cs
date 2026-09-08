@@ -278,16 +278,16 @@ public class UnitBase : MonoBehaviour
         if (currentTarget == null || currentTarget.currentState == UnitState.Dead)
         {
             currentTarget = null;
-            SetState(UnitState.Move);
+            SetState(GetPostCombatState());
             return;
         }
 
         float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
         if (statData != null && dist > statData.attackRange)
         {
-            // 대상이 사거리를 벗어남 (이동형 대상 등) — 재탐색하도록 이동 상태로 복귀
+            // 대상이 사거리를 벗어남 (이동형 대상 등) — 재탐색 상태로 복귀
             currentTarget = null;
-            SetState(UnitState.Move);
+            SetState(GetPostCombatState());
             return;
         }
 
@@ -302,6 +302,15 @@ public class UnitBase : MonoBehaviour
             PlaySpumAnimation(UnitState.Attack);
             attackCooldownTimer = GetAttackInterval();
         }
+    }
+
+    /// <summary>
+    /// 전투가 끝난 뒤 돌아갈 상태. 용사는 마왕을 향해 계속 전진해야 하니 Move(4.1절),
+    /// 마왕군은 배치형이라 제자리에서 Idle로 대기하며 재탐지한다.
+    /// </summary>
+    protected virtual UnitState GetPostCombatState()
+    {
+        return Side == UnitSide.Hero ? UnitState.Move : UnitState.Idle;
     }
 
     protected float GetAttackInterval()
