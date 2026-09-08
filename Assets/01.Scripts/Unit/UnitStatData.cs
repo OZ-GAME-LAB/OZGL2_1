@@ -13,12 +13,23 @@ public class UnitStatData : ScriptableObject
     public string displayName;     // 화면 표시용 이름
     public UnitSide side;
 
-    [Header("스탯")]
+    [Header("스탯 (밸런스시트 03.전투공식 기준)")]
     public int maxHealth = 100;
     public float attackPower = 10f;
     public float attackSpeed = 1f;   // 초당 공격 횟수
-    public float attackRange = 1f;   // 칸 단위 (그리드 연동 전까지는 월드 유닛으로 취급)
-    public float moveSpeed = 2f;     // 유닛/초
+
+    [Range(0f, 0.8f)]
+    public float defensePercent = 0f;  // 받는 피해 = 공격력 x (1 - min(방어%, 0.8)). 상한 80% 확정(항상 최소 20% 관통)
+
+    // ⚠ 칸(그리드 단위) → 월드 유닛 환산값이 아직 미확정 (밸런스시트 "사거리 1칸" 셀 #ERROR, 준기와 협의 필요).
+    // 지금은 시트에 적힌 칸 수를 그대로 월드 유닛으로 취급 — 협의 끝나면 일괄 보정 예정.
+    public float attackRange = 1f;
+    public float moveSpeed = 2f;       // 유닛/초. 마왕군은 배치형이라 보통 미사용, 용사만 실사용
+    public float healAmount = 0f;      // 힐러 전용 1회 힐량 (힐/초 = healAmount x attackSpeed)
+
+    [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
+    public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
+    public int killExpReward = 0;       // 용사 처치 시 지급 경험치 (성민 파트 연계)
 
     [Header("합성 (5.2절 — Day3에서 사용)")]
     [Range(1, 3)]
