@@ -21,6 +21,9 @@ public class UnitBase : MonoBehaviour
     [Header("도착 판정 (칸 이동이 아니라 월드 좌표 기준 임시 값)")]
     public float arriveThreshold = 0.05f;
 
+    // SPUM 프리팹의 애니메이션 재생 담당 컴포넌트 (자식 오브젝트에 붙어있음, SPUM 샘플의 PlayerObj 참고)
+    protected SPUM_Prefabs spumPrefabs;
+
     protected virtual void Awake()
     {
         if (statData != null)
@@ -30,6 +33,60 @@ public class UnitBase : MonoBehaviour
         else
         {
             Debug.LogWarning($"[UnitBase] {name}에 statData가 비어있음. 인스펙터에서 UnitStatData를 할당해줘.", this);
+        }
+
+        InitSpumAnimation();
+    }
+
+    /// <summary>
+    /// SPUM 프리팹의 애니메이션 클립 목록을 채우고 OverrideController를 초기화한다.
+    /// SPUM이 안 붙은(자식에 SPUM_Prefabs 없는) 테스트용 오브젝트에서도 에러 없이 그냥 스킵되게 처리.
+    /// </summary>
+    protected virtual void InitSpumAnimation()
+    {
+        spumPrefabs = GetComponentInChildren<SPUM_Prefabs>();
+        if (spumPrefabs == null)
+        {
+            return;
+        }
+
+        if (!spumPrefabs.allListsHaveItemsExist())
+        {
+            spumPrefabs.PopulateAnimationLists();
+        }
+        spumPrefabs.OverrideControllerInit();
+        PlaySpumAnimation(currentState);
+    }
+
+    /// <summary>
+    /// UnitState → SPUM의 PlayerState로 매핑해서 애니메이션 재생.
+    /// 해당 상태 클립이 아예 없는 유닛(예: 공격 애니메이션 미보유)은 조용히 스킵한다.
+    /// </summary>
+    protected virtual void PlaySpumAnimation(UnitState state)
+    {
+        if (spumPrefabs == null)
+        {
+            return;
+        }
+
+        string stateKey = ToSpumState(state).ToString();
+        if (!spumPrefabs.StateAnimationPairs.TryGetValue(stateKey, out var clips) || clips.Count == 0)
+        {
+            return;
+        }
+
+        spumPrefabs.PlayAnimation(ToSpumState(state), 0);
+    }
+
+    protected static PlayerState ToSpumState(UnitState state)
+    {
+        switch (state)
+        {
+            case UnitState.Idle: return PlayerState.IDLE;
+            case UnitState.Move: return PlayerState.MOVE;
+            case UnitState.Attack: return PlayerState.ATTACK;
+            case UnitState.Dead: return PlayerState.DEATH;
+            default: return PlayerState.IDLE;
         }
     }
 
@@ -54,7 +111,7 @@ public class UnitBase : MonoBehaviour
 
     protected virtual void TickIdle()
     {
-        // Day1에서는 별도 동작 없음. 애니메이션 훅은 나중에 여기 연결.
+        // 애니메이션은 SetState()에서 상태 전이 시점에 한 번만 재생됨 (매 프레임 X)
     }
 
     protected virtual void TickMove()
@@ -109,6 +166,7 @@ public class UnitBase : MonoBehaviour
         }
 
         currentState = newState;
+        PlaySpumAnimation(newState);
     }
 
     /// <summary>
