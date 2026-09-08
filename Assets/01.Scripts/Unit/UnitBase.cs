@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// 용사/마왕군 공통 유닛 베이스.
-/// Day1 범위: 상태(State) 골격 + 이동만 구현. 타겟팅/공격은 Day2(Combat)에서 확장.
+/// Day1: 상태(State) 골격 + 이동 + SPUM 애니메이션. Day2: 타겟팅 + 공격/치료 판정 + 사망 처리.
 /// 실제 그리드/스폰 시스템이 붙기 전까지는 SetMoveTarget()으로 월드 좌표를 직접 넘겨 테스트한다.
 /// </summary>
 public class UnitBase : MonoBehaviour
@@ -21,8 +21,27 @@ public class UnitBase : MonoBehaviour
     [Header("도착 판정 (칸 이동이 아니라 월드 좌표 기준 임시 값)")]
     public float arriveThreshold = 0.05f;
 
+    [Header("전투 (Day2)")]
+    public UnitBase currentTarget;
+    protected float attackCooldownTimer;
+
+    /// <summary>죽었을 때(Hero) EXP 지급 등을 위해 다른 파트(성민 - 성장시스템)가 구독할 수 있는 훅.</summary>
+    public static event System.Action<UnitBase, int> OnHeroKilled;
+
+    public UnitSide Side => statData != null ? statData.side : UnitSide.Hero;
+
     // SPUM 프리팹의 애니메이션 재생 담당 컴포넌트 (자식 오브젝트에 붙어있음, SPUM 샘플의 PlayerObj 참고)
     protected SPUM_Prefabs spumPrefabs;
+
+    protected virtual void OnEnable()
+    {
+        UnitRegistry.Register(this);
+    }
+
+    protected virtual void OnDisable()
+    {
+        UnitRegistry.Unregister(this);
+    }
 
     protected virtual void Awake()
     {
@@ -101,21 +120,27 @@ public class UnitBase : MonoBehaviour
                 TickMove();
                 break;
             case UnitState.Attack:
-                // Day2에서 구현 (타겟팅 → 사거리 진입 시 이쪽 상태로 전이)
+                TickAttack();
                 break;
             case UnitState.Dead:
-                // Day2에서 처리 (마왕군은 다음 라운드 부활, 용사는 즉시 제거 등)
+                // 별도 틱 없음 — Die()에서 진영별로 즉시 처리(용사 제거) 또는 대기(마왕군, Revive() 대기)
                 break;
         }
     }
 
     protected virtual void TickIdle()
     {
-        // 애니메이션은 SetState()에서 상태 전이 시점에 한 번만 재생됨 (매 프레임 X)
+        // 정지 상태(주로 마왕군)도 매 프레임 사거리 안에 교전 대상이 들어왔는지 확인한다.
+        TryAcquireTarget();
     }
 
     protected virtual void TickMove()
     {
+        if (TryAcquireTarget())
+        {
+            return;
+        }
+
         if (!hasMoveTarget || statData == null)
         {
             return;
@@ -151,6 +176,176 @@ public class UnitBase : MonoBehaviour
         transform.localScale = scale;
     }
 
+    /// <summary>
+    /// 사거리 안에 교전(또는 치료) 대상이 있으면 Attack 상태로 전이한다. Idle/Move 양쪽에서 매 프레임 호출.
+    /// </summary>
+    protected virtual bool TryAcquireTarget()
+    {
+        if (statData == null)
+        {
+            return false;
+        }
+
+        UnitBase target = FindAttackTarget();
+        if (target == null)
+        {
+            return false;
+        }
+
+        float dist = Vector3.Distance(transform.position, target.transform.position);
+        if (dist > statData.attackRange)
+        {
+            return false;
+        }
+
+        currentTarget = target;
+        attackCooldownTimer = 0f; // 사거리 진입 즉시 첫 공격/치료가 나가도록
+        SetState(UnitState.Attack);
+        return true;
+    }
+
+    /// <summary>힐량이 있는 유닛(힐러)은 아군을, 그 외에는 적을 찾는다.</summary>
+    protected virtual UnitBase FindAttackTarget()
+    {
+        if (statData != null && statData.healAmount > 0f)
+        {
+            return FindLowestHealthAlly();
+        }
+        return FindNearestEnemy();
+    }
+
+    protected virtual UnitBase FindNearestEnemy()
+    {
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var candidates = UnitRegistry.GetUnits(enemySide);
+
+        UnitBase nearest = null;
+        float nearestDistSqr = float.MaxValue;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            float distSqr = (unit.transform.position - transform.position).sqrMagnitude;
+            if (distSqr < nearestDistSqr)
+            {
+                nearestDistSqr = distSqr;
+                nearest = unit;
+            }
+        }
+
+        return nearest;
+    }
+
+    /// <summary>같은 진영에서 체력 비율이 가장 낮은(그리고 풀피가 아닌) 아군을 찾는다.</summary>
+    protected virtual UnitBase FindLowestHealthAlly()
+    {
+        var candidates = UnitRegistry.GetUnits(Side);
+
+        UnitBase lowest = null;
+        float lowestRatio = float.MaxValue;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit == this || unit.currentState == UnitState.Dead || unit.statData == null)
+            {
+                continue;
+            }
+
+            if (unit.currentHealth >= unit.statData.maxHealth)
+            {
+                continue; // 이미 풀피면 치료 대상 아님
+            }
+
+            float ratio = (float)unit.currentHealth / unit.statData.maxHealth;
+            if (ratio < lowestRatio)
+            {
+                lowestRatio = ratio;
+                lowest = unit;
+            }
+        }
+
+        return lowest;
+    }
+
+    protected virtual void TickAttack()
+    {
+        if (currentTarget == null || currentTarget.currentState == UnitState.Dead)
+        {
+            currentTarget = null;
+            SetState(UnitState.Move);
+            return;
+        }
+
+        float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
+        if (statData != null && dist > statData.attackRange)
+        {
+            // 대상이 사거리를 벗어남 (이동형 대상 등) — 재탐색하도록 이동 상태로 복귀
+            currentTarget = null;
+            SetState(UnitState.Move);
+            return;
+        }
+
+        FaceDirection(currentTarget.transform.position - transform.position);
+
+        attackCooldownTimer -= Time.deltaTime;
+        if (attackCooldownTimer <= 0f)
+        {
+            PerformAttack(currentTarget);
+            attackCooldownTimer = GetAttackInterval();
+        }
+    }
+
+    protected float GetAttackInterval()
+    {
+        float speed = statData != null ? statData.attackSpeed : 1f;
+        return 1f / Mathf.Max(speed, 0.01f);
+    }
+
+    protected virtual void PerformAttack(UnitBase target)
+    {
+        if (statData == null || target == null)
+        {
+            return;
+        }
+
+        if (statData.healAmount > 0f)
+        {
+            target.Heal(Mathf.RoundToInt(statData.healAmount));
+        }
+        else
+        {
+            float targetDefense = target.statData != null ? target.statData.defensePercent : 0f;
+            int damage = CalculateDamage(statData.attackPower, targetDefense);
+            target.TakeDamage(damage);
+        }
+    }
+
+    /// <summary>
+    /// 밸런스시트 03.전투공식: 받는 피해 = 공격력 x (1 - min(방어%, 0.8)). 방어율 상한 80%(항상 최소 20% 관통).
+    /// </summary>
+    public static int CalculateDamage(float attackPower, float targetDefensePercent)
+    {
+        float mitigatedDefense = Mathf.Min(targetDefensePercent, 0.8f);
+        float damage = attackPower * (1f - mitigatedDefense);
+        return Mathf.Max(0, Mathf.RoundToInt(damage));
+    }
+
+    public virtual void Heal(int amount)
+    {
+        if (statData == null || currentState == UnitState.Dead)
+        {
+            return;
+        }
+
+        currentHealth = Mathf.Min(currentHealth + amount, statData.maxHealth);
+    }
+
     public virtual void SetMoveTarget(Vector3 targetPosition)
     {
         moveTarget = targetPosition;
@@ -169,9 +364,6 @@ public class UnitBase : MonoBehaviour
         PlaySpumAnimation(newState);
     }
 
-    /// <summary>
-    /// Day2에서 전투 판정 붙을 때 실제로 호출될 예정. 지금은 상태머신이 죽음까지 안 끊기는지만 확인용.
-    /// </summary>
     public virtual void TakeDamage(int amount)
     {
         if (currentState == UnitState.Dead)
@@ -190,6 +382,30 @@ public class UnitBase : MonoBehaviour
     {
         currentHealth = 0;
         hasMoveTarget = false;
+        currentTarget = null;
         SetState(UnitState.Dead);
+
+        if (Side == UnitSide.Hero)
+        {
+            int expReward = statData != null ? statData.killExpReward : 0;
+            OnHeroKilled?.Invoke(this, expReward);
+            Destroy(gameObject); // 용사는 처치 즉시 제거
+        }
+        // 마왕군은 Dead 상태로 남겨둔다 — 다음 라운드 시작 시 라운드 매니저(코어루프 파트)가 Revive()를 호출해 부활시키는 구조로 예정 (4.3절)
+    }
+
+    /// <summary>
+    /// 라운드 전환 시 죽은 마왕군을 되살리기 위한 진입점 (4.3절: 라운드 중 죽은 마왕군은 다음 라운드 시작 시 부활).
+    /// 실제 호출은 라운드 매니저(코어루프 파트, 아직 없음)가 담당할 예정 — 지금은 메서드만 준비.
+    /// </summary>
+    public virtual void Revive()
+    {
+        if (statData == null)
+        {
+            return;
+        }
+
+        currentHealth = statData.maxHealth;
+        SetState(UnitState.Idle);
     }
 }
