@@ -25,6 +25,10 @@ public class UnitBase : MonoBehaviour
     public UnitBase currentTarget;
     protected float attackCooldownTimer;
 
+    [Header("사망 처리")]
+    // DEATH 애니메이션 클립 길이를 못 읽어올 때 쓰는 기본 대기 시간(초). 용사 제거 딜레이용.
+    public float deathDestroyDelay = 1.2f;
+
     /// <summary>죽었을 때(Hero) EXP 지급 등을 위해 다른 파트(성민 - 성장시스템)가 구독할 수 있는 훅.</summary>
     public static event System.Action<UnitBase, int> OnHeroKilled;
 
@@ -313,6 +317,21 @@ public class UnitBase : MonoBehaviour
         return Side == UnitSide.Hero ? UnitState.Move : UnitState.Idle;
     }
 
+    /// <summary>
+    /// SPUM DEATH 클립(index 0)의 실제 길이를 읽어서 반환. 클립을 못 찾으면 deathDestroyDelay로 대체.
+    /// </summary>
+    protected virtual float GetDeathAnimationDuration()
+    {
+        if (spumPrefabs != null &&
+            spumPrefabs.StateAnimationPairs.TryGetValue(PlayerState.DEATH.ToString(), out var clips) &&
+            clips.Count > 0 && clips[0] != null)
+        {
+            return clips[0].length;
+        }
+
+        return deathDestroyDelay;
+    }
+
     protected float GetAttackInterval()
     {
         float speed = statData != null ? statData.attackSpeed : 1f;
@@ -406,7 +425,8 @@ public class UnitBase : MonoBehaviour
         {
             int expReward = statData != null ? statData.killExpReward : 0;
             OnHeroKilled?.Invoke(this, expReward);
-            Destroy(gameObject); // 용사는 처치 즉시 제거
+            // 사망 애니메이션이 다 재생될 시간을 준 다음 제거 (즉시 Destroy하면 트리거만 넣고 바로 사라짐)
+            Destroy(gameObject, GetDeathAnimationDuration());
         }
         // 마왕군은 Dead 상태로 남겨둔다 — 다음 라운드 시작 시 라운드 매니저(코어루프 파트)가 Revive()를 호출해 부활시키는 구조로 예정 (4.3절)
     }
