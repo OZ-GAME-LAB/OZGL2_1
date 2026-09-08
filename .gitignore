@@ -113,3 +113,5 @@ InitTestScene*.unity*
 # Ignored entirely (folder + its own .meta, not just contents): 00.Packages/ itself
 /Assets/98.ExternalAssets/00.LocalStaging/00.Packages/
 /Assets/98.ExternalAssets/00.LocalStaging/00.Packages.meta
+/Assets/98.ExternalAssets/
+/Assets/98.ExternalAssets.meta
