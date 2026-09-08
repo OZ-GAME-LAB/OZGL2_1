@@ -126,6 +126,14 @@ public class UnitBase : MonoBehaviour
                 // 별도 틱 없음 — Die()에서 진영별로 즉시 처리(용사 제거) 또는 대기(마왕군, Revive() 대기)
                 break;
         }
+
+        // SPUM 자체 샘플(PlayerObj.Update)과 동일하게 상태 전이 여부와 무관하게 매 프레임 재생 요청한다.
+        // SPUM 애니메이터가 Trigger 기반이라, 상태가 바뀔 때 한 번만 호출하면 공격처럼 같은 상태를
+        // 유지하며 반복되는 동작(스윙 반복 등)에서 두 번째 이후 재생이 안 됨.
+        if (currentState != UnitState.Dead)
+        {
+            PlaySpumAnimation(currentState);
+        }
     }
 
     protected virtual void TickIdle()
@@ -361,7 +369,7 @@ public class UnitBase : MonoBehaviour
         }
 
         currentState = newState;
-        PlaySpumAnimation(newState);
+        // 실제 재생은 Update()에서 매 프레임 처리 (SPUM 트리거 특성상 반복 호출이 필요함)
     }
 
     public virtual void TakeDamage(int amount)
