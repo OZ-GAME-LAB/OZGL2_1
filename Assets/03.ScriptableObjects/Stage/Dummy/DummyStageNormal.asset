@@ -1,0 +1,316 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d11d821f0fe278a4ea6c4c80b7b8457f, type: 3}
+  m_Name: DummyStageNormal
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Stage.StageDataSO
+  _stageId: stage_dummy_normal
+  _rounds:
+  - _roundId: stage_dummy_normal_round_01
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_02
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_03
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_04
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_05
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_06
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_07
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_08
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_09
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_10
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 1
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_11
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_12
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_13
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_14
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_15
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_16
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_17
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_18
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_19
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 100
+    _goldWeight: 0
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_20
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 1
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_21
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_22
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_23
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_24
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_25
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_26
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_27
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_28
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_29
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
+  - _roundId: stage_dummy_normal_round_30
+    _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 1
+    _rewardId: reward_dummy_general
+    _silverWeight: 0
+    _goldWeight: 100
+    _platinumWeight: 0
