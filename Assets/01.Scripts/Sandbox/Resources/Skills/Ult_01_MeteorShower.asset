@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637c1ad2f3ace2c4cb69b6d21e5bdbda, type: 3}
+  m_Name: Ult_01_MeteorShower
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Skill.SkillData
+  skillId: "\uC720\uC131\uC6B0"
+  displayName: "\uC720\uC131\uC6B0"
+  category: 3
+  tier: 4
+  castMode: 0
+  cooldown: 60
+  effectType: 0
+  skillPower: 150
+  radius: 5
+  duration: 2
+  castDelay: 0
+  chainInterval: 0.1
+  chainCount: 3
+  barrageCount: 12
+  force: 6
+  lineLength: 6
+  zoneMoveSpeed: 4
+  zoneEffect: 1
+  zoneTarget: 0
+  zoneTick: 0.25
+  zoneMagnitude: 0.5
+  buffStat: 0
+  buffMultiplier: 1.3
+  reviveCount: 3
+  projectileVfx: {fileID: 0}
+  castVfx: {fileID: 5455977272119292228, guid: 2fb13dafea85206428417f5761f1a577, type: 3}
+  perTargetVfx: {fileID: 0}
+  finishVfx: {fileID: 0}
+  scaleCastVfxToRadius: 0
+  vfxIsUi: 1
+  fallFromSky: 0
+  flourishVfx: {fileID: 9176173568810107112, guid: b0b17559d1ba4c0428a7204e6cdd25de, type: 3}
+  flourishCount: 8
