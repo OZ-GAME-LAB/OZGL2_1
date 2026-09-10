@@ -25,6 +25,7 @@ namespace OZGL2.Stage
         private IPooledHeroState[] _states;
         private Action<HeroLease> _onDeath;
         private Action<HeroLease> _onReturnReady;
+        private Action<HeroLease, Exception> _onFault;
         private IPooledHeroDeathPresentation _deathPresentation;
         private long _leaseId;
         private bool _isDead;
@@ -47,25 +48,39 @@ namespace OZGL2.Stage
             }
             _states = states.ToArray();
         }
-        internal void Rent(long id, Action<HeroLease> onDeath, Action<HeroLease> onReturnReady)
+        internal void Rent(long id, Action<HeroLease> onDeath, Action<HeroLease> onReturnReady, Action<HeroLease, Exception> onFault)
         {
             _leaseId = id; _isDead = false; _onDeath = null;
-            _isReturnRequested = false; _onReturnReady = null;
+            _isReturnRequested = false; _onReturnReady = null; _onFault = null;
             foreach (var state in _states) state.ResetForSpawn(id);
             _onDeath = onDeath;
             _onReturnReady = onReturnReady;
+            _onFault = onFault;
         }
         /// <summary>공격/사망 작업 시작 때 받은 leaseId를 전달해야 늦은 이벤트를 차단할 수 있습니다.</summary>
         public bool TryReportDeath(long leaseId)
         {
             if (!IsLeased || _isDead || _leaseId != leaseId) return false;
             _isDead = true;
-            _onDeath(new HeroLease(this, leaseId));
-            // 콜백에서 종료/회수가 일어나도 새 대여에 이전 연출을 시작하지 않는다.
-            if (IsLeased && _leaseId == leaseId && !_isReturnRequested)
+            var lease = new HeroLease(this, leaseId);
+            // 연출이 동기 반환·재대여 후 실패하더라도 원래 전투로 오류를 전달한다.
+            var onFault = _onFault;
+            try
             {
-                if (_deathPresentation == null) TryCompleteDeath(leaseId);
-                else _deathPresentation.BeginDeath(new HeroLease(this, leaseId));
+                _onDeath(lease);
+                if (IsLeased && _leaseId == leaseId && !_isReturnRequested)
+                {
+                    if (_deathPresentation == null) TryCompleteDeath(leaseId);
+                    else _deathPresentation.BeginDeath(lease);
+                }
+            }
+            catch (Exception exception)
+            {
+                Exception failure = exception;
+                try { TryCompleteDeath(leaseId); }
+                catch (Exception returnError) { failure = new AggregateException(exception, returnError); }
+                if (onFault == null) throw new AggregateException("Hero death failed; return was attempted.", failure);
+                onFault(lease, failure);
             }
             return true;
         }
@@ -80,6 +95,7 @@ namespace OZGL2.Stage
         {
             _onDeath = null;
             _onReturnReady = null;
+            _onFault = null;
             System.Collections.Generic.List<Exception> errors = null;
             foreach (var state in _states)
             {

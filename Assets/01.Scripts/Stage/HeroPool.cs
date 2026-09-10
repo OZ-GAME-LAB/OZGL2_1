@@ -41,7 +41,8 @@ namespace OZGL2.Stage
         }
         public int GetExperience(string heroId) => _buckets[heroId].Entry.Experience;
         public bool Contains(string heroId) => _buckets.ContainsKey(heroId);
-        public HeroLease Rent(string heroId, Vector3 position, Action<HeroLease> onDeath, Action<HeroLease> onReturnReady)
+        public HeroLease Rent(string heroId, Vector3 position, Action<HeroLease> onDeath, Action<HeroLease> onReturnReady,
+            Action<HeroLease, Exception> onFault = null)
         {
             if (_isDisposed) throw new ObjectDisposedException(nameof(HeroPool));
             if (onDeath == null) throw new ArgumentNullException(nameof(onDeath));
@@ -54,7 +55,7 @@ namespace OZGL2.Stage
             try
             {
                 hero.transform.SetPositionAndRotation(position, Quaternion.identity);
-                hero.Rent(id, onDeath, onReturnReady);
+                hero.Rent(id, onDeath, onReturnReady, onFault);
             }
             catch (Exception initializationError)
             {

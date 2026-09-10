@@ -18,6 +18,7 @@ namespace OZGL2.Stage.Editor
             try
             {
                 await VerifyAsync();
+                await VerifyDeathFailures();
                 LastResult = "PASS: failed reset discarded, all component hooks attempted, spawn failure discarded, cancel and callback failure reclaim all leases, pool/host disposal continues, token disposed, repeated shutdown safe.";
             }
             catch (Exception exception) { LastResult = "FAIL: " + exception; }
@@ -141,6 +142,58 @@ namespace OZGL2.Stage.Editor
                 Require(broken.Count == 1 && good.Count == 1, "Repeated shutdown must not redispose");
             }
             finally { UnityEngine.Object.Destroy(host.gameObject); }
+        }
+        private static async Task VerifyDeathFailures()
+        {
+            var root = new GameObject("Death failure verification");
+            var template = new GameObject("Death failure template"); template.SetActive(false);
+            var prefab = template.AddComponent<PooledHero>(); template.AddComponent<CleanupFailureProbe>();
+            HeroPool pool = null;
+            try
+            {
+                for (int mode = 0; mode < 2; mode++)
+                {
+                    pool = CreatePool(prefab, root.transform);
+                    var battle = new PooledStageBattle(pool, new DummyDefenders(1), Vector3.zero);
+                    var round = new RoundDefinition("round_test", new[] { new HeroSpawnDefinition("test_hero", 2, 0) }, false,
+                        "reward_test", new AugmentTierWeights(1, 0, 0));
+                    using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+                    {
+                        var run = battle.RunRoundAsync(round, timeout.Token);
+                        var hero = root.GetComponentsInChildren<PooledHero>().First(item => item.IsLeased);
+                        var probe = hero.GetComponent<CleanupFailureProbe>();
+                        probe.CanThrowOnDeath = true; probe.CanThrowOnReturn = mode == 1;
+                        long id = hero.LeaseId;
+                        Require(hero.TryReportDeath(id), "First death accepted despite failed presentation");
+                        Require(!hero.TryReportDeath(id) && !hero.TryCompleteDeath(id), "Duplicate callbacks blocked");
+                        Require(pool.ActiveCount == 1, "Failed presentation immediately attempts return");
+                        try { await run; throw new Exception("Presentation failure incorrectly completed battle"); }
+                        catch (AggregateException exception)
+                        {
+                            var messages = exception.Flatten().InnerExceptions.Select(error => error.Message).ToArray();
+                            Require(messages.Any(message => message.Contains("death presentation")), "Original presentation error retained");
+                            if (mode == 1) Require(messages.Any(message => message.Contains("return reset")), "Return failure retained alongside presentation error");
+                        }
+                        Require(pool.ActiveCount == 0 && battle.UnreturnedHeroCount == 0 && battle.AliveHeroCount == 0,
+                            "Battle failure cleans all remaining leases");
+                    }
+                    pool.Dispose();
+                }
+                pool = CreatePool(prefab, root.transform);
+                HeroLease replacement = default; Exception received = null;
+                var first = pool.Rent("test_hero", Vector3.zero, lease => { }, lease =>
+                {
+                    pool.Return(lease);
+                    replacement = pool.Rent("test_hero", Vector3.zero, item => { }, item => pool.Return(item));
+                }, (lease, error) => received = error);
+                first.Hero.GetComponent<CleanupFailureProbe>().CanThrowAfterDeathReturn = true;
+                first.Hero.TryReportDeath(first.LeaseId);
+                Require(received != null && replacement.Hero == first.Hero && replacement.LeaseId != first.LeaseId &&
+                    replacement.Hero.IsLeased && pool.ActiveCount == 1, "Late failure cannot return new lease and reaches original fault handler");
+                Require(!first.Hero.TryCompleteDeath(first.LeaseId), "Old completion rejected after reuse");
+                pool.Return(replacement);
+            }
+            finally { pool?.Dispose(); UnityEngine.Object.Destroy(root); UnityEngine.Object.Destroy(template); }
         }
         private static HeroPool CreatePool(PooledHero prefab, Transform root)
             => new HeroPool(new[] { new HeroPoolEntry("test_hero", prefab, 2, 1, 7) }, root);

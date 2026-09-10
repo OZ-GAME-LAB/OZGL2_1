@@ -22,6 +22,7 @@ namespace OZGL2.Stage
         private readonly Dictionary<long, int> _experience = new Dictionary<long, int>();
         private readonly Action<HeroLease> _deathHandler;
         private readonly Action<HeroLease> _returnHandler;
+        private readonly Action<HeroLease, Exception> _faultHandler;
         private long _earned;
         private bool _isSpawningComplete;
         private bool _isRunning;
@@ -38,6 +39,7 @@ namespace OZGL2.Stage
             _spawnPosition = spawnPosition;
             _deathHandler = RecordDeath;
             _returnHandler = ReturnHero;
+            _faultHandler = RecordHeroFault;
         }
         public async Task<RoundResult> RunRoundAsync(RoundDefinition round, CancellationToken cancellationToken)
         {
@@ -109,7 +111,7 @@ namespace OZGL2.Stage
                     if (previousInterval > 0)
                         await Task.Delay(TimeSpan.FromSeconds(previousInterval), token);
                     token.ThrowIfCancellationRequested();
-                    var lease = _pool.Rent(entry.HeroId, _spawnPosition, _deathHandler, _returnHandler);
+                    var lease = _pool.Rent(entry.HeroId, _spawnPosition, _deathHandler, _returnHandler, _faultHandler);
                     _leased.Add(lease.LeaseId, lease);
                     _alive.Add(lease.LeaseId, lease);
                     _experience.Add(lease.LeaseId, _pool.GetExperience(entry.HeroId));
@@ -118,6 +120,12 @@ namespace OZGL2.Stage
                     previousInterval = entry.IntervalSeconds;
                 }
             _isSpawningComplete = true;
+        }
+        private void RecordHeroFault(HeroLease lease, Exception exception)
+        {
+            CleanupError = CleanupError == null
+                ? new AggregateException("Hero death processing failed.", exception)
+                : new AggregateException(CleanupError, exception);
         }
         private void RecordDeath(HeroLease lease)
         {

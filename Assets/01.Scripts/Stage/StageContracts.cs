@@ -3,6 +3,20 @@ using System.Threading.Tasks;
 
 namespace OZGL2.Stage
 {
+    public sealed class StageRunContext
+    {
+        public string RunId { get; }
+        public string StageId { get; }
+        public StageRunContext(string runId, string stageId) { RunId = runId; StageId = stageId; }
+    }
+    public sealed class StagePreparationRequest
+    {
+        public string RunId { get; }
+        public int RoundNumber { get; }
+        public bool CanSkip { get; }
+        public StagePreparationRequest(string runId, int roundNumber, bool canSkip)
+        { RunId = runId; RoundNumber = roundNumber; CanSkip = canSkip; }
+    }
     public interface IStageDataSource
     {
         StageDefinition CreateSnapshot();
@@ -25,13 +39,16 @@ namespace OZGL2.Stage
 
     public interface IStagePreparation
     {
-        Task PrepareAsync(bool canSkip, CancellationToken cancellationToken);
+        // 보상·증강·저장 완료 후 호출한다. 배치 조건 통과 및 전투 배치 확정 뒤 Task를 완료한다.
+        Task PrepareAsync(StagePreparationRequest request, CancellationToken cancellationToken);
+        // 해당 실행의 배치 입력과 대기를 종료한다. 같은 RunId의 재호출에도 안전해야 한다.
+        void EndRun(string runId);
     }
 
     /// <summary>런 초기화와 정산 지급·저장을 담당합니다. 씬 이동은 포함하지 않습니다.</summary>
     public interface IStageSession
     {
-        Task BeginAsync(string stageId, CancellationToken cancellationToken);
+        Task BeginAsync(StageRunContext context, CancellationToken cancellationToken);
         // RunId를 정산 중복 방지 키로 사용합니다. 지급 결과와 처리 키를 함께 저장합니다.
         Task SettleAsync(StageRunResult result, CancellationToken cancellationToken);
     }

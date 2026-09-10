@@ -211,8 +211,9 @@ namespace OZGL2.Stage.Editor
         {
             public Task ReturnAsync(StageRunResult result, CancellationToken token) => Task.CompletedTask;
             public int FinishCount { get; private set; }
-            public Task BeginAsync(string stageId, CancellationToken token) => Task.CompletedTask;
-            public Task PrepareAsync(bool canSkip, CancellationToken token) => Task.CompletedTask;
+            public void EndRun(string runId) { }
+            public Task BeginAsync(StageRunContext context, CancellationToken token) => Task.CompletedTask;
+            public Task PrepareAsync(StagePreparationRequest request, CancellationToken token) => Task.CompletedTask;
             public Task SelectGeneralRewardAsync(RewardRequest request, string rewardId, CancellationToken token) => Task.CompletedTask;
             public Task SelectAugmentAsync(RewardRequest request, AugmentTierWeights weights, CancellationToken token) => Task.CompletedTask;
             public Task SettleAsync(StageRunResult result, CancellationToken token)
@@ -223,5 +224,3 @@ namespace OZGL2.Stage.Editor
         }
     }
 }
-
-

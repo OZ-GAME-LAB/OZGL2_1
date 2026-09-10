@@ -1,6 +1,6 @@
 # StageManager 팀 공유용 구현·연결 안내
 
-작성 기준: 2026-09-09 · 담당: 김건 · Unity 6000.3.22f1
+작성 기준: 2026-09-10 · 담당: 김건 · Unity 6000.3.22f1
 
 ## 구현 범위
 
@@ -37,6 +37,20 @@ using System.Threading.Tasks;
 
 namespace OZGL2.Stage
 {
+    public sealed class StageRunContext
+    {
+        public string RunId { get; }
+        public string StageId { get; }
+        public StageRunContext(string runId, string stageId) { RunId = runId; StageId = stageId; }
+    }
+    public sealed class StagePreparationRequest
+    {
+        public string RunId { get; }
+        public int RoundNumber { get; }
+        public bool CanSkip { get; }
+        public StagePreparationRequest(string runId, int roundNumber, bool canSkip)
+        { RunId = runId; RoundNumber = roundNumber; CanSkip = canSkip; }
+    }
     public interface IStageDataSource
     {
         StageDefinition CreateSnapshot();
@@ -59,13 +73,16 @@ namespace OZGL2.Stage
 
     public interface IStagePreparation
     {
-        Task PrepareAsync(bool canSkip, CancellationToken cancellationToken);
+        // 보상·증강·저장 완료 후 호출한다. 배치 조건 통과 및 전투 배치 확정 뒤 Task를 완료한다.
+        Task PrepareAsync(StagePreparationRequest request, CancellationToken cancellationToken);
+        // 해당 실행의 배치 입력과 대기를 종료한다. 같은 RunId의 재호출에도 안전해야 한다.
+        void EndRun(string runId);
     }
 
     /// <summary>런 초기화와 정산 지급·저장을 담당합니다. 씬 이동은 포함하지 않습니다.</summary>
     public interface IStageSession
     {
-        Task BeginAsync(string stageId, CancellationToken cancellationToken);
+        Task BeginAsync(StageRunContext context, CancellationToken cancellationToken);
         // RunId를 정산 중복 방지 키로 사용합니다. 지급 결과와 처리 키를 함께 저장합니다.
         Task SettleAsync(StageRunResult result, CancellationToken cancellationToken);
     }
@@ -235,3 +252,15 @@ Notion은 읽기 전용으로 유지하며 커밋·Push·병합·팀원에게 �
 - `StageRunHost.ShutdownAsync()`는 실행 취소·종료 후 모든 소유 자원의 폐기와 취소 토큰 해제를 시도합니다. 반복 호출은 같은 Task를 반환하며, 정리 오류는 `CleanupError`, 정리 완료 여부는 `IsShutdownComplete`로 확인합니다.
 - 명시적으로 Host를 종료할 때는 `ShutdownAsync()`를 await하고 예외를 처리한 뒤 GameObject를 제거합니다. Unity는 `async OnDestroy` 완료를 기다리지 않습니다.
 - 검사 메뉴: `OZGL2/Stage/Verify Cleanup Failures (Play)`. 결과: `StageCleanupVerification.LastResult`.
+
+
+## 2026-09-10 보강 — 사망 오류·종료·Grid 연결 계약
+
+- StageRunContext는 Stage가 발급한 RunId와 StageId를 초기화 구현체에 전달합니다. StagePreparationRequest는 같은 RunId, 1부터 시작하는 RoundNumber, CanSkip을 전달합니다. 이전 bool/string 시그니처 구현체는 새 계약으로 수정해야 합니다.
+- 준비 어댑터는 PrepareAsync에서 해당 실행·라운드의 준비를 허용하고, 배치 조건을 통과해 전투 스냅샷을 확정했을 때만 Task를 완료합니다. 일반 보상·증강·저장을 모두 마친 후에만 다음 PrepareAsync가 호출됩니다. Grid 코드는 이 브랜치에 병합하지 않았습니다.
+- 일반 보상 구현체는 RewardRequest.RunId/RoundNumber/RequestId를 Grid 요청으로 전달합니다. 다음 보상이 있는 승리에 대해서만 Grid의 전투 종료/보상 등록을 호출하고, 보상 지급 자체가 준비 허용을 대신하지 않게 합니다. 최종 승리·패배는 일반 보상이 없으므로 EndRun 경로로 종료합니다.
+- IStagePreparation.EndRun(runId)는 최종 승리·패배 시 정산 전에, 취소·오류 시 중단 저장 전에 호출됩니다. 해당 RunId의 입력·대기·배치 실행을 종료해야 하며 초기화가 일부 실패해 실행이 없는 경우에도 안전해야 합니다. Stage는 실행당 한 번 호출하며 실패는 PreparationCleanupError에 보관합니다. 정상 종료 중 실패는 ERROR로 처리하고, 원래 취소/실행 오류가 있으면 이를 덮어쓰지 않습니다.
+- PooledHero는 사망 집계·연출 시작 실패 시 원래 leaseId로 반환을 시도합니다. PooledStageBattle이 등록한 오류 콜백을 통해 원인과 반환 오류가 전투 Task에 전달되어 정상 라운드 결과로 처리되지 않습니다. 이미 반환 후 재대여된 객체에 이전 lease의 정리를 적용하지 않습니다. HeroPool.Rent의 선택 인자 onFault를 생략한 직접 사용자는 회수 시도 후 AggregateException을 받습니다.
+- IStageLobby.ReturnAsync 내부에서 await host.ShutdownAsync()를 호출하면 자기 실행을 기다리므로 InvalidOperationException으로 거절합니다. 로비 이동을 마친 뒤 host.RequestShutdownAfterRun()을 호출하고 ReturnAsync를 반환합니다. Host는 현재 실행 완료 후 자원을 폐기하며 로비 콜백을 취소하지 않습니다.
+- 외부 실행 소유자는 await host.ShutdownAsync()로 실행 취소 및 자원 정리를 기다릴 수 있습니다. 정상 종료가 이미 예약된 실행을 중간에 취소하려면 CancelRun()을 호출합니다. 예약된 정리 오류는 CleanupError와 ShutdownAsync의 반환 Task로 확인합니다. GameObject 제거는 외부 소유자가 정리 완료 후 수행합니다. 종료 Task는 취소 콜백 실행 전에 게시하여 재진입 시 중복 폐기를 방지합니다.
+- 새 검증 메뉴: OZGL2/Stage/Verify Lifecycle Boundaries (Play). 기존 Cleanup Failures 검사에는 연출 실패와 반환 실패 동시 발생, 동기 반환 후 재대여된 객체에 늦은 오류가 발생하는 경우를 추가했습니다.

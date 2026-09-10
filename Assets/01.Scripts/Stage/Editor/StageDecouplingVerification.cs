@@ -158,8 +158,9 @@ namespace OZGL2.Stage.Editor
             public StageDefinition CreateSnapshot() => new StageDefinition("stage_test", new[] {
                 new RoundDefinition("round_test", new[] { new HeroSpawnDefinition("test_hero", 1, 0) }, false,
                     "reward_test", new AugmentTierWeights(1, 0, 0)) });
-            public Task BeginAsync(string id, CancellationToken token) => Task.CompletedTask;
-            public Task PrepareAsync(bool canSkip, CancellationToken token) => Task.CompletedTask;
+            public void EndRun(string runId) { }
+            public Task BeginAsync(StageRunContext context, CancellationToken token) => Task.CompletedTask;
+            public Task PrepareAsync(StagePreparationRequest request, CancellationToken token) => Task.CompletedTask;
             public Task<RoundResult> RunRoundAsync(RoundDefinition round, CancellationToken token) => Task.FromResult(new RoundResult(eBattleResult.VICTORY, 3));
             public Task SelectGeneralRewardAsync(RewardRequest request, string id, CancellationToken token) => throw new Exception("No final reward");
             public Task SelectAugmentAsync(RewardRequest request, AugmentTierWeights weights, CancellationToken token) => throw new Exception("No final augment");

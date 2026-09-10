@@ -28,9 +28,16 @@ namespace OZGL2.Stage.Prototype
         public int LastClearedRoundCount { get; private set; }
         public bool IsLastStageCleared { get; private set; }
 
-        public Task BeginAsync(string stageId, CancellationToken cancellationToken)
+        private string _activeRunId;
+        public void EndRun(string runId)
+        {
+            if (_activeRunId != runId) return;
+            _activeRunId = null; CanSkip = false; _pending?.TrySetCanceled();
+        }
+        public Task BeginAsync(StageRunContext context, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            _activeRunId = context.RunId;
             GeneralRewardCount = 0;
             AugmentCount = 0;
             SkippedPreparationCount = 0;
@@ -44,9 +51,10 @@ namespace OZGL2.Stage.Prototype
             return Task.CompletedTask;
         }
 
-        public async Task PrepareAsync(bool canSkip, CancellationToken cancellationToken)
+        public async Task PrepareAsync(StagePreparationRequest request, CancellationToken cancellationToken)
         {
-            CanSkip = canSkip;
+            if (request.RunId != _activeRunId) throw new InvalidOperationException("Preparation belongs to another run.");
+            CanSkip = request.CanSkip;
             int result = await WaitAsync(eDummyRequest.PREPARATION, cancellationToken);
             if (result == 1) SkippedPreparationCount++;
             CanSkip = false;

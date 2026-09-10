@@ -79,3 +79,11 @@ Host의 임시 씬 제거 생존 검사는 실제 게임 씬 통합 검사와 �
 - `StageRunHost.ShutdownAsync()`는 실행 취소·종료 후 모든 소유 자원의 폐기와 취소 토큰 해제를 시도합니다. 반복 호출은 같은 Task를 반환하며, 정리 오류는 `CleanupError`, 정리 완료 여부는 `IsShutdownComplete`로 확인합니다.
 - 명시적으로 Host를 종료할 때는 `ShutdownAsync()`를 await하고 예외를 처리한 뒤 GameObject를 제거합니다. Unity는 `async OnDestroy` 완료를 기다리지 않습니다.
 - 검사 메뉴: `OZGL2/Stage/Verify Cleanup Failures (Play)`. 결과: `StageCleanupVerification.LastResult`.
+
+## 연결 계약 보강 (2026-09-10)
+
+초기화는 StageRunContext, 준비는 StagePreparationRequest를 받습니다. Stage가 발급한 실행/라운드 ID를 공유하고, 보상·증강 저장 후에만 다음 준비를 요청합니다. IStagePreparation.EndRun은 최종 종료·취소·오류 시 배치 입력과 대기를 정리합니다.
+
+사망 연출 시작 오류에도 원래 대여의 반환을 시도하고 전투 Task로 오류를 전달합니다. 로비 콜백 내부에서는 ShutdownAsync를 기다릴 수 없으며 RequestShutdownAfterRun으로 정상 종료 후 정리를 예약합니다. 외부 소유자는 ShutdownAsync로 정리 완료를 기다린 뒤 Host를 제거합니다.
+
+자세한 시그니처와 호출 순서는 Docs/StageManager-TeamGuide.md를 참고합니다. Grid와 실제 팀원 SO/전투/로비 구현의 병합은 별도 작업입니다.

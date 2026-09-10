@@ -219,8 +219,9 @@ namespace OZGL2.Stage.Editor
             internal int Battles;
             internal int Rewards;
             internal StageRunResult Final;
-            public Task BeginAsync(string id, CancellationToken token) { Battles = 0; Rewards = 0; Final = null; return Task.CompletedTask; }
-            public Task PrepareAsync(bool canSkip, CancellationToken token) => Task.CompletedTask;
+            public void EndRun(string runId) { }
+            public Task BeginAsync(StageRunContext context, CancellationToken token) { Battles = 0; Rewards = 0; Final = null; return Task.CompletedTask; }
+            public Task PrepareAsync(StagePreparationRequest request, CancellationToken token) => Task.CompletedTask;
             public Task<RoundResult> RunRoundAsync(RoundDefinition round, CancellationToken token)
             { Battles++; return Task.FromResult(new RoundResult(Battles == 1 ? eBattleResult.VICTORY : eBattleResult.DEFEAT, Battles == 1 ? 12 : 7)); }
             public Task SelectGeneralRewardAsync(RewardRequest request, string id, CancellationToken token) { Rewards++; return Task.CompletedTask; }
@@ -229,4 +230,3 @@ namespace OZGL2.Stage.Editor
         }
     }
 }
-

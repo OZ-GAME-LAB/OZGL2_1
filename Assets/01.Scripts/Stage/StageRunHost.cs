@@ -11,6 +11,7 @@ namespace OZGL2.Stage
         private CancellationTokenSource _lifetime;
         private bool _isDestroyed;
         private Task _shutdown;
+        private readonly AsyncLocal<bool> _insideRun = new AsyncLocal<bool>();
         private readonly System.Collections.Generic.List<IDisposable> _resources = new System.Collections.Generic.List<IDisposable>();
         public void OwnResource(IDisposable resource)
         {
@@ -41,22 +42,49 @@ namespace OZGL2.Stage
         public void CancelRun() => _lifetime?.Cancel();
         private async Task RunAsync(IStageDataSource source, CancellationToken token)
         {
+            _insideRun.Value = true;
             try { await Manager.RunAsync(source, token); }
             catch (OperationCanceledException) when (token.IsCancellationRequested) { }
             catch (Exception exception) { Error = exception.Message; }
+            finally { _insideRun.Value = false; }
         }
         /// <summary>명시적 종료 시 await합니다. 오류가 있어도 모든 자원과 취소 토큰 정리를 마칩니다.</summary>
         public Task ShutdownAsync()
         {
+            if (_insideRun.Value)
+                throw new InvalidOperationException("Cannot await Host shutdown from its running services. Use RequestShutdownAfterRun and return.");
+            return BeginShutdown(true);
+        }
+        /// <summary>로비 콜백에서는 기다리지 않고 요청만 한다. 현재 실행이 끝난 후 자원을 정리한다.</summary>
+        public void RequestShutdownAfterRun() => BeginShutdown(false);
+        private Task BeginShutdown(bool cancelRun)
+        {
             if (_shutdown != null) return _shutdown;
             _isDestroyed = true;
-            _shutdown = ShutdownCoreAsync();
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _shutdown = completion.Task;
+            CompleteShutdownAsync(completion, cancelRun);
             return _shutdown;
         }
-        private async Task ShutdownCoreAsync()
+        private async void CompleteShutdownAsync(TaskCompletionSource<bool> completion, bool cancelRun)
+        {
+            try
+            {
+                // StartRun이 CurrentRun을 대입하기 전에 동기 서비스가 종료를 요청할 수 있다.
+                await Task.Yield();
+                _insideRun.Value = false;
+                await ShutdownCoreAsync(cancelRun); completion.TrySetResult(true);
+            }
+            catch (Exception exception)
+            {
+                completion.TrySetException(exception);
+                _ = completion.Task.Exception;
+            }
+        }
+        private async Task ShutdownCoreAsync(bool cancelRun)
         {
             System.Collections.Generic.List<Exception> errors = null;
-            try { CancelRun(); }
+            try { if (cancelRun) CancelRun(); }
             catch (Exception exception) { (errors ??= new System.Collections.Generic.List<Exception>()).Add(exception); }
             try { if (CurrentRun != null) await CurrentRun; }
             catch (Exception exception) { (errors ??= new System.Collections.Generic.List<Exception>()).Add(exception); }
@@ -78,7 +106,7 @@ namespace OZGL2.Stage
         private async void OnDestroy()
         {
             // Unity는 async OnDestroy를 기다리지 않는다. 명시적 종료는 ShutdownAsync를 먼저 await한다.
-            try { await ShutdownAsync(); }
+            try { await BeginShutdown(true); }
             catch (AggregateException) { /* CleanupError에 보관되어 있으며 명시적 호출자는 예외를 받는다. */ }
         }
     }

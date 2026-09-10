@@ -22,6 +22,8 @@ namespace OZGL2.Stage
         private StageRunProgress _runProgress;
         private StageRunResult _snapshot;
         private int _isRunning;
+        private bool _isPreparationEnded;
+        public Exception PreparationCleanupError { get; private set; }
 
         public eStageState State { get; private set; } = eStageState.IDLE;
         public int CurrentRoundNumber { get; private set; }
@@ -59,6 +61,7 @@ namespace OZGL2.Stage
                 _runProgress = null;
                 _snapshot = null;
                 PersistenceError = null;
+                PreparationCleanupError = null; _isPreparationEnded = false;
                 LastNotificationError = null;
                 LastFailedSubscriber = null;
                 NotificationErrorCount = 0;
@@ -68,8 +71,9 @@ namespace OZGL2.Stage
                     ?? throw new InvalidOperationException("Stage data source returned null.");
                 TotalRounds = stage.Rounds.Count;
                 _runProgress = new StageRunProgress(stage);
+                _snapshot = _runProgress.CreateSnapshot();
                 SetState(eStageState.INITIALIZING);
-                await _session.BeginAsync(stage.StageId, cancellationToken);
+                await _session.BeginAsync(new StageRunContext(_snapshot.RunId, stage.StageId), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 await SaveProgressAsync(cancellationToken);
 
@@ -79,7 +83,7 @@ namespace OZGL2.Stage
                     _runProgress.BeginRound(CurrentRoundNumber);
                     _snapshot = _runProgress.CreateSnapshot();
                     SetState(eStageState.PREPARATION);
-                    await _preparation.PrepareAsync(index > 0, cancellationToken);
+                    await _preparation.PrepareAsync(new StagePreparationRequest(_snapshot.RunId, CurrentRoundNumber, index > 0), cancellationToken);
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var round = stage.Rounds[index];
@@ -124,24 +128,29 @@ namespace OZGL2.Stage
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                EndPreparation();
                 await SaveInterruptionAsync(true);
                 SetState(eStageState.CANCELLED);
                 throw;
             }
             catch
             {
+                EndPreparation();
                 await SaveInterruptionAsync(false);
                 SetState(eStageState.ERROR);
                 throw;
             }
             finally
             {
+                EndPreparation();
                 Interlocked.Exchange(ref _isRunning, 0);
             }
         }
 
         private async Task FinishAsync(bool isCleared, CancellationToken cancellationToken)
         {
+            EndPreparation();
+            if (PreparationCleanupError != null) throw new AggregateException("Preparation shutdown failed.", PreparationCleanupError);
             SetState(eStageState.SETTLING);
             await _session.SettleAsync(_runProgress.CreateSnapshot(), cancellationToken);
             // 정산이 성공했다면 직후 도착한 취소도 지급 완료 사실을 지우지 않는다.
@@ -158,6 +167,13 @@ namespace OZGL2.Stage
             _snapshot = _runProgress.CreateSnapshot();
             await _progressStore.SaveAsync(_snapshot, token);
             token.ThrowIfCancellationRequested();
+        }
+        private void EndPreparation()
+        {
+            if (_isPreparationEnded || _runProgress == null) return;
+            _isPreparationEnded = true;
+            try { _preparation.EndRun(_runProgress.CreateSnapshot().RunId); }
+            catch (Exception exception) { PreparationCleanupError = exception; }
         }
 
         private async Task SaveInterruptionAsync(bool isCancelled)
