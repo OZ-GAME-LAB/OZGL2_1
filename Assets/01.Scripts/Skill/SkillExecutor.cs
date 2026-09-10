@@ -61,39 +61,42 @@ namespace OZGL2.Skill
         {
             SkillData d = req.Skill.Data;
             float power = req.Skill.EffectivePower;
+            float radius = req.Skill.EffectiveRadius;         // 특성 "광역 지배"
+            float buffDur = req.Skill.EffectiveBuffDuration;  // 특성 "군단의 함성"
+            int reviveCount = req.Skill.EffectiveReviveCount;
             Vector3 p = req.CastPoint;
 
             if (d.flourishVfx != null && d.flourishCount > 0)
             {
-                StartCoroutine(Flourish(d, p));
+                StartCoroutine(Flourish(d, radius, p));
             }
 
             switch (d.effectType)
             {
                 case SkillEffectType.AreaDamage:
-                    if (d.barrageCount > 1) StartCoroutine(Barrage(d, power, p));
-                    else if (d.fallFromSky || d.castMode == SkillCastMode.Instant && d.castDelay > 0f) StartCoroutine(SkyStrike(d, power, p));
-                    else if (d.castMode == SkillCastMode.Targeted) StartCoroutine(ProjectileThenImpact(d, power, p));
-                    else StartCoroutine(DelayedImpact(d, power, p));
+                    if (d.barrageCount > 1) StartCoroutine(Barrage(d, power, radius, p));
+                    else if (d.fallFromSky || d.castMode == SkillCastMode.Instant && d.castDelay > 0f) StartCoroutine(SkyStrike(d, power, radius, p));
+                    else if (d.castMode == SkillCastMode.Targeted) StartCoroutine(ProjectileThenImpact(d, power, radius, p));
+                    else StartCoroutine(DelayedImpact(d, power, radius, p));
                     break;
 
                 case SkillEffectType.ChainDamage: StartCoroutine(Chain(d, power, p)); break;
-                case SkillEffectType.LineDamage: StartCoroutine(LineShot(d, power, p)); break;
+                case SkillEffectType.LineDamage: StartCoroutine(LineShot(d, power, radius, p)); break;
                 case SkillEffectType.SingleDamage: StartCoroutine(SingleShot(d, power, p)); break;
-                case SkillEffectType.Knockback: KnockbackHit(d, power, p); break;
-                case SkillEffectType.Stun: StunHit(d, p); break;
-                case SkillEffectType.Vacuum: StartCoroutine(Vacuum(d, power, p)); break;
-                case SkillEffectType.MovingZone: SpawnZone(d, CasterPos, (p - CasterPos)); break;
-                case SkillEffectType.PersistentZone: SpawnZone(d, p, Vector3.zero); break;
+                case SkillEffectType.Knockback: KnockbackHit(d, power, radius, p); break;
+                case SkillEffectType.Stun: StunHit(d, radius, p); break;
+                case SkillEffectType.Vacuum: StartCoroutine(Vacuum(d, power, radius, p)); break;
+                case SkillEffectType.MovingZone: SpawnZone(d, CasterPos, (p - CasterPos), radius, d.duration); break;
+                case SkillEffectType.PersistentZone: SpawnZone(d, p, Vector3.zero, radius, d.zoneTarget == ZoneTarget.Allies ? buffDur : d.duration); break;
                 case SkillEffectType.HealAllies: HealAllies(d); break;
-                case SkillEffectType.AllyBuff: BuffAllies(d); break;
-                case SkillEffectType.Revive: Revive(d); break;
+                case SkillEffectType.AllyBuff: BuffAllies(d, buffDur); break;
+                case SkillEffectType.Revive: Revive(reviveCount); break;
             }
         }
 
         // ─────────────────────────────────────────── 딜
 
-        private IEnumerator ProjectileThenImpact(SkillData d, float power, Vector3 point)
+        private IEnumerator ProjectileThenImpact(SkillData d, float power, float radius, Vector3 point)
         {
             Vector3 from = CasterPos;
             GameObject proj = d.projectileVfx != null
@@ -101,10 +104,10 @@ namespace OZGL2.Skill
                 : Code(Disc(), new Color(1f, 0.62f, 0.16f), from, 0.4f, 22);
             yield return Move(proj.transform, from, point, _projectileTravelTime);
             KillVfx(proj);
-            Impact(d, power, point);
+            Impact(d, power, point, radius);
         }
 
-        private IEnumerator SkyStrike(SkillData d, float power, Vector3 point)
+        private IEnumerator SkyStrike(SkillData d, float power, float radius, Vector3 point)
         {
             // 하늘에서 낙하 예고 → 운석 낙하 → 폭발
             var tele = Code(Ring(), new Color(1f, 0.4f, 0.2f, 0.9f), point, 0.3f, 21);
@@ -115,7 +118,7 @@ namespace OZGL2.Skill
             {
                 t += Time.deltaTime;
                 float k = t / delay;
-                tele.transform.localScale = Vector3.one * Mathf.Lerp(0.3f, Mathf.Min(d.radius, 6f) * 2f, k);
+                tele.transform.localScale = Vector3.one * Mathf.Lerp(0.3f, Mathf.Min(radius, 6f) * 2f, k);
                 sr.color = new Color(1f, 0.4f, 0.2f, Mathf.Lerp(0.2f, 0.9f, k));
                 yield return null;
             }
@@ -127,10 +130,10 @@ namespace OZGL2.Skill
                 : Code(Disc(), new Color(1f, 0.5f, 0.15f), from, 0.6f, 22);
             yield return Move(meteor.transform, from, point, 0.18f);
             KillVfx(meteor);
-            Impact(d, power, point);
+            Impact(d, power, point, radius);
         }
 
-        private IEnumerator DelayedImpact(SkillData d, float power, Vector3 point)
+        private IEnumerator DelayedImpact(SkillData d, float power, float radius, Vector3 point)
         {
             if (d.castDelay > 0f)
             {
@@ -141,20 +144,20 @@ namespace OZGL2.Skill
                 {
                     t += Time.deltaTime;
                     float k = t / d.castDelay;
-                    tele.transform.localScale = Vector3.one * Mathf.Lerp(0.3f, d.radius * 2f, k);
+                    tele.transform.localScale = Vector3.one * Mathf.Lerp(0.3f, radius * 2f, k);
                     sr.color = new Color(1f, 0.35f, 0.2f, Mathf.Lerp(0.2f, 0.9f, k));
                     yield return null;
                 }
                 Destroy(tele);
             }
-            Impact(d, power, point);
+            Impact(d, power, point, radius);
         }
 
-        private IEnumerator Barrage(SkillData d, float power, Vector3 center)
+        private IEnumerator Barrage(SkillData d, float power, float radius, Vector3 center)
         {
             for (int i = 0; i < d.barrageCount; i++)
             {
-                Vector3 p = center + (Vector3)(Random.insideUnitCircle * d.radius);
+                Vector3 p = center + (Vector3)(Random.insideUnitCircle * radius);
                 Impact(d, power, p, 1.7f); // 개별 낙하는 작게
                 yield return new WaitForSeconds(Mathf.Max(0.05f, d.chainInterval));
             }
@@ -196,12 +199,12 @@ namespace OZGL2.Skill
             }
         }
 
-        private IEnumerator LineShot(SkillData d, float power, Vector3 point)
+        private IEnumerator LineShot(SkillData d, float power, float radius, Vector3 point)
         {
             Vector3 from = CasterPos;
             Vector3 dir = (point - from).normalized;
             Vector3 to = from + dir * d.lineLength;
-            float hitR = Mathf.Max(d.radius, 0.4f);
+            float hitR = Mathf.Max(radius, 0.4f);
 
             GameObject proj = d.castVfx != null
                 ? SpawnVfx(d.castVfx, from, Face(dir), d.vfxIsUi)
@@ -245,40 +248,40 @@ namespace OZGL2.Skill
             else StartCoroutine(ExpandFade(aim, 0.7f, new Color(1f, 0.95f, 0.7f), 0.25f, false));
         }
 
-        private void KnockbackHit(SkillData d, float power, Vector3 point)
+        private void KnockbackHit(SkillData d, float power, float radius, Vector3 point)
         {
             _enemyBuf.Clear();
-            _enemies.QueryInRadius(point, d.radius + _hitMargin, _enemyBuf);
+            _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf)
             {
                 (e as IStatusReceiver)?.ApplyKnockback(e.Position - point, d.force);
                 if (power > 0f) e.TakeDamage(power);
             }
 
-            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, d.radius); AutoDestroy(fx); }
-            else StartCoroutine(ExpandFade(point, d.radius, new Color(0.7f, 0.9f, 0.7f), 0.3f, true));
+            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
+            else StartCoroutine(ExpandFade(point, radius, new Color(0.7f, 0.9f, 0.7f), 0.3f, true));
         }
 
-        private void StunHit(SkillData d, Vector3 point)
+        private void StunHit(SkillData d, float radius, Vector3 point)
         {
             _enemyBuf.Clear();
-            _enemies.QueryInRadius(point, d.radius + _hitMargin, _enemyBuf);
+            _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf) (e as IStatusReceiver)?.ApplyStun(d.duration);
-            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, d.radius); AutoDestroy(fx); }
-            else StartCoroutine(ExpandFade(point, Mathf.Min(d.radius, 14f), new Color(0.4f, 0.8f, 1f), 0.5f, true));
+            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
+            else StartCoroutine(ExpandFade(point, Mathf.Min(radius, 14f), new Color(0.4f, 0.8f, 1f), 0.5f, true));
         }
 
-        private IEnumerator Vacuum(SkillData d, float power, Vector3 point)
+        private IEnumerator Vacuum(SkillData d, float power, float radius, Vector3 point)
         {
             var fx = d.castVfx != null ? SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi) : null;
-            ScaleAreaVfx(fx, d.radius);
+            ScaleAreaVfx(fx, radius);
             float t = 0f;
             const float pullTime = 0.7f;
             while (t < pullTime)
             {
                 t += Time.deltaTime;
                 _enemyBuf.Clear();
-                _enemies.QueryInRadius(point, d.radius * 2.5f, _enemyBuf);
+                _enemies.QueryInRadius(point, radius * 2.5f, _enemyBuf);
                 foreach (var e in _enemyBuf)
                 {
                     (e as IStatusReceiver)?.ApplyKnockback(point - e.Position, d.force * Time.deltaTime * 4f);
@@ -287,31 +290,31 @@ namespace OZGL2.Skill
             }
 
             _enemyBuf.Clear();
-            _enemies.QueryInRadius(point, d.radius + _hitMargin, _enemyBuf);
+            _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf) e.TakeDamage(power);
 
             if (fx != null) AutoDestroy(fx);
             if (d.finishVfx != null) AutoDestroy(SpawnVfx(d.finishVfx, point, Quaternion.identity, d.vfxIsUi));
-            else StartCoroutine(ExpandFade(point, d.radius * 1.4f, new Color(0.6f, 0.3f, 0.85f), 0.35f, false));
+            else StartCoroutine(ExpandFade(point, radius * 1.4f, new Color(0.6f, 0.3f, 0.85f), 0.35f, false));
         }
 
-        private IEnumerator Flourish(SkillData d, Vector3 center)
+        private IEnumerator Flourish(SkillData d, float radius, Vector3 center)
         {
             for (int i = 0; i < d.flourishCount; i++)
             {
-                Vector3 p = center + (Vector3)(Random.insideUnitCircle * Mathf.Min(d.radius, 6f));
+                Vector3 p = center + (Vector3)(Random.insideUnitCircle * Mathf.Min(radius, 6f));
                 AutoDestroy(SpawnVfx(d.flourishVfx, p, Quaternion.identity, d.vfxIsUi));
                 yield return new WaitForSeconds(Random.Range(0.04f, 0.14f));
             }
         }
 
-        private void SpawnZone(SkillData d, Vector3 origin, Vector3 moveDir)
+        private void SpawnZone(SkillData d, Vector3 origin, Vector3 moveDir, float radius, float duration)
         {
             var go = new GameObject($"Zone_{d.skillId}");
             go.transform.SetParent(transform);
             go.transform.position = origin;
             var zone = go.AddComponent<SkillZone>();
-            zone.Init(_enemies, _allies, d);
+            zone.Init(_enemies, _allies, d, radius, duration);
             if (d.effectType == SkillEffectType.MovingZone)
             {
                 zone.SetMoving(moveDir, d.zoneMoveSpeed, d.force);
@@ -319,12 +322,12 @@ namespace OZGL2.Skill
 
             GameObject visual = d.castVfx != null
                 ? SpawnVfx(d.castVfx, origin, Quaternion.identity, d.vfxIsUi)
-                : Code(Disc(), ZoneColor(d.zoneEffect), origin, d.radius * 2f, 6);
+                : Code(Disc(), ZoneColor(d.zoneEffect), origin, radius * 2f, 6);
             if (visual != null)
             {
-                if (d.castVfx != null) ScaleAreaVfx(visual, d.radius);
+                if (d.castVfx != null) ScaleAreaVfx(visual, radius);
                 visual.transform.SetParent(go.transform, true);
-                Destroy(visual, d.effectType == SkillEffectType.MovingZone ? d.duration : d.duration + 0.5f);
+                Destroy(visual, d.effectType == SkillEffectType.MovingZone ? duration : duration + 0.5f);
             }
         }
 
@@ -339,22 +342,22 @@ namespace OZGL2.Skill
             }
         }
 
-        private void BuffAllies(SkillData d)
+        private void BuffAllies(SkillData d, float duration)
         {
             if (_allies == null) return;
             string key = d.buffStat.ToString();
             foreach (var a in _allies.Allies)
             {
                 if (a.IsDead) continue;
-                a.ApplyBuff(key, d.buffMultiplier, d.duration);
+                a.ApplyBuff(key, d.buffMultiplier, duration);
                 if (d.perTargetVfx != null) AutoDestroy(SpawnVfx(d.perTargetVfx, a.Position, Quaternion.identity, d.vfxIsUi));
                 else StartCoroutine(ExpandFade(a.Position, 0.6f, new Color(1f, 0.8f, 0.3f), 0.3f, true));
             }
         }
 
-        private void Revive(SkillData d)
+        private void Revive(int count)
         {
-            int n = _allies?.ReviveDead(d.reviveCount) ?? 0;
+            int n = _allies?.ReviveDead(count) ?? 0;
             Debug.Log($"[Skill] 망자 부활 {n}명");
         }
 

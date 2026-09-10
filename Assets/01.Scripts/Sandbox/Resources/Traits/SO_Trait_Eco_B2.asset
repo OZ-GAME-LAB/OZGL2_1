@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5a32b826d4cc24cb682b778179ddd5, type: 3}
+  m_Name: SO_Trait_Eco_B2
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Progression.TraitData
+  id: 34
+  displayName: "\uC219\uB828\uC758 \uACB0\uC815"
+  description: "\uB808\uBCA8 5\uC758 \uBC30\uC218\uB9C8\uB2E4 \uC989\uC2DC XP +100
+    / \uB7AD\uD06C"
+  branch: 3
+  line: 1
+  effect: 23
+  valuePerRank: 100
+  maxRank: 3
+  rankCosts: 010000000200000003000000
+  parents: 21000000
+  connStatus: "\uC2E4\uC81C"

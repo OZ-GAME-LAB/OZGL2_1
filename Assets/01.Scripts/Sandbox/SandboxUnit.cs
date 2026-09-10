@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using OZGL2.Contracts;
 
@@ -16,6 +17,7 @@ namespace OZGL2.Sandbox
         [SerializeField] private UnitSide _side = UnitSide.Hero;
 
         private float _hp;
+        private float _incomingMult = 1f; // 특성: 용사 "취약 각인" 등 상시 배율
         private float _stunUntil;
         private float _slowUntil;
         private float _slowMul = 1f;
@@ -27,6 +29,9 @@ namespace OZGL2.Sandbox
         private SpriteRenderer _sprite;
         private Color _baseColor = Color.white;
         private Vector3 _baseScale = Vector3.one;
+
+        /// <summary>사망 순간 1회. 샌드박스가 용사 처치 XP 배선에 사용.</summary>
+        public event Action<SandboxUnit> Died;
 
         public UnitSide Side => _side;
         public float CurrentHp => _hp;
@@ -53,18 +58,28 @@ namespace OZGL2.Sandbox
             _baseScale = transform.localScale;
         }
 
+        /// <summary>특성 트리 상시 보정. Init 직후 호출. hpMult 로 최대 체력 스케일, incoming 으로 받는 피해 배율.</summary>
+        public void ApplyPermanentMods(float hpMult, float incomingDamageMult)
+        {
+            _maxHp = Mathf.Max(1f, _maxHp * Mathf.Max(0.05f, hpMult));
+            _hp = _maxHp;
+            _incomingMult = Mathf.Max(0f, incomingDamageMult);
+        }
+
         // ─────────── IDamageable
 
         public void TakeDamage(float amount)
         {
             if (IsDead) return;
             float mult = Time.time < _vulnUntil ? _vulnMul : 1f;
-            _hp = Mathf.Max(0f, _hp - amount * mult);
+            _hp = Mathf.Max(0f, _hp - amount * mult * _incomingMult);
             if (IsDead) OnDied();
         }
 
         private void OnDied()
         {
+            Died?.Invoke(this);
+
             if (_side == UnitSide.Monster)
             {
                 // 부활 대상으로 남겨둠 — 비활성화 대신 흐리게

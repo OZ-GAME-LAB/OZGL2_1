@@ -29,16 +29,16 @@ namespace OZGL2.Skill
         private readonly List<IDamageable> _enemyBuffer = new List<IDamageable>();
         private readonly List<IHealable> _allyBuffer = new List<IHealable>();
 
-        public void Init(ITargetProvider enemies, IAllyProvider allies, SkillData d)
+        public void Init(ITargetProvider enemies, IAllyProvider allies, SkillData d, float radiusOverride = -1f, float durationOverride = -1f)
         {
             _enemies = enemies;
             _allies = allies;
             _effect = d.zoneEffect;
             _target = d.zoneTarget;
-            _radius = d.radius;
+            _radius = radiusOverride > 0f ? radiusOverride : d.radius;
             _magnitude = d.zoneMagnitude;
             _tick = Mathf.Max(0.05f, d.zoneTick);
-            _endTime = Time.time + d.duration;
+            _endTime = Time.time + (durationOverride > 0f ? durationOverride : d.duration);
         }
 
         /// <summary>화염 회오리처럼 이동 + 끌어당기는 장판.</summary>

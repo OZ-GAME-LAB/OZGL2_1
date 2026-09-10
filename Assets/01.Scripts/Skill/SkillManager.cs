@@ -29,16 +29,31 @@ namespace OZGL2.Skill
     {
         private readonly List<SkillRuntime> _skills = new List<SkillRuntime>();
         private readonly ITargetProvider _targets;
+        private readonly SkillModifiers _mods;
 
         /// <summary>스킬 발동이 확정될 때마다 발생. SkillExecutor 가 구독해 효과·연출을 실행.</summary>
         public event Action<SkillCastRequest> CastRequested;
 
-        public SkillManager(ITargetProvider targets)
+        /// <summary>동시 장착 가능 스킬 수. 특성 "지령" 으로 3→5.</summary>
+        public int EquipCapacity { get; set; } = 3;
+
+        public SkillManager(ITargetProvider targets, SkillModifiers mods = null)
         {
             _targets = targets;
+            _mods = mods ?? SkillModifiers.None;
         }
 
         public IReadOnlyList<SkillRuntime> Skills => _skills;
+
+        public IEnumerable<SkillRuntime> EquippedSkills
+        {
+            get { foreach (var s in _skills) if (s.IsEquipped) yield return s; }
+        }
+
+        public int EquippedCount
+        {
+            get { int n = 0; foreach (var s in _skills) if (s.IsEquipped) n++; return n; }
+        }
 
         /// <summary>조준 프리뷰용. UI 가 별도로 ITargetProvider 를 들지 않게 한다.</summary>
         public IReadOnlyList<IDamageable> AllTargets => _targets.All;
@@ -49,12 +64,29 @@ namespace OZGL2.Skill
             _targets.QueryInRadius(center, radius, results);
         }
 
-        public SkillRuntime Unlock(SkillData data)
+        /// <summary>스킬을 매니저에 등록. startUnlocked=false 면 봉인 상태로 들어간다.</summary>
+        public SkillRuntime Register(SkillData data, bool startUnlocked = false)
         {
-            var runtime = new SkillRuntime(data);
+            var runtime = new SkillRuntime(data, _mods, startUnlocked);
             _skills.Add(runtime);
             return runtime;
         }
+
+        public void SetUnlocked(SkillRuntime skill, bool value) => skill?.SetUnlocked(value);
+
+        /// <summary>장착 시도. 미해금 · 이미 장착 · 용량 초과면 false.</summary>
+        public bool TryEquip(SkillRuntime skill)
+        {
+            if (skill == null || !skill.IsUnlocked || skill.IsEquipped || EquippedCount >= EquipCapacity)
+            {
+                return false;
+            }
+
+            skill.SetEquipped(true);
+            return true;
+        }
+
+        public void Unequip(SkillRuntime skill) => skill?.SetEquipped(false);
 
         public bool TryCastInstant(SkillRuntime skill)
         {

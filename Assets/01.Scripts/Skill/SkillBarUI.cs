@@ -7,10 +7,10 @@ using OZGL2.Contracts;
 namespace OZGL2.Skill
 {
     /// <summary>
-    /// 화면 하단 스킬 아이콘 바 + 상단 카테고리 탭 (딜/디버프/버프/궁극).
+    /// 화면 하단 스킬 아이콘 바 — 장착된 스킬만 표시 (로드아웃).
     ///  - 즉시형: 아이콘 클릭 → 즉시 발동
     ///  - 조준형: 아이콘 누른 채 필드로 드래그 → 조준 링 → 떼면 발동 / 바 위에서 떼면 취소
-    /// SkillManager public API 만 사용. 실제 씬에서 프리팹으로 재사용 가능.
+    /// SkillManager public API 만 사용. 장착이 바뀌면 Rebuild() 호출.
     /// </summary>
     public class SkillBarUI : MonoBehaviour
     {
@@ -23,12 +23,10 @@ namespace OZGL2.Skill
         private Vector3 _casterPos;
         private Font _font;
 
-        private readonly Dictionary<SkillCategory, List<Icon>> _byCategory = new Dictionary<SkillCategory, List<Icon>>();
+        private readonly List<Icon> _icons = new List<Icon>();
         private readonly List<IDamageable> _previewBuf = new List<IDamageable>();
-        private SkillCategory _activeCategory = SkillCategory.Damage;
 
         private RectTransform _barPanel;
-        private readonly List<(RectTransform rt, Image img, SkillCategory cat)> _tabs = new List<(RectTransform, Image, SkillCategory)>();
         private Icon _aiming;
 
         private Transform _reticle;
@@ -56,8 +54,7 @@ namespace OZGL2.Skill
 
             BuildCanvas();
             BuildReticle();
-            BuildIcons();
-            ShowCategory(SkillCategory.Damage);
+            Rebuild();
         }
 
         // ─────────────────────────────── UI 생성
@@ -74,7 +71,6 @@ namespace OZGL2.Skill
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
 
-            // 루트 패널: 하단 중앙, 세로 스택 [탭 줄] → [아이콘 줄]
             var panelGo = new GameObject("Panel");
             var panelRt = panelGo.AddComponent<RectTransform>();
             panelRt.SetParent(canvasGo.transform, false);
@@ -87,86 +83,35 @@ namespace OZGL2.Skill
             panelImg.color = new Color(0.05f, 0.05f, 0.08f, 0.9f);
             panelImg.raycastTarget = false;
 
-            var vl = panelGo.AddComponent<VerticalLayoutGroup>();
-            vl.spacing = 8f;
-            vl.padding = new RectOffset(16, 16, 12, 12);
-            vl.childAlignment = TextAnchor.UpperCenter;
-            vl.childControlWidth = true;
-            vl.childControlHeight = true;
-            vl.childForceExpandWidth = false;
-            vl.childForceExpandHeight = false;
+            var hl = panelGo.AddComponent<HorizontalLayoutGroup>();
+            hl.spacing = _iconSpacing;
+            hl.padding = new RectOffset(16, 16, 12, 12);
+            hl.childAlignment = TextAnchor.MiddleCenter;
+            hl.childControlWidth = false;
+            hl.childControlHeight = false;
+            hl.childForceExpandWidth = false;
+            hl.childForceExpandHeight = false;
 
             var fit = panelGo.AddComponent<ContentSizeFitter>();
             fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            // 탭 줄
-            var tabRow = MakeHRow(panelRt, "Tabs", 8f);
-            var names = new[] { "딜", "디버프", "버프", "궁극" };
-            var cats = new[] { SkillCategory.Damage, SkillCategory.Debuff, SkillCategory.Buff, SkillCategory.Ultimate };
-            for (int i = 0; i < 4; i++)
+            _barPanel = panelRt;
+        }
+
+        /// <summary>장착 스킬 목록이 바뀌면 호출 — 아이콘을 다시 만든다.</summary>
+        public void Rebuild()
+        {
+            foreach (var icon in _icons)
             {
-                _tabs.Add((MakeTab(tabRow, names[i], cats[i])));
+                if (icon.Root != null) Destroy(icon.Root.gameObject);
             }
+            _icons.Clear();
 
-            // 아이콘 줄
-            _barPanel = MakeHRow(panelRt, "Icons", _iconSpacing);
-        }
-
-        private RectTransform MakeHRow(RectTransform parent, string name, float spacing)
-        {
-            var go = new GameObject(name);
-            var rt = go.AddComponent<RectTransform>();
-            rt.SetParent(parent, false);
-            var layout = go.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = spacing;
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childControlWidth = false;
-            layout.childControlHeight = false;
-            var fit = go.AddComponent<ContentSizeFitter>();
-            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var le = go.AddComponent<LayoutElement>();
-            le.minHeight = name == "Tabs" ? 40f : _iconSize + 20f;
-            return rt;
-        }
-
-        private (RectTransform, Image, SkillCategory) MakeTab(RectTransform parent, string label, SkillCategory cat)
-        {
-            const float w = 120f;
-            var go = new GameObject($"Tab_{label}");
-            var rt = go.AddComponent<RectTransform>();
-            rt.SetParent(parent, false);
-            rt.sizeDelta = new Vector2(w, 40f);
-            var le = go.AddComponent<LayoutElement>();
-            le.preferredWidth = w;
-            le.preferredHeight = 40f;
-
-            var img = go.AddComponent<Image>();
-            img.color = new Color(0.16f, 0.16f, 0.2f, 1f);
-            img.raycastTarget = false;
-
-            var txtGo = new GameObject("t");
-            var txtRt = txtGo.AddComponent<RectTransform>();
-            txtRt.SetParent(rt, false);
-            txtRt.anchorMin = Vector2.zero; txtRt.anchorMax = Vector2.one; txtRt.sizeDelta = Vector2.zero;
-            var txt = txtGo.AddComponent<Text>();
-            txt.font = _font; txt.fontSize = 17; txt.fontStyle = FontStyle.Bold;
-            txt.alignment = TextAnchor.MiddleCenter; txt.color = Color.white; txt.text = label;
-
-            return (rt, img, cat);
-        }
-
-        private void BuildIcons()
-        {
-            foreach (var skill in _manager.Skills)
+            if (_manager == null) return;
+            foreach (var skill in _manager.EquippedSkills)
             {
-                if (!_byCategory.TryGetValue(skill.Data.category, out var list))
-                {
-                    list = new List<Icon>();
-                    _byCategory[skill.Data.category] = list;
-                }
-                list.Add(CreateIcon(skill));
+                _icons.Add(CreateIcon(skill));
             }
         }
 
@@ -239,25 +184,6 @@ namespace OZGL2.Skill
             return sr;
         }
 
-        // ─────────────────────────────── 카테고리
-
-        private void ShowCategory(SkillCategory cat)
-        {
-            _activeCategory = cat;
-            foreach (var kv in _byCategory)
-            {
-                bool on = kv.Key == cat;
-                foreach (var icon in kv.Value) icon.Root.gameObject.SetActive(on);
-            }
-
-            foreach (var tab in _tabs)
-            {
-                tab.img.color = tab.cat == cat
-                    ? new Color(0.35f, 0.35f, 0.45f, 1f)
-                    : new Color(0.2f, 0.2f, 0.25f, 0.9f);
-            }
-        }
-
         // ─────────────────────────────── 입력
 
         private void Update()
@@ -271,15 +197,6 @@ namespace OZGL2.Skill
             {
                 if (Mouse.current.leftButton.wasPressedThisFrame)
                 {
-                    foreach (var tab in _tabs)
-                    {
-                        if (RectTransformUtility.RectangleContainsScreenPoint(tab.rt, mouse, null))
-                        {
-                            ShowCategory(tab.cat);
-                            return;
-                        }
-                    }
-
                     var hit = IconUnder(mouse);
                     if (hit != null && hit.Skill.IsReady(Time.time))
                     {
@@ -293,9 +210,9 @@ namespace OZGL2.Skill
             if (ScreenToWorld(mouse, out Vector3 world))
             {
                 _reticle.position = world;
-                float dia = Mathf.Min(_aiming.Skill.Data.radius * 2f, 40f);
+                float dia = Mathf.Min(_aiming.Skill.EffectiveRadius * 2f, 40f);
                 _reticle.localScale = Vector3.one * dia;
-                Preview(world, _aiming.Skill.Data.radius);
+                Preview(world, _aiming.Skill.EffectiveRadius);
             }
 
             if (Mouse.current.leftButton.wasReleasedThisFrame)
@@ -334,10 +251,9 @@ namespace OZGL2.Skill
 
         private Icon IconUnder(Vector2 pt)
         {
-            if (!_byCategory.TryGetValue(_activeCategory, out var list)) return null;
-            foreach (var icon in list)
+            foreach (var icon in _icons)
             {
-                if (RectTransformUtility.RectangleContainsScreenPoint(icon.Root, pt, null)) return icon;
+                if (icon.Root != null && RectTransformUtility.RectangleContainsScreenPoint(icon.Root, pt, null)) return icon;
             }
             return null;
         }
@@ -345,8 +261,7 @@ namespace OZGL2.Skill
         private void UpdateCooldowns()
         {
             float now = Time.time;
-            if (!_byCategory.TryGetValue(_activeCategory, out var list)) return;
-            foreach (var icon in list)
+            foreach (var icon in _icons)
             {
                 float rem = icon.Skill.RemainingCooldown(now);
                 float total = icon.Skill.EffectiveCooldown;

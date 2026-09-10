@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5a32b826d4cc24cb682b778179ddd5, type: 3}
+  m_Name: SO_Trait_Sk_B3
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Progression.TraitData
+  id: 25
+  displayName: "\uC2DC\uAC04 \uC65C\uACE1"
+  description: "\uAD81\uADF9\uAE30(4\uD2F0\uC5B4) \uCFE8\uD0C0\uC784 \u221215% /
+    \uB7AD\uD06C"
+  branch: 2
+  line: 1
+  effect: 16
+  valuePerRank: 0.15
+  maxRank: 3
+  rankCosts: 010000000200000003000000
+  parents: 18000000
+  connStatus: "\uC2E4\uC81C"

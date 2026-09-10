@@ -2,47 +2,48 @@ using UnityEngine;
 
 namespace OZGL2.Skill
 {
-    /// <summary>스킬 1개의 런타임 상태 — 쿨다운 + 강화 레벨(스킬 트리).</summary>
+    /// <summary>
+    /// 스킬 1개의 런타임 상태 — 봉인 해제(SP) · 장착 · 쿨다운.
+    /// 강화 레벨은 없다(해금 = 완성). 수치 보정은 특성 트리가 SkillModifiers 로 건다.
+    /// </summary>
     public class SkillRuntime
     {
-        /// <summary>강화 레벨당 효과. 밸런스 시트 11.마왕·스킬 트리 기준.</summary>
-        public const float PowerPerLevel = 0.15f;   // 피해 +15% / 레벨
-        public const float CooldownPerLevel = 0.08f; // 쿨 -8% / 레벨
-        public const int MaxUpgradeLevel = 3;
-
         public SkillData Data { get; }
-        public int UpgradeLevel { get; private set; }
-        public bool IsUnlocked { get; private set; } = true; // 샌드박스 기본 해금. 실제 게임은 트리에서 해금
+        public bool IsUnlocked { get; private set; }
+        public bool IsEquipped { get; private set; }
 
+        private readonly SkillModifiers _mods;
         private float _cooldownEndTime;
 
-        public SkillRuntime(SkillData data)
+        public SkillRuntime(SkillData data, SkillModifiers mods = null, bool unlocked = false)
         {
             Data = data;
+            _mods = mods ?? SkillModifiers.None;
+            IsUnlocked = unlocked;
         }
 
-        public float EffectivePower => Data.skillPower * (1f + PowerPerLevel * UpgradeLevel);
-        public float EffectiveCooldown => Data.cooldown * (1f - CooldownPerLevel * UpgradeLevel);
+        /// <summary>봉인 해제에 드는 SP. 티어1=1 / 티어2=2 / 티어3=3 / 궁극=5.</summary>
+        public int UnlockCost => Data.category == SkillCategory.Ultimate ? 5 : Mathf.Clamp(Data.tier, 1, 4);
 
-        public bool IsReady(float now) => IsUnlocked && now >= _cooldownEndTime;
+        public float EffectivePower => Data.skillPower * _mods.PowerMult;
+        public float EffectiveCooldown => Data.cooldown * _mods.CooldownMult;
+        public float EffectiveRadius => Data.radius * _mods.RadiusMult;
+        public float EffectiveBuffDuration => Data.duration * _mods.BuffDurationMult;
+        public int EffectiveReviveCount => Mathf.Max(0, Data.reviveCount + _mods.ReviveBonus);
+
+        public bool IsReady(float now) => IsUnlocked && IsEquipped && now >= _cooldownEndTime;
         public float RemainingCooldown(float now) => Mathf.Max(0f, _cooldownEndTime - now);
         public void PutOnCooldown(float now) => _cooldownEndTime = now + EffectiveCooldown;
 
         /// <summary>디버그 — 즉시 재사용 가능 상태로.</summary>
         public void ResetCooldown() => _cooldownEndTime = 0f;
 
-        public void SetUnlocked(bool value) => IsUnlocked = value;
-
-        /// <summary>강화 레벨 +1. 성공 시 true.</summary>
-        public bool TryUpgrade()
+        public void SetUnlocked(bool value)
         {
-            if (UpgradeLevel >= MaxUpgradeLevel)
-            {
-                return false;
-            }
-
-            UpgradeLevel++;
-            return true;
+            IsUnlocked = value;
+            if (!value) IsEquipped = false;
         }
+
+        public void SetEquipped(bool value) => IsEquipped = value;
     }
 }
