@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb5dd63a42f03b64e90e298d2b4f7160, type: 3}
+  m_Name: GridPrototypeCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.Prototype.GridPrototypeCatalogSO
+  _settings: {fileID: 11400000, guid: a8c6e83b6a419554296c5e0733ede565, type: 2}
+  _footprints:
+  - {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}
+  - {fileID: 11400000, guid: 4401698e10be41444a28de5863e33c3a, type: 2}
+  - {fileID: 11400000, guid: 8174b9251ad24a14f9b99d5e4443af66, type: 2}
+  - {fileID: 11400000, guid: 4e381b20edf734045ae63ac77ea32656, type: 2}
+  - {fileID: 11400000, guid: 53bb90bd0a4cdde45b5e49922a671e75, type: 2}
+  - {fileID: 11400000, guid: 9d7cbaf571143934e8f366a43815e74f, type: 2}
+  _units:
+  - {fileID: 11400000, guid: 17705932ce81766479625d7e0bfecbcb, type: 2}
+  - {fileID: 11400000, guid: c9efbcda463df0e4d84baca5dee39443, type: 2}
+  - {fileID: 11400000, guid: 067530a7e064fed47a5d779e30874414, type: 2}
+  - {fileID: 11400000, guid: 0f9d1784bf23e0d49a00640007b08766, type: 2}
+  - {fileID: 11400000, guid: cdb74325acfe2844dbe6dfaff0e86ce1, type: 2}
+  - {fileID: 11400000, guid: 7203b0dcc3e5da143b8b0c5b7e629e4e, type: 2}
