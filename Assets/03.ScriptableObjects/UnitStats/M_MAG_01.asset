@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 340054d7b15f5294eb3991ed595a4dc6, type: 3}
+  m_Name: M_MAG_01
+  m_EditorClassIdentifier: 
+  unitId: M_MAG_01
+  displayName: "\uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
+  side: 1
+  maxHealth: 60
+  attackPower: 22
+  attackSpeed: 0.5
+  defensePercent: 0.03
+  attackRange: 4
+  moveSpeed: 0
+  healAmount: 0
+  projectilePrefab: {fileID: 7992221689482300768, guid: ec7caf7d4af6ac345844392c2acddd38, type: 3}
+  projectileSpeed: 8
+  cost: 2
+  killExpReward: 0
+  starLevel: 1
