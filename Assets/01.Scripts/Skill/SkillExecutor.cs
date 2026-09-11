@@ -28,18 +28,20 @@ namespace OZGL2.Skill
         private ITargetProvider _enemies;
         private IAllyProvider _allies;
         private Transform _caster;
+        private SkillModifiers _mods = SkillModifiers.None;
 
         private readonly List<IDamageable> _enemyBuf = new List<IDamageable>();
         private readonly List<IHealable> _allyBuf = new List<IHealable>();
         private Sprite _disc;
         private Sprite _ring;
 
-        public void Bind(SkillManager manager, ITargetProvider enemies, IAllyProvider allies, Vector3 casterPos)
+        public void Bind(SkillManager manager, ITargetProvider enemies, IAllyProvider allies, Vector3 casterPos, SkillModifiers mods = null)
         {
             if (_manager != null) _manager.CastRequested -= OnCast;
             _manager = manager;
             _enemies = enemies;
             _allies = allies;
+            _mods = mods ?? SkillModifiers.None;
             _manager.CastRequested += OnCast;
 
             var anchor = new GameObject("CasterAnchor");
@@ -55,12 +57,25 @@ namespace OZGL2.Skill
 
         private Vector3 CasterPos => _caster != null ? _caster.position : Vector3.zero;
 
+        /// <summary>
+        /// 증강 "연쇄 폭발" 전용 — 스킬이 아닌 외부 트리거(용사 사망 등)로 즉시 폭발 피해를 준다.
+        /// 코드 연출 폴백만 사용(전용 VFX 없음).
+        /// </summary>
+        public void Detonate(Vector3 point, float power, float radius)
+        {
+            if (_enemies == null || power <= 0f) return;
+            _enemyBuf.Clear();
+            _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
+            foreach (var e in _enemyBuf) e.TakeDamage(power);
+            StartCoroutine(ExpandFade(point, radius, new Color(1f, 0.35f, 0.1f), 0.3f, false));
+        }
+
         // ─────────────────────────────────────────── 라우팅
 
         private void OnCast(SkillCastRequest req)
         {
             SkillData d = req.Skill.Data;
-            float power = req.Skill.EffectivePower;
+            float power = req.Power;                          // SkillManager 가 치명타까지 반영해서 넘김
             float radius = req.Skill.EffectiveRadius;         // 특성 "광역 지배"
             float buffDur = req.Skill.EffectiveBuffDuration;  // 특성 "군단의 함성"
             int reviveCount = req.Skill.EffectiveReviveCount;
@@ -168,7 +183,11 @@ namespace OZGL2.Skill
             float r = radiusOverride > 0f ? radiusOverride : d.radius;
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, Mathf.Max(r, 0.5f) + _hitMargin, _enemyBuf);
-            foreach (var e in _enemyBuf) e.TakeDamage(power);
+            foreach (var e in _enemyBuf)
+            {
+                e.TakeDamage(power);
+                if (_mods.OnHitSlowAmount > 0f) (e as IStatusReceiver)?.ApplySlow(_mods.OnHitSlowAmount, 2f);
+            }
 
             if (d.castVfx != null)
             {

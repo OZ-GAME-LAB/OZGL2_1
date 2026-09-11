@@ -10,11 +10,17 @@ namespace OZGL2.Skill
     {
         public readonly SkillRuntime Skill;
         public readonly Vector3 CastPoint;
+        /// <summary>이번 시전에 실제로 적용할 피해량 — 치명타 증강이 여기서 이미 반영돼 있다.</summary>
+        public readonly float Power;
+        /// <summary>증강 "메아리 주문"으로 유발된 무료 재시전이면 true (쿨탐·에코 재롤 없음).</summary>
+        public readonly bool IsEcho;
 
-        public SkillCastRequest(SkillRuntime skill, Vector3 castPoint)
+        public SkillCastRequest(SkillRuntime skill, Vector3 castPoint, float power, bool isEcho)
         {
             Skill = skill;
             CastPoint = castPoint;
+            Power = power;
+            IsEcho = isEcho;
         }
     }
 
@@ -88,6 +94,13 @@ namespace OZGL2.Skill
 
         public void Unequip(SkillRuntime skill) => skill?.SetEquipped(false);
 
+        /// <summary>증강 "처형자의 축복" 등 — 보유한 모든 스킬 쿨탐을 초 단위로 앞당긴다.</summary>
+        public void ReduceCooldowns(float seconds)
+        {
+            if (seconds <= 0f) return;
+            foreach (var s in _skills) s.ReduceCooldown(seconds);
+        }
+
         public bool TryCastInstant(SkillRuntime skill)
         {
             float now = Time.time;
@@ -114,9 +127,24 @@ namespace OZGL2.Skill
             return true;
         }
 
-        private void Raise(SkillRuntime skill, Vector3 point)
+        /// <summary>치명타 배율 — 증강 "치명의 감각" 계열이 이 배율로 발동.</summary>
+        private const float CritMultiplier = 1.5f;
+
+        private void Raise(SkillRuntime skill, Vector3 point, bool isEcho = false)
         {
-            CastRequested?.Invoke(new SkillCastRequest(skill, point));
+            float power = skill.EffectivePower;
+            if (!isEcho && _mods.CritChance > 0f && UnityEngine.Random.value < _mods.CritChance)
+            {
+                power *= CritMultiplier;
+            }
+
+            CastRequested?.Invoke(new SkillCastRequest(skill, point, power, isEcho));
+
+            // 증강 "메아리 주문" — 쿨탐 없이 무료로 한 번 더. 에코 자체는 다시 에코를 굴리지 않는다(연쇄 방지).
+            if (!isEcho && _mods.EchoChance > 0f && UnityEngine.Random.value < _mods.EchoChance)
+            {
+                Raise(skill, point, isEcho: true);
+            }
         }
 
         // 즉시형 기준점: 가장 가까운 적. 맵 전체(운석·시간정지)는 radius 를 크게 잡으면 전부 걸린다.

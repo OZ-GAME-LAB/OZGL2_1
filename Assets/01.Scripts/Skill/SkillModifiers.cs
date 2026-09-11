@@ -13,6 +13,11 @@ namespace OZGL2.Skill
         public float BuffDurationMult = 1f;  // 군단의 함성
         public int ReviveBonus = 0;          // 강령술 심화
 
+        // 증강 전용 — 특성은 안 건드림 (치명타·에코는 특성 트리엔 없는 증강만의 재미)
+        public float CritChance = 0f;        // 치명의 감각류 — 시전 시 이 확률로 피해 ×CritMultiplier
+        public float EchoChance = 0f;        // 메아리 주문류 — 시전 시 이 확률로 쿨탐 없이 즉시 재시전
+        public float OnHitSlowAmount = 0f;   // 언 화살촉류 — AreaDamage 피격 대상 이동속도 배율 (0=없음)
+
         public static readonly SkillModifiers None = new SkillModifiers();
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OZGL2.Skill;
 using OZGL2.Progression;
+using OZGL2.Augment;
 
 namespace OZGL2.Sandbox
 {
@@ -37,8 +38,12 @@ namespace OZGL2.Sandbox
         private SkillModifiers _skillMods;
         private MawangLevel _mawang;
         private TraitTree _traits;
-        private TraitModifiers _mods;
+        private TraitModifiers _traitMods;
+        private AugmentRun _augments;
+        private AugmentModifiers _augMods;
+        private List<AugmentData> _pendingAugments;
         private SkillBarUI _bar;
+        private SkillExecutor _executor;
         private readonly List<SandboxUnit> _heroes = new List<SandboxUnit>();
         private readonly List<SandboxUnit> _monsters = new List<SandboxUnit>();
         private readonly List<SkillRuntime> _runtimes = new List<SkillRuntime>();
@@ -59,6 +64,11 @@ namespace OZGL2.Sandbox
 
             _traits = new TraitTree(Resources.LoadAll<TraitData>("Traits"));
             _traits.Changed += RefreshMods;
+
+            _augments = new AugmentRun(Resources.LoadAll<AugmentData>("Augments"));
+            _augments.Changed += RefreshMods;
+            _augments.Picked += OnAugmentPicked;
+
             RefreshMods();
 
             RegisterSkills();
@@ -74,22 +84,62 @@ namespace OZGL2.Sandbox
 
             var exec = new GameObject("SkillExecutor");
             exec.transform.SetParent(transform);
-            exec.AddComponent<SkillExecutor>().Bind(_skillManager, _providers, _providers, _casterPosition);
+            _executor = exec.AddComponent<SkillExecutor>();
+            _executor.Bind(_skillManager, _providers, _providers, _casterPosition, _skillMods);
         }
 
-        /// <summary>특성 랭크가 바뀔 때마다 — 모든 소비처에 배율 재적용.</summary>
+        /// <summary>1+percent 배율 두 개를 합친다 (둘 다 base=1인 배율값 기준).</summary>
+        private static float Combine(float a, float b) => a + b - 1f;
+        private static float CombineFloor(float a, float b, float floor) => Mathf.Max(floor, a + b - 1f);
+
+        /// <summary>특성 랭크 또는 증강 픽이 바뀔 때마다 — 모든 소비처에 배율 재적용.</summary>
         private void RefreshMods()
         {
-            _mods = _traits.BuildModifiers();
-            _traits.ApplyToSkills(_skillMods);
+            _traitMods = _traits.BuildModifiers();
+            _augMods = _augments.BuildModifiers();
 
-            _skillManager.EquipCapacity = 3 + _mods.ExtraSkillSlots;
+            _skillMods.PowerMult = Combine(_traitMods.SkillPowerMult, _augMods.SkillPowerMult);
+            _skillMods.CooldownMult = CombineFloor(_traitMods.SkillCooldownMult, _augMods.SkillCooldownMult, 0.3f);
+            _skillMods.RadiusMult = Combine(_traitMods.SkillRadiusMult, _augMods.SkillRadiusMult);
+            _skillMods.BuffDurationMult = Combine(_traitMods.SkillBuffDurationMult, _augMods.SkillBuffDurationMult);
+            _skillMods.ReviveBonus = 0;
+            _skillMods.CritChance = _augMods.CritChance;   // 특성엔 없음 — 증강 전용 재미
+            _skillMods.EchoChance = _augMods.EchoChance;
+            _skillMods.OnHitSlowAmount = _augMods.OnHitSlowAmount;
 
-            _mawang.XpGainMult = _mods.XpGainMult;
-            _mawang.XpNeedMult = _mods.XpNeedMult;
-            _mawang.MilestoneBonusLp = _mods.MilestoneBonusLp;
-            _mawang.SurgeXpOnMilestone = _mods.SurgeXpPer5Level;
+            _skillManager.EquipCapacity = 3 + _traitMods.ExtraSkillSlots; // 슬롯은 특성 전용
+
+            _mawang.XpGainMult = Combine(_traitMods.XpGainMult, _augMods.XpGainMult);
+            _mawang.XpNeedMult = _traitMods.XpNeedMult;
+            _mawang.MilestoneBonusLp = _traitMods.MilestoneBonusLp;
+            _mawang.SurgeXpOnMilestone = _traitMods.SurgeXpPer5Level;
             // 몬스터/용사 체력·취약 배율은 다음 리스폰 때 적용 (SpawnUnit)
+        }
+
+        private void OnAugmentPicked(AugmentData d)
+        {
+            switch (d.effect)
+            {
+                case AugmentEffect.InstantSp:
+                    SkillTreeStore.SkillPoints += Mathf.RoundToInt(d.value);
+                    Debug.Log($"[증강] {d.displayName} → SP +{d.value:0}");
+                    break;
+                case AugmentEffect.InstantXp:
+                    _mawang.AddXp(Mathf.RoundToInt(d.value));
+                    Debug.Log($"[증강] {d.displayName} → XP +{d.value:0}");
+                    break;
+                case AugmentEffect.InstantResetCooldowns:
+                    foreach (var s in _skillManager.Skills) s.ResetCooldown();
+                    Debug.Log($"[증강] {d.displayName} → 모든 스킬 쿨타임 초기화");
+                    break;
+                case AugmentEffect.InstantHealMonsters:
+                    foreach (var u in _monsters)
+                    {
+                        if (u != null && !u.IsDead) u.HealFraction(d.value);
+                    }
+                    Debug.Log($"[증강] {d.displayName} → 몬스터 전체 {d.value:P0} 회복");
+                    break;
+            }
         }
 
         // ─────────────────────────────────────────── 스킬 등록 / 트리
@@ -223,10 +273,27 @@ namespace OZGL2.Sandbox
 
         private void OnUnitDied(SandboxUnit u)
         {
-            if (u != null && u.Side == UnitSide.Hero && _mawang != null)
+            if (u == null) return;
+
+            if (u.Side == UnitSide.Monster)
             {
-                _mawang.AddXp(_heroKillXp + _mods.KillXpBonus);
+                // 증강 "불사의 진영" — 몬스터 사망 시 확률로 즉시 부활
+                if (_augMods.MonsterReviveChance > 0f && Random.value < _augMods.MonsterReviveChance)
+                {
+                    _providers.ReviveDead(1);
+                }
+                return;
             }
+
+            // 증강 "백성의 성원" — 생존 몬스터 수만큼 처치 XP 보너스
+            int aliveBonus = Mathf.RoundToInt(_augMods.XpPerAliveMonster * AliveMonsters());
+            if (_mawang != null) _mawang.AddXp(_heroKillXp + _traitMods.KillXpBonus + aliveBonus);
+
+            // 증강 "처형자의 축복" — 처치 시 전체 스킬 쿨탐 감소
+            if (_augMods.CooldownOnKillSeconds > 0f) _skillManager.ReduceCooldowns(_augMods.CooldownOnKillSeconds);
+
+            // 증강 "연쇄 폭발" — 죽은 자리에서 주변 용사에게 폭발 피해
+            if (_augMods.ExplodeOnDeathPower > 0f && _executor != null) _executor.Detonate(u.Position, _augMods.ExplodeOnDeathPower, 1.5f);
         }
 
         private SandboxUnit SpawnUnit(string name, Vector3 pos, float hp, Color color, UnitSide side)
@@ -242,9 +309,12 @@ namespace OZGL2.Sandbox
             u.Init(hp, color, side);
 
             if (side == UnitSide.Monster)
-                u.ApplyPermanentMods(_mods.MonsterHpMult, 1f);
+            {
+                u.ApplyPermanentMods(Combine(_traitMods.MonsterHpMult, _augMods.MonsterHpMult), 1f);
+                if (_augMods.MonsterShieldActive) u.GrantShield(); // 증강 "수호의 방패"
+            }
             else
-                u.ApplyPermanentMods(_mods.HeroHpMult, _mods.HeroIncomingSkillMult);
+                u.ApplyPermanentMods(_traitMods.HeroHpMult, Combine(_traitMods.HeroIncomingSkillMult, _augMods.HeroIncomingSkillMult));
 
             return u;
         }
@@ -331,18 +401,66 @@ namespace OZGL2.Sandbox
             if (GUILayout.Button("다음 마일스톤 (+10R 클리어)"))
             {
                 _round += 10;
-                int g = SkillTreeStore.GrantForRound(_round, _mods.MilestoneSpBonus);
+                int g = SkillTreeStore.GrantForRound(_round, _traitMods.MilestoneSpBonus);
                 Debug.Log($"[SP] R{_round} 마일스톤 → +{g} SP (총 {SkillTreeStore.SkillPoints})");
+                _pendingAugments = _augments.Draw3(_round / 10);
             }
+            GUILayout.Label($"증강 보유: {_augments.PickedCount}/{_augments.TotalCount} (전부 유니크)");
+            DrawAugmentHud();
             _showSkillTree = GUILayout.Toggle(_showSkillTree, " 스킬 트리 열기");
             _showTraitTree = GUILayout.Toggle(_showTraitTree, " 특성 트리 열기");
             if (GUILayout.Button("스킬 트리 저장 초기화")) WipeSkillTree();
             if (GUILayout.Button("특성 트리 저장 초기화")) { _traits.ResetAll(); SpawnAll(); }
+            if (GUILayout.Button("증강 초기화 (새 런)")) { _augments.ResetRun(); SpawnAll(); }
             GUILayout.EndScrollView();
             GUILayout.EndArea();
 
             if (_showSkillTree) DrawSkillTree();
             if (_showTraitTree) DrawTraitTree();
+            if (_pendingAugments != null && _pendingAugments.Count > 0) DrawAugmentPicker();
+        }
+
+        /// <summary>
+        /// 이번 런에 고른 증강 목록 — 희수가 실제 인게임 HUD(아이콘 줄) 만들 때 참고할 자리.
+        /// AugmentRun.PickedList 그대로 노출, 여기선 텍스트로만.
+        /// </summary>
+        private void DrawAugmentHud()
+        {
+            if (_augments.PickedList.Count == 0)
+            {
+                GUILayout.Label("<color=#888>(고른 증강 없음)</color>");
+                return;
+            }
+
+            foreach (var a in _augments.PickedList)
+            {
+                string tag = a.isInstant ? "[즉시] " : "";
+                GUILayout.Label($"<color=#bbb>· {tag}{a.displayName}</color>");
+            }
+        }
+
+        private void DrawAugmentPicker()
+        {
+            const float w = 620f, h = 190f;
+            var rect = new Rect((Screen.width - w) * 0.5f, Screen.height - h - 20f, w, h);
+            GUILayout.BeginArea(rect, GUI.skin.box);
+            GUILayout.Label("<b>증강 선택 — 3장 중 1장</b>");
+            GUILayout.BeginHorizontal();
+            foreach (var a in _pendingAugments)
+            {
+                GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(190f));
+                GUILayout.Label($"<b>[{AugmentData.TierName(a.tier)}] {a.displayName}</b>");
+                GUILayout.Label(a.description);
+                GUILayout.Label($"<color=#888>{a.connStatus}</color>");
+                if (GUILayout.Button("선택"))
+                {
+                    _augments.Pick(a);
+                    _pendingAugments = null;
+                }
+                GUILayout.EndVertical();
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
         }
 
         private void DrawTraitTree()

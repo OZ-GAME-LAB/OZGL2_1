@@ -38,6 +38,9 @@ namespace OZGL2.Skill
         /// <summary>디버그 — 즉시 재사용 가능 상태로.</summary>
         public void ResetCooldown() => _cooldownEndTime = 0f;
 
+        /// <summary>증강 "처형자의 축복" — 쿨탐 종료 시각을 앞당긴다 (초과 감소해도 음수로 안 감).</summary>
+        public void ReduceCooldown(float seconds) => _cooldownEndTime = Mathf.Max(Time.time, _cooldownEndTime - Mathf.Max(0f, seconds));
+
         public void SetUnlocked(bool value)
         {
             IsUnlocked = value;

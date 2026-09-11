@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
+  m_Name: SO_Augment_mon_atk
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
+  augmentId: mon_atk
+  displayName: "\uC608\uB9AC\uD55C \uCE7C\uB0A0"
+  description: "\uBAAC\uC2A4\uD130 \uACF5\uACA9\uB825 +9%"
+  tier: 2
+  weight: 8
+  effect: 7
+  value: 0.09
+  maxStack: 1
+  isInstant: 0
+  connStatus: "\uC2A4\uD141"

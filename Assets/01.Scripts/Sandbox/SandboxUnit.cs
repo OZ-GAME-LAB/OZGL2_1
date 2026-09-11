@@ -18,6 +18,7 @@ namespace OZGL2.Sandbox
 
         private float _hp;
         private float _incomingMult = 1f; // 특성: 용사 "취약 각인" 등 상시 배율
+        private bool _hasShield;          // 증강 "수호의 방패" — 첫 피격 1회 무효
         private float _stunUntil;
         private float _slowUntil;
         private float _slowMul = 1f;
@@ -71,10 +72,15 @@ namespace OZGL2.Sandbox
         public void TakeDamage(float amount)
         {
             if (IsDead) return;
+            if (_hasShield) { _hasShield = false; return; } // 보호막이 이번 피격을 완전히 무효화
+
             float mult = Time.time < _vulnUntil ? _vulnMul : 1f;
             _hp = Mathf.Max(0f, _hp - amount * mult * _incomingMult);
             if (IsDead) OnDied();
         }
+
+        /// <summary>증강 "수호의 방패" — 다음 피격 1회를 완전히 무효화.</summary>
+        public void GrantShield() => _hasShield = true;
 
         private void OnDied()
         {
