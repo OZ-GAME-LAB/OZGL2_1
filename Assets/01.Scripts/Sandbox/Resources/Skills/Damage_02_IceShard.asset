@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637c1ad2f3ace2c4cb69b6d21e5bdbda, type: 3}
+  m_Name: Damage_02_IceShard
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Skill.SkillData
+  skillId: "\uC5BC\uC74C \uAC00\uC2DC"
+  displayName: "\uC5BC\uC74C \uAC00\uC2DC"
+  category: 0
+  tier: 1
+  castMode: 1
+  cooldown: 10
+  effectType: 0
+  skillPower: 90
+  radius: 1.3
+  duration: 2
+  castDelay: 0
+  chainInterval: 0.08
+  chainCount: 3
+  barrageCount: 1
+  force: 6
+  lineLength: 6
+  zoneMoveSpeed: 4
+  zoneEffect: 1
+  zoneTarget: 0
+  zoneTick: 0.25
+  zoneMagnitude: 0.5
+  buffStat: 0
+  buffMultiplier: 1.3
+  reviveCount: 3
+  projectileVfx: {fileID: 6439545936038159286, guid: 9159edd52a26f5a4ba2d1654aa1b8250, type: 3}
+  castVfx: {fileID: 1040268129175524658, guid: 93a7ba6d9674b424ba2db0fa8d8bb1e4, type: 3}
+  perTargetVfx: {fileID: 0}
+  finishVfx: {fileID: 0}
+  scaleCastVfxToRadius: 0
+  vfxIsUi: 1
+  fallFromSky: 0
+  flourishVfx: {fileID: 0}
+  flourishCount: 0

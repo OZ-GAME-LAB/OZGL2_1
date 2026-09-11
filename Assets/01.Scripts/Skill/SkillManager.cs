@@ -1,0 +1,157 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using OZGL2.Contracts;
+
+namespace OZGL2.Skill
+{
+    /// <summary>스킬 발동 요청. SkillExecutor 가 이걸 받아 시간 있는 효과를 실행한다.</summary>
+    public readonly struct SkillCastRequest
+    {
+        public readonly SkillRuntime Skill;
+        public readonly Vector3 CastPoint;
+        /// <summary>이번 시전에 실제로 적용할 피해량 — 치명타 증강이 여기서 이미 반영돼 있다.</summary>
+        public readonly float Power;
+        /// <summary>증강 "메아리 주문"으로 유발된 무료 재시전이면 true (쿨탐·에코 재롤 없음).</summary>
+        public readonly bool IsEcho;
+
+        public SkillCastRequest(SkillRuntime skill, Vector3 castPoint, float power, bool isEcho)
+        {
+            Skill = skill;
+            CastPoint = castPoint;
+            Power = power;
+            IsEcho = isEcho;
+        }
+    }
+
+    /// <summary>
+    /// 마왕의 스킬 보유·쿨다운·발동 판정. 순수 C# (MonoBehaviour 아님).
+    /// 데미지·연출은 여기서 안 한다 — CastRequested 이벤트만 쏘고, SkillExecutor(MonoBehaviour)가
+    /// 투사체 이동·시전 지연·연쇄 딜레이 같은 타이밍을 처리한다.
+    ///
+    /// 입력은 이 클래스가 받지 않는다. 호출자(스킬 바 UI)가 TryCastInstant / TryCastTargeted 를 호출.
+    /// </summary>
+    public class SkillManager
+    {
+        private readonly List<SkillRuntime> _skills = new List<SkillRuntime>();
+        private readonly ITargetProvider _targets;
+        private readonly SkillModifiers _mods;
+
+        /// <summary>스킬 발동이 확정될 때마다 발생. SkillExecutor 가 구독해 효과·연출을 실행.</summary>
+        public event Action<SkillCastRequest> CastRequested;
+
+        /// <summary>동시 장착 가능 스킬 수. 특성 "지령" 으로 3→5.</summary>
+        public int EquipCapacity { get; set; } = 3;
+
+        public SkillManager(ITargetProvider targets, SkillModifiers mods = null)
+        {
+            _targets = targets;
+            _mods = mods ?? SkillModifiers.None;
+        }
+
+        public IReadOnlyList<SkillRuntime> Skills => _skills;
+
+        public IEnumerable<SkillRuntime> EquippedSkills
+        {
+            get { foreach (var s in _skills) if (s.IsEquipped) yield return s; }
+        }
+
+        public int EquippedCount
+        {
+            get { int n = 0; foreach (var s in _skills) if (s.IsEquipped) n++; return n; }
+        }
+
+        /// <summary>조준 프리뷰용. UI 가 별도로 ITargetProvider 를 들지 않게 한다.</summary>
+        public IReadOnlyList<IDamageable> AllTargets => _targets.All;
+
+        public void QueryTargetsInRadius(Vector3 center, float radius, List<IDamageable> results)
+        {
+            results.Clear();
+            _targets.QueryInRadius(center, radius, results);
+        }
+
+        /// <summary>스킬을 매니저에 등록. startUnlocked=false 면 봉인 상태로 들어간다.</summary>
+        public SkillRuntime Register(SkillData data, bool startUnlocked = false)
+        {
+            var runtime = new SkillRuntime(data, _mods, startUnlocked);
+            _skills.Add(runtime);
+            return runtime;
+        }
+
+        public void SetUnlocked(SkillRuntime skill, bool value) => skill?.SetUnlocked(value);
+
+        /// <summary>장착 시도. 미해금 · 이미 장착 · 용량 초과면 false.</summary>
+        public bool TryEquip(SkillRuntime skill)
+        {
+            if (skill == null || !skill.IsUnlocked || skill.IsEquipped || EquippedCount >= EquipCapacity)
+            {
+                return false;
+            }
+
+            skill.SetEquipped(true);
+            return true;
+        }
+
+        public void Unequip(SkillRuntime skill) => skill?.SetEquipped(false);
+
+        /// <summary>증강 "처형자의 축복" 등 — 보유한 모든 스킬 쿨탐을 초 단위로 앞당긴다.</summary>
+        public void ReduceCooldowns(float seconds)
+        {
+            if (seconds <= 0f) return;
+            foreach (var s in _skills) s.ReduceCooldown(seconds);
+        }
+
+        public bool TryCastInstant(SkillRuntime skill)
+        {
+            float now = Time.time;
+            if (skill == null || skill.Data.castMode != SkillCastMode.Instant || !skill.IsReady(now))
+            {
+                return false;
+            }
+
+            Raise(skill, ResolveInstantPoint());
+            skill.PutOnCooldown(now);
+            return true;
+        }
+
+        public bool TryCastTargeted(SkillRuntime skill, Vector3 worldPoint)
+        {
+            float now = Time.time;
+            if (skill == null || skill.Data.castMode != SkillCastMode.Targeted || !skill.IsReady(now))
+            {
+                return false;
+            }
+
+            Raise(skill, worldPoint);
+            skill.PutOnCooldown(now);
+            return true;
+        }
+
+        /// <summary>치명타 배율 — 증강 "치명의 감각" 계열이 이 배율로 발동.</summary>
+        private const float CritMultiplier = 1.5f;
+
+        private void Raise(SkillRuntime skill, Vector3 point, bool isEcho = false)
+        {
+            float power = skill.EffectivePower;
+            if (!isEcho && _mods.CritChance > 0f && UnityEngine.Random.value < _mods.CritChance)
+            {
+                power *= CritMultiplier;
+            }
+
+            CastRequested?.Invoke(new SkillCastRequest(skill, point, power, isEcho));
+
+            // 증강 "메아리 주문" — 쿨탐 없이 무료로 한 번 더. 에코 자체는 다시 에코를 굴리지 않는다(연쇄 방지).
+            if (!isEcho && _mods.EchoChance > 0f && UnityEngine.Random.value < _mods.EchoChance)
+            {
+                Raise(skill, point, isEcho: true);
+            }
+        }
+
+        // 즉시형 기준점: 가장 가까운 적. 맵 전체(운석·시간정지)는 radius 를 크게 잡으면 전부 걸린다.
+        private Vector3 ResolveInstantPoint()
+        {
+            var nearest = _targets.Nearest(Vector3.zero);
+            return nearest != null ? nearest.Position : Vector3.zero;
+        }
+    }
+}

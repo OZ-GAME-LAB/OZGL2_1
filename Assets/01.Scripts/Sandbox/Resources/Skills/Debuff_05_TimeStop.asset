@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637c1ad2f3ace2c4cb69b6d21e5bdbda, type: 3}
+  m_Name: Debuff_05_TimeStop
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Skill.SkillData
+  skillId: "\uC2DC\uAC04 \uC815\uC9C0"
+  displayName: "\uC2DC\uAC04 \uC815\uC9C0"
+  category: 1
+  tier: 3
+  castMode: 0
+  cooldown: 40
+  effectType: 5
+  skillPower: 100
+  radius: 99
+  duration: 1.5
+  castDelay: 0
+  chainInterval: 0.08
+  chainCount: 3
+  barrageCount: 1
+  force: 6
+  lineLength: 6
+  zoneMoveSpeed: 4
+  zoneEffect: 1
+  zoneTarget: 0
+  zoneTick: 0.25
+  zoneMagnitude: 0.5
+  buffStat: 0
+  buffMultiplier: 1.3
+  reviveCount: 3
+  projectileVfx: {fileID: 0}
+  castVfx: {fileID: 7634562574079096451, guid: 88edfecdc8db16842b747b87a473f47b, type: 3}
+  perTargetVfx: {fileID: 0}
+  finishVfx: {fileID: 0}
+  scaleCastVfxToRadius: 0
+  vfxIsUi: 1
+  fallFromSky: 0
+  flourishVfx: {fileID: 0}
+  flourishCount: 0

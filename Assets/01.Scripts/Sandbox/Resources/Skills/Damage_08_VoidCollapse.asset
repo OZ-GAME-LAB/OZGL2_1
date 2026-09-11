@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637c1ad2f3ace2c4cb69b6d21e5bdbda, type: 3}
+  m_Name: Damage_08_VoidCollapse
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Skill.SkillData
+  skillId: "\uACF5\uD5C8 \uBD95\uAD34"
+  displayName: "\uACF5\uD5C8 \uBD95\uAD34"
+  category: 0
+  tier: 3
+  castMode: 1
+  cooldown: 28
+  effectType: 6
+  skillPower: 150
+  radius: 2.5
+  duration: 2
+  castDelay: 0
+  chainInterval: 0.08
+  chainCount: 3
+  barrageCount: 1
+  force: 7
+  lineLength: 6
+  zoneMoveSpeed: 4
+  zoneEffect: 1
+  zoneTarget: 0
+  zoneTick: 0.25
+  zoneMagnitude: 0.5
+  buffStat: 0
+  buffMultiplier: 1.3
+  reviveCount: 3
+  projectileVfx: {fileID: 0}
+  castVfx: {fileID: 8567364903151913035, guid: 7ec41a00cb4aaf140b8ed8c9dd9c33e3, type: 3}
+  perTargetVfx: {fileID: 0}
+  finishVfx: {fileID: 3137821701482255844, guid: 30ff0b7054183d049974c8c5bbcc73fa, type: 3}
+  scaleCastVfxToRadius: 0
+  vfxIsUi: 1
+  fallFromSky: 0
+  flourishVfx: {fileID: 0}
+  flourishCount: 0
