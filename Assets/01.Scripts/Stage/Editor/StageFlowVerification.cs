@@ -17,7 +17,7 @@ namespace OZGL2.Stage.Editor
             try
             {
                 var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-                Require(UnityEngine.Application.isPlaying && scene.name == "JOB_KIMGUN", "Play in JOB_KIMGUN first");
+                Require(UnityEngine.Application.isPlaying && scene.name == "JOB_KIMGUN_STAGE", "Play in JOB_KIMGUN_STAGE first");
                 StagePrototypeRunner runner = null;
                 foreach (var root in scene.GetRootGameObjects())
                 {
@@ -41,7 +41,7 @@ namespace OZGL2.Stage.Editor
                 runner.CancelStage();
                 await runner.CurrentRun;
                 Require(runner.Manager.State == eStageState.CANCELLED && runner.Error == null, "Scene cancellation");
-                LastResult = "PASS: JOB_KIMGUN Play mode, both assigned SOs, 30R/50R full runs, duplicate start, defeat and cancellation.";
+                LastResult = "PASS: JOB_KIMGUN_STAGE Play mode, both assigned SOs, 30R/50R full runs, duplicate start, defeat and cancellation.";
             }
             catch (Exception exception) { LastResult = "FAIL: " + exception; }
         }

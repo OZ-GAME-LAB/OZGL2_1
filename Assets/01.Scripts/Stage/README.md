@@ -43,11 +43,11 @@ SO 원본과 런타임 기록은 분리됩니다.
 - Edit: OZGL2/Stage/Verify Dummy Flow
 - Edit: OZGL2/Stage/Verify Progress And Persistence
 - Play: OZGL2/Stage/Verify Pool And Scene Lifetime (Play)
-- Play JOB_KIMGUN: StageFlowVerification.StartSceneChecks()
+- Play JOB_KIMGUN_STAGE: StageFlowVerification.StartSceneChecks()
 - 결과: 각 검사 클래스 LastResult / LastPlayResult.
 - WarmPoolAllocatedBytes: 1,000회 대여·반환 구간의 관리 힙 할당량. 전체 게임 성능 수치가 아닙니다.
 
-JOB_KIMGUN 테스트 진행 파일은 Application.persistentDataPath/stage_prototype에 저장됩니다.
+JOB_KIMGUN_STAGE 테스트 진행 파일은 Application.persistentDataPath/stage_prototype에 저장됩니다.
 자동 검사의 임시 저장은 Library/StageVerification 아래에 남으며 Git 관리 대상이 아닙니다.
 
 ## 통합 시 남은 사항

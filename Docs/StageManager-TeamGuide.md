@@ -126,7 +126,7 @@ IsSettled가 false인 최종 기록은 정산 미완료 가능성을 뜻합니�
 - 프로세스 강제 종료·저장 장치 오류에 대한 완전한 복구나 이어하기는 구현 범위가 아닙니다.
 - 현재 최고 클리어 기록 UI나 계정 단위 진행도 집계는 별도 시스템에서 도전 기록을 읽어 구현해야 합니다.
 
-JOB_KIMGUN 테스트는 `Application.persistentDataPath/stage_prototype`에 실제 파일을 씁니다.
+JOB_KIMGUN_STAGE 테스트는 `Application.persistentDataPath/stage_prototype`에 실제 파일을 씁니다.
 더미 지급 영수증은 같은 디렉터리의 `dummy_rewards.json`에 보관합니다.
 자동 검사는 Library/StageVerification의 실행별 하위 디렉터리를 사용하며 저장소 커밋 대상이 아닙니다.
 
@@ -186,7 +186,7 @@ ResetForReturn에서 연출·이벤트·비동기 작업도 정리해야 합니�
 StageRunHost가 실행 Task·취소 토큰·서비스를 소유하며 DontDestroyOnLoad로 유지됩니다.
 정적 Singleton 접근은 없습니다. 화면 비활성화와 제거는 실행 취소가 아닙니다.
 실제 부트스트랩은 Host를 하나 생성하고 각 화면에 참조를 전달해야 합니다.
-StagePrototypeRunner는 JOB_KIMGUN 테스트용으로 자신의 Host를 생성합니다.
+StagePrototypeRunner는 JOB_KIMGUN_STAGE 테스트용으로 자신의 Host를 생성합니다.
 실제 씬을 매번 열어 Runner를 새로 만들며 Host를 중복 생성하는 구조로 사용하면 안 됩니다.
 
 실제 준비/전투/로비 로딩은 각각의 연결부에서 완료를 기다려 구현해야 합니다.
@@ -195,7 +195,7 @@ Host 종료 시 취소를 전달하고 전투 정리를 기다린 뒤 소유한 
 
 ## 테스트 화면과 검증
 
-1. JOB_KIMGUN에서 Play.
+1. JOB_KIMGUN_STAGE에서 Play.
 2. Start Normal/Hard: 기존 수동 승패 버튼으로 진행 순서 검사.
 3. Start pooled Normal/Hard: 실제 풀링 용사 생성. Defeat one hero/defender로 사망 입력.
 4. 보상·증강·정산은 Confirm 버튼으로 더미 완료. 정산 완료 기록 저장 후 Return to dummy lobby 버튼으로 이동 완료를 전달.
@@ -224,7 +224,7 @@ Play 씬 전체 검사: StageFlowVerification.StartSceneChecks().
 | Assets/01.Scripts/Stage/RoundCompletionEvaluator.cs | 승패 규칙 |
 | Assets/01.Scripts/Stage/StageRunHost.cs | 실행 수명 |
 | Assets/01.Scripts/Stage/Prototype/ | 더미 서비스·지급 영수증·화면 |
-| Assets/01.Scripts/Stage/Editor/ | 검사 및 JOB_KIMGUN 풀 에셋 설정 |
+| Assets/01.Scripts/Stage/Editor/ | 검사 및 JOB_KIMGUN_STAGE 풀 에셋 설정 |
 | Assets/_Project/Prefabs/Stage/DummyHero.prefab | 풀링 테스트 프리팹 |
 | Assets/03.ScriptableObjects/Stage/Dummy/DummyHeroPoolCatalog.asset | 풀링 더미 설정 |
 

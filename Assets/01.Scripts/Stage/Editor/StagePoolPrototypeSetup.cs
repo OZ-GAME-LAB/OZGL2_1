@@ -11,12 +11,12 @@ namespace OZGL2.Stage.Editor
     {
         private const string PREFAB_PATH = "Assets/_Project/Prefabs/Stage/DummyHero.prefab";
         private const string CATALOG_PATH = "Assets/03.ScriptableObjects/Stage/Dummy/DummyHeroPoolCatalog.asset";
-        [MenuItem("OZGL2/Stage/Set Up Pool Prototype In JOB_KIMGUN")]
+        [MenuItem("OZGL2/Stage/Set Up Pool Prototype In JOB_KIMGUN_STAGE")]
         public static void Configure()
         {
             var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-            if (Application.isPlaying || scene.path != "Assets/00.Scenes/JOB_KIMGUN.unity")
-                throw new InvalidOperationException("Open JOB_KIMGUN in Edit mode first.");
+            if (Application.isPlaying || scene.path != "Assets/_Project/Scenes/JOB_KIMGUN_STAGE.unity")
+                throw new InvalidOperationException("Open JOB_KIMGUN_STAGE in Edit mode first.");
             StagePrototypeRunner runner = null;
             foreach (var root in scene.GetRootGameObjects())
             {
