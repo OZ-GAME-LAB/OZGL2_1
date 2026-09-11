@@ -308,6 +308,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestSpwaner-D_S
       objectReference: {fileID: 0}
+    - target: {fileID: 8559665418915166245, guid: b41ba6da7c99095439e5b533a6fb465c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -479,6 +483,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestSpwaner-D_R
       objectReference: {fileID: 0}
+    - target: {fileID: 9175332697328795941, guid: 9fd2650bd4947d94fa671455cc6198fd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -535,6 +543,10 @@ PrefabInstance:
     - target: {fileID: 7747162288426267673, guid: e3e8906e8ff333a448f6be0605e9ee17, type: 3}
       propertyPath: m_Name
       value: TestSpwaner-D_A
+      objectReference: {fileID: 0}
+    - target: {fileID: 7747162288426267673, guid: e3e8906e8ff333a448f6be0605e9ee17, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -724,6 +736,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestSpwaner-D_W
       objectReference: {fileID: 0}
+    - target: {fileID: 2530887157355204760, guid: 80b9a61d4d492084b97aee88c38cf48e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2770086299582888178, guid: 80b9a61d4d492084b97aee88c38cf48e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -838,6 +854,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestSpwaner-D_H
       objectReference: {fileID: 0}
+    - target: {fileID: 1409091243554516830, guid: 17b5148915241c74c9819b9fb1c5c0f5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9089185839520328327, guid: 17b5148915241c74c9819b9fb1c5c0f5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -894,6 +914,10 @@ PrefabInstance:
     - target: {fileID: 451005613132242070, guid: f977b8d0b35c00b4d8aba09a4d3cc125, type: 3}
       propertyPath: m_Name
       value: TestSpwaner-D_M
+      objectReference: {fileID: 0}
+    - target: {fileID: 451005613132242070, guid: f977b8d0b35c00b4d8aba09a4d3cc125, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1062045619463757632, guid: f977b8d0b35c00b4d8aba09a4d3cc125, type: 3}
       propertyPath: m_LocalPosition.x
