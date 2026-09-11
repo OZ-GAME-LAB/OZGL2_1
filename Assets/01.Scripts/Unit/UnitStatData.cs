@@ -27,6 +27,10 @@ public class UnitStatData : ScriptableObject
     public float moveSpeed = 2f;       // 유닛/초. 마왕군은 배치형이라 보통 미사용, 용사만 실사용
     public float healAmount = 0f;      // 힐러 전용 1회 힐량 (힐/초 = healAmount x attackSpeed)
 
+    [Header("원거리 공격 (비워두면 근접/즉시 판정, 채우면 발사체 발사)")]
+    public GameObject projectilePrefab;  // 관통 없음 · 단일 대상 유도. 용사/마왕군 공용 프리팹(Arrow 등) 할당
+    public float projectileSpeed = 8f;   // 유닛/초
+
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
     public int killExpReward = 0;       // 용사 처치 시 지급 경험치 (성민 파트 연계)

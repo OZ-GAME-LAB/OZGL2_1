@@ -22,5 +22,7 @@ MonoBehaviour:
   attackRange: 3
   moveSpeed: 0.9
   healAmount: 0
+  projectilePrefab: {fileID: 7992221689482300768, guid: ec7caf7d4af6ac345844392c2acddd38, type: 3}
+  projectileSpeed: 8
   cost: 0
   killExpReward: 4

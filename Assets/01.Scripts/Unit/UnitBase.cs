@@ -25,6 +25,12 @@ public class UnitBase : MonoBehaviour
     public UnitBase currentTarget;
     protected float attackCooldownTimer;
 
+    // 원거리 유닛의 발사체가 몸 안쪽이 아니라 무기(활 등) 위치에서 나가도록 지정하는 자식 트랜스폼.
+    // 프리팹마다(팩마다) 리그 구조가 달라서 자동 탐색 대신 인스펙터에서 직접 지정한다.
+    // 비워두면 기존처럼 유닛 루트 위치에서 스폰됨(근접 유닛은 안 써도 무방).
+    [Header("원거리 발사 위치 (선택)")]
+    public Transform muzzlePoint;
+
     [Header("사망 처리")]
     // DEATH 애니메이션 클립 길이를 못 읽어올 때 쓰는 기본 대기 시간(초). 용사 제거 딜레이용.
     public float deathDestroyDelay = 1.2f;
@@ -45,6 +51,15 @@ public class UnitBase : MonoBehaviour
     protected virtual void OnDisable()
     {
         UnitRegistry.Unregister(this);
+    }
+
+    protected virtual void OnDestroy()
+    {
+        // ApplyStarLevel()에서 만든 런타임 복제본이면 같이 정리 (원본 공용 에셋은 절대 여기서 안 지움)
+        if (baseStatData != null && statData != null && statData != baseStatData)
+        {
+            Destroy(statData);
+        }
     }
 
     protected virtual void Awake()
@@ -348,13 +363,32 @@ public class UnitBase : MonoBehaviour
         if (statData.healAmount > 0f)
         {
             target.Heal(Mathf.RoundToInt(statData.healAmount));
+            return;
+        }
+
+        float targetDefense = target.statData != null ? target.statData.defensePercent : 0f;
+        int damage = CalculateDamage(statData.attackPower, targetDefense);
+
+        if (statData.projectilePrefab != null)
+        {
+            LaunchProjectile(target, damage);
         }
         else
         {
-            float targetDefense = target.statData != null ? target.statData.defensePercent : 0f;
-            int damage = CalculateDamage(statData.attackPower, targetDefense);
             target.TakeDamage(damage);
         }
+    }
+
+    /// <summary>
+    /// 관통 없는 단일 대상 유도 발사체 생성. 데미지는 발사 시점 방어율로 미리 계산해서 들려 보내고,
+    /// 실제 적용은 Projectile이 명중했을 때(target.TakeDamage) 처리한다.
+    /// </summary>
+    protected virtual void LaunchProjectile(UnitBase target, int damage)
+    {
+        Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
+        GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
+        Projectile projectile = projectileObj.AddComponent<Projectile>();
+        projectile.Init(target, damage, statData.projectileSpeed);
     }
 
     /// <summary>
@@ -429,6 +463,24 @@ public class UnitBase : MonoBehaviour
             Destroy(gameObject, GetDeathAnimationDuration());
         }
         // 마왕군은 Dead 상태로 남겨둔다 — 다음 라운드 시작 시 라운드 매니저(코어루프 파트)가 Revive()를 호출해 부활시키는 구조로 예정 (4.3절)
+
+        CheckRoundOutcome();
+    }
+
+    /// <summary>
+    /// 승패 스텁 — 정식 라운드 매니저(코어루프 파트)가 붙기 전까지 콘솔 로그로만 확인.
+    /// 마왕군 전멸=패배, 용사 전멸=라운드 클리어. 실제 UI/씬 전환 등은 코어루프 파트가 담당할 예정.
+    /// </summary>
+    protected virtual void CheckRoundOutcome()
+    {
+        if (UnitRegistry.GetAliveCount(UnitSide.DemonArmy) <= 0)
+        {
+            Debug.Log("[Round] 패배 — 마왕군 전멸");
+        }
+        else if (UnitRegistry.GetAliveCount(UnitSide.Hero) <= 0)
+        {
+            Debug.Log("[Round] 라운드 클리어 — 용사 전멸");
+        }
     }
 
     /// <summary>
@@ -444,5 +496,39 @@ public class UnitBase : MonoBehaviour
 
         currentHealth = statData.maxHealth;
         SetState(UnitState.Idle);
+    }
+
+    // 항상 1성 기준값(원본 공용 에셋)을 기억해두는 참조 — 성급 재계산의 기준.
+    protected UnitStatData baseStatData;
+
+    /// <summary>
+    /// 합성(5.2절)으로 성급이 오를 때 FusionRules가 호출한다.
+    /// UnitStatData는 같은 종류 유닛끼리 공유하는 에셋이라 직접 수정하면 그 종류 전체가 같이
+    /// 바뀌어버리므로, 최초 호출 시 이 유닛만의 런타임 복제본을 만들어서 배율을 적용한다.
+    /// </summary>
+    public virtual void ApplyStarLevel(int newStar)
+    {
+        if (statData == null)
+        {
+            return;
+        }
+
+        if (baseStatData == null)
+        {
+            baseStatData = statData; // 원본(1성 값) 기억, 최초 1회만
+        }
+
+        if (statData == baseStatData)
+        {
+            statData = Instantiate(baseStatData); // 이 유닛 전용 복제본으로 교체 — 원본 에셋은 보호됨
+        }
+
+        float multiplier = UnitStatData.GetStarMultiplier(newStar);
+        statData.starLevel = newStar;
+        statData.maxHealth = Mathf.RoundToInt(baseStatData.maxHealth * multiplier);
+        statData.attackPower = baseStatData.attackPower * multiplier;
+        statData.healAmount = baseStatData.healAmount * multiplier;
+
+        currentHealth = statData.maxHealth; // 합성 시 풀피로 시작
     }
 }

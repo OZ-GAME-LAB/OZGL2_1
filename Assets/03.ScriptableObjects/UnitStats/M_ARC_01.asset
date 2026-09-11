@@ -13,14 +13,17 @@ MonoBehaviour:
   m_Name: M_ARC_01
   m_EditorClassIdentifier: 
   unitId: M_ARC_01
-  displayName: 궁수
+  displayName: "\uAD81\uC218"
   side: 1
   maxHealth: 70
   attackPower: 12
   attackSpeed: 1.3
   defensePercent: 0.05
-  attackRange: 3.5
+  attackRange: 4
   moveSpeed: 0
   healAmount: 0
+  projectilePrefab: {fileID: 7992221689482300768, guid: ec7caf7d4af6ac345844392c2acddd38, type: 3}
+  projectileSpeed: 8
   cost: 1
   killExpReward: 0
+  starLevel: 1

@@ -12956,6 +12956,9 @@ MonoBehaviour:
   moveTarget: {x: 0, y: 0, z: 0}
   hasMoveTarget: 0
   arriveThreshold: 0.05
+  currentTarget: {fileID: 0}
+  muzzlePoint: {fileID: 263799457786323510}
+  deathDestroyDelay: 1.2
 --- !u!1 &8177723984643421846
 GameObject:
   m_ObjectHideFlags: 0
