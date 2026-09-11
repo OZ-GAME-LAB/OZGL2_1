@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
-  m_Name: SO_Augment_eco_grid
+  m_Name: SO_Augment_crit_s
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
-  augmentId: eco_grid
-  displayName: "\uADF8\uB9AC\uB4DC \uD655\uC7A5"
-  description: "\uC804\uD22C \uADF8\uB9AC\uB4DC +1\uCE78"
-  tier: 3
-  weight: 5
-  effect: 14
-  value: 1
+  augmentId: crit_s
+  displayName: "\uCE58\uBA85\uC758 \uAC10\uAC01"
+  description: "\uC2A4\uD0AC \uC2DC\uC804 \uC2DC 12% \uD655\uB960\uB85C \uD53C\uD574
+    \xD71.5"
+  tier: 1
+  weight: 9
+  effect: 19
+  value: 0.12
   maxStack: 1
   isInstant: 0
-  connStatus: "\uC2A4\uD141(\uADF8\uB9AC\uB4DC)"
+  connStatus: "\uC2E4\uC81C"

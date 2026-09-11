@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
-  m_Name: SO_Augment_mon_def_g
+  m_Name: SO_Augment_echo_p
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
-  augmentId: mon_def_g
-  displayName: "\uCCA0\uBCBD \uB300\uD615"
-  description: "\uBAAC\uC2A4\uD130 \uBC29\uC5B4\uB825 +5%p"
-  tier: 2
-  weight: 8
-  effect: 5
-  value: 0.05
+  augmentId: echo_p
+  displayName: "\uC2EC\uD310\uC758 \uBA54\uC544\uB9AC"
+  description: "\uC2A4\uD0AC \uC2DC\uC804 \uC2DC 30% \uD655\uB960\uB85C \uCFE8\uD0D0
+    \uC5C6\uC774 \uC989\uC2DC \uC7AC\uC2DC\uC804"
+  tier: 3
+  weight: 7
+  effect: 20
+  value: 0.3
   maxStack: 1
   isInstant: 0
-  connStatus: "\uC2A4\uD141"
+  connStatus: "\uC2E4\uC81C"

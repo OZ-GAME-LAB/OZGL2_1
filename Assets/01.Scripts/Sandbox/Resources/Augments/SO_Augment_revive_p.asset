@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
-  m_Name: SO_Augment_hero_def_p
+  m_Name: SO_Augment_revive_p
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
-  augmentId: hero_def_p
-  displayName: "\uD30C\uBA78\uC758 \uC800\uC8FC"
-  description: "\uC6A9\uC0AC \uBC29\uC5B4\uB825 \u22128%p"
+  augmentId: revive_p
+  displayName: "\uBD88\uC0AC\uC758 \uC9C4\uC601"
+  description: "\uBAAC\uC2A4\uD130\uAC00 \uC8FD\uC73C\uBA74 30% \uD655\uB960\uB85C
+    \uC989\uC2DC \uBD80\uD65C"
   tier: 3
   weight: 6
-  effect: 10
-  value: 0.08
+  effect: 24
+  value: 0.3
   maxStack: 1
   isInstant: 0
-  connStatus: "\uC2A4\uD141"
+  connStatus: "\uC2E4\uC81C"

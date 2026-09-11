@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
-  m_Name: SO_Augment_hero_atk_s
+  m_Name: SO_Augment_xpalive_p
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
-  augmentId: hero_atk_s
-  displayName: "\uBB34\uB518 \uCE7C\uB0A0"
-  description: "\uC6A9\uC0AC \uACF5\uACA9\uB825 \u22125%"
-  tier: 1
-  weight: 10
-  effect: 11
-  value: 0.05
+  augmentId: xpalive_p
+  displayName: "\uBC31\uC131\uC758 \uC131\uC6D0"
+  description: "\uC6A9\uC0AC \uCC98\uCE58 XP + \uC0DD\uC874 \uBAAC\uC2A4\uD130 \uC218
+    \xD7 5"
+  tier: 3
+  weight: 6
+  effect: 26
+  value: 5
   maxStack: 1
   isInstant: 0
-  connStatus: "\uC2A4\uD141"
+  connStatus: "\uC2E4\uC81C"
