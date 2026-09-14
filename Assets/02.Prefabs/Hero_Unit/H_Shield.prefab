@@ -4870,6 +4870,7 @@ GameObject:
   - component: {fileID: 329171794089584872}
   - component: {fileID: 8228365988421872663}
   - component: {fileID: 1268381993209823727}
+  - component: {fileID: -6526327328208007526}
   m_Layer: 5
   m_Name: H_Shield
   m_TagString: Untagged
@@ -8230,6 +8231,21 @@ MonoBehaviour:
   moveTarget: {x: 0, y: 0, z: 0}
   hasMoveTarget: 0
   arriveThreshold: 0.05
+  currentTarget: {fileID: 0}
+  muzzlePoint: {fileID: 0}
+  deathDestroyDelay: 1.2
+--- !u!114 &-6526327328208007526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180512763855493605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e45acd57a7530f44a6687da68017eca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Stage.PooledHero
 --- !u!1 &9213415725437688063
 GameObject:
   m_ObjectHideFlags: 0

@@ -11098,6 +11098,7 @@ GameObject:
   - component: {fileID: 1402514584397307691}
   - component: {fileID: 4250593281886567148}
   - component: {fileID: -2836252051863441500}
+  - component: {fileID: -986687458315360543}
   m_Layer: 5
   m_Name: H_Healer
   m_TagString: Untagged
@@ -14789,6 +14790,18 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   muzzlePoint: {fileID: 3241541964599799609}
   deathDestroyDelay: 1.2
+--- !u!114 &-986687458315360543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8396025578230140869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e45acd57a7530f44a6687da68017eca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Stage.PooledHero
 --- !u!1 &8410084388325867646
 GameObject:
   m_ObjectHideFlags: 0
