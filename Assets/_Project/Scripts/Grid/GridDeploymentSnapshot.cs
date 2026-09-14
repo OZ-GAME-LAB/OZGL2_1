@@ -15,7 +15,7 @@ namespace OZGL2.Grid
             if (grid == null) throw new ArgumentNullException(nameof(grid));
             var units = new List<GridDeployedUnit>();
             foreach (var unit in grid.Units)
-                if (unit.IsPlaced) units.Add(new GridDeployedUnit(unit, grid.FindBlock(unit.BlockId)));
+                if (unit.IsPlaced) units.Add(new GridDeployedUnit(unit));
             Units = units.AsReadOnly();
             FloorCells = new List<Vector2Int>(grid.FloorCells).AsReadOnly();
             KingAnchor = grid.Definition.KingAnchor;
@@ -25,17 +25,16 @@ namespace OZGL2.Grid
     {
         public string InstanceId { get; }
         public string ContentId { get; }
-        public string BlockId { get; }
         public string ShapeId { get; }
         public Vector2Int Anchor { get; }
         public int Rotation { get; }
         public IReadOnlyList<Vector2Int> Cells { get; }
-        internal GridDeployedUnit(UnitPlacement unit, BlockPlacement block)
+        internal GridDeployedUnit(UnitPlacement unit)
         {
             InstanceId = unit.InstanceId; ContentId = unit.Definition.Id;
-            BlockId = block.InstanceId; ShapeId = block.Footprint.Id;
-            Anchor = block.Anchor; Rotation = block.Rotation;
-            Cells = Array.AsReadOnly(block.Footprint.GetCells(Anchor, Rotation));
+            ShapeId = unit.Definition.Footprint.Id;
+            Anchor = unit.Anchor; Rotation = unit.Rotation;
+            Cells = Array.AsReadOnly(unit.GetCells());
         }
     }
     /// <summary>Origin은 셀 (0,0)의 중심. Right/Up은 한 칸 이동량이며 XY/XZ 전투판 모두 지원한다.</summary>

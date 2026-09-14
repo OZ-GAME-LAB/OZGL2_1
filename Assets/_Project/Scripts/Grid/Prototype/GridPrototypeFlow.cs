@@ -20,6 +20,12 @@ namespace OZGL2.Grid.Prototype
             if (!Session.TryChooseExpansion(Session.RunId, Session.PendingRewardId)) return false;
             return AllowPreparation();
         }
+        public bool TryConfirmStorage(string requestId, System.Collections.Generic.IReadOnlyCollection<GridStoredItem> discard)
+        {
+            bool isReward = Session.Grid.PendingStorage?.Operation == eGridStorageOperation.REWARD;
+            if (!Session.TryConfirmStorage(Session.RunId, requestId, discard)) return false;
+            return !isReward || AllowPreparation();
+        }
         private bool AllowPreparation() => Session.TryAllowPreparation(Session.RunId, Session.NextRound, true);
     }
 }

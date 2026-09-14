@@ -97,11 +97,17 @@ namespace OZGL2.Grid.Editor
                 var unitData = new SerializedObject(unit);
                 unitData.FindProperty("_id").stringValue = "dummy_unit_" + shape.Id;
                 unitData.FindProperty("_displayName").stringValue = shape.Id == "single" ? "Basic" : shape.Id == "corner_three" ? "Mage" : "Dummy " + shape.DisplayName;
-                unitData.FindProperty("_requiredBlockId").stringValue = shape.Id;
+                unitData.FindProperty("_rewardBlockId").stringValue = shape.Id;
+                unitData.FindProperty("_footprint").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BlockShapeSO>(DATA_PATH + "/" + shape.Id + ".asset");
                 unitData.ApplyModifiedPropertiesWithoutUndo();
                 units.GetArrayElementAtIndex(i).objectReferenceValue = unit;
             }
-            data.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets();
+            data.FindProperty("_initialUnit").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GridUnitDataSO>(DATA_PATH + "/unit_single.asset");
+            data.FindProperty("_initialBlock").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BlockShapeSO>(DATA_PATH + "/single.asset");
+            data.ApplyModifiedPropertiesWithoutUndo();
+            var settings = new SerializedObject(AssetDatabase.LoadAssetAtPath<GridSettingsSO>(DATA_PATH + "/GridSettings.asset"));
+            settings.FindProperty("_storageCapacity").intValue = 10;
+            settings.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets();
         }
         private static BlockShapeSO CreateShape(string id, string label, Vector2Int[] cells)
         {

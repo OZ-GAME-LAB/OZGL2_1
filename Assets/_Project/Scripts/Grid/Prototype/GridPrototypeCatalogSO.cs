@@ -9,6 +9,10 @@ namespace OZGL2.Grid.Prototype
         [SerializeField] private GridSettingsSO _settings;
         [SerializeField] private BlockShapeSO[] _footprints;
         [SerializeField] private GridUnitDataSO[] _units;
+        [SerializeField] private GridUnitDataSO _initialUnit;
+        [SerializeField] private BlockShapeSO _initialBlock;
+        public UnitDefinition CreateInitialUnit() => _initialUnit != null ? _initialUnit.CreateSnapshot() : throw new System.InvalidOperationException("Initial unit required.");
+        public FootprintDefinition CreateInitialBlock() => _initialBlock != null ? _initialBlock.CreateSnapshot() : throw new System.InvalidOperationException("Initial block required.");
         public GridDefinition CreateDefinition() => _settings.CreateSnapshot();
         public IReadOnlyList<FootprintDefinition> CreateBlocks()
         {

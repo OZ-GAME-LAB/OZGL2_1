@@ -7,7 +7,10 @@ namespace OZGL2.Grid
     {
         [SerializeField] private string _id;
         [SerializeField] private string _displayName;
-        [SerializeField] private string _requiredBlockId;
-        public UnitDefinition CreateSnapshot() => new UnitDefinition(_id, _displayName, _requiredBlockId);
+        [UnityEngine.Serialization.FormerlySerializedAs("_requiredBlockId")]
+        [SerializeField] private string _rewardBlockId;
+        [SerializeField] private BlockShapeSO _footprint;
+        public UnitDefinition CreateSnapshot() => new UnitDefinition(_id, _displayName,
+            _footprint != null ? _footprint.CreateSnapshot() : throw new System.InvalidOperationException("Unit footprint must be assigned: " + _id), _rewardBlockId);
     }
 }

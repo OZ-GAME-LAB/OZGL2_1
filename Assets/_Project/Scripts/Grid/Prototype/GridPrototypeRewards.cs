@@ -14,7 +14,7 @@ namespace OZGL2.Grid.Prototype
             if (_units.Count < 2) throw new ArgumentException("Two reward candidates are required.");
             foreach (var shape in catalog.CreateBlocks()) _shapes.Add(shape.Id, shape);
             foreach (var unit in _units)
-                if (!_shapes.ContainsKey(unit.RequiredBlockId)) throw new ArgumentException("Unknown required block: " + unit.RequiredBlockId);
+                if (!_shapes.ContainsKey(unit.RewardBlockId)) throw new ArgumentException("Unknown reward block: " + unit.RewardBlockId);
         }
         public UnitDefinition GetCandidate(int completedRounds, int option)
         {
@@ -25,7 +25,7 @@ namespace OZGL2.Grid.Prototype
         {
             if (session.PendingRewardId == null) return false;
             var unit = GetCandidate(session.CompletedRounds, option);
-            return session.TryChooseUnit(session.RunId, session.PendingRewardId, unit, _shapes[unit.RequiredBlockId]);
+            return session.TryChooseUnit(session.RunId, session.PendingRewardId, unit, _shapes[unit.RewardBlockId]);
         }
     }
 }
