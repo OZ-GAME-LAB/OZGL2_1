@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7d6da19726e9bb45996306057cae68d, type: 3}
+  m_Name: SO_ComboSynergy_Warrior_Rogue
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Synergy.ComboSynergyData
+  jobA: 0
+  jobB: 4
+  requiredCountEach: 2
+  displayName: "\uD559\uC0B4\uC790 \uCF64\uBCF4"
+  effect: 5
+  value: 0.2
+  desc: "\uC804\uC0AC+\uB3C4\uC801 \uAC01 2\uBA85 \uC774\uC0C1 \u2014 \uCC98\uCE58
+    \uC2DC \uCD94\uAC00 \uB370\uBBF8\uC9C0 +20%"
+  connStatus: "\uC2A4\uD141"
