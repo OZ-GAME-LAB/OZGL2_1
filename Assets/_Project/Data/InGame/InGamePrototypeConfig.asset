@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82082ba6d1b15454d93ebc1be8db6769, type: 3}
+  m_Name: InGamePrototypeConfig
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGamePrototypeConfigSO
+  _stage: {fileID: 11400000, guid: 201f3bf91ecadc741a36b1eb6e68e77d, type: 2}
+  _catalog: {fileID: 11400000, guid: 980940a60647da74b861d8a49ed6b259, type: 2}
+  _initialAnchor: {x: 3, y: 0}
+  _lobbyScenePath: Assets/00.Scenes/Builds/Lobby.unity
