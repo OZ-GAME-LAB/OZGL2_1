@@ -15,3 +15,4 @@ MonoBehaviour:
   _id: M_MAG_01
   _displayName: 마법사(광역)
   _requiredBlockId: single
+  _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}

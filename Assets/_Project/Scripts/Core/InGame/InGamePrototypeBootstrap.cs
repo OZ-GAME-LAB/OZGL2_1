@@ -53,10 +53,18 @@ namespace OZGL2.InGame
                 var preparation = new StageGridPreparation(_session, _config.Catalog.CreateInitialUnit(),
                     _config.Catalog.CreateInitialBlock(), _config.InitialAnchor);
                 var lobby = new CompletedLobby();
-                Stage = new StageManager(Dummy, Rewards, preparation, _session,
+                // 전투(IStageBattle)만 실제 유닛 기반(RealStageBattleFactory)으로 교체 — 나머지(보상/준비/세션/로비)는
+                // 아직 실제 UI가 없어서 Dummy(ManualStageServices) 그대로 사용.
+                IStageBattle battle = RealStageBattleFactory.Create(
+                    _config.HeroPoolCatalog, transform, _config.HeroSpawnPosition,
+                    () => _session?.Session, _config.DemonArmyCatalog, transform,
+                    _config.GridWorldOrigin, _config.CellWorldSize,
+                    out HeroPool heroPool);
+                Stage = new StageManager(battle, Rewards, preparation, _session,
                     new FileStageProgressStore(Path.Combine(directory, "Runs")), lobby);
                 Stage.StateChanged += OnStateChanged;
                 _host = new GameObject("InGameRunHost").AddComponent<StageRunHost>();
+                _host.OwnResource(heroPool);
                 _host.OwnResource(_session);
                 if (!_host.StartRun(Stage, _config.Stage)) throw new InvalidOperationException("Stage run did not start.");
                 Notify();

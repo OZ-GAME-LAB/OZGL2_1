@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82082ba6d1b15454d93ebc1be8db6769, type: 3}
   m_Name: InGamePrototypeConfig
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGamePrototypeConfigSO
-  _stage: {fileID: 11400000, guid: 201f3bf91ecadc741a36b1eb6e68e77d, type: 2}
-  _catalog: {fileID: 11400000, guid: 980940a60647da74b861d8a49ed6b259, type: 2}
+  _stage: {fileID: 11400000, guid: da62b523b62549058375eed5948e2319, type: 2}
+  _catalog: {fileID: 11400000, guid: 9078badd44fe4c55a417d7718dd0f447, type: 2}
   _initialAnchor: {x: 3, y: 0}
   _lobbyScenePath: Assets/00.Scenes/Builds/Lobby.unity
+  _heroPoolCatalog: {fileID: 11400000, guid: 7f9aa8f1c8b248a3bfbaa4e496f5f55a, type: 2}
+  _heroSpawnPosition: {x: 0, y: 4, z: 0}

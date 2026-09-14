@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6758bb994964d54bda1398ce79e61aa, type: 3}
+  m_Name: DemonArmyCatalog
+  m_EditorClassIdentifier:
+  entries:
+  - unitId: M_WAR_01
+    prefab: {fileID: 2990039972764663656, guid: 08681f54fb176984ab04b540e9eba7a0, type: 3}
+  - unitId: M_SHD_01
+    prefab: {fileID: 2350195380489074287, guid: b4cd56fb3dc900848a87b83a242eabe2, type: 3}
+  - unitId: M_ARC_01
+    prefab: {fileID: -1817550835103021793, guid: 72cef6e932d381143bdbb50e339ee0ec, type: 3}
+  - unitId: M_MAG_01
+    prefab: {fileID: 6962789208788966221, guid: 20dfdfd6f153ab34abc84972ec313c02, type: 3}
+  - unitId: M_ROG_01
+    prefab: {fileID: -2010563178332295909, guid: 78c48e5d911d30549941896fc167c168, type: 3}
+  - unitId: M_HEL_01
+    prefab: {fileID: -2716902314225195471, guid: 9a5182214a4c39a4d9e4039523dea5f9, type: 3}

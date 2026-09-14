@@ -1,5 +1,7 @@
+using System.Collections;
 using UnityEngine;
 using OZGL2.Contracts;
+using OZGL2.Stage;
 
 /// <summary>
 /// 용사/마왕군 공통 유닛 베이스.
@@ -8,8 +10,10 @@ using OZGL2.Contracts;
 /// IDamageable/IHealable/IStatusReceiver 구현: 기존 int 기반 API는 그대로 두고, 성민 파트
 /// 스킬 시스템이 이 유닛을 직접 때리고 힐하고 CC 걸 수 있도록 명시적 인터페이스 구현만 추가
 /// (기존 공개 API 동작 변경 없음).
+/// IPooledHeroState/IPooledHeroDeathPresentation 구현: 용사가 HeroPool로 스폰될 때 재사용
+/// 리셋과 사망 연출을 이 컴포넌트가 직접 조율한다 (풀링 없이 직접 스폰하는 테스트 환경도 계속 지원).
 /// </summary>
-public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver
+public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, IPooledHeroState, IPooledHeroDeathPresentation
 {
     [Header("데이터")]
     public UnitStatData statData;
@@ -75,6 +79,58 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver
     void IStatusReceiver.ApplySlow(float multiplier, float seconds) { _slowMult = multiplier; _slowExpire = Time.time + seconds; }
     void IStatusReceiver.ApplyKnockback(Vector3 dir, float force) => transform.position += dir.normalized * force;
     void IStatusReceiver.ApplyVulnerable(float multiplier, float seconds) { _vulnerableMult = multiplier; _vulnerableExpire = Time.time + seconds; }
+
+    // IPooledHeroState (OZGL2.Stage) — HeroPool이 용사를 재사용할 때 호출.
+    void IPooledHeroState.ResetForSpawn(long leaseId)
+    {
+        currentTarget = null;
+        hasMoveTarget = false;
+        attackCooldownTimer = 0f;
+
+        // 이전 대여 때 남아있던 CC/버프가 재사용된 용사에게 그대로 이어지면 안 되므로 전부 초기화.
+        _stunExpire = 0f;
+        _slowMult = 1f; _slowExpire = 0f;
+        _vulnerableMult = 1f; _vulnerableExpire = 0f;
+        _buffAttackMult = 1f; _buffAttackExpire = 0f;
+        _buffAttackSpeedMult = 1f; _buffAttackSpeedExpire = 0f;
+        _buffDefenseMult = 1f; _buffDefenseExpire = 0f;
+
+        if (statData != null)
+        {
+            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job));
+        }
+
+        // PooledStageBattle(팀원 코드)은 스폰 위치만 정하고 이동 명령은 안 줘서, 여기서 직접 마왕을 향해
+        // 걷기 시작하도록 지정한다 (4.1절). RealDefenders가 라운드 시작마다 이 값을 미리 채워둔다.
+        if (UnitRegistry.KingWorldPosition.HasValue)
+        {
+            SetMoveTarget(UnitRegistry.KingWorldPosition.Value);
+        }
+        else
+        {
+            SetState(UnitState.Idle);
+        }
+    }
+
+    void IPooledHeroState.ResetForReturn()
+    {
+        currentTarget = null;
+        hasMoveTarget = false;
+    }
+
+    // IPooledHeroDeathPresentation (OZGL2.Stage) — 사망 연출을 여기서 직접 조율.
+    // PooledHero.TryReportDeath()가 호출. 사망 애니메이션 길이만큼 기다렸다가 풀에 반납 완료를 알린다.
+    // (풀링 컨텍스트 전용 — 풀링 없이 직접 스폰한 경우는 Die()에서 바로 Destroy로 처리)
+    void IPooledHeroDeathPresentation.BeginDeath(HeroLease lease)
+    {
+        StartCoroutine(DeathPresentationRoutine(lease));
+    }
+
+    private IEnumerator DeathPresentationRoutine(HeroLease lease)
+    {
+        yield return new WaitForSeconds(GetDeathAnimationDuration());
+        lease.Hero.TryCompleteDeath(lease.LeaseId);
+    }
 
     // CC/버프 런타임 상태 — 시간 기반이라 값 자체는 만료 후에도 남아있지만 아래 Effective* 계산 시 항상 만료 여부를 같이 체크한다.
     private float _stunExpire;
@@ -517,28 +573,22 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver
         {
             int expReward = statData != null ? statData.killExpReward : 0;
             OnHeroKilled?.Invoke(this, expReward);
-            // 사망 애니메이션이 다 재생될 시간을 준 다음 제거 (즉시 Destroy하면 트리거만 넣고 바로 사라짐)
-            Destroy(gameObject, GetDeathAnimationDuration());
-        }
-        // 마왕군은 Dead 상태로 남겨둔다 — 다음 라운드 시작 시 라운드 매니저(코어루프 파트)가 Revive()를 호출해 부활시키는 구조로 예정 (4.3절)
 
-        CheckRoundOutcome();
-    }
-
-    /// <summary>
-    /// 승패 스텁 — 정식 라운드 매니저(코어루프 파트)가 붙기 전까지 콘솔 로그로만 확인.
-    /// 마왕군 전멸=패배, 용사 전멸=라운드 클리어. 실제 UI/씬 전환 등은 코어루프 파트가 담당할 예정.
-    /// </summary>
-    protected virtual void CheckRoundOutcome()
-    {
-        if (UnitRegistry.GetAliveCount(UnitSide.DemonArmy) <= 0)
-        {
-            Debug.Log("[Round] 패배 — 마왕군 전멸");
+            PooledHero pooledHero = GetComponent<PooledHero>();
+            if (pooledHero != null && pooledHero.IsLeased)
+            {
+                // 풀링 컨텍스트: HeroPool/PooledStageBattle에 사망을 통지한다.
+                // 이후 연출은 BeginDeath()가, 최종 반납·승패 판정(RoundCompletionEvaluator)은 그쪽 시스템이
+                // RealDefenders.AliveCount와 함께 처리 — 여기서 Destroy 하지 않는다.
+                pooledHero.TryReportDeath(pooledHero.LeaseId);
+            }
+            else
+            {
+                // 풀링 없이 직접 스폰한 경우(JOB_SEJIN 테스트 등) — 기존처럼 애니메이션 재생 후 제거
+                Destroy(gameObject, GetDeathAnimationDuration());
+            }
         }
-        else if (UnitRegistry.GetAliveCount(UnitSide.Hero) <= 0)
-        {
-            Debug.Log("[Round] 라운드 클리어 — 용사 전멸");
-        }
+        // 마왕군은 Dead 상태로 남겨둔다 — RealDefenders.PrepareRoundAsync()가 다음 라운드 시작 시 Revive()를 호출해 부활시킨다 (4.3절)
     }
 
     /// <summary>

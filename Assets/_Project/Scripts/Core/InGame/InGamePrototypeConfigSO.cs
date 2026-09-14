@@ -13,15 +13,30 @@ namespace OZGL2.InGame
         [SerializeField] private GridPrototypeCatalogSO _catalog;
         [SerializeField] private Vector2Int _initialAnchor;
         [SerializeField] private string _lobbyScenePath;
+        [SerializeField] private HeroPoolCatalogSO _heroPoolCatalog;
+        [SerializeField] private Vector3 _heroSpawnPosition;
+        [SerializeField] private DemonArmyCatalog _demonArmyCatalog;
+        [SerializeField] private Vector3 _gridWorldOrigin;
+        [SerializeField, Tooltip("그리드 1칸 = 몇 월드 유닛인지. ⚠ 준기·김건과 협의 전 임시값(기본 1).")]
+        private float _cellWorldSize = 1f;
         public StageDataSO Stage => _stage;
         public GridPrototypeCatalogSO Catalog => _catalog;
         public Vector2Int InitialAnchor => _initialAnchor;
         public string LobbyScenePath => _lobbyScenePath;
+        public HeroPoolCatalogSO HeroPoolCatalog => _heroPoolCatalog;
+        public Vector3 HeroSpawnPosition => _heroSpawnPosition;
+        public DemonArmyCatalog DemonArmyCatalog => _demonArmyCatalog;
+        public Vector3 GridWorldOrigin => _gridWorldOrigin;
+        public float CellWorldSize => _cellWorldSize;
 
         public void Validate()
         {
             if (_stage == null || _catalog == null || string.IsNullOrWhiteSpace(_lobbyScenePath))
                 throw new InvalidOperationException("InGame stage, grid catalog and lobby scene are required.");
+            if (_heroPoolCatalog == null)
+                throw new InvalidOperationException("InGame hero pool catalog is required.");
+            if (_demonArmyCatalog == null)
+                throw new InvalidOperationException("InGame demon army catalog is required.");
             _stage.CreateSnapshot();
             var unit = _catalog.CreateInitialUnit();
             var block = _catalog.CreateInitialBlock();

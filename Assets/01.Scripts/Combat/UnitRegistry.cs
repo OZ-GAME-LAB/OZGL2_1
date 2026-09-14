@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 현재 씬에 살아있는(활성화된) 유닛을 진영별로 추적하는 정적 레지스트리.
@@ -9,6 +10,13 @@ public static class UnitRegistry
 {
     private static readonly List<UnitBase> HeroUnits = new List<UnitBase>();
     private static readonly List<UnitBase> DemonArmyUnits = new List<UnitBase>();
+
+    /// <summary>
+    /// 마왕 월드 좌표. RealDefenders가 라운드 시작마다 그리드의 KingAnchor를 월드로 변환해서 채워둔다.
+    /// 용사가 풀에서 스폰될 때(UnitBase.ResetForSpawn) 이 값으로 자동 이동 목표를 잡는다(4.1절).
+    /// PooledStageBattle(팀원 코드)이 스폰만 하고 이동 명령은 안 줘서, 우리 쪽에서 채워야 함.
+    /// </summary>
+    public static Vector3? KingWorldPosition { get; set; }
 
     public static void Register(UnitBase unit)
     {
