@@ -7147,6 +7147,7 @@ GameObject:
   - component: {fileID: 6764103215421111812}
   - component: {fileID: 8142955511660298383}
   - component: {fileID: -597182972493671834}
+  - component: {fileID: 1837887036755831449}
   m_Layer: 5
   m_Name: H_Archer
   m_TagString: Untagged
@@ -10838,6 +10839,18 @@ MonoBehaviour:
   currentTarget: {fileID: 0}
   muzzlePoint: {fileID: 832816151736629584}
   deathDestroyDelay: 1.2
+--- !u!114 &1837887036755831449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5974033147166546982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e45acd57a7530f44a6687da68017eca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Stage.PooledHero
 --- !u!1 &5977444561048779656
 GameObject:
   m_ObjectHideFlags: 0
