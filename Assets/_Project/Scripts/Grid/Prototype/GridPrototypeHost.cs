@@ -15,8 +15,10 @@ namespace OZGL2.Grid.Prototype
             if (Session != null) throw new InvalidOperationException("Host is already initialized.");
             Session = new GridRunSession(Guid.NewGuid().ToString("N"), catalog.CreateDefinition());
             var grid = Session.Grid;
-            foreach (var block in catalog.CreateBlocks()) grid.AddBlock("block_" + block.Id, block.Id, block);
-            foreach (var unit in catalog.CreateUnits()) grid.AddUnit("unit_" + unit.Id, unit);
+            var unit = catalog.CreateInitialUnit();
+            var block = catalog.CreateInitialBlock();
+            grid.AddBlock("block_" + block.Id, block.Id, block);
+            grid.AddUnit("unit_" + unit.Id, unit);
             Flow = new GridPrototypeFlow(Session, new GridPrototypeRewards(catalog));
             Session.TryAllowPreparation(Session.RunId, 1, false);
             _preparationScenePath = view.gameObject.scene.path;

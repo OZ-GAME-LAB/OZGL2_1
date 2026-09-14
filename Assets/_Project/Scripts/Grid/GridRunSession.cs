@@ -38,8 +38,7 @@ namespace OZGL2.Grid
             _isChanging = true;
             try
             {
-                Deployment = new GridDeploymentSnapshot(Grid);
-                return Grid.TryBeginBattle();
+                return Grid.TryBeginBattle(() => Deployment = new GridDeploymentSnapshot(Grid));
             }
             finally { _isChanging = false; }
         }
@@ -58,7 +57,7 @@ namespace OZGL2.Grid
             finally { _isChanging = false; }
         }
         private bool CanChooseReward(string runId, string rewardId) => CanHandle(runId) &&
-            rewardId != null && rewardId == PendingRewardId && !_hasResolvedReward && Grid.Phase == eGridPhase.REWARD;
+            !Grid.HasPendingStorage && rewardId != null && rewardId == PendingRewardId && !_hasResolvedReward && Grid.Phase == eGridPhase.REWARD;
         public bool TryChooseExpansion(string runId, string rewardId)
         {
             if (!CanChooseReward(runId, rewardId) || !Grid.CanExpand) return false;
@@ -66,10 +65,30 @@ namespace OZGL2.Grid
         }
         public bool TryChooseUnit(string runId, string rewardId, UnitDefinition definition, FootprintDefinition shape)
         {
-            if (!CanChooseReward(runId, rewardId) || definition == null || shape == null || definition.RequiredBlockId != shape.Id) return false;
+            if (!CanChooseReward(runId, rewardId) || definition == null || shape == null || definition.RewardBlockId != shape.Id) return false;
             var unit = new UnitPlacement(rewardId + "_unit", definition);
             var block = new BlockPlacement(rewardId + "_block", shape.Id, shape);
-            return ApplyReward(rewardId, () => Grid.TryAcceptUnitReward(unit, block));
+            _isChanging = true;
+            try
+            {
+                return Grid.TryAcceptUnitReward(unit, block, () => { PendingRewardId = null; _hasResolvedReward = true; });
+            }
+            finally { _isChanging = false; }
+        }
+        /// <summary>false여도 Grid.PendingStorage가 있으면 공간 확보 대기 중이다. 지급 완료 전 다음 준비를 허용하지 않는다.</summary>
+        public bool TryConfirmStorage(string runId, string requestId, IReadOnlyCollection<GridStoredItem> discard)
+        {
+            if (!CanHandle(runId)) return false;
+            _isChanging = true;
+            try { return Grid.TryConfirmStorage(requestId, discard); }
+            finally { _isChanging = false; }
+        }
+        public bool TryCancelStorage(string runId, string requestId)
+        {
+            if (!CanHandle(runId)) return false;
+            _isChanging = true;
+            try { return Grid.TryCancelStorage(requestId); }
+            finally { _isChanging = false; }
         }
         private bool ApplyReward(string rewardId, Func<bool> apply)
         {

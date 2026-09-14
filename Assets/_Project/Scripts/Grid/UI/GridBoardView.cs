@@ -71,16 +71,18 @@ namespace OZGL2.Grid.UI
             }
             foreach (var unit in _manager.Units)
             {
-                if (!unit.IsPlaced || _manager.IsUnitTemporarilyReturned(unit) ||
+                if (!unit.IsPlaced ||
                     (_manager.DragKind == eGridDragKind.UNIT && unit.InstanceId == _manager.SelectedId)) continue;
-                AddActor(_blocksLayer, _manager.FindBlock(unit.BlockId).Anchor, unit.Definition.DisplayName, Color.white);
+                foreach (var cell in unit.GetCells())
+                    AddCell(_blocksLayer, cell, new Color(0.85f, 0.65f, 0.25f, 0.55f), "unit-cell");
+                AddActor(_blocksLayer, unit.Anchor, unit.Definition.DisplayName, Color.white);
             }
             if (_manager.HasSelection)
             {
                 bool isValid = _manager.GetPreviewFailure() == ePlacementFailure.NONE;
                 foreach (var cell in _manager.GetPreviewCells()) AddCell(_ghostLayer, cell, isValid ? VALID_COLOR : INVALID_COLOR, "ghost-cell");
                 if (_manager.DragKind == eGridDragKind.UNIT)
-                    AddActor(_ghostLayer, _manager.PreviewTargetBlock?.Anchor ?? _manager.PreviewAnchor, _manager.FindUnit(_manager.SelectedId).Definition.DisplayName,
+                    AddActor(_ghostLayer, _manager.PreviewAnchor, _manager.FindUnit(_manager.SelectedId).Definition.DisplayName,
                         new Color(1, 1, 1, 0.8f));
             }
         }

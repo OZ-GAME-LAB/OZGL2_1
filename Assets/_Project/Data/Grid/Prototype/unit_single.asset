@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.GridUnitDataSO
   _id: dummy_unit_single
   _displayName: Basic
-  _requiredBlockId: single
+  _rewardBlockId: single
+  _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}

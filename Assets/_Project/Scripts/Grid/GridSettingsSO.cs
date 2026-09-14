@@ -10,8 +10,9 @@ namespace OZGL2.Grid
         [SerializeField] private Vector2Int _maximumSize;
         [SerializeField] private string _expansionId;
         [SerializeField] private Vector2Int[] _expansionCells;
+        [SerializeField, Min(2)] private int _storageCapacity = 10;
         public GridDefinition CreateSnapshot() => new GridDefinition(_initialSize, _maximumSize,
-            new FootprintDefinition(_expansionId, "Floor expansion", _expansionCells));
+            new FootprintDefinition(_expansionId, "Floor expansion", _expansionCells), _storageCapacity);
     }
     public sealed class GridDefinition
     {
@@ -19,13 +20,15 @@ namespace OZGL2.Grid
         public Vector2Int MaximumSize { get; }
         public Vector2Int InitialOrigin { get; }
         public FootprintDefinition Expansion { get; }
+        public int StorageCapacity { get; }
         // 셀 중심 좌표계. 마왕은 일반 셀 집합에 추가하지 않는다.
         public Vector2 KingAnchor => new Vector2((MaximumSize.x - 1) / 2f, -1);
-        public GridDefinition(Vector2Int initial, Vector2Int maximum, FootprintDefinition expansion)
+        public GridDefinition(Vector2Int initial, Vector2Int maximum, FootprintDefinition expansion, int storageCapacity = 10)
         {
             if (initial.x <= 0 || initial.y <= 0 || maximum.x < initial.x || maximum.y < initial.y ||
                 (maximum.x - initial.x) % 2 != 0) throw new ArgumentException("Invalid centered grid dimensions.");
-            InitialSize = initial; MaximumSize = maximum;
+            if (storageCapacity < 2) throw new ArgumentOutOfRangeException(nameof(storageCapacity));
+            InitialSize = initial; MaximumSize = maximum; StorageCapacity = storageCapacity;
             InitialOrigin = new Vector2Int((maximum.x - initial.x) / 2, 0);
             Expansion = expansion ?? throw new ArgumentNullException(nameof(expansion));
         }

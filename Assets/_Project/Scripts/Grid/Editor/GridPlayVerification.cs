@@ -30,58 +30,50 @@ namespace OZGL2.Grid.Editor
             var manager = runner.Manager;
             Require(manager.PlacedCount == 0 && manager.Phase == eGridPhase.PREPARATION, "Run test on fresh Play session");
             await Frame();
-            var card = root.Q<VisualElement>("block-card-block_corner_three");
-            Require(card != null && card.worldBound.width > 0, "Card layout ready");
+            Require(manager.StoredCount == 2 && root.Q<VisualElement>("storage-tray") != null, "Initial shared tray has 2 items");
+            var catalog = AssetDatabase.LoadAssetAtPath<GridPrototypeCatalogSO>(GridPrototypeSetup.DATA_PATH + "/GridPrototypeCatalog.asset");
+            var shape = catalog.CreateBlocks()[3];
+            manager.AddBlock("corner", shape.Id, shape); manager.AddUnit("mage", catalog.CreateUnits()[3]);
+            await Frame();
+            var card = root.Q<VisualElement>("block-card-corner");
             Down(card, card.worldBound.center); await Frame();
-            Require(manager.SelectedId == "block_corner_three", "Pointer down begins card selection");
             Move(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
-            Require(manager.GetPreviewFailure() == ePlacementFailure.NONE && manager.PlacedCount == 0, "Green ghost without mutation");
             var ghost = runner.Board.GhostLayer.Q<VisualElement>("ghost-cell");
-            Require(ghost != null && Near(ghost.resolvedStyle.backgroundColor, GridBoardView.VALID_COLOR), "Green translucent view");
+            Require(ghost != null && Near(ghost.resolvedStyle.backgroundColor, GridBoardView.VALID_COLOR), "Green block ghost");
             Up(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
-            Require(manager.FindBlock("block_corner_three").IsPlaced && root.Q<VisualElement>("block-card-block_corner_three") == null, "Card becomes placed unit");
-            Require(!manager.CanBeginBattle, "Block without unit cannot start");
             card = root.Q<VisualElement>("card-unit_dummy_unit_single"); Down(card, card.worldBound.center); await Frame();
             Move(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
-            Require(manager.GetPreviewFailure() == ePlacementFailure.WRONG_BLOCK, "Basic rejects corner block");
-            ghost = runner.Board.GhostLayer.Q<VisualElement>("ghost-cell");
-            Require(Near(ghost.resolvedStyle.backgroundColor, GridBoardView.INVALID_COLOR), "Unit mismatch ghost red");
-            Key(root, KeyCode.Escape); await Frame();
-            card = root.Q<VisualElement>("card-unit_dummy_unit_corner_three"); Down(card, card.worldBound.center); await Frame();
-            Move(root, runner.Board.CellToPanel(new Vector2Int(5, 2))); await Frame();
-            Require(manager.GetPreviewFailure() == ePlacementFailure.NONE, "Mage accepts non-anchor corner cell");
-            ghost = runner.Board.GhostLayer.Q<VisualElement>("ghost-cell");
-            Require(Near(ghost.resolvedStyle.backgroundColor, GridBoardView.VALID_COLOR), "Matching unit ghost green");
-            Up(root, runner.Board.CellToPanel(new Vector2Int(5, 2))); await Frame();
-            Require(manager.GetUnitOnBlock("block_corner_three") != null && manager.CanBeginBattle, "Separate unit deployment");
-
+            Require(manager.GetPreviewFailure() == ePlacementFailure.NONE, "Single unit on larger different shape");
+            Up(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
             Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(4, 2)), true); await Frame();
-            Require(root.Q<VisualElement>("card-unit_dummy_unit_corner_three") != null, "Occupant card temporarily shown");
-            Key(root, KeyCode.R); await Frame();
-            Require(manager.PreviewRotation == 1, "R rotates footprint");
+            Require(manager.DragKind == eGridDragKind.UNIT, "Unit priority even with Shift");
+            Up(root, root.Q<VisualElement>("storage-tray").worldBound.center); await Frame();
+            Require(manager.PlacedCount == 0 && manager.FindBlock("corner").IsPlaced, "Unit returns alone to common tray");
+            card = root.Q<VisualElement>("card-mage"); Down(card, card.worldBound.center); await Frame();
+            Move(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
+            Require(manager.GetPreviewCells().Length == 3, "Unit own footprint preview");
+            Up(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
+            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(5, 2))); await Frame();
+            Require(manager.DragKind == eGridDragKind.UNIT && manager.SelectedId == "mage", "Non-anchor cell grabs whole unit");
+            Key(root, KeyCode.R); await Frame(); Require(manager.PreviewRotation == 1, "Unit rotates");
             Move(root, runner.Board.CellToPanel(new Vector2Int(-1, 0))); await Frame();
             ghost = runner.Board.GhostLayer.Q<VisualElement>("ghost-cell");
-            Require(ghost != null && Near(ghost.resolvedStyle.backgroundColor, GridBoardView.INVALID_COLOR), "Red translucent view");
+            Require(Near(ghost.resolvedStyle.backgroundColor, GridBoardView.INVALID_COLOR), "Invalid unit ghost red");
             Up(root, runner.Board.CellToPanel(new Vector2Int(-1, 0))); await Frame();
-            Require(manager.FindBlock("block_corner_three").Anchor == new Vector2Int(4, 2) && manager.FindBlock("block_corner_three").Rotation == 0,
-                "Invalid UI drop restores original transform");
-            Require(manager.GetUnitOnBlock("block_corner_three") != null, "Invalid block drop restores occupant");
-            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(4, 2)), true); await Frame();
-            Up(root, root.Q<VisualElement>("block-tray").worldBound.center); await Frame();
-            Require(manager.PlacedCount == 0 && root.Q<VisualElement>("block-card-block_corner_three") != null && manager.FloorCells.Count == 12, "Return to card tray retains floor");
-
+            Require(manager.FindUnit("mage").Rotation == 0 && manager.FindUnit("mage").IsPlaced, "Invalid unit drop restores");
+            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
+            Up(root, root.Q<VisualElement>("storage-tray").worldBound.center); await Frame();
+            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
+            Require(manager.DragKind == eGridDragKind.BLOCK, "Empty block selects block");
+            Key(root, KeyCode.R); await Frame(); Require(manager.PreviewRotation == 1, "Block rotates");
+            Up(root, root.Q<VisualElement>("storage-tray").worldBound.center); await Frame();
+            Require(!manager.FindBlock("corner").IsPlaced && manager.StoredCount == 4, "Block returns to same tray");
             card = root.Q<VisualElement>("block-card-block_single"); Down(card, card.worldBound.center); await Frame();
             Move(root, runner.Board.CellToPanel(new Vector2Int(2, 0))); Up(root, runner.Board.CellToPanel(new Vector2Int(2, 0))); await Frame();
             card = root.Q<VisualElement>("card-unit_dummy_unit_single"); Down(card, card.worldBound.center); await Frame();
             Move(root, runner.Board.CellToPanel(new Vector2Int(2, 0))); Up(root, runner.Board.CellToPanel(new Vector2Int(2, 0))); await Frame();
-            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(2, 0))); await Frame();
-            Require(manager.DragKind == eGridDragKind.UNIT, "Unit marker selects unit");
-            Up(root, root.Q<VisualElement>("unit-tray").worldBound.center); await Frame();
-            Require(manager.PlacedCount == 0 && manager.FindBlock("block_single").IsPlaced, "Unit tray drop preserves block");
-            card = root.Q<VisualElement>("card-unit_dummy_unit_single"); Down(card, card.worldBound.center); await Frame();
-            Move(root, runner.Board.CellToPanel(new Vector2Int(2, 0))); Up(root, runner.Board.CellToPanel(new Vector2Int(2, 0))); await Frame();
             Require(runner.Session.TryBeginBattle(runner.Session.RunId, runner.Session.NextRound), "Start with placed unit");
-            card = root.Q<VisualElement>("block-card-block_line_two"); Down(card, card.worldBound.center); await Frame();
+            card = root.Q<VisualElement>("block-card-corner"); Down(card, card.worldBound.center); await Frame();
             Require(!manager.HasSelection, "Combat blocks UI drag");
             Require(runner.PrototypeFlow.TryFinishBattle() && runner.PrototypeFlow.TryChooseExpansion(), "Simulated reward enters mandatory preparation"); await Frame();
             Require(!manager.CanBeginBattle && !manager.CanSkipPreparation, "Mandatory expansion gates both exits");
@@ -95,7 +87,7 @@ namespace OZGL2.Grid.Editor
             Require(manager.FloorCells.Count == 14 && !manager.RequiresExpansionPlacement && manager.CanSkipPreparation, "Expansion placed before continuing");
             Require(manager.LastObserverError == null, "No hidden UI observer failures");
         }
-        private static async Task Frame() { await Task.Yield(); await Task.Yield(); }
+        private static async Task Frame() { int target = Time.frameCount + 2; var limit = DateTime.UtcNow.AddSeconds(5); while (Time.frameCount < target) { if (DateTime.UtcNow > limit) throw new TimeoutException("Frames stalled"); await Task.Yield(); } }
         private static bool Near(Color a, Color b) => Mathf.Abs(a.r - b.r) < 0.01f && Mathf.Abs(a.g - b.g) < 0.01f && Mathf.Abs(a.b - b.b) < 0.01f && Mathf.Abs(a.a - b.a) < 0.01f;
         private static void Down(VisualElement target, Vector2 point, bool shift = false)
         {

@@ -6,13 +6,21 @@ namespace OZGL2.Grid
 {
     public static class GridPlacementRules
     {
-        public static ePlacementFailure ValidateUnit(UnitPlacement moving, BlockPlacement target, IEnumerable<UnitPlacement> units)
+        public static ePlacementFailure ValidateUnit(GridDefinition definition, IEnumerable<BlockPlacement> blocks,
+            IEnumerable<UnitPlacement> units, string movingId, Vector2Int[] cells)
         {
-            if (target == null || !target.IsPlaced) return ePlacementFailure.NO_BLOCK;
-            if (target.Footprint.Id != moving.Definition.RequiredBlockId) return ePlacementFailure.WRONG_BLOCK;
+            var supported = new HashSet<Vector2Int>();
+            foreach (var block in blocks)
+                if (block.IsPlaced) supported.UnionWith(block.Footprint.GetCells(block.Anchor, block.Rotation));
+            var occupied = new HashSet<Vector2Int>();
             foreach (var unit in units)
-                if (unit.InstanceId != moving.InstanceId && unit.IsPlaced && unit.BlockId == target.InstanceId)
-                    return ePlacementFailure.BLOCK_OCCUPIED;
+                if (unit.IsPlaced && unit.InstanceId != movingId) occupied.UnionWith(unit.GetCells());
+            foreach (var cell in cells)
+            {
+                if (!definition.Contains(cell)) return ePlacementFailure.OUTSIDE_BOUNDS;
+                if (!supported.Contains(cell)) return ePlacementFailure.NO_BLOCK;
+                if (occupied.Contains(cell)) return ePlacementFailure.OCCUPIED;
+            }
             return ePlacementFailure.NONE;
         }
         public static readonly ReadOnlyCollection<Vector2Int> Directions = new List<Vector2Int>

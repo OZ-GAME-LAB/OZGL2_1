@@ -14,181 +14,127 @@ namespace OZGL2.Grid.Editor
         public static void Run()
         {
             _sessions.Clear();
-            try { Verify(); VerifyUnitSeparation(); VerifyUnchangedBlockDrop(); VerifyRunSession(); LastResult = "PASS: session rewards/idempotency, immutable deployment, world mapping, separate blocks/units, unchanged drop, rotations, occupancy, preparation gates and 14 expansions."; }
+            try
+            {
+                VerifyCells(); VerifyStorage(); VerifyRunSession(); VerifyBattleSnapshotCommit(); VerifyExpansion();
+                LastResult = "PASS: cross-block unit cells, shared capacity, atomic discard/reward/return, stale/cancel/reentrancy, immutable deployment, preparation and 14 expansions.";
+            }
             catch (Exception exception) { LastResult = "FAIL: " + exception; }
+            finally { foreach (var session in _sessions.Values) session.Dispose(); }
         }
         private static GridPrototypeCatalogSO Catalog => AssetDatabase.LoadAssetAtPath<GridPrototypeCatalogSO>(GridPrototypeSetup.DATA_PATH + "/GridPrototypeCatalog.asset");
-        private static void Verify()
+        private static FootprintDefinition Single => Catalog.CreateBlocks()[0];
+        private static UnitDefinition Basic => Catalog.CreateUnits()[0];
+        private static FootprintDefinition Horizontal => new FootprintDefinition("test_horizontal", "Horizontal", new[] { Vector2Int.zero, Vector2Int.right });
+        private static void VerifyCells()
         {
-            var catalog = Catalog; Require(catalog != null, "Catalog assigned");
-            var shapes = catalog.CreateBlocks(); Require(shapes.Count == 6, "Six shapes");
-            Require(shapes.Select(shape => shape.Cells.Count).SequenceEqual(new[] { 1, 2, 3, 3, 4, 4 }), "Six expected cell counts");
-            foreach (var shape in shapes)
+            Require(Catalog.CreateInitialUnit().Footprint.Cells.Count == 1 && Catalog.CreateDefinition().StorageCapacity == 10, "Initial SO and limit");
+            foreach (var shape in Catalog.CreateBlocks())
             {
-                var manager = CreatePreparedGrid(); manager.AddBlock("test", "content", shape);
+                Require(shape.GetCells(Vector2Int.zero, 0).SequenceEqual(shape.GetCells(Vector2Int.zero, 4)), "Rotation cycle");
                 for (int rotation = 0; rotation < 4; rotation++)
                 {
-                    Require(shape.GetCells(Vector2Int.zero, rotation).Distinct().Count() == shape.Cells.Count, "Rotation preserves cells");
-                    bool canFit = false;
-                    for (int y = 0; y < 3 && !canFit; y++)
-                        for (int x = 2; x < 6 && !canFit; x++)
-                        {
-                            manager.BeginBlockDrag("test");
-                            while (manager.PreviewRotation != rotation) manager.RotatePreview();
-                            manager.MovePreview(new Vector2Int(x, y));
-                            if (manager.CommitPreview()) canFit = true;
-                            else manager.CancelDrag();
-                        }
-                    Require(canFit, "Each shape/orientation fits initial board: " + shape.Id);
+                    var test = CreatePreparedGrid(); test.AddBlock("shape", shape.Id, shape);
+                    bool placed = false;
+                    for (int y = 0; y < 3 && !placed; y++) for (int x = 2; x < 6 && !placed; x++)
+                    {
+                        test.BeginBlockDrag("shape"); for (int i = 0; i < rotation; i++) test.RotatePreview();
+                        test.MovePreview(new Vector2Int(x, y)); placed = test.CommitPreview(); if (!placed) test.CancelDrag();
+                    }
+                    Require(placed, "Every shape/orientation fits initial floor");
+                    test.AddUnit("unit", new UnitDefinition("test_unit", "Unit", shape));
+                    var block = test.FindBlock("shape"); test.BeginUnitDrag("unit");
+                    for (int i = 0; i < rotation; i++) test.RotatePreview();
+                    test.MovePreview(block.Anchor); Require(test.CommitPreview(), "Unit rotation follows own cells");
                 }
-                Require(shape.GetCells(Vector2Int.zero, 0).SequenceEqual(shape.GetCells(Vector2Int.zero, 4)), "Four turns restore shape");
             }
             var grid = CreatePreparedGrid();
-            Require(grid.FloorCells.Count == 12 && grid.Definition.KingAnchor == new Vector2(3.5f, -1), "Initial floor and independent king");
-            Require(!grid.CanBeginBattle && !Start(grid), "King alone cannot start");
-            grid.AddBlock("a", "same_type", shapes[3]); grid.AddBlock("b", "same_type", shapes[0]);
-            int layoutChanges = 0; grid.LayoutChanged += () => layoutChanges++;
-            grid.BeginBlockDrag("a"); grid.MovePreview(new Vector2Int(4, 2));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.NONE, "Screenshot corner placement valid");
-            Require(grid.PlacedCount == 0 && grid.GetBlockAt(new Vector2Int(4, 2)) == null, "Ghost does not commit");
-            Require(layoutChanges == 0, "Preview does not publish committed layout event");
-            Require(grid.CommitPreview() && grid.PlacedCount == 0 && !grid.CanBeginBattle, "Empty block is not a deployed unit");
-            Require(layoutChanges == 1, "Successful placement publishes one layout event");
-            grid.BeginBlockDrag("b"); grid.MovePreview(new Vector2Int(4, 2));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.OCCUPIED && !grid.CommitPreview(), "Other unit overlap rejected"); grid.CancelDrag();
-            grid.BeginBlockDrag("a"); grid.MovePreview(new Vector2Int(4, 2));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.NONE, "Self overlap accepted");
-            grid.MovePreview(new Vector2Int(8, 4)); Require(grid.GetPreviewFailure() == ePlacementFailure.OUTSIDE_BOUNDS, "Boundary failure");
-            grid.RotatePreview(); grid.CancelDrag();
-            Require(grid.FindBlock("a").Anchor == new Vector2Int(4, 2) && grid.FindBlock("a").Rotation == 0, "Failed movement/rotation rollback");
-            grid.BeginBlockDrag("b"); grid.MovePreview(new Vector2Int(0, 0));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.NO_FLOOR, "Empty max bounds is not floor"); grid.CancelDrag();
-            grid.BeginBlockDrag("b"); grid.MovePreview(new Vector2Int(3, -1));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.OUTSIDE_BOUNDS, "Cannot place in king area"); grid.CancelDrag();
-            grid.BeginBlockDrag("a"); Require(!grid.CanBeginBattle, "Drag prevents transition"); grid.DropToTray();
-            Require(grid.FloorCells.Count == 12 && grid.PlacedCount == 0 && !grid.CanBeginBattle, "Tray frees occupancy only");
-            Place(grid, "b", new Vector2Int(2, 0));
-            grid.AddUnit("basic", new UnitDefinition("basic", "Basic", "single"));
-            PlaceUnit(grid, "basic", new Vector2Int(2, 0));
-            Require(!grid.CanSkipPreparation && !Start(grid, true), "First preparation cannot be skipped");
-            Require(Start(grid), "One regular unit starts battle");
-            Require(!grid.BeginBlockDrag("b") && !grid.BeginExpansionDrag() && !ChooseExpansion(grid), "Combat edit lock");
-            Require(Finish(grid) && ChooseExpansion(grid), "Reward to required preparation");
-            Require(!grid.CanBeginBattle && !Start(grid) && !Start(grid, true), "Mandatory expansion gates start and skip");
-            Require(!ChooseExpansion(grid), "Cannot accumulate repeated reward requests");
-            grid.BeginExpansionDrag(); grid.MovePreview(new Vector2Int(3, 0));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.FLOOR_EXISTS, "Expansion overlap rejected");
-            grid.MovePreview(new Vector2Int(0, 3));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.DISCONNECTED, "Detached expansion rejected");
-            grid.MovePreview(new Vector2Int(1, 3));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.DISCONNECTED, "Diagonal is not edge adjacency");
-            grid.CancelDrag(); Require(grid.RequiresExpansionPlacement && !grid.CanBeginBattle, "Cancel cannot discard reward");
-            var placements = new List<(Vector2Int Anchor, int Rotation)>();
-            // Fill adjacent side columns (horizontal dominoes), then the two top rows (vertical dominoes).
-            for (int y = 0; y < 3; y++) { placements.Add((new Vector2Int(0, y), 1)); placements.Add((new Vector2Int(6, y), 1)); }
-            for (int x = 0; x < 8; x++) placements.Add((new Vector2Int(x, 3), 0));
-            for (int i = 0; i < placements.Count; i++)
+            grid.AddBlock("wide", Horizontal.Id, Horizontal); Place(grid, "wide", new Vector2Int(2, 0));
+            grid.AddUnit("u1", Basic); grid.AddUnit("u2", Basic);
+            PlaceUnit(grid, "u1", new Vector2Int(2, 0)); PlaceUnit(grid, "u2", new Vector2Int(3, 0));
+            Require(grid.GetUnitsOnBlock("wide").Count == 2 && grid.StoredCount == 0, "Two singles on one block");
+            grid.BeginUnitDrag("u1"); grid.MovePreview(new Vector2Int(3, 0));
+            Require(grid.GetPreviewFailure() == ePlacementFailure.OCCUPIED && !grid.CommitPreview(), "Other unit overlap denied");
+            grid.CancelDrag(); Require(grid.GetUnitAt(new Vector2Int(2, 0)).InstanceId == "u1", "Cancel preserves cells");
+            grid.BeginBlockDrag("wide"); for (int i = 0; i < 4; i++) grid.RotatePreview();
+            Require(grid.CommitPreview() && grid.PlacedCount == 2, "No-op preserves multiple occupants");
+            grid.BeginBlockDrag("wide"); grid.MovePreview(new Vector2Int(-1, 0));
+            Require(!grid.CommitPreview(), "Invalid block move"); grid.CancelDrag(); Require(grid.PlacedCount == 2, "Invalid drop preserves occupants");
+            grid.BeginBlockDrag("wide"); grid.MovePreview(new Vector2Int(2, 1));
+            Require(grid.CommitPreview() && grid.PlacedCount == 0 && grid.StoredCount == 2, "Actual move returns all occupants");
+            var bridge = CreatePreparedGrid();
+            bridge.AddBlock("a", Single.Id, Single); bridge.AddBlock("b", Single.Id, Single);
+            Place(bridge, "a", new Vector2Int(2, 0)); Place(bridge, "b", new Vector2Int(3, 0));
+            bridge.AddUnit("large", new UnitDefinition("large", "Large", Horizontal)); PlaceUnit(bridge, "large", new Vector2Int(2, 0));
+            Require(bridge.GetUnitAt(new Vector2Int(3, 0)).InstanceId == "large", "Unit spans separate blocks");
+            var snap = new GridDeploymentSnapshot(bridge);
+            Require(snap.Units[0].Cells.Count == 2 && snap.Units[0].Anchor == new Vector2Int(2, 0), "Unit-based deployment");
+            bridge.BeginUnitDrag("large"); bridge.RotatePreview(); Require(bridge.GetPreviewFailure() == ePlacementFailure.OUTSIDE_BOUNDS, "Missing rotated support"); bridge.CancelDrag();
+            bridge.BeginBlockDrag("a"); Require(bridge.DropToTray() && !bridge.FindUnit("large").IsPlaced && bridge.FindBlock("b").IsPlaced, "Return spanning unit whole");
+            Require(snap.Units[0].Cells.Count == 2, "Snapshot retained after return");
+        }
+        private static void Fill(GridManager grid, int count)
+        { for (int i = 0; i < count; i++) grid.AddBlock("filler_" + i, Single.Id, Single); }
+        private static void VerifyStorage()
+        {
+            var grid = CreatePreparedGrid(); var session = _sessions[grid];
+            grid.AddBlock("wide", Horizontal.Id, Horizontal); Place(grid, "wide", new Vector2Int(2, 0));
+            grid.AddUnit("a", Basic); grid.AddUnit("b", Basic); PlaceUnit(grid, "a", new Vector2Int(2, 0)); PlaceUnit(grid, "b", new Vector2Int(3, 0));
+            Fill(grid, 10);
+            bool denied = false; try { grid.AddUnit("over", Basic); } catch (InvalidOperationException) { denied = true; }
+            Require(denied && grid.StoredCount == 10, "Direct grant cannot bypass capacity");
+            grid.BeginBlockDrag("wide"); grid.MovePreview(new Vector2Int(2, 1));
+            Require(!grid.CommitPreview() && grid.PendingStorage.RequiredDiscardCount == 2 && grid.FindBlock("wide").Anchor == new Vector2Int(2, 0), "Full storage delays block move and keeps source");
+            Require(session.TryCancelStorage(session.RunId, grid.PendingStorage.RequestId) && grid.PlacedCount == 2, "Movement cancellation keeps occupants");
+            grid.BeginBlockDrag("wide"); Require(!grid.DropToTray(), "Return waits for space");
+            var request = grid.PendingStorage;
+            Require(request.RequiredDiscardCount == 3 && request.Incoming.Count == 3 && grid.PlacedCount == 2 && grid.FindBlock("wide").IsPlaced, "Whole original preserved");
+            Require(!grid.BeginUnitDrag("a") && !session.CanBeginBattle, "Pending blocks inputs");
+            Require(!session.TryConfirmStorage("stale", request.RequestId, request.DiscardCandidates.Take(3).ToArray()), "Foreign run denied");
+            Require(!session.TryConfirmStorage(session.RunId, request.RequestId, new[] { request.DiscardCandidates[0], request.DiscardCandidates[0], request.DiscardCandidates[1] }), "Duplicate selections denied");
+            Require(!session.TryConfirmStorage(session.RunId, request.RequestId, new[] { request.Incoming[0], request.DiscardCandidates[0], request.DiscardCandidates[1] }), "Incoming cannot be discarded");
+            Require(session.TryCancelStorage(session.RunId, request.RequestId) && grid.PlacedCount == 2 && grid.StoredCount == 10, "Cancel restores nothing because nothing changed");
+            grid.BeginBlockDrag("wide"); grid.DropToTray(); var next = grid.PendingStorage;
+            Require(!session.TryConfirmStorage(session.RunId, request.RequestId, next.DiscardCandidates.Take(3).ToArray()), "Old confirmation rejected");
+            Require(session.TryConfirmStorage(session.RunId, next.RequestId, next.DiscardCandidates.Take(3).ToArray()), "Atomic return and discard");
+            Require(grid.StoredCount == 10 && grid.PlacedCount == 0 && !grid.FindBlock("wide").IsPlaced, "Result within limit");
+            Require(!session.TryConfirmStorage(session.RunId, next.RequestId, next.DiscardCandidates.Take(3).ToArray()), "Duplicate confirm rejected");
+            var rewards = CreatePreparedGrid(); var owner = _sessions[rewards];
+            rewards.AddBlock("board", Single.Id, Single); rewards.AddUnit("hero", Basic); Place(rewards, "board", new Vector2Int(2, 0)); PlaceUnit(rewards, "hero", new Vector2Int(2, 0));
+            Fill(rewards, 9); Require(Start(rewards) && Finish(rewards), "Reward setup");
+            string rewardId = owner.PendingRewardId;
+            Require(!owner.TryChooseUnit(owner.RunId, rewardId, Basic, Single) && rewards.PendingStorage.RequiredDiscardCount == 1, "9 plus 2 waits");
+            Require(owner.PendingRewardId == rewardId && rewards.Units.Count == 1 && rewards.StoredCount == 9, "No partial reward");
+            Require(!owner.TryAllowPreparation(owner.RunId, owner.NextRound, true) && !owner.TryChooseExpansion(owner.RunId, rewardId), "Pending reward cannot be bypassed");
+            var pending = rewards.PendingStorage;
+            Require(owner.TryCancelStorage(owner.RunId, pending.RequestId) && owner.PendingRewardId == rewardId, "Cancelled reward remains available");
+            owner.TryChooseUnit(owner.RunId, rewardId, Basic, Single); pending = rewards.PendingStorage;
+            bool reentered = false;
+            rewards.Changed += () => { if (owner.PendingRewardId == null) reentered = owner.TryAllowPreparation(owner.RunId, owner.NextRound, true); };
+            Require(owner.TryConfirmStorage(owner.RunId, pending.RequestId, pending.DiscardCandidates.Take(1).ToArray()), "Reward resolve");
+            Require(!reentered && owner.PendingRewardId == null && rewards.StoredCount == 10 && rewards.Units.Count == 2, "Completion before observer, reentrancy blocked");
+            Require(owner.TryAllowPreparation(owner.RunId, owner.NextRound, true), "Explicit preparation after reward");
+            rewards.BeginUnitDrag("hero"); rewards.DropToTray();
+            pending = rewards.PendingStorage; Require(pending != null, "Unit return waits at full capacity");
+            owner.Dispose(); Require(rewards.PendingStorage == null && !owner.TryConfirmStorage(owner.RunId, pending.RequestId, pending.DiscardCandidates.Take(1).ToArray()), "Shutdown cancels pending transaction");
+        }
+        private static void VerifyExpansion()
+        {
+            var grid = CreatePreparedGrid(); grid.AddBlock("b", Single.Id, Single); grid.AddUnit("u", Basic);
+            Place(grid, "b", new Vector2Int(2, 0)); PlaceUnit(grid, "u", new Vector2Int(2, 0));
+            for (int i = 0; i < 14; i++)
             {
-                if (i > 0) { Require(Start(grid) && Finish(grid) && ChooseExpansion(grid), "Next reward flow"); }
-                grid.BeginExpansionDrag(); if (placements[i].Rotation == 1) grid.RotatePreview(); grid.MovePreview(placements[i].Anchor);
-                Require(grid.CommitPreview(), "Domino tiling step " + i);
-                Require(grid.FloorCells.Count == 12 + (i + 1) * 2 && grid.CanBeginBattle, "Exactly two floor cells per reward");
+                Require(Start(grid) && Finish(grid) && ChooseExpansion(grid), "Expansion round");
+                Require(!grid.CanBeginBattle && !grid.CanSkipPreparation, "Required expansion gating");
+                bool placed = false;
+                for (int y = 0; y < 5 && !placed; y++) for (int x = 0; x < 8 && !placed; x++) for (int r = 0; r < 4 && !placed; r++)
+                {
+                    grid.BeginExpansionDrag(); for (int t = 0; t < r; t++) grid.RotatePreview(); grid.MovePreview(new Vector2Int(x, y));
+                    placed = grid.CommitPreview(); if (!placed) grid.CancelDrag();
+                }
+                Require(placed && grid.StoredCount == 0, "Expansion outside storage");
             }
-            Require(!grid.CanExpand && grid.GetExpansionFrontier().Count == 0 && grid.FloorCells.Count == 40, "Full board disables reward");
-            Start(grid); Finish(grid);
-            Require(!ChooseExpansion(grid) && grid.Phase == eGridPhase.REWARD, "Unavailable reward cannot force deadlock");
-            Require(ChooseUnit(grid), "Other reward still proceeds");
-            // A single isolated hole cannot fit a domino even though the area is below capacity.
-            var floor = new HashSet<Vector2Int>(grid.FloorCells); floor.Remove(new Vector2Int(3, 2));
-            bool found = false;
-            for (int x = 0; x < 8; x++) for (int y = 0; y < 5; y++) for (int r = 0; r < 4; r++)
-                found |= GridPlacementRules.ValidateExpansion(grid.Definition, floor, grid.Definition.Expansion.GetCells(new Vector2Int(x, y), r)) == ePlacementFailure.NONE;
-            Require(!found, "Capacity alone does not imply placement availability");
-            Require(catalog.CreateDefinition().InitialSize == new Vector2Int(4, 3), "SO source untouched");
-        }
-        private static void VerifyUnitSeparation()
-        {
-            var catalog = Catalog; var shapes = catalog.CreateBlocks();
-            var grid = CreatePreparedGrid();
-            grid.AddBlock("single", "single", shapes[0]); grid.AddBlock("corner", "corner_three", shapes[3]);
-            grid.AddBlock("corner_other", "corner_three", shapes[3]);
-            grid.AddUnit("basic", new UnitDefinition("basic", "Basic", "single"));
-            grid.AddUnit("mage", new UnitDefinition("mage", "Mage", "corner_three"));
-            grid.AddUnit("mage_two", new UnitDefinition("mage", "Mage", "corner_three"));
-            Place(grid, "single", new Vector2Int(2, 0));
-            grid.BeginBlockDrag("corner"); grid.RotatePreview(); grid.MovePreview(new Vector2Int(5, 2));
-            Require(grid.CommitPreview(), "Rotated corner block");
-            Require(!grid.CanBeginBattle, "Empty blocks cannot start battle");
-            grid.BeginUnitDrag("mage"); grid.MovePreview(new Vector2Int(2, 0));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.WRONG_BLOCK && !grid.CommitPreview(), "Required shape mismatch");
-            grid.MovePreview(new Vector2Int(3, 0)); Require(grid.GetPreviewFailure() == ePlacementFailure.NO_BLOCK, "Floor alone cannot host unit");
-            grid.MovePreview(new Vector2Int(4, 2));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.NONE && grid.PreviewTargetBlock.InstanceId == "corner", "Any cell of rotated matching block accepts unit");
-            grid.RotatePreview(); Require(grid.PreviewRotation == 0 && grid.FindBlock("corner").Rotation == 1, "Unit drag cannot rotate block");
-            Require(grid.CommitPreview() && grid.FindUnit("mage").BlockId == "corner" && grid.PlacedCount == 1, "Unit attached separately");
-            grid.BeginUnitDrag("mage_two"); grid.MovePreview(new Vector2Int(5, 1));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.BLOCK_OCCUPIED && !grid.CommitPreview(), "One unit for whole block"); grid.CancelDrag();
-            grid.BeginUnitDrag("mage"); grid.MovePreview(new Vector2Int(4, 2)); Require(grid.GetPreviewFailure() == ePlacementFailure.NONE, "Unit self target valid");
-            grid.MovePreview(new Vector2Int(-1, -1)); grid.CancelDrag(); Require(grid.FindUnit("mage").BlockId == "corner", "Unit cancel restores link");
-            int updates = 0; grid.LayoutChanged += () => updates++;
-            grid.BeginBlockDrag("corner"); grid.RotatePreview(); grid.MovePreview(new Vector2Int(-1, -1));
-            Require(grid.IsUnitTemporarilyReturned(grid.FindUnit("mage")) && grid.FindUnit("mage").BlockId == "corner" && updates == 0, "Temporary card only, no committed mutation");
-            grid.CancelDrag(); Require(grid.FindUnit("mage").BlockId == "corner" && grid.FindBlock("corner").Rotation == 1 && updates == 0, "Block cancel restores block and unit");
-            grid.BeginBlockDrag("corner"); grid.MovePreview(new Vector2Int(4, 2));
-            Require(grid.CommitPreview() && !grid.FindUnit("mage").IsPlaced && updates == 1, "Block move returns unit atomically");
-            PlaceUnit(grid, "mage", new Vector2Int(4, 2));
-            grid.BeginBlockDrag("corner_other"); grid.RotatePreview(); grid.MovePreview(new Vector2Int(3, 1));
-            Require(grid.CommitPreview(), "Second matching block");
-            PlaceUnit(grid, "mage", new Vector2Int(2, 1));
-            Require(grid.FindUnit("mage").BlockId == "corner_other" && grid.GetUnitOnBlock("corner") == null, "Move unit independently to same-shape block");
-            grid.BeginBlockDrag("corner_other"); grid.DropToTray();
-            Require(!grid.FindBlock("corner_other").IsPlaced && !grid.FindUnit("mage").IsPlaced && grid.FloorCells.Count == 12, "Removing block returns occupant but preserves floor");
-            PlaceUnit(grid, "basic", new Vector2Int(2, 0));
-            grid.BeginUnitDrag("basic"); grid.DropToTray(); Require(grid.FindBlock("single").IsPlaced && !grid.CanBeginBattle, "Returning unit leaves block");
-            PlaceUnit(grid, "basic", new Vector2Int(2, 0)); Start(grid);
-            Require(!grid.BeginBlockDrag("single") && !grid.BeginUnitDrag("basic"), "Both layers locked in battle");
-            Require(catalog.CreateUnits().Count == 6 && catalog.CreateUnits()[3].RequiredBlockId == "corner_three", "SO requirement mapping");
-        }
-        private static void VerifyUnchangedBlockDrop()
-        {
-            var catalog = Catalog;
-            var shape = catalog.CreateBlocks()[1];
-            var grid = CreatePreparedGrid();
-            var anchor = new Vector2Int(3, 1);
-            grid.AddBlock("block", shape.Id, shape);
-            grid.AddUnit("unit", new UnitDefinition("unit", "Unit", shape.Id));
-            Place(grid, "block", anchor);
-            PlaceUnit(grid, "unit", anchor);
-            int layouts = 0, changes = 0;
-            grid.LayoutChanged += () => layouts++;
-            grid.Changed += () => changes++;
-
-            Require(grid.BeginBlockDrag("block"), "Begin unchanged drop");
-            changes = 0;
-            Require(grid.CommitPreview(), "Unchanged drop succeeds");
-            Require(grid.FindUnit("unit").BlockId == "block" && grid.CanBeginBattle && !grid.HasSelection,
-                "Unchanged drop preserves occupant and restores battle gate");
-            Require(layouts == 0 && changes == 1, "Unchanged drop only refreshes presentation");
-
-            grid.BeginBlockDrag("block");
-            for (int i = 0; i < 4; i++) grid.RotatePreview();
-            Require(grid.CommitPreview() && grid.FindUnit("unit").IsPlaced && layouts == 0,
-                "Four rotations restore unchanged placement");
-
-            grid.BeginBlockDrag("block"); grid.MovePreview(new Vector2Int(-1, -1));
-            Require(!grid.CommitPreview(), "Invalid drop rejected");
-            grid.CancelDrag();
-            Require(grid.FindUnit("unit").IsPlaced && grid.FindBlock("block").Anchor == anchor && layouts == 0,
-                "Invalid drop and cancellation preserve placement");
-
-            grid.BeginBlockDrag("block"); grid.RotatePreview();
-            Require(grid.CommitPreview() && !grid.FindUnit("unit").IsPlaced && layouts == 1,
-                "Actual rotation returns occupant and publishes layout change");
-            PlaceUnit(grid, "unit", anchor);
-            layouts = 0;
-            grid.BeginBlockDrag("block"); grid.MovePreview(new Vector2Int(4, 1));
-            Require(grid.CommitPreview() && !grid.FindUnit("unit").IsPlaced && layouts == 1,
-                "Actual movement returns occupant and publishes layout change");
+            Require(grid.FloorCells.Count == 40 && !grid.CanExpand, "Maximum grid");
         }
         private static void VerifyRunSession()
         {
@@ -249,6 +195,52 @@ namespace OZGL2.Grid.Editor
             Require(typeof(GridManager).GetMethod("TryBeginBattle") == null && typeof(GridManager).GetMethod("TryFinishBattle") == null, "No public direct progression methods");
             var mapping = new GridWorldMapping(new Vector3(10, 0, 20), Vector3.right * 2, Vector3.forward * 3);
             Require(mapping.GetWorldPosition(new Vector2(2, 1)) == new Vector3(14, 0, 23), "XZ coordinate conversion");
+        }
+        private static void VerifyBattleSnapshotCommit()
+        {
+            using (var session = new GridRunSession("snapshot_commit", Catalog.CreateDefinition()))
+            {
+                var grid = session.Grid;
+                var shape = Catalog.CreateInitialBlock();
+                grid.AddBlock("b", shape.Id, shape);
+                grid.AddUnit("u", Catalog.CreateInitialUnit());
+                Require(session.TryAllowPreparation(session.RunId, 1, false), "Snapshot preparation");
+                Place(grid, "b", new Vector2Int(2, 0));
+                int attempts = 0;
+                bool rejectedWithoutMutation = true;
+                GridDeploymentSnapshot observed = null;
+                grid.Changed += () =>
+                {
+                    if (grid.CanBeginBattle)
+                    {
+                        attempts++;
+                        var previous = session.Deployment;
+                        bool accepted = session.TryBeginBattle(session.RunId, session.NextRound);
+                        rejectedWithoutMutation &= !accepted && ReferenceEquals(previous, session.Deployment) &&
+                            grid.Phase == eGridPhase.PREPARATION;
+                    }
+                    if (grid.Phase == eGridPhase.BATTLE) observed = session.Deployment;
+                };
+                PlaceUnit(grid, "u", new Vector2Int(2, 0));
+                Require(attempts > 0 && rejectedWithoutMutation && session.Deployment == null,
+                    "Rejected observer start preserves null snapshot");
+                Require(session.TryBeginBattle(session.RunId, 1), "Snapshot first battle");
+                var first = session.Deployment;
+                Require(first != null && ReferenceEquals(observed, first) && first.Units[0].Anchor == new Vector2Int(2, 0),
+                    "Start observer sees committed first snapshot");
+                Require(session.TryFinishBattle(session.RunId, 1, "snapshot_reward") &&
+                    session.TryChooseUnit(session.RunId, "snapshot_reward", Catalog.CreateInitialUnit(), shape) &&
+                    session.TryAllowPreparation(session.RunId, 2, true), "Snapshot next preparation");
+                Place(grid, "b", new Vector2Int(3, 0));
+                int previousAttempts = attempts;
+                PlaceUnit(grid, "u", new Vector2Int(3, 0));
+                Require(attempts > previousAttempts && rejectedWithoutMutation && ReferenceEquals(session.Deployment, first),
+                    "Rejected observer start preserves previous round snapshot");
+                Require(session.TryBeginBattle(session.RunId, 2, true), "Snapshot next battle with skip");
+                Require(!ReferenceEquals(session.Deployment, first) && ReferenceEquals(observed, session.Deployment) &&
+                    session.Deployment.Units[0].Anchor == new Vector2Int(3, 0) && first.Units[0].Anchor == new Vector2Int(2, 0),
+                    "Start observer sees updated snapshot while previous snapshot stays immutable");
+            }
         }
         private static readonly Dictionary<GridManager, GridRunSession> _sessions = new Dictionary<GridManager, GridRunSession>();
         private static GridManager CreatePreparedGrid()

@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.GridUnitDataSO
   _id: dummy_unit_corner_four
   _displayName: Dummy Corner 4
-  _requiredBlockId: corner_four
+  _rewardBlockId: corner_four
+  _footprint: {fileID: 11400000, guid: 53bb90bd0a4cdde45b5e49922a671e75, type: 2}

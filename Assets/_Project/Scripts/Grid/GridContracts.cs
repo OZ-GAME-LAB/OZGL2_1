@@ -6,7 +6,7 @@ namespace OZGL2.Grid
 {
     public enum eGridPhase { PREPARATION, BATTLE, REWARD, WAITING, ENDED }
     public enum eGridDragKind { NONE, BLOCK, UNIT, EXPANSION }
-    public enum ePlacementFailure { NONE, NOT_PREPARING, NO_SELECTION, OUTSIDE_BOUNDS, NO_FLOOR, OCCUPIED, FLOOR_EXISTS, DISCONNECTED, NO_BLOCK, WRONG_BLOCK, BLOCK_OCCUPIED }
+    public enum ePlacementFailure { NONE, NOT_PREPARING, NO_SELECTION, OUTSIDE_BOUNDS, NO_FLOOR, OCCUPIED, FLOOR_EXISTS, DISCONNECTED, NO_BLOCK, STORAGE_PENDING }
 
     public interface IGridPreparation
     {
@@ -25,6 +25,8 @@ namespace OZGL2.Grid
         IReadOnlyList<UnitPlacement> Units { get; }
         IReadOnlyCollection<Vector2Int> FloorCells { get; }
         bool CanExpand { get; }
+        int StoredCount { get; }
+        GridStorageRequest PendingStorage { get; }
     }
     /// <summary>바닥 위에 배치하는 블록. 유닛의 배치 연결과 독립적이다.</summary>
     public sealed class BlockPlacement
@@ -49,24 +51,30 @@ namespace OZGL2.Grid
     {
         public string InstanceId { get; }
         public UnitDefinition Definition { get; }
-        public string BlockId { get; }
-        public bool IsPlaced => BlockId != null;
-        public UnitPlacement(string instanceId, UnitDefinition definition, string blockId = null)
+        public bool IsPlaced { get; }
+        public Vector2Int Anchor { get; }
+        public int Rotation { get; }
+        public UnitPlacement(string instanceId, UnitDefinition definition, bool isPlaced = false, Vector2Int anchor = default, int rotation = 0)
         {
             if (string.IsNullOrWhiteSpace(instanceId)) throw new ArgumentException("Unit instance ID required.");
-            InstanceId = instanceId; Definition = definition ?? throw new ArgumentNullException(nameof(definition)); BlockId = blockId;
+            InstanceId = instanceId; Definition = definition ?? throw new ArgumentNullException(nameof(definition));
+            IsPlaced = isPlaced; Anchor = anchor; Rotation = ((rotation % 4) + 4) % 4;
         }
-        public UnitPlacement WithBlock(string blockId) => new UnitPlacement(InstanceId, Definition, blockId);
+        public UnitPlacement WithPlacement(bool isPlaced, Vector2Int anchor, int rotation)
+            => new UnitPlacement(InstanceId, Definition, isPlaced, anchor, rotation);
+        public Vector2Int[] GetCells() => Definition.Footprint.GetCells(Anchor, Rotation);
     }
     public sealed class UnitDefinition
     {
         public string Id { get; }
         public string DisplayName { get; }
-        public string RequiredBlockId { get; }
-        public UnitDefinition(string id, string displayName, string requiredBlockId)
+        public FootprintDefinition Footprint { get; }
+        public string RewardBlockId { get; }
+        public UnitDefinition(string id, string displayName, FootprintDefinition footprint, string rewardBlockId = null)
         {
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(requiredBlockId)) throw new ArgumentException("Unit and required block IDs required.");
-            Id = id; DisplayName = displayName; RequiredBlockId = requiredBlockId;
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Unit ID required.");
+            Id = id; DisplayName = displayName; Footprint = footprint ?? throw new ArgumentNullException(nameof(footprint));
+            RewardBlockId = rewardBlockId ?? footprint.Id;
         }
     }
 }

@@ -10,13 +10,11 @@ namespace OZGL2.Grid.UI
         private readonly GridBoardView _board;
         private readonly VisualElement _root;
         private readonly VisualElement _tray;
-        private readonly VisualElement _blockTray;
         private int _pointerId = -1;
         private Vector2Int _grabOffset;
-        public GridDragInput(GridManager manager, GridBoardView board, VisualElement root, VisualElement tray, VisualElement blockTray)
+        public GridDragInput(GridManager manager, GridBoardView board, VisualElement root, VisualElement tray)
         {
             _manager = manager; _board = board; _root = root; _tray = tray;
-            _blockTray = blockTray;
             root.focusable = true;
             board.Element.RegisterCallback<PointerDownEvent>(OnBoardDown);
             root.RegisterCallback<PointerMoveEvent>(OnMove);
@@ -47,11 +45,11 @@ namespace OZGL2.Grid.UI
             var cell = _board.PanelToCell(evt.position);
             var block = _manager.GetBlockAt(cell);
             if (block == null) return;
-            var unit = _manager.GetUnitOnBlock(block.InstanceId);
-            if (!evt.shiftKey && unit != null && cell == block.Anchor)
+            var unit = _manager.GetUnitAt(cell);
+            if (unit != null)
             {
                 if (!_manager.BeginUnitDrag(unit.InstanceId)) return;
-                _grabOffset = Vector2Int.zero;
+                _grabOffset = cell - unit.Anchor;
             }
             else
             {
@@ -70,15 +68,18 @@ namespace OZGL2.Grid.UI
         {
             if (_pointerId != evt.pointerId || evt.button != 0) return;
             Update(evt.position);
-            if ((_manager.DragKind == eGridDragKind.UNIT && _tray.worldBound.Contains(evt.position)) ||
-                (_manager.DragKind == eGridDragKind.BLOCK && _blockTray.worldBound.Contains(evt.position))) _manager.DropToTray();
+            if ((_manager.DragKind == eGridDragKind.UNIT || _manager.DragKind == eGridDragKind.BLOCK) && _tray.worldBound.Contains(evt.position)) _manager.DropToTray();
             else if (!_manager.CommitPreview()) _manager.CancelDrag();
             Release(); evt.StopPropagation();
         }
         private void OnKey(KeyDownEvent evt)
         {
             if (!_manager.HasSelection) return;
-            if (evt.keyCode == KeyCode.R) _manager.RotatePreview();
+            if (evt.keyCode == KeyCode.R)
+            {
+                _manager.RotatePreview();
+                _grabOffset = new Vector2Int(_grabOffset.y, -_grabOffset.x);
+            }
             else if (evt.keyCode == KeyCode.Escape) Cancel();
             else return;
             evt.StopPropagation();
