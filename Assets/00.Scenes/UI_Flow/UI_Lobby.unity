@@ -9205,9 +9205,9 @@ RectTransform:
   - {fileID: 1758954545}
   m_Father: {fileID: 1049268399}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -675, y: 720}
   m_SizeDelta: {x: 1350, y: 1450}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &319878816
@@ -19386,7 +19386,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &660038647
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28464,7 +28464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 1049268399}
-  m_Horizontal: 0
+  m_Horizontal: 1
   m_Vertical: 1
   m_MovementType: 2
   m_Elasticity: 0.1
@@ -28473,7 +28473,7 @@ MonoBehaviour:
   m_ScrollSensitivity: 35
   m_Viewport: {fileID: 2092909071}
   m_HorizontalScrollbar: {fileID: 0}
-  m_VerticalScrollbar: {fileID: 660038648}
+  m_VerticalScrollbar: {fileID: 0}
   m_HorizontalScrollbarVisibility: 0
   m_VerticalScrollbarVisibility: 1
   m_HorizontalScrollbarSpacing: 0
@@ -29923,11 +29923,11 @@ RectTransform:
   - {fileID: 319730083}
   m_Father: {fileID: 2092909071}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 432}
-  m_SizeDelta: {x: 1350, y: 1450}
-  m_Pivot: {x: 0, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 2200, y: 1600}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1050346583
 GameObject:
   m_ObjectHideFlags: 0
@@ -42244,9 +42244,9 @@ RectTransform:
   - {fileID: 1942203740}
   m_Father: {fileID: 1049268399}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -675, y: 720}
   m_SizeDelta: {x: 1350, y: 1450}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1481831007
@@ -61289,10 +61289,10 @@ RectTransform:
   - {fileID: 1049268399}
   m_Father: {fileID: 963881577}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1354, y: 555}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2092909072
 MonoBehaviour:
