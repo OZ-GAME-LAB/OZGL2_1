@@ -1496,7 +1496,7 @@ GameObject:
   - component: {fileID: 97652323}
   - component: {fileID: 97652322}
   m_Layer: 0
-  m_Name: DetailButton_0
+  m_Name: IconButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1520,7 +1520,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 770, y: 180}
+  m_AnchoredPosition: {x: 71, y: -71}
   m_SizeDelta: {x: 100.40917, y: 100.40917}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &97652322
@@ -17059,11 +17059,11 @@ RectTransform:
   - {fileID: 97652321}
   m_Father: {fileID: 2067084790}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 311, y: 142}
+  m_Pivot: {x: 0, y: 1}
 --- !u!1 &1322740238
 GameObject:
   m_ObjectHideFlags: 0
@@ -22660,7 +22660,7 @@ GameObject:
   - component: {fileID: 1648412831}
   - component: {fileID: 1648412830}
   m_Layer: 0
-  m_Name: Count
+  m_Name: CountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25541,7 +25541,7 @@ GameObject:
   - component: {fileID: 1845598046}
   - component: {fileID: 1845598045}
   m_Layer: 0
-  m_Name: Threshold_0
+  m_Name: CountPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25565,7 +25565,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 795, y: 220}
+  m_AnchoredPosition: {x: 96, y: -31}
   m_SizeDelta: {x: 215, y: 82}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1845598045
@@ -28925,11 +28925,11 @@ RectTransform:
   - {fileID: 1316475590}
   m_Father: {fileID: 1644290576}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
-  m_Pivot: {x: 0, y: 1}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -239}
+  m_SizeDelta: {x: 311, y: 142}
+  m_Pivot: {x: 1, y: 1}
 --- !u!1 &2068993977
 GameObject:
   m_ObjectHideFlags: 0
