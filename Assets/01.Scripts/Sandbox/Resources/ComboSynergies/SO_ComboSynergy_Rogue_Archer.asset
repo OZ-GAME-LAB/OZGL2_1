@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7d6da19726e9bb45996306057cae68d, type: 3}
+  m_Name: SO_ComboSynergy_Rogue_Archer
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Synergy.ComboSynergyData
+  jobA: 4
+  jobB: 2
+  requiredCountEach: 2
+  displayName: "\uC9C8\uD48D \uC0AC\uB0E5\uAFBC"
+  effect: 2
+  value: 0.15
+  desc: "\uB3C4\uC801+\uAD81\uC218 \uAC01 2\uBA85 \uC774\uC0C1 \u2014 \uB3C4\uC801\xB7\uAD81\uC218
+    \uACF5\uACA9\uC18D\uB3C4 +15%"
+  connStatus: "\uC2A4\uD141"

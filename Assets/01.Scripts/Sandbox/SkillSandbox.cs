@@ -3,6 +3,7 @@ using UnityEngine;
 using OZGL2.Skill;
 using OZGL2.Progression;
 using OZGL2.Augment;
+using OZGL2.Synergy;
 
 namespace OZGL2.Sandbox
 {
@@ -42,6 +43,13 @@ namespace OZGL2.Sandbox
         private AugmentRun _augments;
         private AugmentModifiers _augMods;
         private List<AugmentData> _pendingAugments;
+        private SynergyTracker _synergy;
+        private SynergyModifiers _synMods;
+        private bool _showSynergy;
+        private readonly Dictionary<SynergyJob, int> _prevSynergyTier = new Dictionary<SynergyJob, int>();
+        private readonly Dictionary<ComboSynergyData, bool> _prevComboActive = new Dictionary<ComboSynergyData, bool>();
+        private readonly List<(string text, float expireAt)> _synergyToasts = new List<(string, float)>();
+        private const float SynergyToastDuration = 2.5f;
         private SkillBarUI _bar;
         private SkillExecutor _executor;
         private readonly List<SandboxUnit> _heroes = new List<SandboxUnit>();
@@ -54,6 +62,7 @@ namespace OZGL2.Sandbox
         private int _round;
         private Vector2 _treeScroll;
         private Vector2 _traitScroll;
+        private Vector2 _synergyScroll;
 
         private void Start()
         {
@@ -68,6 +77,10 @@ namespace OZGL2.Sandbox
             _augments = new AugmentRun(Resources.LoadAll<AugmentData>("Augments"));
             _augments.Changed += RefreshMods;
             _augments.Picked += OnAugmentPicked;
+
+            _synergy = new SynergyTracker(Resources.LoadAll<SynergyData>("Synergies"), Resources.LoadAll<ComboSynergyData>("ComboSynergies"));
+            _synergy.Changed += RefreshMods;
+            _synergy.Changed += OnSynergyChanged;
 
             RefreshMods();
 
@@ -90,20 +103,23 @@ namespace OZGL2.Sandbox
 
         /// <summary>1+percent 배율 두 개를 합친다 (둘 다 base=1인 배율값 기준).</summary>
         private static float Combine(float a, float b) => a + b - 1f;
+        private static float Combine(float a, float b, float c) => a + b + c - 2f;
         private static float CombineFloor(float a, float b, float floor) => Mathf.Max(floor, a + b - 1f);
 
-        /// <summary>특성 랭크 또는 증강 픽이 바뀔 때마다 — 모든 소비처에 배율 재적용.</summary>
+        /// <summary>특성 랭크·증강 픽·시너지 배치 수가 바뀔 때마다 — 모든 소비처에 배율 재적용.</summary>
         private void RefreshMods()
         {
             _traitMods = _traits.BuildModifiers();
             _augMods = _augments.BuildModifiers();
+            _synMods = _synergy.BuildModifiers();
 
             _skillMods.PowerMult = Combine(_traitMods.SkillPowerMult, _augMods.SkillPowerMult);
-            _skillMods.CooldownMult = CombineFloor(_traitMods.SkillCooldownMult, _augMods.SkillCooldownMult, 0.3f);
+            float cdBeforeCombo = CombineFloor(_traitMods.SkillCooldownMult, _augMods.SkillCooldownMult, 0.3f);
+            _skillMods.CooldownMult = Mathf.Max(0.3f, cdBeforeCombo * _synMods.ComboSkillCooldownMult); // 현자의 결속(힐러+마법사)
             _skillMods.RadiusMult = Combine(_traitMods.SkillRadiusMult, _augMods.SkillRadiusMult);
             _skillMods.BuffDurationMult = Combine(_traitMods.SkillBuffDurationMult, _augMods.SkillBuffDurationMult);
             _skillMods.ReviveBonus = 0;
-            _skillMods.CritChance = _augMods.CritChance;   // 특성엔 없음 — 증강 전용 재미
+            _skillMods.CritChance = _augMods.CritChance + _synMods.ComboCritChanceBonus; // 증강 + 원거리 포격대(궁수+마법사)
             _skillMods.EchoChance = _augMods.EchoChance;
             _skillMods.OnHitSlowAmount = _augMods.OnHitSlowAmount;
 
@@ -115,6 +131,27 @@ namespace OZGL2.Sandbox
             _mawang.SurgeXpOnMilestone = _traitMods.SurgeXpPer5Level;
             // 몬스터/용사 체력·취약 배율은 다음 리스폰 때 적용 (SpawnUnit)
         }
+
+        /// <summary>배치 수가 바뀌어 새로 발동한 시너지·조합 시너지를 감지해 화면 알림 큐에 넣는다.</summary>
+        private void OnSynergyChanged()
+        {
+            foreach (var d in _synergy.Defs)
+            {
+                int tier = _synergy.TierOf(d.job);
+                _prevSynergyTier.TryGetValue(d.job, out int prevTier);
+                if (tier > prevTier) PushSynergyToast($"시너지 발동: {d.displayName} {tier}단계");
+                _prevSynergyTier[d.job] = tier;
+            }
+            foreach (var c in _synergy.ComboDefs)
+            {
+                bool active = _synergy.IsComboActive(c);
+                _prevComboActive.TryGetValue(c, out bool prevActive);
+                if (active && !prevActive) PushSynergyToast($"조합 시너지 발동: {c.displayName}");
+                _prevComboActive[c] = active;
+            }
+        }
+
+        private void PushSynergyToast(string text) => _synergyToasts.Add((text, Time.time + SynergyToastDuration));
 
         private void OnAugmentPicked(AugmentData d)
         {
@@ -310,7 +347,7 @@ namespace OZGL2.Sandbox
 
             if (side == UnitSide.Monster)
             {
-                u.ApplyPermanentMods(Combine(_traitMods.MonsterHpMult, _augMods.MonsterHpMult), 1f);
+                u.ApplyPermanentMods(Combine(_traitMods.MonsterHpMult, _augMods.MonsterHpMult, _synMods.ShieldHpMult), 1f);
                 if (_augMods.MonsterShieldActive) u.GrantShield(); // 증강 "수호의 방패"
             }
             else
@@ -409,6 +446,7 @@ namespace OZGL2.Sandbox
             DrawAugmentHud();
             _showSkillTree = GUILayout.Toggle(_showSkillTree, " 스킬 트리 열기");
             _showTraitTree = GUILayout.Toggle(_showTraitTree, " 특성 트리 열기");
+            _showSynergy = GUILayout.Toggle(_showSynergy, " 시너지 패널 열기");
             if (GUILayout.Button("스킬 트리 저장 초기화")) WipeSkillTree();
             if (GUILayout.Button("특성 트리 저장 초기화")) { _traits.ResetAll(); SpawnAll(); }
             if (GUILayout.Button("증강 초기화 (새 런)")) { _augments.ResetRun(); SpawnAll(); }
@@ -417,7 +455,88 @@ namespace OZGL2.Sandbox
 
             if (_showSkillTree) DrawSkillTree();
             if (_showTraitTree) DrawTraitTree();
+            if (_showSynergy) DrawSynergyPanel();
             if (_pendingAugments != null && _pendingAugments.Count > 0) DrawAugmentPicker();
+
+            DrawActiveSynergyHud();
+            DrawSynergyToasts();
+        }
+
+        /// <summary>디버그 패널을 안 열어도 항상 보이는 "현재 발동 중" 시너지 목록 — 실제 플레이 테스트용 HUD.</summary>
+        private void DrawActiveSynergyHud()
+        {
+            var active = new List<string>();
+            foreach (var d in _synergy.Defs)
+            {
+                int tier = _synergy.TierOf(d.job);
+                if (tier > 0) active.Add($"{d.displayName} {tier}단계");
+            }
+            foreach (var c in _synergy.ComboDefs)
+                if (_synergy.IsComboActive(c)) active.Add(c.displayName);
+
+            if (active.Count == 0) return;
+
+            float h = 24f * active.Count + 12f;
+            GUILayout.BeginArea(new Rect(10f, Screen.height - h - 10f, 220f, h), GUI.skin.box);
+            GUILayout.Label("<b>발동 중인 시너지</b>");
+            foreach (var s in active) GUILayout.Label($"<color=#7fffb0>◆ {s}</color>");
+            GUILayout.EndArea();
+        }
+
+        /// <summary>시너지가 새로 발동한 순간 화면 중앙 상단에 잠깐 뜨는 알림.</summary>
+        private void DrawSynergyToasts()
+        {
+            _synergyToasts.RemoveAll(t => Time.time >= t.expireAt);
+            if (_synergyToasts.Count == 0) return;
+
+            float w = 320f;
+            GUILayout.BeginArea(new Rect(Screen.width / 2f - w / 2f, 20f, w, 24f * _synergyToasts.Count));
+            foreach (var t in _synergyToasts)
+                GUILayout.Label($"<color=#ffdd55><b>{t.text}</b></color>");
+            GUILayout.EndArea();
+        }
+
+        /// <summary>
+        /// 시너지 검증 패널 — 실제 그리드가 없어서 직업별 "배치 수"를 직접 입력해 판정 로직만 확인.
+        /// 그리드 붙으면 이 숫자는 그리드 매니저(김건·준기)가 SetCount 로 채워주면 됨.
+        /// </summary>
+        private void DrawSynergyPanel()
+        {
+            float h = Mathf.Min(Screen.height - 20f, 560f);
+            GUILayout.BeginArea(new Rect(280f, 10f, 340f, h), GUI.skin.box);
+            _synergyScroll = GUILayout.BeginScrollView(_synergyScroll);
+            GUILayout.Label("<b>시너지 (배치 수 시뮬레이션)</b>");
+
+            foreach (var d in _synergy.Defs)
+            {
+                int count = _synergy.CountOf(d.job);
+                int tier = _synergy.TierOf(d.job);
+                string tierTag = tier == 2 ? "[2단계]" : tier == 1 ? "[1단계]" : "[비활성]";
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"{d.displayName} {tierTag}", GUILayout.Width(110f));
+                if (GUILayout.Button("-", GUILayout.Width(24f))) _synergy.SetCount(d.job, count - 1);
+                GUILayout.Label(count.ToString(), GUILayout.Width(24f));
+                if (GUILayout.Button("+", GUILayout.Width(24f))) _synergy.SetCount(d.job, count + 1);
+                GUILayout.Label($"<color=#888>{d.connStatus}</color>", GUILayout.Width(60f));
+                GUILayout.EndHorizontal();
+
+                string desc = tier == 2 ? d.tier2Desc : tier == 1 ? d.tier1Desc : $"{d.tier1Threshold}명·{d.tier2Threshold}명 필요";
+                GUILayout.Label($"<color=#aaa>  {desc}</color>");
+            }
+
+            GUILayout.Space(8f);
+            GUILayout.Label("<b>조합 시너지 (서로 다른 직업)</b>");
+            foreach (var c in _synergy.ComboDefs)
+            {
+                bool active = _synergy.IsComboActive(c);
+                string tag = active ? "[발동]" : "[비활성]";
+                GUILayout.Label($"{c.displayName} {tag} <color=#888>{c.connStatus}</color>");
+                GUILayout.Label($"<color=#aaa>  {c.desc}</color>");
+            }
+
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
         }
 
         /// <summary>
