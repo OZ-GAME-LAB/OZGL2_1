@@ -1,4 +1,5 @@
 using UnityEngine;
+using OZGL2.Synergy;
 
 /// <summary>
 /// 유닛 1종의 기초 스탯을 담는 ScriptableObject.
@@ -12,6 +13,9 @@ public class UnitStatData : ScriptableObject
     public string unitId;          // 코드/데이터에서 참조할 고유 키 (예: "Hero_Warrior", "Army_MeleeDPS")
     public string displayName;     // 화면 표시용 이름
     public UnitSide side;
+
+    [Header("직업 (시너지·특성 배율 판정용 — 성민 파트 연계)")]
+    public SynergyJob job;
 
     [Header("스탯 (밸런스시트 03.전투공식 기준)")]
     public int maxHealth = 100;

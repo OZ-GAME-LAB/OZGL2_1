@@ -1,11 +1,15 @@
 using UnityEngine;
+using OZGL2.Contracts;
 
 /// <summary>
 /// 용사/마왕군 공통 유닛 베이스.
 /// Day1: 상태(State) 골격 + 이동 + SPUM 애니메이션. Day2: 타겟팅 + 공격/치료 판정 + 사망 처리.
 /// 실제 그리드/스폰 시스템이 붙기 전까지는 SetMoveTarget()으로 월드 좌표를 직접 넘겨 테스트한다.
+/// IDamageable/IHealable/IStatusReceiver 구현: 기존 int 기반 API는 그대로 두고, 성민 파트
+/// 스킬 시스템이 이 유닛을 직접 때리고 힐하고 CC 걸 수 있도록 명시적 인터페이스 구현만 추가
+/// (기존 공개 API 동작 변경 없음).
 /// </summary>
-public class UnitBase : MonoBehaviour
+public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver
 {
     [Header("데이터")]
     public UnitStatData statData;
@@ -40,6 +44,52 @@ public class UnitBase : MonoBehaviour
 
     public UnitSide Side => statData != null ? statData.side : UnitSide.Hero;
 
+    // IDamageable (OZGL2.Contracts) — 성민 파트 스킬 시스템 전용 진입점. 기존 int 기반 API와 별개.
+    float IDamageable.CurrentHp => currentHealth;
+    float IDamageable.MaxHp => statData != null ? statData.maxHealth : 0f;
+    bool IDamageable.IsDead => currentState == UnitState.Dead;
+    Vector3 IDamageable.Position => transform.position;
+    void IDamageable.TakeDamage(float amount) => TakeDamage(Mathf.RoundToInt(amount));
+
+    // IHealable (OZGL2.Contracts) — 힐/버프 스킬(흡혈 의식·광폭화 등) 전용 진입점.
+    Vector3 IHealable.Position => transform.position;
+    bool IHealable.IsDead => currentState == UnitState.Dead;
+    void IHealable.Heal(float amount) => Heal(Mathf.RoundToInt(amount));
+    void IHealable.HealFraction(float fraction)
+    {
+        if (statData == null || currentState == UnitState.Dead) return;
+        Heal(Mathf.RoundToInt(statData.maxHealth * Mathf.Clamp01(fraction)));
+    }
+    void IHealable.ApplyBuff(string stat, float multiplier, float seconds)
+    {
+        switch (stat)
+        {
+            case "attack": _buffAttackMult = multiplier; _buffAttackExpire = Time.time + seconds; break;
+            case "attackSpeed": _buffAttackSpeedMult = multiplier; _buffAttackSpeedExpire = Time.time + seconds; break;
+            case "defense": _buffDefenseMult = multiplier; _buffDefenseExpire = Time.time + seconds; break;
+        }
+    }
+
+    // IStatusReceiver (OZGL2.Contracts) — CC 스킬(정지·둔화·넉백·취약) 전용 진입점.
+    void IStatusReceiver.ApplyStun(float seconds) => _stunExpire = Mathf.Max(_stunExpire, Time.time + seconds);
+    void IStatusReceiver.ApplySlow(float multiplier, float seconds) { _slowMult = multiplier; _slowExpire = Time.time + seconds; }
+    void IStatusReceiver.ApplyKnockback(Vector3 dir, float force) => transform.position += dir.normalized * force;
+    void IStatusReceiver.ApplyVulnerable(float multiplier, float seconds) { _vulnerableMult = multiplier; _vulnerableExpire = Time.time + seconds; }
+
+    // CC/버프 런타임 상태 — 시간 기반이라 값 자체는 만료 후에도 남아있지만 아래 Effective* 계산 시 항상 만료 여부를 같이 체크한다.
+    private float _stunExpire;
+    private float _slowMult = 1f, _slowExpire;
+    private float _vulnerableMult = 1f, _vulnerableExpire;
+    private float _buffAttackMult = 1f, _buffAttackExpire;
+    private float _buffAttackSpeedMult = 1f, _buffAttackSpeedExpire;
+    private float _buffDefenseMult = 1f, _buffDefenseExpire;
+
+    private float EffectiveSlowMult => Time.time < _slowExpire ? _slowMult : 1f;
+    private float EffectiveVulnerableMult => Time.time < _vulnerableExpire ? _vulnerableMult : 1f;
+    private float EffectiveBuffAttackMult => Time.time < _buffAttackExpire ? _buffAttackMult : 1f;
+    private float EffectiveBuffAttackSpeedMult => Time.time < _buffAttackSpeedExpire ? _buffAttackSpeedMult : 1f;
+    private float EffectiveBuffDefenseMult => Time.time < _buffDefenseExpire ? _buffDefenseMult : 1f;
+
     // SPUM 프리팹의 애니메이션 재생 담당 컴포넌트 (자식 오브젝트에 붙어있음, SPUM 샘플의 PlayerObj 참고)
     protected SPUM_Prefabs spumPrefabs;
 
@@ -66,7 +116,7 @@ public class UnitBase : MonoBehaviour
     {
         if (statData != null)
         {
-            currentHealth = statData.maxHealth;
+            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job));
         }
         else
         {
@@ -130,6 +180,11 @@ public class UnitBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (Time.time < _stunExpire)
+        {
+            return; // 스턴 중엔 상태 틱 자체를 건너뛴다 (행동 불가)
+        }
+
         switch (currentState)
         {
             case UnitState.Idle:
@@ -176,7 +231,7 @@ public class UnitBase : MonoBehaviour
         }
 
         Vector3 direction = toTarget.normalized;
-        transform.position += direction * statData.moveSpeed * Time.deltaTime;
+        transform.position += direction * statData.moveSpeed * EffectiveSlowMult * Time.deltaTime;
         FaceDirection(direction);
     }
 
@@ -350,7 +405,8 @@ public class UnitBase : MonoBehaviour
     protected float GetAttackInterval()
     {
         float speed = statData != null ? statData.attackSpeed : 1f;
-        return 1f / Mathf.Max(speed, 0.01f);
+        float speedMult = statData != null ? CombatModifierHub.GetAttackSpeedMult(statData.job) : 1f;
+        return 1f / Mathf.Max(speed * speedMult * EffectiveSlowMult * EffectiveBuffAttackSpeedMult, 0.01f);
     }
 
     protected virtual void PerformAttack(UnitBase target)
@@ -362,12 +418,14 @@ public class UnitBase : MonoBehaviour
 
         if (statData.healAmount > 0f)
         {
-            target.Heal(Mathf.RoundToInt(statData.healAmount));
+            float healMult = CombatModifierHub.GetHealMult(statData.job);
+            target.Heal(Mathf.RoundToInt(statData.healAmount * healMult));
             return;
         }
 
-        float targetDefense = target.statData != null ? target.statData.defensePercent : 0f;
-        int damage = CalculateDamage(statData.attackPower, targetDefense);
+        float targetDefense = (target.statData != null ? target.statData.defensePercent : 0f) * target.EffectiveBuffDefenseMult;
+        float attackMult = CombatModifierHub.GetAttackMult(statData.job);
+        int damage = CalculateDamage(statData.attackPower * attackMult * EffectiveBuffAttackMult, targetDefense);
 
         if (statData.projectilePrefab != null)
         {
@@ -441,7 +499,7 @@ public class UnitBase : MonoBehaviour
             return;
         }
 
-        currentHealth -= amount;
+        currentHealth -= Mathf.RoundToInt(amount * EffectiveVulnerableMult);
         if (currentHealth <= 0)
         {
             Die();
@@ -494,7 +552,7 @@ public class UnitBase : MonoBehaviour
             return;
         }
 
-        currentHealth = statData.maxHealth;
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job));
         SetState(UnitState.Idle);
     }
 
@@ -529,6 +587,6 @@ public class UnitBase : MonoBehaviour
         statData.attackPower = baseStatData.attackPower * multiplier;
         statData.healAmount = baseStatData.healAmount * multiplier;
 
-        currentHealth = statData.maxHealth; // 합성 시 풀피로 시작
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job)); // 합성 시 풀피로 시작
     }
 }
