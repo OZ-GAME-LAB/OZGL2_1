@@ -22,6 +22,10 @@ namespace OZGL2.Synergy
         [Header("마왕 위치 (스킬 시전 기준점 — 비우면 이 오브젝트 위치)")]
         [SerializeField] private Transform _casterTransform;
 
+        [Header("디버그 (테스트용 — 실제 배포 전에는 꺼야 함)")]
+        [Tooltip("체크하면 계정 해금/장착 상태 무시하고 모든 스킬을 해금·장착 시도(용량만큼). 계정 저장(PlayerPrefs)은 안 건드림.")]
+        [SerializeField] private bool _debugUnlockAllSkills = true;
+
         private static readonly SynergyJob[] AllJobs = (SynergyJob[])System.Enum.GetValues(typeof(SynergyJob));
 
         private SynergyTracker _synergy;
@@ -33,13 +37,26 @@ namespace OZGL2.Synergy
         private SkillExecutor _executor;
         private RealTargetProvider _targets;
         private RealAllyProvider _allies;
+        private SkillBarUI _skillBar;
 
         public SynergyTracker Synergy => _synergy;
         public TraitTree Traits => _traits;
         public AugmentRun Augments => _augments;
         public SkillManager SkillManager => _skillManager;
 
-        private Vector3 CasterPosition => _casterTransform != null ? _casterTransform.position : transform.position;
+        /// <summary>
+        /// 마왕 위치. 인스펙터에 지정된 Transform이 있으면 그걸 쓰고, 없으면 RealDefenders가
+        /// 라운드 시작마다 채워두는 UnitRegistry.KingWorldPosition(실제 그리드 King 앵커)을 쓴다.
+        /// </summary>
+        private Vector3 CasterPosition
+        {
+            get
+            {
+                if (_casterTransform != null) return _casterTransform.position;
+                if (UnitRegistry.KingWorldPosition.HasValue) return UnitRegistry.KingWorldPosition.Value;
+                return transform.position;
+            }
+        }
 
         /// <summary>1+percent 배율 두 개/세 개를 합친다 (SkillSandbox.RefreshMods와 동일한 공식).</summary>
         private static float Combine(float a, float b) => a + b - 1f;
@@ -77,19 +94,33 @@ namespace OZGL2.Synergy
             _skillManager = new SkillManager(_targets, _skillMods);
 
             var defs = _skills.Count > 0 ? _skills : new List<SkillData>(Resources.LoadAll<SkillData>("Skills"));
+
+            // 장착 용량은 디버그 모드에서도 실제와 동일(기본 3 + 특성) — 디버그는 "해금 상태"만 전부 풀어서
+            // 22종 중 뭘 그 칸에 넣을지 자유롭게 고를 수 있게 해줄 뿐, 슬롯 수 자체는 안 바꾼다.
+            _skillManager.EquipCapacity = 3 + _traits.BuildModifiers().ExtraSkillSlots;
+
             var equipped = SkillTreeStore.GetEquipped();
             foreach (var data in defs)
             {
                 if (data == null) continue;
-                bool unlocked = SkillTreeStore.IsUnlocked(data.skillId);
+                bool unlocked = _debugUnlockAllSkills || SkillTreeStore.IsUnlocked(data.skillId);
                 var runtime = _skillManager.Register(data, unlocked);
-                if (unlocked && equipped.Contains(data.skillId)) _skillManager.TryEquip(runtime);
+                // 디버그 모드: 용량 찰 때까지 등록 순서대로 우선 채워 넣고, 나머지는 디버그 패널에서 직접 스왑.
+                bool shouldEquip = unlocked && (_debugUnlockAllSkills
+                    ? _skillManager.EquippedCount < _skillManager.EquipCapacity
+                    : equipped.Contains(data.skillId));
+                if (shouldEquip) _skillManager.TryEquip(runtime);
             }
 
             var execObj = new GameObject("RealSkillExecutor");
             execObj.transform.SetParent(transform);
             _executor = execObj.AddComponent<SkillExecutor>();
             _executor.Bind(_skillManager, _targets, _allies, CasterPosition, _skillMods);
+
+            var barObj = new GameObject("RealSkillBar");
+            barObj.transform.SetParent(transform);
+            _skillBar = barObj.AddComponent<SkillBarUI>();
+            _skillBar.Bind(_skillManager, Camera.main, CasterPosition);
         }
 
         /// <summary>
@@ -110,6 +141,38 @@ namespace OZGL2.Synergy
                 }
                 i++;
             }
+        }
+
+        private Vector2 _debugSkillScroll;
+
+        /// <summary>디버그 모드 전용 — 등록된 스킬 목록에서 자유롭게 장착/해제(스왑)하는 패널.</summary>
+        private void OnGUI()
+        {
+            if (!_debugUnlockAllSkills || _skillManager == null) return;
+
+            GUILayout.BeginArea(new Rect(10f, 10f, 260f, Mathf.Min(Screen.height - 20f, 500f)), GUI.skin.box);
+            GUILayout.Label($"<b>디버그 — 스킬 장착 ({_skillManager.EquippedCount}/{_skillManager.EquipCapacity})</b>");
+            _debugSkillScroll = GUILayout.BeginScrollView(_debugSkillScroll);
+            foreach (var skill in _skillManager.Skills)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(skill.Data.displayName, GUILayout.Width(150f));
+                if (skill.IsEquipped)
+                {
+                    if (GUILayout.Button("해제", GUILayout.Width(50f)))
+                    {
+                        _skillManager.Unequip(skill);
+                        _skillBar.Rebuild();
+                    }
+                }
+                else if (GUILayout.Button("장착", GUILayout.Width(50f)))
+                {
+                    if (_skillManager.TryEquip(skill)) _skillBar.Rebuild();
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
         }
 
         private void TryCast(SkillRuntime skill)
@@ -154,7 +217,7 @@ namespace OZGL2.Synergy
                 _skillMods.OnHitSlowAmount = aug.OnHitSlowAmount;
                 _skillMods.ReviveBonus = 0;
             }
-            if (_skillManager != null) _skillManager.EquipCapacity = 3 + trait.ExtraSkillSlots;
+            if (_skillManager != null && !_debugUnlockAllSkills) _skillManager.EquipCapacity = 3 + trait.ExtraSkillSlots;
         }
 
         /// <summary>직업별 시너지 공격력 성분. 학살자 콤보(전사+도적)의 처치 보너스는 두 직업 공격력에 얹는다.</summary>
