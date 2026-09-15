@@ -67,8 +67,21 @@ namespace OZGL2.Grid.UI
         private void OnUp(PointerUpEvent evt)
         {
             if (_pointerId != evt.pointerId || evt.button != 0) return;
+            string targetId = null;
+            // MovePreview가 화면을 갱신하기 전에 현재 카드의 레이아웃으로 드롭 대상을 확정한다.
+            if (_tray.worldBound.Contains(evt.position))
+                foreach (var card in _tray.Children())
+                    if (card.userData is string id && card.worldBound.Contains(evt.position)) { targetId = id; break; }
             Update(evt.position);
-            if ((_manager.DragKind == eGridDragKind.UNIT || _manager.DragKind == eGridDragKind.BLOCK) && _tray.worldBound.Contains(evt.position)) _manager.DropToTray();
+            if (_manager.DragKind == eGridDragKind.UNIT && _tray.worldBound.Contains(evt.position))
+            {
+                if (targetId != null && targetId != _manager.SelectedId)
+                {
+                    if (!_manager.TryFuseUnits(_manager.SelectedId, targetId)) _manager.CancelDrag();
+                }
+                else _manager.DropToTray();
+            }
+            else if (_manager.DragKind == eGridDragKind.BLOCK && _tray.worldBound.Contains(evt.position)) _manager.DropToTray();
             else if (!_manager.CommitPreview()) _manager.CancelDrag();
             Release(); evt.StopPropagation();
         }

@@ -20,7 +20,7 @@ namespace OZGL2.InGame
         {
             token.ThrowIfCancellationRequested();
             if (Session != null) throw new InvalidOperationException("Create a new adapter for each run.");
-            Session = new GridRunSession(context.RunId, _definition);
+            Session = new GridRunSession(context.RunId, _definition, GridFusionPolicy.CanFuse);
             Session.Grid.Changed += Notify;
             Notify();
             return Task.CompletedTask;

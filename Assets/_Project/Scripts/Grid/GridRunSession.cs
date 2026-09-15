@@ -19,10 +19,10 @@ namespace OZGL2.Grid
         public bool CanBeginBattle => !IsEnded && Grid.CanBeginBattle;
         public bool CanSkipPreparation => !IsEnded && Grid.CanSkipPreparation;
         public bool RequiresExpansionPlacement => Grid.RequiresExpansionPlacement;
-        public GridRunSession(string runId, GridDefinition definition)
+        public GridRunSession(string runId, GridDefinition definition, Func<UnitPlacement, UnitPlacement, bool> canFuse = null)
         {
             if (string.IsNullOrWhiteSpace(runId)) throw new ArgumentException("External run ID required.");
-            RunId = runId; Grid = new GridManager(definition);
+            RunId = runId; Grid = new GridManager(definition, canFuse);
         }
         private bool CanHandle(string runId) => !IsEnded && !_isChanging && runId == RunId;
         public bool TryAllowPreparation(string runId, int round, bool canSkip)
