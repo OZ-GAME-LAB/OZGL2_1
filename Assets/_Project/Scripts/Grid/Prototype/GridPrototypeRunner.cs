@@ -8,6 +8,7 @@ namespace OZGL2.Grid.Prototype
     [RequireComponent(typeof(UIDocument))]
     public sealed class GridPrototypeRunner : MonoBehaviour
     {
+        [SerializeField] private GridBoardThemeSO _boardTheme;
         private VisualElement _root;
         private VisualElement _tray;
         private VisualElement _storageOverlay;
@@ -71,7 +72,7 @@ namespace OZGL2.Grid.Prototype
             var title = new Label("CASTLE GRID  /  PREPARATION PROTOTYPE"); title.style.fontSize = 26; _root.Add(title);
             _status = new Label(); _status.style.marginTop = 10; _root.Add(_status);
             _message = new Label(); _message.style.marginTop = 8; _message.style.height = 28; _root.Add(_message);
-            Board = new GridBoardView(Manager); _root.Add(Board.Element);
+            Board = new GridBoardView(Manager, _boardTheme); _root.Add(Board.Element);
             _root.Add(new Label("STORAGE / Units first · R: rotate · Esc: cancel · Drag here to return"));
             _tray = CreateTray("storage-tray", 116); _root.Add(_tray);
             _input = new GridDragInput(Manager, Board, _root, _tray);
@@ -115,25 +116,36 @@ namespace OZGL2.Grid.Prototype
             Board.Render();
             _status.text = Manager.Phase + "  |  FLOOR " + Manager.FloorCells.Count + "/" +
                 (Manager.Definition.MaximumSize.x * Manager.Definition.MaximumSize.y) + "  |  DEPLOYED " + Manager.PlacedCount + "  |  STORAGE " + Manager.StoredCount + "/" + Manager.Definition.StorageCapacity;
-            _message.text = Manager.HasSelection ? (Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
+            _message.text = Manager.HasSelection ? (Manager.CanFusePreview ? "Fuse: same unit + same star" : Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
                 Manager.Phase == eGridPhase.WAITING || (Manager.Phase == eGridPhase.REWARD && Session.PendingRewardId == null) ? "Waiting for preparation permission." :
                 Manager.RequiresExpansionPlacement ? "Place the floor reward before starting or skipping." :
                 Manager.Phase == eGridPhase.REWARD ? "Round clear: choose a reward to enter the next preparation." :
                 Manager.Phase == eGridPhase.BATTLE ? "Battle active: placement is locked." :
                 Manager.PlacedCount == 0 ? "Deploy at least one unit. The king does not count." : "Ready. Rearrange units or start the next battle.";
-            _tray.Clear();
-            foreach (var item in Manager.GetStoredItems())
+            // 드래그 중 카드의 레이아웃과 드롭 대상을 유지한다.
+            if (!Manager.HasSelection)
             {
-                var shape = item.Kind == eGridDragKind.UNIT ? Manager.FindUnit(item.InstanceId).Definition.Footprint : Manager.FindBlock(item.InstanceId).Footprint;
-                var card = CreateStorageCard(item, shape);
-                card.style.opacity = Manager.DragKind == item.Kind && Manager.SelectedId == item.InstanceId ? 0.4f : 1;
-                card.RegisterCallback<PointerDownEvent>(evt =>
+                _tray.Clear();
+                foreach (var item in Manager.GetStoredItems())
                 {
-                    if (item.Kind == eGridDragKind.UNIT) _input.BeginCard(item.InstanceId, evt);
-                    else _input.BeginBlockCard(item.InstanceId, evt);
-                });
-                _tray.Add(card);
+                    var shape = item.Kind == eGridDragKind.UNIT ? Manager.FindUnit(item.InstanceId).Definition.Footprint : Manager.FindBlock(item.InstanceId).Footprint;
+                    var card = CreateStorageCard(item, shape);
+                    if (item.Kind == eGridDragKind.UNIT)
+                    {
+                        card.userData = item.InstanceId;
+                        card.Q<Label>().text += " / " + Manager.FindUnit(item.InstanceId).StarLevel + "★";
+                    }
+                    card.style.opacity = Manager.DragKind == item.Kind && Manager.SelectedId == item.InstanceId ? 0.4f : 1;
+                    card.RegisterCallback<PointerDownEvent>(evt =>
+                    {
+                        if (item.Kind == eGridDragKind.UNIT) _input.BeginCard(item.InstanceId, evt);
+                        else _input.BeginBlockCard(item.InstanceId, evt);
+                    });
+                    _tray.Add(card);
+                }
             }
+            foreach (var card in _tray.Children())
+                card.style.opacity = card.name == "card-" + Manager.SelectedId || card.name == "block-card-" + Manager.SelectedId ? 0.4f : 1;
             _expansionCard.style.display = Manager.Phase == eGridPhase.PREPARATION && Manager.RequiresExpansionPlacement ? DisplayStyle.Flex : DisplayStyle.None;
             _start.SetEnabled(Manager.CanBeginBattle); _skip.SetEnabled(Manager.CanSkipPreparation);
             _clear.style.display = _flow != null && Manager.Phase == eGridPhase.BATTLE ? DisplayStyle.Flex : DisplayStyle.None;

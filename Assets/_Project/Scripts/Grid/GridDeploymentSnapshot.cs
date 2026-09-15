@@ -23,6 +23,7 @@ namespace OZGL2.Grid
     }
     public sealed class GridDeployedUnit
     {
+        public int StarLevel { get; }
         public string InstanceId { get; }
         public string ContentId { get; }
         public string ShapeId { get; }
@@ -31,6 +32,7 @@ namespace OZGL2.Grid
         public IReadOnlyList<Vector2Int> Cells { get; }
         internal GridDeployedUnit(UnitPlacement unit)
         {
+            StarLevel = unit.StarLevel;
             InstanceId = unit.InstanceId; ContentId = unit.Definition.Id;
             ShapeId = unit.Definition.Footprint.Id;
             Anchor = unit.Anchor; Rotation = unit.Rotation;

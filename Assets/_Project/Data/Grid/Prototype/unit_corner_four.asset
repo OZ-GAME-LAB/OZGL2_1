@@ -15,4 +15,4 @@ MonoBehaviour:
   _id: dummy_unit_corner_four
   _displayName: Dummy Corner 4
   _rewardBlockId: corner_four
-  _footprint: {fileID: 11400000, guid: 53bb90bd0a4cdde45b5e49922a671e75, type: 2}
+  _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}

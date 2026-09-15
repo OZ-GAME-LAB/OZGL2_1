@@ -30,6 +30,14 @@ namespace OZGL2.Stage
         Task<RoundResult> RunRoundAsync(RoundDefinition round, CancellationToken cancellationToken);
     }
 
+    public interface IStageBattleLifecycle
+    {
+        // 실제 마왕군 배치 후, 용사 스폰 전에 호출한다.
+        Task BeginRoundAsync(CancellationToken cancellationToken);
+        // 풀 반환 전에 완료해야 한다. 취소된 전투 토큰을 정리에 재사용하지 않는다.
+        Task EndRoundAsync();
+    }
+
     public interface IStageRewards
     {
         // 같은 RequestId의 재호출은 재지급하지 않아야 합니다. 실제 지급과 영수증은 함께 저장합니다.

@@ -45,6 +45,13 @@ namespace OZGL2.InGame
             GUILayout.BeginArea(new Rect((Screen.width - width) / 2, 24, width, Screen.height - 48), GUI.skin.box);
             GUILayout.Label("INGAME / PROTOTYPE CORE LOOP");
             GUILayout.Label("Dummy battle and rewards · Final UI will replace this screen");
+            GUILayout.Label("Synergy: " + (_bootstrap.HasSynergyConnection ? "connected" : "not connected"));
+            GUILayout.Label("Augment selection: " + (_bootstrap.UsesDummyAugments ? "dummy" : "external provider"));
+            GUILayout.Label("Combat adapters: " + _bootstrap.CombatParticipantNames);
+            GUILayout.Label("External operation: " + _bootstrap.ExternalOperationStatus);
+            if (!_bootstrap.HasCombatParticipants) GUILayout.Label("Skill gating / effect cleanup / caster position: not connected");
+            if (_bootstrap.NotificationErrorCount > 0)
+                GUILayout.Label("UI notification errors: " + _bootstrap.NotificationErrorCount + " / " + _bootstrap.LastFailedSubscriber);
             var stage = _bootstrap.Stage;
             if (stage != null)
             {
@@ -76,7 +83,8 @@ namespace OZGL2.InGame
                 if (GUILayout.Button("Confirm dummy augment", GUILayout.Height(44))) dummy.CompleteSelection(dummy.RequestId);
             }
             if (!string.IsNullOrEmpty(_bootstrap.Error)) GUILayout.Label("Start/run blocked: " + _bootstrap.Error);
-            if (stage != null && !stage.IsRunning)
+            if (!string.IsNullOrEmpty(_bootstrap.RetryBlockedReason)) GUILayout.Label(_bootstrap.RetryBlockedReason);
+            if (_bootstrap.CanRetry)
             {
                 if (GUILayout.Button("Retry from round 1", GUILayout.Height(44))) _bootstrap.StartPrototype();
             }
