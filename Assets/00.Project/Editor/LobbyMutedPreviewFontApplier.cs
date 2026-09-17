@@ -10,15 +10,20 @@ using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
 
 /// <summary>
-/// 별도 로비 시안 씬의 표시 텍스트만 TMP SDF로 전환한다.
+/// 별도 로비 시안 씬의 표시 텍스트만 픽셀 폰트 TMP 아틀라스로 전환한다.
 /// </summary>
 internal static class LobbyMutedPreviewFontApplier
 {
     private const string PREVIEW_SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
     private const string SOURCE_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/";
     private const string OUTPUT_FOLDER = "Assets/06.UI/LobbyMutedPreview/Fonts";
-    private const string GOTHIC_ASSET = OUTPUT_FOLDER + "/DOSGothic SDF.asset";
-    private const string MYUNGJO_ASSET = OUTPUT_FOLDER + "/DOSMyungjo SDF.asset";
+    private const string GOTHIC_ASSET = OUTPUT_FOLDER + "/DOSGothic Pixel.asset";
+    private const string MYUNGJO_ASSET = OUTPUT_FOLDER + "/DOSMyungjo Pixel.asset";
+    private const string GOTHIC_OUTLINE_MATERIAL = OUTPUT_FOLDER + "/DOSGothic Pixel Outline.mat";
+    private const string MYUNGJO_OUTLINE_MATERIAL = OUTPUT_FOLDER + "/DOSMyungjo Pixel Outline.mat";
+    private const string OUTLINE_SHADER = OUTPUT_FOLDER + "/PixelTMPOutline.shader";
+    private static readonly Color32 _textColor = new Color32(248, 242, 235, 255);
+    private static readonly Color32 _outlineColor = new Color32(80, 73, 73, 255);
 
     private static readonly string[] _gothicPaths =
     {
@@ -38,8 +43,8 @@ internal static class LobbyMutedPreviewFontApplier
         "BottomNavigation/CodexButton/Label"
     };
 
-    [MenuItem("Tools/OZGL2/Lobby/Apply Preview SDF Fonts")]
-    private static void ApplyPreviewSdfFonts()
+    [MenuItem("Tools/OZGL2/Lobby/Apply Preview Pixel Fonts")]
+    private static void ApplyPreviewPixelFonts()
     {
         Scene scene = SceneManager.GetActiveScene();
         if (scene.path != PREVIEW_SCENE)
@@ -57,20 +62,22 @@ internal static class LobbyMutedPreviewFontApplier
         ValidateTargets(canvas.transform, _myungjoPaths);
         EnsureOutputFolder();
 
-        TMP_FontAsset gothic = GetOrCreateSdf("DOSGothic.ttf", GOTHIC_ASSET,
+        TMP_FontAsset gothic = GetOrCreateBitmap("DOSGothic.ttf", GOTHIC_ASSET,
             CollectCharacters(canvas.transform, _gothicPaths));
-        TMP_FontAsset myungjo = GetOrCreateSdf("DOSMyungjo.ttf", MYUNGJO_ASSET,
+        TMP_FontAsset myungjo = GetOrCreateBitmap("DOSMyungjo.ttf", MYUNGJO_ASSET,
             CollectCharacters(canvas.transform, _myungjoPaths));
+        Material gothicMaterial = GetOrCreateOutlineMaterial(gothic, GOTHIC_OUTLINE_MATERIAL);
+        Material myungjoMaterial = GetOrCreateOutlineMaterial(myungjo, MYUNGJO_OUTLINE_MATERIAL);
 
         int undoGroup = Undo.GetCurrentGroup();
-        Undo.SetCurrentGroupName("Apply preview lobby SDF fonts");
-        ApplyFont(canvas.transform, _gothicPaths, gothic);
-        ApplyFont(canvas.transform, _myungjoPaths, myungjo);
+        Undo.SetCurrentGroupName("Apply preview lobby pixel fonts");
+        ApplyFont(canvas.transform, _gothicPaths, gothic, gothicMaterial);
+        ApplyFont(canvas.transform, _myungjoPaths, myungjo, myungjoMaterial);
         FitMyungjoLabels(canvas.transform);
         EditorSceneManager.MarkSceneDirty(scene);
         Undo.CollapseUndoOperations(undoGroup);
         AssetDatabase.SaveAssets();
-        Debug.Log("Muted lobby preview: 4 DOSGothic and 6 DOSMyungjo TMP labels applied.");
+        Debug.Log("Muted lobby preview: 4 DOSGothic and 6 DOSMyungjo pixel TMP labels applied.");
     }
 
     private static void ValidateTargets(Transform root, IEnumerable<string> paths)
@@ -126,7 +133,7 @@ internal static class LobbyMutedPreviewFontApplier
         return result.ToString();
     }
 
-    private static TMP_FontAsset GetOrCreateSdf(string sourceName, string outputPath,
+    private static TMP_FontAsset GetOrCreateBitmap(string sourceName, string outputPath,
         string characters)
     {
         string sourcePath = SOURCE_FOLDER + sourceName;
@@ -140,11 +147,12 @@ internal static class LobbyMutedPreviewFontApplier
         if (asset == null)
         {
             FontEngine.InitializeFontEngine();
-            asset = TMP_FontAsset.CreateFontAsset(source, 90, 9,
-                GlyphRenderMode.SDFAA, 2048, 2048, AtlasPopulationMode.Dynamic, true);
+            // DOS 픽셀 글꼴은 SDF에서 글자 아래에 수평 잔상이 생겨 원본 비트맵 획을 사용한다.
+            asset = TMP_FontAsset.CreateFontAsset(source, 90, 4,
+                GlyphRenderMode.RASTER, 2048, 2048, AtlasPopulationMode.Dynamic, true);
             if (asset == null)
             {
-                throw new InvalidOperationException("SDF 생성에 실패했습니다: " + sourceName);
+                throw new InvalidOperationException("픽셀 폰트 아틀라스 생성에 실패했습니다: " + sourceName);
             }
 
             asset.name = System.IO.Path.GetFileNameWithoutExtension(outputPath);
@@ -162,9 +170,9 @@ internal static class LobbyMutedPreviewFontApplier
                 AssetDatabase.AddObjectToAsset(asset.material, asset);
             }
         }
-        else if (asset.sourceFontFile != source || asset.atlasRenderMode != GlyphRenderMode.SDFAA)
+        else if (asset.sourceFontFile != source || asset.atlasRenderMode != GlyphRenderMode.RASTER)
         {
-            throw new InvalidOperationException("기존 SDF 에셋의 원본 폰트 또는 렌더 모드가 다릅니다: " + outputPath);
+            throw new InvalidOperationException("기존 픽셀 폰트 에셋의 원본 또는 렌더 모드가 다릅니다: " + outputPath);
         }
 
         StringBuilder charactersToAdd = new StringBuilder();
@@ -189,6 +197,7 @@ internal static class LobbyMutedPreviewFontApplier
         {
             if (texture != null)
             {
+                texture.filterMode = FilterMode.Point;
                 if (!AssetDatabase.Contains(texture))
                 {
                     AssetDatabase.AddObjectToAsset(texture, asset);
@@ -207,7 +216,42 @@ internal static class LobbyMutedPreviewFontApplier
         return asset;
     }
 
-    private static void ApplyFont(Transform root, IEnumerable<string> paths, TMP_FontAsset font)
+    private static Material GetOrCreateOutlineMaterial(TMP_FontAsset font, string outputPath)
+    {
+        Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(OUTLINE_SHADER);
+        if (shader == null)
+        {
+            throw new InvalidOperationException("로비 픽셀 글꼴 테두리 셰이더가 없습니다: " + OUTLINE_SHADER);
+        }
+
+        if (font.atlasTextures == null || font.atlasTextures.Length == 0 || font.atlasTextures[0] == null)
+        {
+            throw new InvalidOperationException("픽셀 글꼴 아틀라스가 없습니다: " + font.name);
+        }
+
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(outputPath);
+        if (material == null)
+        {
+            material = new Material(shader);
+            material.name = System.IO.Path.GetFileNameWithoutExtension(outputPath);
+            AssetDatabase.CreateAsset(material, outputPath);
+        }
+        else
+        {
+            Undo.RecordObject(material, "Configure lobby pixel font outline");
+            material.shader = shader;
+        }
+
+        material.SetTexture("_MainTex", font.atlasTextures[0]);
+        material.SetColor("_Color", Color.white);
+        material.SetColor("_OutlineColor", _outlineColor);
+        material.SetFloat("_OutlineTexels", 3.5f);
+        EditorUtility.SetDirty(material);
+        return material;
+    }
+
+    private static void ApplyFont(Transform root, IEnumerable<string> paths, TMP_FontAsset font,
+        Material outlineMaterial)
     {
         foreach (string path in paths)
         {
@@ -247,6 +291,15 @@ internal static class LobbyMutedPreviewFontApplier
             }
 
             tmp.font = font;
+            tmp.fontSharedMaterial = outlineMaterial;
+            tmp.fontStyle = FontStyles.Normal;
+            tmp.color = _textColor;
+            Outline outline = target.GetComponent<Outline>();
+            if (outline != null)
+            {
+                Undo.DestroyObjectImmediate(outline);
+            }
+
             EditorUtility.SetDirty(tmp);
         }
     }

@@ -40,7 +40,12 @@ internal static class LobbyMutedPreviewBuilder
         new Slice("BottomNav_Chroma.png", "Nav_Achievements.png", 0, 0, 543, 724),
         new Slice("BottomNav_Chroma.png", "Nav_Traits.png", 543, 0, 543, 724),
         new Slice("BottomNav_Chroma.png", "Nav_Skills.png", 1086, 0, 543, 724),
+        new Slice("Nav_Skills_Uniform_v2_Chroma.png", "Nav_Skills_Uniform_v2.png", 0, 0, 1254, 1254),
         new Slice("BottomNav_Chroma.png", "Nav_Codex.png", 1629, 0, 543, 724),
+        new Slice("Nav_Achievements_Gold_v3_Chroma.png", "Nav_Achievements_Gold_v3.png", 0, 0, 1254, 1254),
+        new Slice("Nav_Traits_Garnet_v3_Chroma.png", "Nav_Traits_Garnet_v3.png", 0, 0, 1254, 1254),
+        new Slice("Nav_Skills_Amethyst_v3_Chroma.png", "Nav_Skills_Amethyst_v3.png", 0, 0, 1254, 1254),
+        new Slice("Nav_Codex_Brown_v3_Chroma.png", "Nav_Codex_Brown_v3.png", 0, 0, 1254, 1254),
         new Slice("Chrome_Chroma.png", "HUD_Level.png", 0, 95, 1070, 280),
         new Slice("Chrome_Chroma.png", "Button_Menu.png", 1090, 100, 570, 260),
         new Slice("Chrome_Chroma.png", "Button_Battle.png", 0, 470, 1080, 360),
@@ -60,7 +65,7 @@ internal static class LobbyMutedPreviewBuilder
 
         AssetDatabase.Refresh();
         ConfigureSprite(SPRITES + "Lobby_Background.png");
-        Debug.Log("Muted lobby preview: 12 UI sprites generated and imported.");
+        Debug.Log("Muted lobby preview: " + SLICES.Length + " UI sprites generated and imported.");
     }
 
     [MenuItem("Tools/OZGL2/Lobby/Import Revised Button Sprites")]
@@ -274,10 +279,10 @@ internal static class LobbyMutedPreviewBuilder
         SetActive(Require(nextArrow, "Label"), false);
 
         Transform nav = Require(root, "BottomNavigation");
-        SetNavigation(nav, "ReservedButton", "Nav_Achievements.png", "업적", 450, font, ivory);
-        SetNavigation(nav, "TraitsButton", "Nav_Traits.png", "특성", 710, font, ivory);
-        SetNavigation(nav, "SkillsButton", "Nav_Skills.png", "스킬 세팅", 1000, font, ivory);
-        SetNavigation(nav, "CodexButton", "Nav_Codex.png", "도감", 1260, font, ivory);
+        SetNavigation(nav, "ReservedButton", "Nav_Achievements_Gold_v3.png", "업적", 450, font, ivory);
+        SetNavigation(nav, "TraitsButton", "Nav_Traits_Garnet_v3.png", "특성", 710, font, ivory);
+        SetNavigation(nav, "SkillsButton", "Nav_Skills_Amethyst_v3.png", "스킬 세팅", 1000, font, ivory);
+        SetNavigation(nav, "CodexButton", "Nav_Codex_Brown_v3.png", "도감", 1260, font, ivory);
 
         EditorSceneManager.MarkSceneDirty(scene);
         Undo.CollapseUndoOperations(undoGroup);
@@ -519,7 +524,13 @@ internal static class LobbyMutedPreviewBuilder
         {
             tmp.text = value;
             tmp.fontSize = fontSize;
-            tmp.fontStyle = FontStyles.Bold;
+            bool isPixelFont = tmp.font != null &&
+                tmp.font.atlasRenderMode == UnityEngine.TextCore.LowLevel.GlyphRenderMode.RASTER;
+            tmp.fontStyle = isPixelFont ? FontStyles.Normal : FontStyles.Bold;
+            if (isPixelFont)
+            {
+                tmp.color = new Color32(248, 242, 235, 255);
+            }
             tmp.alignment = alignment == TextAnchor.MiddleCenter
                 ? TextAlignmentOptions.Center : tmp.alignment;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
