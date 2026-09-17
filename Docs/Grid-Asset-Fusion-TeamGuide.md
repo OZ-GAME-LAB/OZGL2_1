@@ -1,5 +1,7 @@
 # RF Castle 배치판과 합성 연동 (#23)
 
+> #25부터 InGame의 기본 테마는 SPUM으로 교체되었다. 현재 연결 배치 규칙과 타일 설정은 [Grid-Connectivity-TeamGuide.md](Grid-Connectivity-TeamGuide.md)를 참고한다. 아래 RF Castle 정보는 기존 테마에 대한 기록이며 합성 계약은 유지된다.
+
 ## 적용 범위
 
 - InGame 준비 화면과 전투 월드 배치판에서 RF Castle 스프라이트를 사용한다.

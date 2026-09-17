@@ -117,6 +117,7 @@ namespace OZGL2.Grid.Prototype
             _status.text = Manager.Phase + "  |  FLOOR " + Manager.FloorCells.Count + "/" +
                 (Manager.Definition.MaximumSize.x * Manager.Definition.MaximumSize.y) + "  |  DEPLOYED " + Manager.PlacedCount + "  |  STORAGE " + Manager.StoredCount + "/" + Manager.Definition.StorageCapacity;
             _message.text = Manager.HasSelection ? (Manager.CanFusePreview ? "Fuse: same unit + same star" : Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
+                Manager.LastDropFailure == ePlacementFailure.DISCONNECTED ? "Keep platforms connected by an edge. Moving or returning this block must not split them." :
                 Manager.Phase == eGridPhase.WAITING || (Manager.Phase == eGridPhase.REWARD && Session.PendingRewardId == null) ? "Waiting for preparation permission." :
                 Manager.RequiresExpansionPlacement ? "Place the floor reward before starting or skipping." :
                 Manager.Phase == eGridPhase.REWARD ? "Round clear: choose a reward to enter the next preparation." :

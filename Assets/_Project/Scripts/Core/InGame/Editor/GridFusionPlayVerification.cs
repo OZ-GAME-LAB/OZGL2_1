@@ -37,7 +37,7 @@ namespace OZGL2.InGame.Editor
             _hasBackgroundOverride = true;
             Application.runInBackground = true;
             var config = AssetDatabase.LoadAssetAtPath<InGamePrototypeConfigSO>(InGamePrototypeSetup.CONFIG_PATH);
-            var theme = AssetDatabase.LoadAssetAtPath<GridBoardThemeSO>(GridAssetFusionSetup.THEME_PATH);
+            var theme = AssetDatabase.LoadAssetAtPath<GridBoardThemeSO>(GridConnectivitySetup.THEME_PATH);
             _root = new GameObject("GridFusionVerification");
             _session = new GridRunSession("fusion_play", config.Catalog.CreateDefinition(), GridFusionPolicy.CanFuse);
             var grid = _session.Grid;

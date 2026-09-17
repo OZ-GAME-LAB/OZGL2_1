@@ -438,7 +438,7 @@ PrefabInstance:
     - target: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _boardTheme
       value: 
-      objectReference: {fileID: 11400000, guid: c4740c5f86219a54988e781f3e69bf0f, type: 2}
+      objectReference: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -476,8 +476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameGridPresentation
   _bootstrap: {fileID: 8701223948942012780}
-  _theme: {fileID: 11400000, guid: c4740c5f86219a54988e781f3e69bf0f, type: 2}
-  _synergy: {fileID: 0}
+  _theme: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

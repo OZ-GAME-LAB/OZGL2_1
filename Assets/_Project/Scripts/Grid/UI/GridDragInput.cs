@@ -79,9 +79,10 @@ namespace OZGL2.Grid.UI
                 {
                     if (!_manager.TryFuseUnits(_manager.SelectedId, targetId)) _manager.CancelDrag();
                 }
-                else _manager.DropToTray();
+                else if (!_manager.DropToTray()) _manager.CancelDrag();
             }
-            else if (_manager.DragKind == eGridDragKind.BLOCK && _tray.worldBound.Contains(evt.position)) _manager.DropToTray();
+            else if (_manager.DragKind == eGridDragKind.BLOCK && _tray.worldBound.Contains(evt.position))
+            { if (!_manager.DropToTray()) _manager.CancelDrag(); }
             else if (!_manager.CommitPreview()) _manager.CancelDrag();
             Release(); evt.StopPropagation();
         }
