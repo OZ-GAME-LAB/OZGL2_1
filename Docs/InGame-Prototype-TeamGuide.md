@@ -1,5 +1,7 @@
 # InGame 프로토타입 코어루프
 
+> 2026-09-15 변경: 현재 dev 기반 InGame은 실제 전투 어댑터를 사용한다. 아래 더미 전투 설명은 초기 구현 기록이다. RF Castle 배치판, 합성, 위치·성급 동기화는 [최신 연결 명세](Grid-Asset-Fusion-TeamGuide.md)를 참고한다.
+
 작업 브랜치: `feat/ingame-core-loop/20`
 
 ## 실행

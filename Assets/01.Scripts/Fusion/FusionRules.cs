@@ -10,6 +10,9 @@ public static class FusionRules
 {
     public const int MaxStar = 3;
 
+    public static bool CanFuse(string kindA, int starA, string kindB, int starB)
+        => !string.IsNullOrWhiteSpace(kindA) && kindA == kindB && starA == starB && starA >= 1 && starA < MaxStar;
+
     public static bool CanFuse(UnitSlot a, UnitSlot b)
     {
         if (a == null || b == null || a == b)
@@ -29,17 +32,7 @@ public static class FusionRules
             return false;
         }
 
-        if (unitA.statData.unitId != unitB.statData.unitId)
-        {
-            return false;
-        }
-
-        if (unitA.statData.starLevel != unitB.statData.starLevel)
-        {
-            return false;
-        }
-
-        return unitA.statData.starLevel < MaxStar;
+        return CanFuse(unitA.statData.unitId, unitA.statData.starLevel, unitB.statData.unitId, unitB.statData.starLevel);
     }
 
     /// <summary>

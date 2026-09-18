@@ -15,4 +15,4 @@ MonoBehaviour:
   _id: dummy_unit_corner_three
   _displayName: Mage
   _rewardBlockId: corner_three
-  _footprint: {fileID: 11400000, guid: 4e381b20edf734045ae63ac77ea32656, type: 2}
+  _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}

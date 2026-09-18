@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using OZGL2.Grid;
@@ -7,6 +8,7 @@ using OZGL2.Grid.Prototype;
 using OZGL2.Stage;
 using OZGL2.Stage.Prototype;
 using OZGL2.UIFlow;
+using OZGL2.Synergy;
 using UnityEngine;
 
 namespace OZGL2.InGame
@@ -16,14 +18,39 @@ namespace OZGL2.InGame
     {
         [SerializeField] private InGamePrototypeConfigSO _config;
         [SerializeField] private UISceneNavigator _navigator;
-        [Tooltip("IStageRewards 구현체(선택) — 지정하면 증강 선택에서 Dummy 대신 이걸 사용(성민 파트 실제 증강 연동용). 비우면 기존 동작 그대로.")]
-        [SerializeField] private MonoBehaviour _augmentRewardsOverride;
+        [Tooltip("IInGameCombatParticipant를 구현한 팀원 연결 컴포넌트. 비어 있으면 외부 전투 제어는 미연결.")]
+        [SerializeField] private MonoBehaviour[] _combatParticipants = Array.Empty<MonoBehaviour>();
+        [Tooltip("IStageRewards를 구현한 실제 증강 선택 연결부. 비어 있으면 더미 사용.")]
+        [SerializeField] private MonoBehaviour _augmentProvider;
+        private InGameCombatConnection _combatConnection;
+        private InGameSynergyConnection _synergyConnection;
+        private RealSynergySync _runSynergy;
+        public bool HasCombatParticipants => _combatConnection != null && _combatConnection.ParticipantCount > 0;
+        public bool HasSynergyConnection => _synergyConnection != null && _synergyConnection.IsConnected;
+        public bool UsesDummyAugments => _augmentProvider == null;
         private StageRunHost _host;
         private InGameGridSession _session;
         private bool _isStarting;
         private bool _isDestroyed;
+        private bool _hasCleanupFailure;
+        private bool _isReturningToLobby;
         public StageManager Stage { get; private set; }
         public GridRunSession GridSession => _session?.Session;
+        public InGamePrototypeConfigSO Config => _config;
+        private IDisposable _defenders;
+        private HeroPool _heroPool;
+        private Task _releaseTask;
+        private bool _isNotifying;
+        public Exception LastNotificationError { get; private set; }
+        public string LastFailedSubscriber { get; private set; }
+        public int NotificationErrorCount { get; private set; }
+        public bool CanRetry => !_isDestroyed && !_isStarting && !_hasCleanupFailure && !_isReturningToLobby &&
+            !(Stage?.IsRunning ?? false) && !(_releaseTask != null && !_releaseTask.IsCompleted);
+        public string RetryBlockedReason => _hasCleanupFailure
+            ? "Cleanup success is unconfirmed. Retry is locked for this session."
+            : _isReturningToLobby ? "Lobby transition requested. Retry is locked." : null;
+        public string ExternalOperationStatus => _combatConnection?.OperationStatus ?? "Not connected";
+        public string CombatParticipantNames => _combatConnection?.ParticipantNames ?? "None";
         public StageGridRewards Rewards { get; private set; }
         public ManualStageServices Dummy { get; private set; }
         public string Error { get; private set; }
@@ -33,13 +60,14 @@ namespace OZGL2.InGame
 
         public void StartPrototype()
         {
-            if (_isStarting || _isDestroyed || (Stage != null && Stage.IsRunning)) return;
+            if (!CanRetry) return;
             Completion = RunAsync();
         }
         private async Task RunAsync()
         {
             _isStarting = true;
             Error = null;
+            LastNotificationError = null; LastFailedSubscriber = null; NotificationErrorCount = 0;
             try
             {
                 await ReleaseAsync();
@@ -49,10 +77,24 @@ namespace OZGL2.InGame
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
                     new DummyRewardLedger(Path.Combine(directory, "settlements.json")));
-                _session.Changed += Notify;
+                _runSynergy = FindFirstObjectByType<RealSynergySync>();
+                _runSynergy?.Augments.ResetRun();
+                _synergyConnection = new InGameSynergyConnection(_config.DemonArmyCatalog, _runSynergy);
+                _session.Changed += OnSessionChanged;
+                var participants = new List<IInGameCombatParticipant>();
+                foreach (var component in _combatParticipants)
+                {
+                    if (!(component is IInGameCombatParticipant participant))
+                        throw new InvalidOperationException("Combat participant must implement IInGameCombatParticipant.");
+                    participants.Add(participant);
+                }
+                _combatConnection = new InGameCombatConnection(participants, CreateCombatContext, TimeSpan.FromSeconds(_config.ExternalOperationTimeoutSeconds));
+                _combatConnection.DisableCombat();
                 Dummy = new ManualStageServices();
-                IStageRewards augmentHandler = _augmentRewardsOverride as IStageRewards ?? Dummy;
-                Rewards = new StageGridRewards(_session, new GridPrototypeRewards(_config.Catalog), augmentHandler);
+                IStageRewards augment = Dummy;
+                if (_augmentProvider != null)
+                    augment = _augmentProvider as IStageRewards ?? throw new InvalidOperationException("Augment provider must implement IStageRewards.");
+                Rewards = new StageGridRewards(_session, new GridPrototypeRewards(_config.Catalog), augment);
                 var preparation = new StageGridPreparation(_session, _config.Catalog.CreateInitialUnit(),
                     _config.Catalog.CreateInitialBlock(), _config.InitialAnchor);
                 var lobby = new CompletedLobby();
@@ -62,12 +104,13 @@ namespace OZGL2.InGame
                     _config.HeroPoolCatalog, transform, _config.HeroSpawnPosition,
                     () => _session?.Session, _config.DemonArmyCatalog, transform,
                     _config.GridWorldOrigin, _config.CellWorldSize,
-                    out HeroPool heroPool);
+                    out _heroPool, resource => _defenders = resource, _combatConnection);
                 Stage = new StageManager(battle, Rewards, preparation, _session,
                     new FileStageProgressStore(Path.Combine(directory, "Runs")), lobby);
                 Stage.StateChanged += OnStateChanged;
                 _host = new GameObject("InGameRunHost").AddComponent<StageRunHost>();
-                _host.OwnResource(heroPool);
+                _host.OwnResource(_heroPool);
+                _host.OwnResource(_defenders);
                 _host.OwnResource(_session);
                 if (!_host.StartRun(Stage, _config.Stage)) throw new InvalidOperationException("Stage run did not start.");
                 Notify();
@@ -79,32 +122,107 @@ namespace OZGL2.InGame
                 if (_isDestroyed) return;
                 Notify();
                 // 자기 실행 안에서 Host 종료를 기다리지 않고, 실행이 끝난 뒤 팀 UI의 이동 규격을 사용한다.
-                if (canReturn) _navigator.LoadScene(_config.LobbyScenePath);
+                if (canReturn)
+                {
+                    BeginLobbyReturn();
+                    _navigator.LoadScene(_config.LobbyScenePath);
+                }
             }
             catch (Exception exception)
             {
                 Error = exception.Message;
-                await ReleaseAsync();
+                try { await ReleaseAsync(); }
+                catch (Exception cleanupError) { Error = new AggregateException(exception, cleanupError).Message; }
+            }
+            finally
+            {
+                _isStarting = false;
                 if (!_isDestroyed) Notify();
             }
-            finally { _isStarting = false; }
         }
         public bool TryBeginBattle(bool skip = false) => GridSession != null && Stage != null &&
             Stage.State == eStageState.PREPARATION && GridSession.TryBeginBattle(GridSession.RunId, Stage.CurrentRoundNumber, skip);
         public void CancelRun() => _host?.CancelRun();
-        private void OnStateChanged(eStageState state) => Notify();
-        private void Notify() => Changed?.Invoke();
-        private async Task ReleaseAsync()
+        private void BeginLobbyReturn()
         {
+            // 표시 구독자가 재실행을 요청해도 씬 이동 요청 이후에는 시작할 수 없다.
+            _isReturningToLobby = true;
+            Notify();
+        }
+        private void OnStateChanged(eStageState state) => Notify();
+        private void OnSessionChanged()
+        {
+            _synergyConnection?.Bind(GridSession);
+            Notify();
+        }
+        private InGameCombatContext CreateCombatContext()
+        {
+            var grid = GridSession;
+            if (grid == null || grid.IsEnded || grid.Deployment == null)
+                throw new InvalidOperationException("A confirmed deployment is required for combat.");
+            var mapping = new GridWorldMapping(_config.GridWorldOrigin,
+                Vector3.right * _config.CellWorldSize, Vector3.up * _config.CellWorldSize);
+            return new InGameCombatContext(grid.RunId, Stage.CurrentRoundNumber, mapping.GetWorldPosition(grid.Deployment.KingAnchor));
+        }
+        private void Notify()
+        {
+            if (_isNotifying) return;
+            var handlers = Changed;
+            if (handlers == null) return;
+            _isNotifying = true;
+            try
+            {
+                foreach (Action handler in handlers.GetInvocationList())
+                    try { handler(); }
+                    catch (Exception error)
+                    {
+                        LastNotificationError = error;
+                        LastFailedSubscriber = handler.Method.DeclaringType?.FullName + "." + handler.Method.Name;
+                        NotificationErrorCount++;
+                    }
+            }
+            finally { _isNotifying = false; }
+        }
+        private Task ReleaseAsync()
+        {
+            if (_releaseTask != null && !_releaseTask.IsCompleted) return _releaseTask;
+            return _releaseTask = ReleaseCoreAsync();
+        }
+        private async Task ReleaseCoreAsync()
+        {
+            var errors = new List<Exception>();
             var host = _host;
             if (host != null)
             {
-                await host.ShutdownAsync();
-                if (host != null) Destroy(host.gameObject);
-                if (_host == host) _host = null;
+                try { await host.ShutdownAsync(); }
+                catch (Exception exception) { errors.Add(exception); }
+                finally
+                {
+                    if (host != null) Destroy(host.gameObject);
+                    if (_host == host) _host = null;
+                }
             }
-            if (_session != null) _session.Changed -= Notify;
+            if (_session != null) _session.Changed -= OnSessionChanged;
             if (Stage != null) Stage.StateChanged -= OnStateChanged;
+            try { _synergyConnection?.Dispose(); } catch (Exception exception) { errors.Add(exception); }
+            _synergyConnection = null;
+            try { if (_runSynergy != null) _runSynergy.Augments.ResetRun(); }
+            catch (Exception exception) { errors.Add(exception); }
+            _runSynergy = null;
+            try { if (_combatConnection != null) await _combatConnection.EndRoundAsync(); }
+            catch (Exception exception) { errors.Add(exception); }
+            _combatConnection = null;
+            try { _defenders?.Dispose(); } catch (Exception exception) { errors.Add(exception); }
+            _defenders = null;
+            try { _heroPool?.Dispose(); } catch (Exception exception) { errors.Add(exception); }
+            _heroPool = null;
+            try { _session?.Dispose(); } catch (Exception exception) { errors.Add(exception); }
+            if (errors.Count > 0)
+            {
+                // 참조를 비웠거나 후속 Dispose가 성공해도 외부 효과의 회수 성공을 증명하지 못한다.
+                _hasCleanupFailure = true;
+                throw new AggregateException("InGame shutdown failed; all connections were processed.", errors);
+            }
         }
         private async void OnDestroy()
         {

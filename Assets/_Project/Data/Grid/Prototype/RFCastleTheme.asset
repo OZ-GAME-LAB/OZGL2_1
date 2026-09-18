@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc71f7546c96368409c8bae862f3fa84, type: 3}
+  m_Name: RFCastleTheme
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.UI.GridBoardThemeSO
+  _unclaimed: {fileID: 21300930, guid: d21555ce72e390f49ba41fd54c373b1b, type: 3}
+  _available: {fileID: 21300918, guid: d21555ce72e390f49ba41fd54c373b1b, type: 3}
+  _platform: {fileID: 21301850, guid: d21555ce72e390f49ba41fd54c373b1b, type: 3}
+  _unclaimedTint: {r: 2.5, g: 2.4, b: 2.2, a: 1}
+  _availableTint: {r: 0.85, g: 0.9, b: 0.95, a: 1}
+  _platformTint: {r: 0.9, g: 0.75, b: 1, a: 1}
+  _platformBorder: {r: 0.38, g: 0.3, b: 0.48, a: 1}

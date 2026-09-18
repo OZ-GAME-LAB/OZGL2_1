@@ -13,7 +13,7 @@ namespace OZGL2.Grid.Prototype
         public void Initialize(GridPrototypeCatalogSO catalog, GridPrototypeRunner view)
         {
             if (Session != null) throw new InvalidOperationException("Host is already initialized.");
-            Session = new GridRunSession(Guid.NewGuid().ToString("N"), catalog.CreateDefinition());
+            Session = new GridRunSession(Guid.NewGuid().ToString("N"), catalog.CreateDefinition(), OZGL2.InGame.GridFusionPolicy.CanFuse);
             var grid = Session.Grid;
             var unit = catalog.CreateInitialUnit();
             var block = catalog.CreateInitialBlock();

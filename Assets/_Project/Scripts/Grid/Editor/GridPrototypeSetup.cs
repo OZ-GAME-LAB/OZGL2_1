@@ -98,7 +98,7 @@ namespace OZGL2.Grid.Editor
                 unitData.FindProperty("_id").stringValue = "dummy_unit_" + shape.Id;
                 unitData.FindProperty("_displayName").stringValue = shape.Id == "single" ? "Basic" : shape.Id == "corner_three" ? "Mage" : "Dummy " + shape.DisplayName;
                 unitData.FindProperty("_rewardBlockId").stringValue = shape.Id;
-                unitData.FindProperty("_footprint").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BlockShapeSO>(DATA_PATH + "/" + shape.Id + ".asset");
+                unitData.FindProperty("_footprint").objectReferenceValue = AssetDatabase.LoadAssetAtPath<BlockShapeSO>(DATA_PATH + "/single.asset");
                 unitData.ApplyModifiedPropertiesWithoutUndo();
                 units.GetArrayElementAtIndex(i).objectReferenceValue = unit;
             }

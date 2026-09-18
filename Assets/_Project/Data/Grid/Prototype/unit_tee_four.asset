@@ -15,4 +15,4 @@ MonoBehaviour:
   _id: dummy_unit_tee_four
   _displayName: Dummy Tee 4
   _rewardBlockId: tee_four
-  _footprint: {fileID: 11400000, guid: 9d7cbaf571143934e8f366a43815e74f, type: 2}
+  _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}

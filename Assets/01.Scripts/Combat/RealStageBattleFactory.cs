@@ -23,10 +23,34 @@ public static class RealStageBattleFactory
         Transform demonArmySpawnRoot,
         Vector3 gridWorldOrigin,
         float cellWorldSize,
-        out HeroPool pool)
+        out HeroPool pool, Action<IDisposable> ownDefenders = null, IStageBattleLifecycle lifecycle = null)
     {
-        pool = new HeroPool(heroCatalog.CreateSnapshot(), heroSpawnRoot);
-        var defenders = new RealDefenders(gridSessionProvider, demonArmyCatalog, demonArmySpawnRoot, gridWorldOrigin, cellWorldSize);
-        return new PooledStageBattle(pool, defenders, heroSpawnPosition);
+        pool = null;
+        if (heroCatalog == null || demonArmyCatalog == null || heroSpawnRoot == null || demonArmySpawnRoot == null || gridSessionProvider == null)
+            throw new ArgumentException("Battle catalogs, roots and grid session provider are required.");
+        // 좌표 오류 때문에 풀을 만든 뒤 실패하지 않도록 생성 전에 검증한다.
+        if (!float.IsFinite(cellWorldSize) || cellWorldSize <= 0 ||
+            !float.IsFinite(heroSpawnPosition.x) || !float.IsFinite(heroSpawnPosition.y) || !float.IsFinite(heroSpawnPosition.z))
+            throw new ArgumentException("Battle coordinates and cell size must be finite and valid.");
+        _ = new GridWorldMapping(gridWorldOrigin, Vector3.right * cellWorldSize, Vector3.up * cellWorldSize);
+        HeroPool createdPool = null;
+        RealDefenders defenders = null;
+        try
+        {
+            createdPool = new HeroPool(heroCatalog.CreateSnapshot(), heroSpawnRoot);
+            defenders = new RealDefenders(gridSessionProvider, demonArmyCatalog, demonArmySpawnRoot, gridWorldOrigin, cellWorldSize);
+            var battle = new PooledStageBattle(createdPool, defenders, heroSpawnPosition, lifecycle);
+            ownDefenders?.Invoke(defenders);
+            pool = createdPool;
+            return battle;
+        }
+        catch (Exception error)
+        {
+            var errors = new System.Collections.Generic.List<Exception> { error };
+            try { defenders?.Dispose(); } catch (Exception cleanup) { errors.Add(cleanup); }
+            try { createdPool?.Dispose(); } catch (Exception cleanup) { errors.Add(cleanup); }
+            if (errors.Count > 1) throw new AggregateException("Battle assembly failed; resources were released.", errors);
+            throw;
+        }
     }
 }

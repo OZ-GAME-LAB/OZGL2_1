@@ -16,6 +16,7 @@ namespace OZGL2.Stage
     {
         private readonly HeroPool _pool;
         private readonly IStageDefenders _defenders;
+        private readonly IStageBattleLifecycle _lifecycle;
         private readonly Vector3 _spawnPosition;
         private readonly Dictionary<long, HeroLease> _alive = new Dictionary<long, HeroLease>();
         private readonly Dictionary<long, HeroLease> _leased = new Dictionary<long, HeroLease>();
@@ -32,10 +33,11 @@ namespace OZGL2.Stage
         public long EarnedExperience => _earned;
         public bool IsSpawningComplete => _isSpawningComplete;
         public eRoundOutcome Outcome { get; private set; }
-        public PooledStageBattle(HeroPool pool, IStageDefenders defenders, Vector3 spawnPosition)
+        public PooledStageBattle(HeroPool pool, IStageDefenders defenders, Vector3 spawnPosition, IStageBattleLifecycle lifecycle = null)
         {
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
             _defenders = defenders ?? throw new ArgumentNullException(nameof(defenders));
+            _lifecycle = lifecycle;
             _spawnPosition = spawnPosition;
             _deathHandler = RecordDeath;
             _returnHandler = ReturnHero;
@@ -50,11 +52,14 @@ namespace OZGL2.Stage
             {
                 Task spawning = null;
                 Exception executionError = null;
+                RoundResult confirmedResult = null;
                 try
                 {
                     foreach (var entry in round.Spawns)
                         if (!_pool.Contains(entry.HeroId)) throw new InvalidOperationException("Missing pool: " + entry.HeroId);
                     await _defenders.PrepareRoundAsync(lifetime.Token);
+                    if (_lifecycle != null) await _lifecycle.BeginRoundAsync(lifetime.Token);
+                    lifetime.Token.ThrowIfCancellationRequested();
                     spawning = SpawnAsync(round, lifetime.Token);
                     while (true)
                     {
@@ -63,10 +68,12 @@ namespace OZGL2.Stage
                         if (CleanupError != null) throw CleanupError;
                         if (spawning.IsFaulted) await spawning;
                         Outcome = RoundCompletionEvaluator.Evaluate(new BattleProgress(_isSpawningComplete, _alive.Count, _defenders.AliveCount));
-                        if (Outcome == eRoundOutcome.SIMULTANEOUS)
-                            throw new InvalidOperationException("Simultaneous extinction policy is not decided. No settlement was requested.");
-                        if (Outcome == eRoundOutcome.VICTORY || Outcome == eRoundOutcome.DEFEAT)
-                            return new RoundResult(Outcome == eRoundOutcome.VICTORY ? eBattleResult.VICTORY : eBattleResult.DEFEAT, _earned);
+                        // 동시 전멸은 패배로 정산하되 진단용 Outcome은 유지한다.
+                        if (Outcome != eRoundOutcome.ONGOING)
+                        {
+                            confirmedResult = new RoundResult(Outcome == eRoundOutcome.VICTORY ? eBattleResult.VICTORY : eBattleResult.DEFEAT, _earned);
+                            return confirmedResult;
+                        }
                     }
                 }
                 catch (Exception exception)
@@ -78,6 +85,8 @@ namespace OZGL2.Stage
                 {
                     List<Exception> errors = null;
                     try { lifetime.Cancel(); }
+                    catch (Exception exception) { (errors ??= new List<Exception>()).Add(exception); }
+                    try { if (_lifecycle != null) await _lifecycle.EndRoundAsync(); }
                     catch (Exception exception) { (errors ??= new List<Exception>()).Add(exception); }
                     try { if (spawning != null) await spawning; }
                     catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
@@ -96,7 +105,9 @@ namespace OZGL2.Stage
                     if (errors != null)
                     {
                         if (executionError != null) errors.Insert(0, executionError);
-                        CleanupError = new AggregateException("Battle cleanup failed; all leases were processed.", errors);
+                        CleanupError = confirmedResult != null
+                            ? new StageBattleCleanupException(confirmedResult, errors)
+                            : new AggregateException("Battle cleanup failed; all leases were processed.", errors);
                         throw CleanupError;
                     }
                 }
