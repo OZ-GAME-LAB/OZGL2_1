@@ -88,11 +88,16 @@ namespace OZGL2.Stage
 
                     var round = stage.Rounds[index];
                     SetState(eStageState.COMBAT);
-                    var result = await _battle.RunRoundAsync(round, cancellationToken);
+                    RoundResult result;
+                    try { result = await _battle.RunRoundAsync(round, cancellationToken); }
+                    catch (StageBattleCleanupException exception)
+                    {
+                        RecordConfirmedRound(exception.ConfirmedResult);
+                        // 바깥 오류 경로가 취소되지 않은 토큰으로 저장한다. 보상/다음 전투는 진행하지 않는다.
+                        throw;
+                    }
+                    RecordConfirmedRound(result);
                     cancellationToken.ThrowIfCancellationRequested();
-
-                    _runProgress.RecordRound(CurrentRoundNumber, result);
-                    ClearedRoundCount = _runProgress.CreateSnapshot().ClearedRoundCount;
                     await SaveProgressAsync(cancellationToken);
                     if (result.Outcome == eBattleResult.DEFEAT)
                     {
@@ -167,6 +172,12 @@ namespace OZGL2.Stage
             _snapshot = _runProgress.CreateSnapshot();
             await _progressStore.SaveAsync(_snapshot, token);
             token.ThrowIfCancellationRequested();
+        }
+        private void RecordConfirmedRound(RoundResult result)
+        {
+            _runProgress.RecordRound(CurrentRoundNumber, result);
+            _snapshot = _runProgress.CreateSnapshot();
+            ClearedRoundCount = _snapshot.ClearedRoundCount;
         }
         private void EndPreparation()
         {

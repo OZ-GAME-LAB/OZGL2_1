@@ -20,6 +20,7 @@ namespace OZGL2.Grid
         private int _previewRotation;
         private bool _canSkipPreparation;
         private bool _isNotifying;
+        private readonly Func<UnitPlacement, UnitPlacement, bool> _canFuse;
         public GridStorageRequest PendingStorage { get; private set; }
         public bool HasPendingStorage => PendingStorage != null;
         public int StoredCount => CountStored(_blocks, _units);
@@ -41,8 +42,9 @@ namespace OZGL2.Grid
         public bool CanBeginBattle => Phase == eGridPhase.PREPARATION && !RequiresExpansionPlacement && !HasSelection && !HasPendingStorage && PlacedCount > 0;
         public bool CanSkipPreparation => _canSkipPreparation && CanBeginBattle;
         public int PlacedCount { get { int count = 0; foreach (var unit in _units) if (unit.IsPlaced) count++; return count; } }
-        public GridManager(GridDefinition definition)
+        public GridManager(GridDefinition definition, Func<UnitPlacement, UnitPlacement, bool> canFuse = null)
         {
+            _canFuse = canFuse;
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             _blockView = _blocks.AsReadOnly();
             _unitView = _units.AsReadOnly();
@@ -66,6 +68,29 @@ namespace OZGL2.Grid
             _units.Add(new UnitPlacement(instanceId, definition)); Notify(true);
         }
         public UnitPlacement FindUnit(string id) => _units.Find(unit => unit.InstanceId == id);
+        public bool CanFuseUnits(string sourceId, string targetId)
+        {
+            if (Phase != eGridPhase.PREPARATION || HasPendingStorage || sourceId == targetId ||
+                (HasSelection && (DragKind != eGridDragKind.UNIT || SelectedId != sourceId))) return false;
+            var source = FindUnit(sourceId);
+            var target = FindUnit(targetId);
+            return source != null && target != null && _canFuse != null && _canFuse(source, target);
+        }
+        /// <summary>대상 위치와 발판을 보존하고 소모된 유닛의 점유만 반환한다.</summary>
+        public bool TryFuseUnits(string sourceId, string targetId)
+        {
+            if (_isNotifying || !CanFuseUnits(sourceId, targetId)) return false;
+            var target = FindUnit(targetId);
+            var units = new List<UnitPlacement>(_units);
+            units.RemoveAll(unit => unit.InstanceId == sourceId);
+            int index = units.FindIndex(unit => unit.InstanceId == targetId);
+            units[index] = target.WithStarLevel(target.StarLevel + 1);
+            ClearSelection();
+            ApplyState(new List<BlockPlacement>(_blocks), units, null);
+            return true;
+        }
+        public bool CanFusePreview => DragKind == eGridDragKind.UNIT &&
+            CanFuseUnits(SelectedId, GetUnitAt(_previewAnchor)?.InstanceId);
         public UnitPlacement GetUnitAt(Vector2Int cell)
         {
             foreach (var unit in _units)
@@ -188,13 +213,17 @@ namespace OZGL2.Grid
             if (HasPendingStorage) return ePlacementFailure.STORAGE_PENDING;
             if (!HasSelection) return ePlacementFailure.NO_SELECTION;
             if (DragKind == eGridDragKind.UNIT)
+            {
+                if (CanFusePreview) return ePlacementFailure.NONE;
                 return GridPlacementRules.ValidateUnit(Definition, _blocks, _units, _selectedId, GetPreviewCells());
+            }
             return IsExpansionDrag ? GridPlacementRules.ValidateExpansion(Definition, _floor, GetPreviewCells()) :
                 GridPlacementRules.ValidateBlock(Definition, _floor, _blocks, _selectedId, GetPreviewCells());
         }
         public bool CommitPreview()
         {
             if (_isNotifying || GetPreviewFailure() != ePlacementFailure.NONE) return false;
+            if (CanFusePreview) return TryFuseUnits(SelectedId, GetUnitAt(_previewAnchor).InstanceId);
             if (IsExpansionDrag)
             {
                 foreach (var cell in GetPreviewCells()) _floor.Add(cell);

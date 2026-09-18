@@ -15,4 +15,4 @@ MonoBehaviour:
   _id: dummy_unit_line_two
   _displayName: Dummy Line 2
   _rewardBlockId: line_two
-  _footprint: {fileID: 11400000, guid: 4401698e10be41444a28de5863e33c3a, type: 2}
+  _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}

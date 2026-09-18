@@ -29,4 +29,5 @@ MonoBehaviour:
   splashRadius: 1.5
   cost: 2
   killExpReward: 0
+  job: 3
   starLevel: 1

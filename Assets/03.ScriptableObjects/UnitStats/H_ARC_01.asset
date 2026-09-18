@@ -28,3 +28,4 @@ MonoBehaviour:
   cost: 0
   killExpReward: 4
   starLevel: 1
+  job: 2

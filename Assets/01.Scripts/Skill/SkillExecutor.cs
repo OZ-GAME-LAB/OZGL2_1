@@ -364,7 +364,7 @@ namespace OZGL2.Skill
         private void BuffAllies(SkillData d, float duration)
         {
             if (_allies == null) return;
-            string key = d.buffStat.ToString();
+            string key = BuffKey(d.buffStat);
             foreach (var a in _allies.Allies)
             {
                 if (a.IsDead) continue;
@@ -373,6 +373,18 @@ namespace OZGL2.Skill
                 else StartCoroutine(ExpandFade(a.Position, 0.6f, new Color(1f, 0.8f, 0.3f), 0.3f, true));
             }
         }
+
+        /// <summary>UnitBase.ApplyBuff(string,...)가 기대하는 키로 변환 — BuffStat.ToString()은
+        /// "AttackSpeed"(파스칼 케이스)를 주는데 UnitBase 쪽 switch는 "attackSpeed"(카멜 케이스)만
+        /// 받아서, 그대로 넘기면 케이스가 안 맞아 아무 case에도 안 걸리고 조용히 무시됐었다(광폭화·
+        /// 강철 피부가 연출만 나가고 실제 스탯은 하나도 안 바뀌던 버그의 원인).</summary>
+        private static string BuffKey(BuffStat stat) => stat switch
+        {
+            BuffStat.AttackSpeed => "attackSpeed",
+            BuffStat.Defense => "defense",
+            BuffStat.Attack => "attack",
+            _ => stat.ToString(),
+        };
 
         private void Revive(int count)
         {
