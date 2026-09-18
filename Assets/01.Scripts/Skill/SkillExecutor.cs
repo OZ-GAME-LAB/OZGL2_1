@@ -50,6 +50,17 @@ namespace OZGL2.Skill
             _caster = anchor.transform;
         }
 
+        /// <summary>
+        /// 시전 위치(마왕/왕좌)를 갱신한다. Bind() 시점엔 아직 라운드가 시작 안 돼서 실제 왕 좌표
+        /// (UnitRegistry.KingWorldPosition)를 모를 수 있어 (0,0,0) 같은 임시값으로 고정돼버리는 문제가
+        /// 있었다 — 호출자가 매 프레임(또는 왕 위치가 확정된 시점마다) 이걸 불러서 앵커를 실제 위치로
+        /// 계속 맞춰줘야 한다.
+        /// </summary>
+        public void SetCasterPosition(Vector3 pos)
+        {
+            if (_caster != null) _caster.position = pos;
+        }
+
         private void OnDestroy()
         {
             if (_manager != null) _manager.CastRequested -= OnCast;
