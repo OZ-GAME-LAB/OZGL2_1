@@ -36,7 +36,6 @@ namespace OZGL2.Progression
     [CreateAssetMenu(menuName = "OZGL2/Trait Data", fileName = "SO_Trait_")]
     public class TraitData : ScriptableObject
     {
-        public const int RANK_LP_COST = 1;
         [Header("식별")]
         public TraitId id;
         public string displayName;
@@ -49,8 +48,7 @@ namespace OZGL2.Progression
         [Tooltip("랭크당 값. 배율은 0.05 = +5%, flat 은 그대로.")]
         public float valuePerRank = 0.02f;
         [Range(1, 5)] public int maxRank = 3;
-        // 기존 저장 데이터의 비용 전환 계산을 위해 보존한다. 신규 강화 비용에는 사용하지 않는다.
-        [HideInInspector]
+        [Tooltip("랭크 0→1, 1→2, … 비용. 길이 = maxRank")]
         public int[] rankCosts = { 1, 2, 3 };
 
         [Header("전제 (전부 만렙이어야 해금 — 라인 루트는 비움, 캡스톤은 3개)")]
@@ -61,6 +59,6 @@ namespace OZGL2.Progression
 
         /// <summary>currentRank → currentRank+1 로 올리는 비용.</summary>
         public int CostForRank(int currentRank)
-            => currentRank >= 0 && currentRank < maxRank ? RANK_LP_COST : 999;
+            => (rankCosts != null && currentRank >= 0 && currentRank < rankCosts.Length) ? rankCosts[currentRank] : 999;
     }
 }
