@@ -271,6 +271,25 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
+        // 히어로는 매 프레임 "지금 존재하는 마왕군 중 가장 가까운 쪽"으로 이동 목표를 다시 잡는다.
+        // (예전엔 스폰 시 마왕 쪽으로만 고정해서, 경로에서 벗어난 곳에 배치된 마왕군은 사거리에
+        // 우연히 걸리지 않는 한 그냥 지나쳐버렸음 — 마왕군이 있으면 사거리와 무관하게 색적해서 찾아감.)
+        if (Side == UnitSide.Hero)
+        {
+            UnitBase seekTarget = FindNearestEnemy();
+            if (seekTarget != null)
+            {
+                moveTarget = seekTarget.transform.position;
+                hasMoveTarget = true;
+            }
+            else if (UnitRegistry.KingWorldPosition.HasValue)
+            {
+                // 마왕군이 전부 사라졌을 때만 마왕으로 직진.
+                moveTarget = UnitRegistry.KingWorldPosition.Value;
+                hasMoveTarget = true;
+            }
+        }
+
         if (!hasMoveTarget || statData == null)
         {
             return;
@@ -344,6 +363,13 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         return FindNearestEnemy();
     }
 
+    /// <summary>
+    /// 도발(어그로): 근접(사거리 1 이하) 마왕군은 자기 사거리 안에 든 히어로를 최우선으로 끌어온다.
+    /// 지금까지는 순수 최근접이라 방패·전사·도적이 "막아주는" 역할을 못 했음 — 근접 밸류 보완(1번) 반영.
+    /// </summary>
+    public bool IsTaunting => Side == UnitSide.DemonArmy && statData != null && statData.attackRange <= 1f;
+    public float TauntRangeSqr => statData != null ? statData.attackRange * statData.attackRange : 0f;
+
     protected virtual UnitBase FindNearestEnemy()
     {
         UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
@@ -351,6 +377,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         UnitBase nearest = null;
         float nearestDistSqr = float.MaxValue;
+        UnitBase tauntPick = null;
+        float tauntDistSqr = float.MaxValue;
 
         for (int i = 0; i < candidates.Count; i++)
         {
@@ -366,9 +394,16 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
                 nearestDistSqr = distSqr;
                 nearest = unit;
             }
+
+            // 히어로 쪽에서만 도발을 존중한다 (마왕군이 히어로에게 도발당할 일은 없음).
+            if (Side == UnitSide.Hero && unit.IsTaunting && distSqr <= unit.TauntRangeSqr && distSqr < tauntDistSqr)
+            {
+                tauntDistSqr = distSqr;
+                tauntPick = unit;
+            }
         }
 
-        return nearest;
+        return tauntPick != null ? tauntPick : nearest;
     }
 
     /// <summary>같은 진영에서 체력 비율이 가장 낮은(그리고 풀피가 아닌) 아군을 찾는다.</summary>
@@ -490,6 +525,38 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         else
         {
             target.TakeDamage(damage);
+            ApplySplashDamage(target, damage);
+        }
+    }
+
+    /// <summary>
+    /// 스플래시(3번 — 지금은 전사 전용, splashRadius > 0인 근접 유닛에만 적용): 주 타겟 위치 기준
+    /// 반경 안의 다른 적에게도 동일 피해. 발사체 공격에는 적용 안 함(필요해지면 Projectile 쪽에 별도 구현).
+    /// </summary>
+    protected virtual void ApplySplashDamage(UnitBase primaryTarget, int damage)
+    {
+        if (statData.splashRadius <= 0f)
+        {
+            return;
+        }
+
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var candidates = UnitRegistry.GetUnits(enemySide);
+        float radiusSqr = statData.splashRadius * statData.splashRadius;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit == primaryTarget || unit.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            float distSqr = (unit.transform.position - primaryTarget.transform.position).sqrMagnitude;
+            if (distSqr <= radiusSqr)
+            {
+                unit.TakeDamage(damage);
+            }
         }
     }
 
@@ -502,7 +569,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
         GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
         Projectile projectile = projectileObj.AddComponent<Projectile>();
-        projectile.Init(target, damage, statData.projectileSpeed);
+        projectile.Init(target, damage, statData.projectileSpeed, statData.projectileDefaultFacing, statData.splashRadius);
     }
 
     /// <summary>

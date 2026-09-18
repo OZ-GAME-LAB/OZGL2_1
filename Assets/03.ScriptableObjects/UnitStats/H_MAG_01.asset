@@ -15,6 +15,7 @@ MonoBehaviour:
   unitId: H_MAG_01
   displayName: 마법사(광역)
   side: 0
+  job: 3
   maxHealth: 50
   attackPower: 20
   attackSpeed: 0.5
@@ -22,7 +23,10 @@ MonoBehaviour:
   attackRange: 3
   moveSpeed: 0.8
   healAmount: 0
-  projectilePrefab: {fileID: 7992221689482300768, guid: ec7caf7d4af6ac345844392c2acddd38, type: 3}
-  projectileSpeed: 8
+  projectilePrefab: {fileID: 3930159081165078694, guid: 28caf29c89fd9dd489eb927a24059dc9, type: 3}
+  projectileSpeed: 5
+  projectileDefaultFacing: {x: 1, y: 0}
+  splashRadius: 1.5
   cost: 0
   killExpReward: 5
+  starLevel: 1

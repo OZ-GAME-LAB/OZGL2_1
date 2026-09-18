@@ -15,8 +15,9 @@ MonoBehaviour:
   unitId: M_ROG_01
   displayName: 도적(고속)
   side: 1
+  job: 4
   maxHealth: 90
-  attackPower: 14
+  attackPower: 19
   attackSpeed: 1.6
   defensePercent: 0.05
   attackRange: 1
@@ -24,3 +25,4 @@ MonoBehaviour:
   healAmount: 0
   cost: 1
   killExpReward: 0
+  starLevel: 1
