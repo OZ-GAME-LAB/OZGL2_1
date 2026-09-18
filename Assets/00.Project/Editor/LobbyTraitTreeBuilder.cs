@@ -23,6 +23,33 @@ internal static class LobbyTraitTreeBuilder
     private static Material _material;
 
     private const string DETAIL_ART = "Assets/06.UI/LobbyMutedPreview/Overlays/DetailArt_v2/";
+    // 1920×1080, 기본 배율에서 가장자리 약 25px만 흐려지는 좁은 범위다.
+    private static readonly Vector2Int _treeEdgeSoftness = new Vector2Int(48, 48);
+
+    [MenuItem("Tools/OZGL2/Lobby/Apply Narrow Trait Tree Edge Fade")]
+    public static void ApplyNarrowTreeEdgeFade()
+    {
+        if (Application.isPlaying) throw new InvalidOperationException("편집 모드에서 실행하세요.");
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        if ((stage == null && scene.path != "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity") ||
+            (stage != null && (stage.assetPath != PREFAB || stage.scene.isDirty)))
+            throw new InvalidOperationException("대상 씬 또는 저장된 대상 Prefab에서 실행하세요.");
+
+        stage = PrefabStageUtility.OpenPrefab(PREFAB);
+        var viewport = stage.prefabContentsRoot.transform.Find("TraitsScreen/TraitTreeViewport");
+        var mask = viewport != null ? viewport.GetComponent<RectMask2D>() : null;
+        if (mask == null) throw new InvalidOperationException("특성 트리의 RectMask2D가 없습니다.");
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        Undo.SetCurrentGroupName("Apply narrow trait tree edge fade");
+        Undo.RecordObject(mask, "Trait tree edge softness");
+        mask.softness = _treeEdgeSoftness;
+        EditorUtility.SetDirty(mask);
+        EditorSceneManager.MarkSceneDirty(stage.scene);
+        Undo.CollapseUndoOperations(group);
+        Debug.Log("특성 트리의 좌우·상하 경계에 좁은 페이드 적용. 배경/설명창/버튼 및 메인 씬은 유지. Ctrl+Z 지원.");
+    }
 
     [MenuItem("Tools/OZGL2/Lobby/Align Trait Heart And Enlarge Detail Header")]
     public static void ApplyTraitIconAndHeaderLayout()
@@ -375,6 +402,7 @@ internal static class LobbyTraitTreeBuilder
             var viewport = (RectTransform)screen.Find("TraitTreeViewport");
             viewport.sizeDelta = new Vector2(1720, 630);
             viewport.anchoredPosition = new Vector2(0, -105);
+            viewport.GetComponent<RectMask2D>().softness = _treeEdgeSoftness;
             var content = (RectTransform)viewport.Find("TraitTreeContent");
             for (int i = content.childCount - 1; i >= 0; i--)
                 Undo.DestroyObjectImmediate(content.GetChild(i).gameObject);

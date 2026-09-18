@@ -59,7 +59,7 @@ Shader "OZGL2/UI/Trait Pixel TMP Outline"
                 float4 vertex : SV_POSITION;
                 fixed4 color : COLOR;
                 float2 uv : TEXCOORD0;
-                float2 position : TEXCOORD1;
+                float4 mask : TEXCOORD1;
             };
 
             sampler2D _MainTex;
@@ -68,14 +68,23 @@ Shader "OZGL2/UI/Trait Pixel TMP Outline"
             fixed4 _OutlineColor;
             float _OutlineTexels;
             float4 _ClipRect;
+            float _UIMaskSoftnessX;
+            float _UIMaskSoftnessY;
 
             Varyings Vert(AppData input)
             {
                 Varyings output;
-                output.position = input.vertex.xy;
-                output.vertex = UnityPixelSnap(UnityObjectToClipPos(input.vertex));
+                float4 clipPosition = UnityObjectToClipPos(input.vertex);
+                output.vertex = UnityPixelSnap(clipPosition);
                 output.color = input.color * _Color;
                 output.uv = input.uv;
+                // RectMask2D가 전달한 부드러움을 글자와 외곽선에 함께 적용한다.
+                // UI/Default와 같은 픽셀 보정으로 줌/해상도 변경 시 경계를 맞춘다.
+                float2 pixelSize = clipPosition.w;
+                pixelSize /= abs(mul((float2x2)UNITY_MATRIX_P, _ScreenParams.xy));
+                float4 clampedRect = clamp(_ClipRect, -2e10, 2e10);
+                output.mask = float4(input.vertex.xy * 2 - clampedRect.xy - clampedRect.zw,
+                    0.25 / (0.25 * float2(_UIMaskSoftnessX, _UIMaskSoftnessY) + abs(pixelSize)));
                 return output;
             }
 
@@ -99,7 +108,8 @@ Shader "OZGL2/UI/Trait Pixel TMP Outline"
                 fixed4 result = fixed4(rgb, alpha);
 
                 #if UNITY_UI_CLIP_RECT
-                    result.a *= UnityGet2DClipping(input.position, _ClipRect);
+                    float2 edgeAlpha = saturate((_ClipRect.zw - _ClipRect.xy - abs(input.mask.xy)) * input.mask.zw);
+                    result.a *= edgeAlpha.x * edgeAlpha.y;
                 #endif
 
                 #if UNITY_UI_ALPHACLIP

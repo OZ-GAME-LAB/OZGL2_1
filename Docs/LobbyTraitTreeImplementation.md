@@ -188,6 +188,20 @@ Unity 6000.3.22f1에서 확인했다.
 - 실제 화면 캡처: `Temp/TraitTreeValidation/trait-heart-header-final.png` (커밋 대상 제외). 팀원은 불굴의 살 중앙 정렬, 선택 전환 시 확대 아이콘과 등급/이름/레벨 순서, 작은 Game View에서 가독성을 확인한다.
 - 공유 프리팹 충돌에 주의한다. Scene Change Plan / Unity Editor Tool / AI Review Log 절차에 따라 승인된 배치만 수정했다. 기존 작업 변경은 보존하고 커밋/push는 하지 않았다.
 
+## 트리 경계의 좁은 페이드 (2026-09-18)
+
+- 승인 범위: 특성 프리팹과 특성 전용 글자 셰이더. 좌우도 상하와 동일하게 좁은 경계만 흐려지도록 적용했다. 배경/설명창/고정 버튼은 변경하지 않았다.
+- 원인: `TraitTreeViewport/RectMask2D.softness`가 (0, 0)이었고, 전용 TMP 셰이더도 `UnityGet2DClipping`으로 경계를 딱 잘라냈다.
+- `Canvas_LobbyOverlays.prefab`: Unity Prefab Mode에서 `m_Softness` 하나만 (48, 48)로 저장. 1920×1080, 트리 배율 1에서 약 25px의 좁은 전이 구간이며, 내부 아이콘·프레임·선·글자/외곽선이 함께 투명해진다. 새 이미지나 오버레이는 추가하지 않았다.
+- `TraitPixelTMPOutline.shader`: CanvasRenderer가 전달하는 `_UIMaskSoftnessX/Y`를 사용해 가장자리 알파를 계산. 기존 글자 색상/외곽선/픽셀 스냅 유지. 마스크 밖의 설명창·고정 텍스트에는 페이드가 적용되지 않는다. 원본 폰트/SDF 및 TMP 기본 셰이더는 수정하지 않았다.
+- `LobbyTraitTreeBuilder.cs`: `Tools/OZGL2/Lobby/Apply Narrow Trait Tree Edge Fade` 메뉴 추가. 마스크 설정만 한 Undo 그룹으로 변경하며 메인 씬은 저장하지 않는다. 새 트리 생성 시에도 같은 기본값을 사용한다.
+- `LobbyTraitTreeValidation.cs`: 네 방향 softness, 배경/설명창/고정 버튼의 범위 제외, 44개 글자의 전용 셰이더/마스크 지원 검사 추가.
+- Unity 컴파일과 셰이더 컴파일 성공. Play Mode UI **3,128개 단언 통과**, 최종 Console **오류 0 / 경고 0**. 기존 LP/초기화/클릭/줌/드래그 검증 포함. 실제 PlayerPrefs는 변경하지 않는 검증 모델을 사용했다.
+- 현재 씬에는 사용자가 별도로 확대해 둔 설명창 아이콘(165×165, Y=266.3)의 미저장 조정이 있어 기존 128×128 고정 배치 검사와 달랐다. 해당 조정은 수정하지 않았다. 전체 자동 검증 동안에만 Play Mode 아이콘을 저장된 프리팹 값으로 맞추고 곧바로 복원했다. 첫 고정 배치 검사 실패는 이 인스턴스 차이이며 페이드/기능 오류가 아니다.
+- Unity 기본 화면 캡처 비교: `Temp/TraitTreeValidation/trait-edge-hard-before.png` / `trait-edge-narrow-after.png`. 1920×1080의 동일 배치에서 변경된 픽셀은 30,258개이고, 트리 뷰포트 밖 변경 **0개**, 경계에서 30px 이상 떨어진 내부 변경 **0개**다. 좁은 가장자리만 변함을 확인했다. 캡처는 커밋 대상이 아니다.
+- Inspector에서 `TraitsScreen/TraitTreeViewport/RectMask2D/Softness` X/Y=48 확인. 추가 연결, Layer/Tag/Physics/Input/Animator 설정은 필요 없다. 팀원은 드래그·확대/축소 시 프레임과 이름이 함께 사라지는지, 경계 밖 클릭이 차단되는지 확인한다.
+- 이 변경은 프리팹 1개, 셰이더 1개, Editor 코드 2개, 이 문서만 수정한다. Scene 파일/Meta/ProjectSettings/Packages 변경 없음. 씬의 기존 미저장 상태를 보존하고 커밋/push는 실행하지 않았다. 공유 프리팹의 마스크 설정과 셰이더 diff를 검토한다.
+
 ## 이전 작업 Git 검토 포인트
 
 - 충돌 위험: `Canvas_LobbyOverlays.prefab`의 노드 추가로 직렬화 diff가 크다. YAML 직접 수정/충돌 해결 대신 Unity에서 검토한다.

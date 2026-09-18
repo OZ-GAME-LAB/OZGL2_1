@@ -219,6 +219,14 @@ internal static class LobbyTraitTreeValidation
             var downgrade = detail.Find("Downgrade").GetComponent<Button>();
             var scroll = view.GetComponentInChildren<ScrollRect>();
             var zoom = scroll.GetComponent<UITraitTreeZoom>();
+            var treeMask = scroll.GetComponent<RectMask2D>();
+            check(treeMask != null && treeMask.softness == new Vector2Int(48, 48), "트리 네 방향의 좁은 경계 페이드");
+            foreach (string path in new[] { "Background", "SelectedTraitDetail", "Back", "ResetTraits", "Recenter" })
+                check(!view.transform.Find(path).IsChildOf(scroll.transform), "트리 경계 페이드 범위에서 제외: " + path);
+            foreach (var text in scroll.content.GetComponentsInChildren<TMP_Text>(true))
+                check(text.maskable && text.fontSharedMaterial != null &&
+                    text.fontSharedMaterial.shader.name == "OZGL2/UI/Trait Pixel TMP Outline",
+                    "특성명과 글자 외곽선의 경계 페이드 지원: " + text.name);
             foreach (string path in new[] { "ResetTraits", "Recenter", "Back", "ResetConfirmation/Panel/Cancel", "ResetConfirmation/Panel/Confirm", "SelectedTraitDetail/Upgrade", "SelectedTraitDetail/Downgrade" })
             {
                 var image = view.transform.Find(path).GetComponent<Image>();
