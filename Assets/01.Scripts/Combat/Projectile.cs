@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +14,24 @@ using UnityEngine;
 /// </summary>
 public class Projectile : MonoBehaviour
 {
+    // CoreLoop-Connections-TeamGuide.md의 IInGameCombatParticipant 계약(ProjectileCombatParticipant)이
+    // 라운드 전환 시 여기를 통해 신규 발사를 막고, 남은 발사체를 정리한다.
+    public static bool CombatEnabled { get; set; } = true;
+    private static readonly HashSet<Projectile> ActiveProjectiles = new HashSet<Projectile>();
+
+    /// <summary>현재 날아다니는 발사체를 전부 즉시 파괴한다(라운드 종료/전환 시 잔여물 정리용).</summary>
+    public static void DestroyAllActive()
+    {
+        foreach (Projectile projectile in new List<Projectile>(ActiveProjectiles))
+        {
+            if (projectile != null)
+            {
+                Destroy(projectile.gameObject);
+            }
+        }
+        ActiveProjectiles.Clear();
+    }
+
     public float maxTravelDistance = 20f; // 아무도 못 맞히고 계속 날아갈 때 소멸시키는 최대 거리
 
     private UnitBase originalTarget;
@@ -43,6 +62,16 @@ public class Projectile : MonoBehaviour
         }
 
         FaceDirection(direction);
+    }
+
+    private void OnEnable()
+    {
+        ActiveProjectiles.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        ActiveProjectiles.Remove(this);
     }
 
     private void Update()

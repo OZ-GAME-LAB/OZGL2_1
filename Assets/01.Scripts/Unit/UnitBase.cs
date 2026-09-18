@@ -566,6 +566,13 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     /// </summary>
     protected virtual void LaunchProjectile(UnitBase target, int damage)
     {
+        // 준비/보상/종료 등 전투가 막힌 구간에는 새 발사체를 만들지 않는다
+        // (CoreLoop-Connections-TeamGuide.md IInGameCombatParticipant 계약, ProjectileCombatParticipant가 제어).
+        if (!Projectile.CombatEnabled)
+        {
+            return;
+        }
+
         Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
         GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
         Projectile projectile = projectileObj.AddComponent<Projectile>();

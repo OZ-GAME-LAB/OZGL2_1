@@ -383,6 +383,50 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &1591044037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1591044039}
+  - component: {fileID: 1591044038}
+  m_Layer: 0
+  m_Name: InGameRunHost
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1591044038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591044037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533035b4027544acad6467f5c1aa0377, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileCombatParticipant
+--- !u!4 &1591044039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591044037}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8701223948942012790}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &8701223948942012778
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -439,13 +483,24 @@ PrefabInstance:
       propertyPath: _phasePresentation
       value: 
       objectReference: {fileID: 8701223948942012783}
+    - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      propertyPath: _combatParticipants.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      propertyPath: '_combatParticipants.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1591044038}
     - target: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _boardTheme
       value: 
       objectReference: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6931151815657655447, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1591044039}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       insertIndex: -1
@@ -527,6 +582,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameCameraTransition
   _camera: {fileID: 979777110}
   _config: {fileID: 11400000, guid: 51e90804add57184baa9253233fa606a, type: 2}
+--- !u!4 &8701223948942012790 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6931151815657655447, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+  m_PrefabInstance: {fileID: 8701223948942012778}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
