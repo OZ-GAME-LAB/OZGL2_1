@@ -58,7 +58,7 @@ namespace OZGL2.InGame.Editor
             Check(_defenders.AliveCount == 2, "Two real defenders");
             NextPreparation(basic, shape, "reward1");
             using var preparationView = new GridWorldPreparationView(grid, mapping, config.CellWorldSize,
-                id => config.DemonArmyCatalog.FindPrefab(id).gameObject, _root.transform);
+                (id, star) => config.DemonArmyCatalog.FindPrefab(id, star).gameObject, _root.transform);
             preparationView.SetVisible(true);
             var ui = new GameObject("FusionPreparationUI"); ui.transform.SetParent(_root.transform);
             ui.SetActive(false);
@@ -74,6 +74,7 @@ namespace OZGL2.InGame.Editor
             Check(Runner.Board.GhostLayer.Q("ghost-cell").resolvedStyle.backgroundColor == GridBoardView.VALID_COLOR, "Green fusion ghost");
             Up(panel, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
             Check(grid.FindUnit("unit0") == null && grid.FindUnit("unit1").StarLevel == 2, "Pointer board fusion");
+            CheckPreviewModel(config.DemonArmyCatalog.FindPrefab(basic.Id, 2), "unit1");
             var sourceCard = panel.Q<VisualElement>("card-unit2"); Down(sourceCard, sourceCard.worldBound.center); await Frame();
             var targetPoint = panel.Q<VisualElement>("card-unit3").worldBound.center;
             Move(panel, targetPoint); await Frame();
@@ -84,6 +85,7 @@ namespace OZGL2.InGame.Editor
             Up(panel, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
             Check(grid.FindUnit("unit1").StarLevel == 3 && grid.FindUnit("unit3") == null, "Pointer tray-to-board fusion");
             Check(_root.GetComponentsInChildren<TextMesh>().Single().text == "★3", "World star label updates after fusion and removes consumed labels");
+            CheckPreviewModel(config.DemonArmyCatalog.FindPrefab(basic.Id, 3), "unit1");
             Down(Runner.Board.Element, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
             Move(panel, Runner.Board.CellToPanel(new Vector2Int(-1, 0))); await Frame();
             Check(grid.GetPreviewFailure() != ePlacementFailure.NONE, "Outside is invalid");
@@ -97,12 +99,27 @@ namespace OZGL2.InGame.Editor
             await _defenders.PrepareRoundAsync(CancellationToken.None); await Frame();
             var actual = _root.GetComponentsInChildren<UnitBase>().Single();
             Check(_defenders.AliveCount == 1 && actual.statData.starLevel == 3, "Consumed defender removed; star applied");
+            Check(actual.name == config.DemonArmyCatalog.FindPrefab(basic.Id, 3).name + "(Clone)", "Three-star combat prefab selected");
             Check(Vector3.Distance(actual.transform.position, mapping.GetWorldPosition(origin + Vector2Int.up)) < 0.001f, "Existing defender moved");
             Check(asset.starLevel == originalStar && asset.maxHealth == originalHp && actual.statData != asset, "Shared SO untouched");
             Check(_root.GetComponentsInChildren<SpriteRenderer>().Count(r => r.name.StartsWith("Cell_")) == 40, "Forty real asset cells");
+            int retainedHealth = actual.currentHealth = Math.Max(1, actual.currentHealth - 1);
+            await _defenders.PrepareRoundAsync(CancellationToken.None);
+            Check(_root.GetComponentsInChildren<UnitBase>().Single() == actual && actual.currentHealth == retainedHealth, "Unchanged model retains instance and health");
             NextPreparation(basic, shape, "reward2");
             // 검증 종료 후 준비 화면을 남겨 바닥 상태와 성급 표시를 육안 확인한다.
             await Frame();
+        }
+        private static void CheckPreviewModel(UnitBase prefab, string instanceId)
+        {
+            var actor = _root.GetComponentsInChildren<Transform>().Single(t => t.name == "Preview_" + instanceId);
+            var expected = prefab.GetComponentsInChildren<SpriteRenderer>(true)
+                .Where(r => r.enabled && r.sprite != null && r.GetComponentsInParent<Transform>(true)
+                    .TakeWhile(t => t != prefab.transform).All(t => t.gameObject.activeSelf))
+                .Select(r => r.sprite).ToArray();
+            var actual = actor.GetComponentsInChildren<SpriteRenderer>().Select(r => r.sprite).ToArray();
+            Check(expected.Length > 0 && expected.SequenceEqual(actual), "Preparation uses selected star model sprites");
+            Check(actor.GetComponentsInChildren<UnitBase>().Length == 0, "Preview has no combat components");
         }
         private static void NextPreparation(UnitDefinition unit, FootprintDefinition block, string reward)
         {

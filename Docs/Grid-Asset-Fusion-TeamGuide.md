@@ -33,6 +33,8 @@
 
 - `RealDefenders.PrepareRoundAsync`는 매 라운드 배치 확정본에 맞춰 신규 생성, 기존 위치 갱신, 소모/회수된 개체 제거, 성급 반영 및 사망 유닛 부활을 수행한다.
 - 성급 적용은 기존 `UnitBase.ApplyStarLevel`을 사용하며 원본 SO를 변경하지 않는다.
+- 준비 월드 미리보기와 전투 생성은 `DemonArmyCatalog.FindPrefab(id, starLevel)`로 같은 성급 외형을 조회한다. 2·3성 외형이 없으면 카탈로그의 기본 외형 대체 규칙을 따른다.
+- 준비 중 합성하면 미리보기와 드래그 외형을 갱신한다. 전투 개체는 다음 전투 배치 확정 때 외형이 달라진 경우에만 교체하며, 같은 외형이면 기존 개체와 체력을 유지한다. 합성 시 체력 회복은 기존 `ApplyStarLevel` 규칙을 따른다.
 - 누락된 프리팹/스탯은 전투 시작 전에 오류로 처리한다. 일부 유닛만 생성하고 전투를 진행하지 않는다.
 - `RealDefenders`는 IDisposable이며 InGame의 StageRunHost가 정리한다. 다른 조립 루트는 팩토리의 `ownDefenders` 콜백을 통해 수명을 소유해야 한다.
 - Bootstrap이 소유하는 `InGameSynergyConnection`이 실제 배치 유닛 수를 직업별로 계산하여 팀의 `RealSynergySync.SetCount`에 전달한다. 보관함 유닛은 제외한다. `InGameGridPresentation`은 표시만 담당한다.

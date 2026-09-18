@@ -9,17 +9,21 @@ namespace OZGL2.Grid.UI
     {
         private readonly GridManager _grid;
         private readonly GridWorldMapping _mapping;
-        private readonly Func<string, GameObject> _prefab;
+        private readonly Func<string, int, GameObject> _prefab;
         private readonly GameObject _root;
         private readonly Dictionary<string, GameObject> _units = new Dictionary<string, GameObject>();
+        private readonly Dictionary<string, int> _stars = new Dictionary<string, int>();
         private readonly List<SpriteRenderer> _ghost = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _frontier = new List<SpriteRenderer>();
         private readonly Sprite _solid;
         private readonly float _cellSize;
         private GameObject _dragActor;
         private string _dragId;
+        private int _dragStar;
         public bool IsVisible { get; private set; }
         public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, GameObject> prefab, Transform parent)
+            : this(grid, mapping, cellSize, (id, star) => prefab(id), parent) { }
+        public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, int, GameObject> prefab, Transform parent)
         {
             _grid = grid; _mapping = mapping; _cellSize = cellSize; _prefab = prefab;
             _root = new GameObject("PreparationVisuals"); _root.transform.SetParent(parent, false);
@@ -41,24 +45,30 @@ namespace OZGL2.Grid.UI
                 if (!unit.IsPlaced) continue;
                 retained.Add(unit.InstanceId);
                 GameObject actor;
-                if (!_units.TryGetValue(unit.InstanceId, out actor))
-                { actor = CreateActor(unit.Definition.Id, "Preview_" + unit.InstanceId); _units.Add(unit.InstanceId, actor); }
+                if (!_units.TryGetValue(unit.InstanceId, out actor) || _stars[unit.InstanceId] != unit.StarLevel)
+                {
+                    if (actor != null) { actor.SetActive(false); UnityEngine.Object.Destroy(actor); }
+                    actor = CreateActor(unit.Definition.Id, unit.StarLevel, "Preview_" + unit.InstanceId);
+                    _units[unit.InstanceId] = actor; _stars[unit.InstanceId] = unit.StarLevel;
+                }
                 actor.transform.position = _mapping.GetWorldPosition(unit.Anchor);
                 actor.GetComponentInChildren<TextMesh>(true).text = "★" + unit.StarLevel;
                 actor.SetActive(!(_grid.DragKind == eGridDragKind.UNIT && _grid.SelectedId == unit.InstanceId));
             }
             foreach (var id in new List<string>(_units.Keys))
-                if (!retained.Contains(id)) { _units[id].SetActive(false); UnityEngine.Object.Destroy(_units[id]); _units.Remove(id); }
+                if (!retained.Contains(id)) { _units[id].SetActive(false); UnityEngine.Object.Destroy(_units[id]); _units.Remove(id); _stars.Remove(id); }
             var cells = _grid.HasSelection ? _grid.GetPreviewCells() : Array.Empty<Vector2Int>();
             RenderSquares(_ghost, cells, _grid.GetPreviewFailure() == ePlacementFailure.NONE ? GridBoardView.VALID_COLOR : GridBoardView.INVALID_COLOR, 200, 0.94f);
             var frontier = _grid.RequiresExpansionPlacement ? _grid.GetExpansionFrontier() : Array.Empty<Vector2Int>();
             RenderSquares(_frontier, frontier, new Color(0.4f, 0.8f, 0.6f, 0.22f), -90, 0.86f);
             string selected = _grid.DragKind == eGridDragKind.UNIT ? _grid.SelectedId : null;
-            if (_dragId != selected)
+            int selectedStar = selected == null ? 0 : _grid.FindUnit(selected).StarLevel;
+            if (_dragId != selected || _dragStar != selectedStar)
             {
                 if (_dragActor != null) { _dragActor.SetActive(false); UnityEngine.Object.Destroy(_dragActor); }
                 _dragId = selected;
-                _dragActor = selected == null ? null : CreateActor(_grid.FindUnit(selected).Definition.Id, "DraggedUnit");
+                _dragStar = selectedStar;
+                _dragActor = selected == null ? null : CreateActor(_grid.FindUnit(selected).Definition.Id, selectedStar, "DraggedUnit");
                 if (_dragActor != null)
                     foreach (var renderer in _dragActor.GetComponentsInChildren<SpriteRenderer>())
                     { renderer.color *= new Color(1, 1, 1, 0.65f); renderer.sortingOrder += 250; }
@@ -69,10 +79,10 @@ namespace OZGL2.Grid.UI
                 _dragActor.GetComponentInChildren<TextMesh>(true).text = "★" + _grid.FindUnit(selected).StarLevel;
             }
         }
-        private GameObject CreateActor(string contentId, string name)
+        private GameObject CreateActor(string contentId, int starLevel, string name)
         {
             var actor = new GameObject(name); actor.transform.SetParent(_root.transform, false);
-            var source = _prefab(contentId);
+            var source = _prefab(contentId, starLevel);
             int count = 0;
             if (source != null)
             {

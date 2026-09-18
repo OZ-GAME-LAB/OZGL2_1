@@ -14,6 +14,7 @@ public sealed class RealDefenders : IStageDefenders, IDisposable
     private readonly Transform _spawnRoot;
     private readonly GridWorldMapping _mapping;
     private readonly Dictionary<string, UnitBase> _spawned = new Dictionary<string, UnitBase>();
+    private readonly Dictionary<string, UnitBase> _spawnedPrefabs = new Dictionary<string, UnitBase>();
     private bool _isDisposed;
 
     public RealDefenders(Func<GridRunSession> gridSessionProvider, DemonArmyCatalog catalog, Transform spawnRoot,
@@ -47,7 +48,7 @@ public sealed class RealDefenders : IStageDefenders, IDisposable
         // 누락된 콘텐츠 때문에 일부만 배치한 상태로 전투가 시작되지 않게 사전 검증한다.
         foreach (var unit in deployment.Units)
         {
-            var prefab = _catalog.FindPrefab(unit.ContentId);
+            var prefab = _catalog.FindPrefab(unit.ContentId, unit.StarLevel);
             if (prefab == null || prefab.statData == null)
                 throw new InvalidOperationException("Missing demon army prefab/stat data: " + unit.ContentId);
         }
@@ -55,16 +56,21 @@ public sealed class RealDefenders : IStageDefenders, IDisposable
         var retained = new HashSet<string>();
         foreach (var unit in deployment.Units) retained.Add(unit.InstanceId);
         foreach (var id in new List<string>(_spawned.Keys))
-            if (!retained.Contains(id)) { Release(_spawned[id]); _spawned.Remove(id); }
+            if (!retained.Contains(id)) { Release(_spawned[id]); _spawned.Remove(id); _spawnedPrefabs.Remove(id); }
 
         foreach (var unit in deployment.Units)
         {
             UnitBase instance;
-            if (!_spawned.TryGetValue(unit.InstanceId, out instance) || instance == null)
+            var prefab = _catalog.FindPrefab(unit.ContentId, unit.StarLevel);
+            if (!_spawned.TryGetValue(unit.InstanceId, out instance) || instance == null ||
+                !_spawnedPrefabs.TryGetValue(unit.InstanceId, out var previousPrefab) || previousPrefab != prefab)
             {
-                instance = UnityEngine.Object.Instantiate(_catalog.FindPrefab(unit.ContentId),
+                // 성급 외형이 바뀔 때만 교체한다. 동일 외형은 기존 개체와 체력을 유지한다.
+                Release(instance);
+                instance = UnityEngine.Object.Instantiate(prefab,
                     _mapping.GetWorldPosition(unit.Anchor), Quaternion.identity, _spawnRoot);
                 _spawned[unit.InstanceId] = instance;
+                _spawnedPrefabs[unit.InstanceId] = prefab;
             }
             instance.transform.position = _mapping.GetWorldPosition(unit.Anchor);
             instance.hasMoveTarget = false;
@@ -88,5 +94,6 @@ public sealed class RealDefenders : IStageDefenders, IDisposable
         _isDisposed = true;
         foreach (var unit in _spawned.Values) Release(unit);
         _spawned.Clear();
+        _spawnedPrefabs.Clear();
     }
 }

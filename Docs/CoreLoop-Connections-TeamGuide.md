@@ -42,6 +42,13 @@ Bootstrap의 `HasCombatParticipants`, `HasSynergyConnection`, `UsesDummyAugments
 
 ## 증강 담당자
 
+### dev_2 연결 전 확인 사항 (2026-09-18)
+
+- `RealAugmentRewards`는 존재하지만 아직 Bootstrap의 `_augmentProvider`에 연결하지 않았다. `Awake`에서 `RealSynergySync.Augments`를 한 번만 조회하므로 실행 순서에 따라 증강을 자동으로 건너뛸 수 있다. 선택 요청 시 초기화 완료를 확인하거나 명시적으로 주입해야 한다.
+- 취소·비활성화·종료 시 대기 Task와 선택 화면을 함께 정리해야 한다. 취소된 화면에서 `AugmentRun.Pick`이 실행되면 안 된다.
+- 현재 가중치→마일스톤 변환은 혼합 확률을 보존하지 않는다. 예를 들어 플래티넘 가중치가 조금이라도 있으면 플래티넘 전용 단계로 바뀐다. 확정된 추첨 규칙을 합의한 후 연결한다.
+- `RealSynergySync`, `SkillManager`, `SkillExecutor`, `SkillBarUI`에는 위 전투 참여자 계약을 완성할 공개 API가 없다. 입력 차단, 조준 취소, 잔여 효과 정리, 마왕 위치 갱신을 스킬 담당자가 노출한 후 어댑터를 등록한다. 컴포넌트의 private 필드를 강제로 조작하거나 비활성화만 해서 정리 완료로 취급하지 않는다.
+
 Bootstrap의 Augment Provider는 `IStageRewards` 구현체다. 여기서는 SelectAugmentAsync만 호출한다. 실제 선택·적용 완료 후 Task를 완료하고, 동일 RequestId의 중복 적용을 방지해야 한다. 취소는 Task에 전달한다. StageManager는 성공 반환과 취소 확인 후 지급 완료를 저장한다.
 
 현재 초기화 대상은 `RealSynergySync.Augments`다. 다른 증강 저장 객체를 사용한다면 초기화 연결도 함께 합의해야 한다. 계정 특성/영구 성장 값은 초기화하지 않는다.
