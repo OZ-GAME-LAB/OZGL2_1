@@ -26,4 +26,5 @@ MonoBehaviour:
   projectileSpeed: 8
   cost: 1
   killExpReward: 0
+  job: 2
   starLevel: 1

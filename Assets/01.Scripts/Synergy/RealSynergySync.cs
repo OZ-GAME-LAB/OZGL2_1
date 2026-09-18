@@ -24,7 +24,7 @@ namespace OZGL2.Synergy
 
         [Header("디버그 (테스트용 — 실제 배포 전에는 꺼야 함)")]
         [Tooltip("체크하면 계정 해금/장착 상태 무시하고 모든 스킬을 해금·장착 시도(용량만큼). 계정 저장(PlayerPrefs)은 안 건드림.")]
-        [SerializeField] private bool _debugUnlockAllSkills = true;
+        [SerializeField] private bool _debugUnlockAllSkills = false;
 
         private static readonly SynergyJob[] AllJobs = (SynergyJob[])System.Enum.GetValues(typeof(SynergyJob));
 
@@ -103,12 +103,14 @@ namespace OZGL2.Synergy
             foreach (var data in defs)
             {
                 if (data == null) continue;
-                bool unlocked = _debugUnlockAllSkills || SkillTreeStore.IsUnlocked(data.skillId);
+                // 화염구는 계정 상태·초기화 여부와 무관하게 항상 기본 해금 + 자동 장착 — 신규 플레이어 최소 공격 수단.
+                bool starterFree = data.displayName == "화염구";
+                bool unlocked = starterFree || _debugUnlockAllSkills || SkillTreeStore.IsUnlocked(data.skillId);
                 var runtime = _skillManager.Register(data, unlocked);
                 // 디버그 모드: 용량 찰 때까지 등록 순서대로 우선 채워 넣고, 나머지는 디버그 패널에서 직접 스왑.
-                bool shouldEquip = unlocked && (_debugUnlockAllSkills
+                bool shouldEquip = unlocked && (starterFree || (_debugUnlockAllSkills
                     ? _skillManager.EquippedCount < _skillManager.EquipCapacity
-                    : equipped.Contains(data.skillId));
+                    : equipped.Contains(data.skillId)));
                 if (shouldEquip) _skillManager.TryEquip(runtime);
             }
 
@@ -196,12 +198,19 @@ namespace OZGL2.Synergy
 
             foreach (var job in AllJobs)
             {
+                // 마왕군(아군) — 특성·증강의 "몬스터" 배율 + 시너지 직업 배율
                 float synHp = job == SynergyJob.Shield ? syn.ShieldHpMult : 1f;
-                CombatModifierHub.SetAttackMult(job, Combine(trait.MonsterAttackMult, aug.MonsterAttackMult, JobAttackComponent(job, syn)));
-                CombatModifierHub.SetAttackSpeedMult(job, Combine(trait.MonsterAttackSpeedMult, aug.MonsterAttackSpeedMult, JobSpeedComponent(job, syn)));
-                CombatModifierHub.SetHpMult(job, Combine(trait.MonsterHpMult, aug.MonsterHpMult, synHp));
+                CombatModifierHub.SetAttackMult(job, UnitSide.DemonArmy, Combine(trait.MonsterAttackMult, aug.MonsterAttackMult, JobAttackComponent(job, syn)));
+                CombatModifierHub.SetAttackSpeedMult(job, UnitSide.DemonArmy, Combine(trait.MonsterAttackSpeedMult, aug.MonsterAttackSpeedMult, JobSpeedComponent(job, syn)));
+                CombatModifierHub.SetHpMult(job, UnitSide.DemonArmy, Combine(trait.MonsterHpMult, aug.MonsterHpMult, synHp));
+
+                // 용사(적) — 특성·증강의 "용사 약화" 배율만(시너지는 아군 배치 전용이라 관여 안 함).
+                // 별도 저장소를 진영으로 분리했기 때문에 마왕군 강화 배율이 적 용사한테는 안 넘어간다.
+                CombatModifierHub.SetAttackMult(job, UnitSide.Hero, Combine(trait.HeroAttackMult, aug.HeroAttackMult));
+                CombatModifierHub.SetAttackSpeedMult(job, UnitSide.Hero, trait.HeroAttackSpeedMult);
+                CombatModifierHub.SetHpMult(job, UnitSide.Hero, trait.HeroHpMult);
             }
-            CombatModifierHub.SetHealMult(SynergyJob.Healer, syn.HealerHealAmountMult);
+            CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.DemonArmy, syn.HealerHealAmountMult);
 
             if (MawangXpBridge.Mawang != null)
                 MawangXpBridge.Mawang.XpGainMult = Combine(trait.XpGainMult, aug.XpGainMult);
