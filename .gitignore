@@ -115,3 +115,15 @@ InitTestScene*.unity*
 /Assets/98.ExternalAssets/00.LocalStaging/00.Packages.meta
 /Assets/98.ExternalAssets/
 /Assets/98.ExternalAssets.meta
+
+# Generated TMP font assets are distributed through the team's Drive package.
+# Keep the original .meta files in that package so Scene/Prefab GUIDs stay valid.
+# Match font asset files only; do not ignore TMP SDF shaders or shader includes.
+/Assets/**/*[sS][dD][fF]*.asset
+/Assets/**/*[sS][dD][fF]*.asset.meta
+
+# The preview's bitmap TMP fonts also accumulate dynamic atlas changes.
+/Assets/06.UI/LobbyMutedPreview/Fonts/*.asset
+/Assets/06.UI/LobbyMutedPreview/Fonts/*.asset.meta
+/Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/*.asset
+/Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/*.asset.meta
