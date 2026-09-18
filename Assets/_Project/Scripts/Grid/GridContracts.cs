@@ -49,19 +49,24 @@ namespace OZGL2.Grid
     }
     public sealed class UnitPlacement
     {
+        public int StarLevel { get; }
         public string InstanceId { get; }
         public UnitDefinition Definition { get; }
         public bool IsPlaced { get; }
         public Vector2Int Anchor { get; }
         public int Rotation { get; }
-        public UnitPlacement(string instanceId, UnitDefinition definition, bool isPlaced = false, Vector2Int anchor = default, int rotation = 0)
+        public UnitPlacement(string instanceId, UnitDefinition definition, bool isPlaced = false, Vector2Int anchor = default, int rotation = 0, int starLevel = 1)
         {
+            if (starLevel < 1) throw new ArgumentOutOfRangeException(nameof(starLevel));
+            StarLevel = starLevel;
             if (string.IsNullOrWhiteSpace(instanceId)) throw new ArgumentException("Unit instance ID required.");
             InstanceId = instanceId; Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             IsPlaced = isPlaced; Anchor = anchor; Rotation = ((rotation % 4) + 4) % 4;
         }
         public UnitPlacement WithPlacement(bool isPlaced, Vector2Int anchor, int rotation)
-            => new UnitPlacement(InstanceId, Definition, isPlaced, anchor, rotation);
+            => new UnitPlacement(InstanceId, Definition, isPlaced, anchor, rotation, StarLevel);
+        public UnitPlacement WithStarLevel(int starLevel)
+            => new UnitPlacement(InstanceId, Definition, IsPlaced, Anchor, Rotation, starLevel);
         public Vector2Int[] GetCells() => Definition.Footprint.GetCells(Anchor, Rotation);
     }
     public sealed class UnitDefinition

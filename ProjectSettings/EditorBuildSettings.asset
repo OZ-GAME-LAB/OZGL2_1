@@ -8,6 +8,21 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/00.Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/00.Scenes/Builds/InGame.unity
+    guid: 79f7e572bb8d8ae41a6e48d08327f8ec
+  - enabled: 1
+    path: Assets/00.Scenes/Builds/Lobby.unity
+    guid: 419a1b509808b394592d0f1aa9802da9
+  - enabled: 1
+    path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_Lobby.unity
+    guid: f926dbc171fdbbb449d8e157e4c6f9f4
+  - enabled: 1
+    path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_StageChoice.unity
+    guid: 5e37a2788ed3a084f81c48658824bb01
+  - enabled: 1
+    path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_InGame.unity
+    guid: cdbdd26a4f4932e4d9acf25585bde690
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

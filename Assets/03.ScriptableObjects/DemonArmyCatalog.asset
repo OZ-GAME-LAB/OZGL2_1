@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6758bb994964d54bda1398ce79e61aa, type: 3}
+  m_Name: DemonArmyCatalog
+  m_EditorClassIdentifier:
+  entries:
+  - unitId: M_WAR_01
+    prefab: {fileID: 93522533909232979, guid: 562bf4cf4b8092c4eb8f1fc0a54bfd19, type: 3}
+    prefabStar2: {fileID: 7243342958625172005, guid: c05f68fc32b957749913f6b62410eac3, type: 3}
+    prefabStar3: {fileID: 5602818065410433813, guid: b2cde23fdfd19104dbb13baaf4e19ac6, type: 3}
+  - unitId: M_SHD_01
+    prefab: {fileID: 1893974150412001682, guid: 6e7c087c1d376094db257d908d4fe76c, type: 3}
+    prefabStar2: {fileID: 6540579597685463064, guid: adb73c22dab415a499e78cb51b6fed75, type: 3}
+    prefabStar3: {fileID: 8240633132829750164, guid: 75414244fae088f41a9b7560b1a28597, type: 3}
+  - unitId: M_ARC_01
+    prefab: {fileID: -1817550835103021793, guid: 1f7642d8f58aeb8429cf11f54c774bff, type: 3}
+    prefabStar2: {fileID: 5050908370722202975, guid: befad26de7f6fb942a13d2c3f0cb4621, type: 3}
+    prefabStar3: {fileID: 7671943585471387508, guid: e35a4207ee13b184b91483aaeb7c4c95, type: 3}
+  - unitId: M_MAG_01
+    prefab: {fileID: -1005614957148396838, guid: c6a055f21bce4ba478fcb8bc68e896af, type: 3}
+    prefabStar2: {fileID: 7454934584071825034, guid: 74fa6c3f2d8e1f1439c9433c15e5a955, type: 3}
+    prefabStar3: {fileID: 8529934027544476276, guid: a95ac2886ffea5644984ce9064519003, type: 3}
+  - unitId: M_ROG_01
+    prefab: {fileID: 4968385150742938794, guid: a321239d7c8d38c48a8837912fa3c1b4, type: 3}
+    prefabStar2: {fileID: 7813826049927955744, guid: 0bc44aaba480db34aaf805bf3e93483b, type: 3}
+    prefabStar3: {fileID: 8641088819813468964, guid: 185a3828d41d5b54ea4f1c2260ed5d8d, type: 3}
+  - unitId: M_HEL_01
+    prefab: {fileID: -2716902314225195471, guid: bd67f83d6a4615c42a0060246d3c69b9, type: 3}
+    prefabStar2: {fileID: 8901691924939628687, guid: 05ddf2ca087e41043928280919469498, type: 3}
+    prefabStar3: {fileID: 8829637954693136943, guid: bdb462b41c5011b4cb2e089d3d5713ec, type: 3}

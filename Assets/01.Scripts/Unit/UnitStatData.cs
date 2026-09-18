@@ -1,4 +1,5 @@
 using UnityEngine;
+using OZGL2.Synergy;
 
 /// <summary>
 /// 유닛 1종의 기초 스탯을 담는 ScriptableObject.
@@ -12,6 +13,9 @@ public class UnitStatData : ScriptableObject
     public string unitId;          // 코드/데이터에서 참조할 고유 키 (예: "Hero_Warrior", "Army_MeleeDPS")
     public string displayName;     // 화면 표시용 이름
     public UnitSide side;
+
+    [Header("직업 (시너지·특성 배율 판정용 — 성민 파트 연계)")]
+    public SynergyJob job;
 
     [Header("스탯 (밸런스시트 03.전투공식 기준)")]
     public int maxHealth = 100;
@@ -28,8 +32,14 @@ public class UnitStatData : ScriptableObject
     public float healAmount = 0f;      // 힐러 전용 1회 힐량 (힐/초 = healAmount x attackSpeed)
 
     [Header("원거리 공격 (비워두면 근접/즉시 판정, 채우면 발사체 발사)")]
-    public GameObject projectilePrefab;  // 관통 없음 · 단일 대상 유도. 용사/마왕군 공용 프리팹(Arrow 등) 할당
+    public GameObject projectilePrefab;  // 관통 없음 · 단일 대상 유도. 용사/마왕군 공용 프리팹(Arrow, Fireball 등) 할당
     public float projectileSpeed = 8f;   // 유닛/초
+    // 프리팹 스프라이트/애니메이션이 기본으로 바라보는 방향 (Arrow=위, Fireball=오른쪽처럼 프리팹마다 다름).
+    // Projectile이 이 값을 기준으로 실제 진행 방향을 바라보게 회전시킨다.
+    public Vector2 projectileDefaultFacing = Vector2.up;
+
+    [Header("스플래시 (근접 전용 — 0이면 단일 대상. 발사체 유닛에는 미적용)")]
+    public float splashRadius = 0f;      // 주 타겟 위치 기준 이 반경 안의 다른 적도 동일 피해
 
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)

@@ -15,6 +15,7 @@ MonoBehaviour:
   unitId: H_ARC_01
   displayName: 궁수
   side: 0
+  job: 2
   maxHealth: 45
   attackPower: 14
   attackSpeed: 1.2
@@ -26,3 +27,5 @@ MonoBehaviour:
   projectileSpeed: 8
   cost: 0
   killExpReward: 4
+  starLevel: 1
+  job: 2

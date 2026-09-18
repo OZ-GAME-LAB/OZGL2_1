@@ -173,7 +173,7 @@ ResetForReturn에서 연출·이벤트·비동기 작업도 정리해야 합니�
 스폰 목록은 순서대로 처리하며 각 용사 스폰 이후 다음 스폰까지 해당 항목의 간격을 사용합니다.
 현재 간격은 실시간 Task.Delay입니다. 일시정지/배속은 아직 구현하지 않았습니다.
 스폰이 끝나기 전 용사 수가 0이어도 승리하지 않습니다.
-양측 동시 전멸은 정책 미정이므로 SIMULTANEOUS로 구분 후 오류 종료하며 정산하지 않습니다.
+양측 동시 전멸은 진단용 Outcome을 SIMULTANEOUS로 유지하고, 전투 결과는 패배로 반환하여 기존 저장·정산·로비 복귀 흐름을 진행합니다.
 임의의 승리·패배 우선순위를 넣지 않았습니다.
 
 현재 풀링 화면은 기본 Capsule 프리팹을 사용하며 이동·자동 공격은 없습니다.
@@ -228,7 +228,7 @@ Play 씬 전체 검사: StageFlowVerification.StartSceneChecks().
 | Assets/_Project/Prefabs/Stage/DummyHero.prefab | 풀링 테스트 프리팹 |
 | Assets/03.ScriptableObjects/Stage/Dummy/DummyHeroPoolCatalog.asset | 풀링 더미 설정 |
 
-증강 확률, 동시 전멸 정책, 실제 지급·성장·씬 연결은 후속 합의/통합 대상입니다.
+증강 확률, 실제 지급·성장·씬 연결은 후속 합의/통합 대상입니다. 외부 전투 시작·정리 규격은 `CoreLoop-Connections-TeamGuide.md`를 참고합니다.
 Notion은 읽기 전용으로 유지하며 커밋·Push·병합·팀원에게 전송은 수행하지 않습니다.
 
 ## 디커플링 보강 (2026-09-09)

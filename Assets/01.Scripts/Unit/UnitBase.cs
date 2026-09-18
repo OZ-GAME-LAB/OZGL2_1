@@ -1,11 +1,19 @@
+using System.Collections;
 using UnityEngine;
+using OZGL2.Contracts;
+using OZGL2.Stage;
 
 /// <summary>
 /// 용사/마왕군 공통 유닛 베이스.
 /// Day1: 상태(State) 골격 + 이동 + SPUM 애니메이션. Day2: 타겟팅 + 공격/치료 판정 + 사망 처리.
 /// 실제 그리드/스폰 시스템이 붙기 전까지는 SetMoveTarget()으로 월드 좌표를 직접 넘겨 테스트한다.
+/// IDamageable/IHealable/IStatusReceiver 구현: 기존 int 기반 API는 그대로 두고, 성민 파트
+/// 스킬 시스템이 이 유닛을 직접 때리고 힐하고 CC 걸 수 있도록 명시적 인터페이스 구현만 추가
+/// (기존 공개 API 동작 변경 없음).
+/// IPooledHeroState/IPooledHeroDeathPresentation 구현: 용사가 HeroPool로 스폰될 때 재사용
+/// 리셋과 사망 연출을 이 컴포넌트가 직접 조율한다 (풀링 없이 직접 스폰하는 테스트 환경도 계속 지원).
 /// </summary>
-public class UnitBase : MonoBehaviour
+public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, IPooledHeroState, IPooledHeroDeathPresentation
 {
     [Header("데이터")]
     public UnitStatData statData;
@@ -40,6 +48,104 @@ public class UnitBase : MonoBehaviour
 
     public UnitSide Side => statData != null ? statData.side : UnitSide.Hero;
 
+    // IDamageable (OZGL2.Contracts) — 성민 파트 스킬 시스템 전용 진입점. 기존 int 기반 API와 별개.
+    float IDamageable.CurrentHp => currentHealth;
+    float IDamageable.MaxHp => statData != null ? statData.maxHealth : 0f;
+    bool IDamageable.IsDead => currentState == UnitState.Dead;
+    Vector3 IDamageable.Position => transform.position;
+    void IDamageable.TakeDamage(float amount) => TakeDamage(Mathf.RoundToInt(amount));
+
+    // IHealable (OZGL2.Contracts) — 힐/버프 스킬(흡혈 의식·광폭화 등) 전용 진입점.
+    Vector3 IHealable.Position => transform.position;
+    bool IHealable.IsDead => currentState == UnitState.Dead;
+    void IHealable.Heal(float amount) => Heal(Mathf.RoundToInt(amount));
+    void IHealable.HealFraction(float fraction)
+    {
+        if (statData == null || currentState == UnitState.Dead) return;
+        Heal(Mathf.RoundToInt(statData.maxHealth * Mathf.Clamp01(fraction)));
+    }
+    void IHealable.ApplyBuff(string stat, float multiplier, float seconds)
+    {
+        switch (stat)
+        {
+            case "attack": _buffAttackMult = multiplier; _buffAttackExpire = Time.time + seconds; break;
+            case "attackSpeed": _buffAttackSpeedMult = multiplier; _buffAttackSpeedExpire = Time.time + seconds; break;
+            case "defense": _buffDefenseMult = multiplier; _buffDefenseExpire = Time.time + seconds; break;
+        }
+    }
+
+    // IStatusReceiver (OZGL2.Contracts) — CC 스킬(정지·둔화·넉백·취약) 전용 진입점.
+    void IStatusReceiver.ApplyStun(float seconds) => _stunExpire = Mathf.Max(_stunExpire, Time.time + seconds);
+    void IStatusReceiver.ApplySlow(float multiplier, float seconds) { _slowMult = multiplier; _slowExpire = Time.time + seconds; }
+    void IStatusReceiver.ApplyKnockback(Vector3 dir, float force) => transform.position += dir.normalized * force;
+    void IStatusReceiver.ApplyVulnerable(float multiplier, float seconds) { _vulnerableMult = multiplier; _vulnerableExpire = Time.time + seconds; }
+
+    // IPooledHeroState (OZGL2.Stage) — HeroPool이 용사를 재사용할 때 호출.
+    void IPooledHeroState.ResetForSpawn(long leaseId)
+    {
+        currentTarget = null;
+        hasMoveTarget = false;
+        attackCooldownTimer = 0f;
+
+        // 이전 대여 때 남아있던 CC/버프가 재사용된 용사에게 그대로 이어지면 안 되므로 전부 초기화.
+        _stunExpire = 0f;
+        _slowMult = 1f; _slowExpire = 0f;
+        _vulnerableMult = 1f; _vulnerableExpire = 0f;
+        _buffAttackMult = 1f; _buffAttackExpire = 0f;
+        _buffAttackSpeedMult = 1f; _buffAttackSpeedExpire = 0f;
+        _buffDefenseMult = 1f; _buffDefenseExpire = 0f;
+
+        if (statData != null)
+        {
+            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
+        }
+
+        // PooledStageBattle(팀원 코드)은 스폰 위치만 정하고 이동 명령은 안 줘서, 여기서 직접 마왕을 향해
+        // 걷기 시작하도록 지정한다 (4.1절). RealDefenders가 라운드 시작마다 이 값을 미리 채워둔다.
+        if (UnitRegistry.KingWorldPosition.HasValue)
+        {
+            SetMoveTarget(UnitRegistry.KingWorldPosition.Value);
+        }
+        else
+        {
+            SetState(UnitState.Idle);
+        }
+    }
+
+    void IPooledHeroState.ResetForReturn()
+    {
+        currentTarget = null;
+        hasMoveTarget = false;
+    }
+
+    // IPooledHeroDeathPresentation (OZGL2.Stage) — 사망 연출을 여기서 직접 조율.
+    // PooledHero.TryReportDeath()가 호출. 사망 애니메이션 길이만큼 기다렸다가 풀에 반납 완료를 알린다.
+    // (풀링 컨텍스트 전용 — 풀링 없이 직접 스폰한 경우는 Die()에서 바로 Destroy로 처리)
+    void IPooledHeroDeathPresentation.BeginDeath(HeroLease lease)
+    {
+        StartCoroutine(DeathPresentationRoutine(lease));
+    }
+
+    private IEnumerator DeathPresentationRoutine(HeroLease lease)
+    {
+        yield return new WaitForSeconds(GetDeathAnimationDuration());
+        lease.Hero.TryCompleteDeath(lease.LeaseId);
+    }
+
+    // CC/버프 런타임 상태 — 시간 기반이라 값 자체는 만료 후에도 남아있지만 아래 Effective* 계산 시 항상 만료 여부를 같이 체크한다.
+    private float _stunExpire;
+    private float _slowMult = 1f, _slowExpire;
+    private float _vulnerableMult = 1f, _vulnerableExpire;
+    private float _buffAttackMult = 1f, _buffAttackExpire;
+    private float _buffAttackSpeedMult = 1f, _buffAttackSpeedExpire;
+    private float _buffDefenseMult = 1f, _buffDefenseExpire;
+
+    private float EffectiveSlowMult => Time.time < _slowExpire ? _slowMult : 1f;
+    private float EffectiveVulnerableMult => Time.time < _vulnerableExpire ? _vulnerableMult : 1f;
+    private float EffectiveBuffAttackMult => Time.time < _buffAttackExpire ? _buffAttackMult : 1f;
+    private float EffectiveBuffAttackSpeedMult => Time.time < _buffAttackSpeedExpire ? _buffAttackSpeedMult : 1f;
+    private float EffectiveBuffDefenseMult => Time.time < _buffDefenseExpire ? _buffDefenseMult : 1f;
+
     // SPUM 프리팹의 애니메이션 재생 담당 컴포넌트 (자식 오브젝트에 붙어있음, SPUM 샘플의 PlayerObj 참고)
     protected SPUM_Prefabs spumPrefabs;
 
@@ -66,7 +172,7 @@ public class UnitBase : MonoBehaviour
     {
         if (statData != null)
         {
-            currentHealth = statData.maxHealth;
+            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
         }
         else
         {
@@ -130,6 +236,11 @@ public class UnitBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (Time.time < _stunExpire)
+        {
+            return; // 스턴 중엔 상태 틱 자체를 건너뛴다 (행동 불가)
+        }
+
         switch (currentState)
         {
             case UnitState.Idle:
@@ -160,6 +271,25 @@ public class UnitBase : MonoBehaviour
             return;
         }
 
+        // 히어로는 매 프레임 "지금 존재하는 마왕군 중 가장 가까운 쪽"으로 이동 목표를 다시 잡는다.
+        // (예전엔 스폰 시 마왕 쪽으로만 고정해서, 경로에서 벗어난 곳에 배치된 마왕군은 사거리에
+        // 우연히 걸리지 않는 한 그냥 지나쳐버렸음 — 마왕군이 있으면 사거리와 무관하게 색적해서 찾아감.)
+        if (Side == UnitSide.Hero)
+        {
+            UnitBase seekTarget = FindNearestEnemy();
+            if (seekTarget != null)
+            {
+                moveTarget = seekTarget.transform.position;
+                hasMoveTarget = true;
+            }
+            else if (UnitRegistry.KingWorldPosition.HasValue)
+            {
+                // 마왕군이 전부 사라졌을 때만 마왕으로 직진.
+                moveTarget = UnitRegistry.KingWorldPosition.Value;
+                hasMoveTarget = true;
+            }
+        }
+
         if (!hasMoveTarget || statData == null)
         {
             return;
@@ -176,7 +306,7 @@ public class UnitBase : MonoBehaviour
         }
 
         Vector3 direction = toTarget.normalized;
-        transform.position += direction * statData.moveSpeed * Time.deltaTime;
+        transform.position += direction * statData.moveSpeed * EffectiveSlowMult * Time.deltaTime;
         FaceDirection(direction);
     }
 
@@ -233,6 +363,13 @@ public class UnitBase : MonoBehaviour
         return FindNearestEnemy();
     }
 
+    /// <summary>
+    /// 도발(어그로): 근접(사거리 1 이하) 마왕군은 자기 사거리 안에 든 히어로를 최우선으로 끌어온다.
+    /// 지금까지는 순수 최근접이라 방패·전사·도적이 "막아주는" 역할을 못 했음 — 근접 밸류 보완(1번) 반영.
+    /// </summary>
+    public bool IsTaunting => Side == UnitSide.DemonArmy && statData != null && statData.attackRange <= 1f;
+    public float TauntRangeSqr => statData != null ? statData.attackRange * statData.attackRange : 0f;
+
     protected virtual UnitBase FindNearestEnemy()
     {
         UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
@@ -240,6 +377,8 @@ public class UnitBase : MonoBehaviour
 
         UnitBase nearest = null;
         float nearestDistSqr = float.MaxValue;
+        UnitBase tauntPick = null;
+        float tauntDistSqr = float.MaxValue;
 
         for (int i = 0; i < candidates.Count; i++)
         {
@@ -255,9 +394,16 @@ public class UnitBase : MonoBehaviour
                 nearestDistSqr = distSqr;
                 nearest = unit;
             }
+
+            // 히어로 쪽에서만 도발을 존중한다 (마왕군이 히어로에게 도발당할 일은 없음).
+            if (Side == UnitSide.Hero && unit.IsTaunting && distSqr <= unit.TauntRangeSqr && distSqr < tauntDistSqr)
+            {
+                tauntDistSqr = distSqr;
+                tauntPick = unit;
+            }
         }
 
-        return nearest;
+        return tauntPick != null ? tauntPick : nearest;
     }
 
     /// <summary>같은 진영에서 체력 비율이 가장 낮은(그리고 풀피가 아닌) 아군을 찾는다.</summary>
@@ -350,7 +496,8 @@ public class UnitBase : MonoBehaviour
     protected float GetAttackInterval()
     {
         float speed = statData != null ? statData.attackSpeed : 1f;
-        return 1f / Mathf.Max(speed, 0.01f);
+        float speedMult = statData != null ? CombatModifierHub.GetAttackSpeedMult(statData.job, statData.side) : 1f;
+        return 1f / Mathf.Max(speed * speedMult * EffectiveSlowMult * EffectiveBuffAttackSpeedMult, 0.01f);
     }
 
     protected virtual void PerformAttack(UnitBase target)
@@ -362,12 +509,14 @@ public class UnitBase : MonoBehaviour
 
         if (statData.healAmount > 0f)
         {
-            target.Heal(Mathf.RoundToInt(statData.healAmount));
+            float healMult = CombatModifierHub.GetHealMult(statData.job, statData.side);
+            target.Heal(Mathf.RoundToInt(statData.healAmount * healMult));
             return;
         }
 
-        float targetDefense = target.statData != null ? target.statData.defensePercent : 0f;
-        int damage = CalculateDamage(statData.attackPower, targetDefense);
+        float targetDefense = (target.statData != null ? target.statData.defensePercent : 0f) * target.EffectiveBuffDefenseMult;
+        float attackMult = CombatModifierHub.GetAttackMult(statData.job, statData.side);
+        int damage = CalculateDamage(statData.attackPower * attackMult * EffectiveBuffAttackMult, targetDefense);
 
         if (statData.projectilePrefab != null)
         {
@@ -376,6 +525,38 @@ public class UnitBase : MonoBehaviour
         else
         {
             target.TakeDamage(damage);
+            ApplySplashDamage(target, damage);
+        }
+    }
+
+    /// <summary>
+    /// 스플래시(3번 — 지금은 전사 전용, splashRadius > 0인 근접 유닛에만 적용): 주 타겟 위치 기준
+    /// 반경 안의 다른 적에게도 동일 피해. 발사체 공격에는 적용 안 함(필요해지면 Projectile 쪽에 별도 구현).
+    /// </summary>
+    protected virtual void ApplySplashDamage(UnitBase primaryTarget, int damage)
+    {
+        if (statData.splashRadius <= 0f)
+        {
+            return;
+        }
+
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var candidates = UnitRegistry.GetUnits(enemySide);
+        float radiusSqr = statData.splashRadius * statData.splashRadius;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit == primaryTarget || unit.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            float distSqr = (unit.transform.position - primaryTarget.transform.position).sqrMagnitude;
+            if (distSqr <= radiusSqr)
+            {
+                unit.TakeDamage(damage);
+            }
         }
     }
 
@@ -388,7 +569,7 @@ public class UnitBase : MonoBehaviour
         Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
         GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
         Projectile projectile = projectileObj.AddComponent<Projectile>();
-        projectile.Init(target, damage, statData.projectileSpeed);
+        projectile.Init(target, damage, statData.projectileSpeed, statData.projectileDefaultFacing, statData.splashRadius);
     }
 
     /// <summary>
@@ -441,7 +622,7 @@ public class UnitBase : MonoBehaviour
             return;
         }
 
-        currentHealth -= amount;
+        currentHealth -= Mathf.RoundToInt(amount * EffectiveVulnerableMult);
         if (currentHealth <= 0)
         {
             Die();
@@ -459,28 +640,22 @@ public class UnitBase : MonoBehaviour
         {
             int expReward = statData != null ? statData.killExpReward : 0;
             OnHeroKilled?.Invoke(this, expReward);
-            // 사망 애니메이션이 다 재생될 시간을 준 다음 제거 (즉시 Destroy하면 트리거만 넣고 바로 사라짐)
-            Destroy(gameObject, GetDeathAnimationDuration());
-        }
-        // 마왕군은 Dead 상태로 남겨둔다 — 다음 라운드 시작 시 라운드 매니저(코어루프 파트)가 Revive()를 호출해 부활시키는 구조로 예정 (4.3절)
 
-        CheckRoundOutcome();
-    }
-
-    /// <summary>
-    /// 승패 스텁 — 정식 라운드 매니저(코어루프 파트)가 붙기 전까지 콘솔 로그로만 확인.
-    /// 마왕군 전멸=패배, 용사 전멸=라운드 클리어. 실제 UI/씬 전환 등은 코어루프 파트가 담당할 예정.
-    /// </summary>
-    protected virtual void CheckRoundOutcome()
-    {
-        if (UnitRegistry.GetAliveCount(UnitSide.DemonArmy) <= 0)
-        {
-            Debug.Log("[Round] 패배 — 마왕군 전멸");
+            PooledHero pooledHero = GetComponent<PooledHero>();
+            if (pooledHero != null && pooledHero.IsLeased)
+            {
+                // 풀링 컨텍스트: HeroPool/PooledStageBattle에 사망을 통지한다.
+                // 이후 연출은 BeginDeath()가, 최종 반납·승패 판정(RoundCompletionEvaluator)은 그쪽 시스템이
+                // RealDefenders.AliveCount와 함께 처리 — 여기서 Destroy 하지 않는다.
+                pooledHero.TryReportDeath(pooledHero.LeaseId);
+            }
+            else
+            {
+                // 풀링 없이 직접 스폰한 경우(JOB_SEJIN 테스트 등) — 기존처럼 애니메이션 재생 후 제거
+                Destroy(gameObject, GetDeathAnimationDuration());
+            }
         }
-        else if (UnitRegistry.GetAliveCount(UnitSide.Hero) <= 0)
-        {
-            Debug.Log("[Round] 라운드 클리어 — 용사 전멸");
-        }
+        // 마왕군은 Dead 상태로 남겨둔다 — RealDefenders.PrepareRoundAsync()가 다음 라운드 시작 시 Revive()를 호출해 부활시킨다 (4.3절)
     }
 
     /// <summary>
@@ -494,7 +669,7 @@ public class UnitBase : MonoBehaviour
             return;
         }
 
-        currentHealth = statData.maxHealth;
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
         SetState(UnitState.Idle);
     }
 
@@ -529,6 +704,6 @@ public class UnitBase : MonoBehaviour
         statData.attackPower = baseStatData.attackPower * multiplier;
         statData.healAmount = baseStatData.healAmount * multiplier;
 
-        currentHealth = statData.maxHealth; // 합성 시 풀피로 시작
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side)); // 합성 시 풀피로 시작
     }
 }

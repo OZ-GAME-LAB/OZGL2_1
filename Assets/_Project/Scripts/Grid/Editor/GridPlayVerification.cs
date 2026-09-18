@@ -51,10 +51,10 @@ namespace OZGL2.Grid.Editor
             Require(manager.PlacedCount == 0 && manager.FindBlock("corner").IsPlaced, "Unit returns alone to common tray");
             card = root.Q<VisualElement>("card-mage"); Down(card, card.worldBound.center); await Frame();
             Move(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
-            Require(manager.GetPreviewCells().Length == 3, "Unit own footprint preview");
+            Require(manager.GetPreviewCells().Length == 1, "Prototype unit occupies one cell");
             Up(root, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
-            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(5, 2))); await Frame();
-            Require(manager.DragKind == eGridDragKind.UNIT && manager.SelectedId == "mage", "Non-anchor cell grabs whole unit");
+            Down(runner.Board.Element, runner.Board.CellToPanel(new Vector2Int(4, 2))); await Frame();
+            Require(manager.DragKind == eGridDragKind.UNIT && manager.SelectedId == "mage", "Occupied cell selects unit");
             Key(root, KeyCode.R); await Frame(); Require(manager.PreviewRotation == 1, "Unit rotates");
             Move(root, runner.Board.CellToPanel(new Vector2Int(-1, 0))); await Frame();
             ghost = runner.Board.GhostLayer.Q<VisualElement>("ghost-cell");

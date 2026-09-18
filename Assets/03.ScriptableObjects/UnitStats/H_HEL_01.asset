@@ -15,6 +15,7 @@ MonoBehaviour:
   unitId: H_HEL_01
   displayName: 힐러
   side: 0
+  job: 5
   maxHealth: 55
   attackPower: 0
   attackSpeed: 0.7
@@ -24,3 +25,5 @@ MonoBehaviour:
   healAmount: 6
   cost: 0
   killExpReward: 4
+  starLevel: 1
+  job: 5
