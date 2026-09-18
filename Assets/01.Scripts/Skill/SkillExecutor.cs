@@ -214,6 +214,9 @@ namespace OZGL2.Skill
 
         private IEnumerator Chain(SkillData d, float power, Vector3 from)
         {
+            // 시전 지점에 한 번 크게 터지는 연출을 깔아서(전기 소용돌이 등) 체인 전체가 더 커 보이게 함.
+            if (d.castVfx != null) AutoDestroy(SpawnVfx(d.castVfx, from, Quaternion.identity, d.vfxIsUi));
+
             var hit = new HashSet<IDamageable>();
             Vector3 cursor = from;
             for (int i = 0; i < d.chainCount; i++)
@@ -222,7 +225,13 @@ namespace OZGL2.Skill
                 if (next == null) break;
                 next.TakeDamage(power);
                 hit.Add(next);
-                if (d.perTargetVfx != null) AutoDestroy(SpawnVfx(d.perTargetVfx, next.Position, Quaternion.identity, d.vfxIsUi));
+                if (d.perTargetVfx != null)
+                {
+                    // 연쇄 하나하나가 더 크고 확실하게 보이도록 살짝 키워서 스폰.
+                    var fx = SpawnVfx(d.perTargetVfx, next.Position, Quaternion.identity, d.vfxIsUi);
+                    if (fx != null) fx.transform.localScale *= 1.6f;
+                    AutoDestroy(fx);
+                }
                 else { Arc(cursor, next.Position, new Color(1f, 0.95f, 0.45f)); StartCoroutine(ExpandFade(next.Position, 0.8f, new Color(1f, 0.95f, 0.4f), 0.22f, false)); }
                 cursor = next.Position;
                 yield return new WaitForSeconds(d.chainInterval);
@@ -330,11 +339,20 @@ namespace OZGL2.Skill
 
         private IEnumerator Flourish(SkillData d, float radius, Vector3 center)
         {
+            // 유성우·절대영도·심판처럼 radius=99(맵 전체) 스킬은 예전엔 6칸으로 좁게 캡해서 화면 한
+            // 구석에서만 터지는 것처럼 보였다 — 맵 전체 연출 반경(_vfxMaxRadius)까지 넓게 뿌리고
+            // 간격도 늘려서 실제로 맵 전역에 걸쳐 오래 쏟아지는 느낌이 나게 한다.
+            // castVfx를 없앤 궁극기들(유성우·절대영도·심판)은 이 flourish가 사실상 유일한 화면 연출이라 —
+            // 큰 이펙트 하나 대신 "작은 이펙트가 맵 전체에서 난리 치는" 느낌을 내야 함. 그래서 개별
+            // 크기는 줄이고(0.6배), 터지는 간격은 짧게 잡아서 짧은 시간에 우르르 쏟아지게 한다.
+            float spread = Mathf.Min(radius, _vfxMaxRadius);
             for (int i = 0; i < d.flourishCount; i++)
             {
-                Vector3 p = center + (Vector3)(Random.insideUnitCircle * Mathf.Min(radius, 6f));
-                AutoDestroy(SpawnVfx(d.flourishVfx, p, Quaternion.identity, d.vfxIsUi));
-                yield return new WaitForSeconds(Random.Range(0.04f, 0.14f));
+                Vector3 p = center + (Vector3)(Random.insideUnitCircle * spread);
+                var fx = SpawnVfx(d.flourishVfx, p, Quaternion.identity, d.vfxIsUi);
+                if (fx != null) fx.transform.localScale *= 0.6f;
+                AutoDestroy(fx);
+                yield return new WaitForSeconds(Random.Range(0.03f, 0.08f));
             }
         }
 
@@ -355,10 +373,19 @@ namespace OZGL2.Skill
                 : Code(Disc(), ZoneColor(d.zoneEffect), origin, radius * 2f, 6);
             if (visual != null)
             {
-                if (d.castVfx != null) ScaleAreaVfx(visual, radius);
+                if (d.castVfx != null) { ScaleAreaVfx(visual, radius); ApplyTint(visual, d.vfxTint); }
                 visual.transform.SetParent(go.transform, true);
                 Destroy(visual, d.effectType == SkillEffectType.MovingZone ? duration : duration + 0.5f);
             }
+        }
+
+        /// <summary>기존 VFX 프리팹 색만 곱해서 바꾼다 — 새 프리팹 없이 같은 이펙트를 다른 속성처럼
+        /// 보이게 할 때 씀(예: 용암 이펙트를 초록빛으로 틴트해서 늪처럼). 흰색(기본값)이면 원본 그대로.</summary>
+        private static void ApplyTint(GameObject go, Color tint)
+        {
+            if (go == null || tint == Color.white) return;
+            foreach (var sr in go.GetComponentsInChildren<SpriteRenderer>()) sr.color *= tint;
+            foreach (var g in go.GetComponentsInChildren<UnityEngine.UI.Graphic>()) g.color *= tint;
         }
 
         private void HealAllies(SkillData d)
@@ -367,7 +394,9 @@ namespace OZGL2.Skill
             foreach (var a in _allies.Allies)
             {
                 a.HealFraction(d.duration);
-                if (d.perTargetVfx != null) AutoDestroy(SpawnVfx(d.perTargetVfx, a.Position, Quaternion.identity, d.vfxIsUi));
+                // 즉발 힐이라 실제 "지속시간"은 없지만, 원래 AutoDestroy 기준(UI 0.85초)이 너무 짧게
+                // 사라져서 눈에 잘 안 띄었다 — 조금 더 오래 보이게 고정 시간으로 늘림.
+                if (d.perTargetVfx != null) Destroy(SpawnVfx(d.perTargetVfx, a.Position, Quaternion.identity, d.vfxIsUi), 1.4f);
                 else StartCoroutine(ExpandFade(a.Position, 0.7f, new Color(0.4f, 1f, 0.5f), 0.3f, false));
             }
         }
@@ -380,8 +409,32 @@ namespace OZGL2.Skill
             {
                 if (a.IsDead) continue;
                 a.ApplyBuff(key, d.buffMultiplier, duration);
-                if (d.perTargetVfx != null) AutoDestroy(SpawnVfx(d.perTargetVfx, a.Position, Quaternion.identity, d.vfxIsUi));
+                if (d.perTargetVfx != null)
+                {
+                    // 버프가 실제로 유지되는 동안(duration) 대상 위에 계속 붙어서 보이게 — 예전엔
+                    // 한 번 반짝하고 바로 사라져서(AutoDestroy) 버프가 걸려있는지 눈으로 알 수 없었다.
+                    var fx = SpawnVfx(d.perTargetVfx, a.Position, Quaternion.identity, d.vfxIsUi);
+                    if (fx != null)
+                    {
+                        var follow = fx.AddComponent<FollowAlly>();
+                        follow.Target = a;
+                        follow.ExpireTime = Time.time + duration;
+                    }
+                }
                 else StartCoroutine(ExpandFade(a.Position, 0.6f, new Color(1f, 0.8f, 0.3f), 0.3f, true));
+            }
+        }
+
+        /// <summary>버프 VFX를 대상 위치에 계속 붙여서 유지시키다가, 버프 지속시간이 끝나거나 대상이
+        /// 죽으면 스스로 사라진다 — 광폭화·강철 피부처럼 몇 초간 유지되는 버프의 시전 이펙트용.</summary>
+        private class FollowAlly : MonoBehaviour
+        {
+            public IHealable Target;
+            public float ExpireTime;
+            private void Update()
+            {
+                if (Target == null || Target.IsDead || Time.time >= ExpireTime) { Destroy(gameObject); return; }
+                transform.position = Target.Position;
             }
         }
 
@@ -427,6 +480,9 @@ namespace OZGL2.Skill
                 canvasGo.transform.localScale = Vector3.one * (1f / 64f);
                 var child = Instantiate(prefab, canvasGo.transform);
                 child.transform.localPosition = Vector3.zero;
+                // 프리팹 루트가 RectTransform이면 anchoredPosition도 명시적으로 0으로 맞춰서, 프리팹
+                // 원본에 혹시 남아있을 수 있는 오프셋과 무관하게 항상 캔버스(=목표 지점) 정중앙에 오게 함.
+                if (child.transform is RectTransform rt) rt.anchoredPosition = Vector2.zero;
                 go = canvasGo;
             }
             else

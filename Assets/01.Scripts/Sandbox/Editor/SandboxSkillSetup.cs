@@ -23,20 +23,28 @@ namespace OZGL2.Sandbox.EditorTools
         private const string IceShield = "cae65cca59209c641b5bcf36a06bdb36";
         private const string IceRock = "c093de0f120995c4b91ffec42d2e945c";
         private const string IceSlam = "e20edd25e3970d44fb0ba3f02d897bd8";
+        private const string IceClaw = "f772e8ad0e7bcad4f9b4b37af1ea9e55";
         private const string ElectricLightning01 = "945b93ccedb48d54cb3718120dbcea6b";
+        private const string ElectricSpin = "24652970e200e6f4eb1fb3d54f6dee46";
         private const string HolyProjectile = "fd0a9d81491b0104bb0547b6499bf9a0";
         private const string HolyBall = "3e30882327b1d264f952e93b5ea30646";
         private const string HolyCross = "2d863d5876bc37a4a960ab6e0f04c264";
         private const string HolyBlessing = "12e4e2e032d1df642b914575a8fcc241";
+        private const string HolyShield = "6e6d9db3394aae945b11e98b9b9aab8c";
         private const string HolyWing = "d6bb0c10fa54e124883f9cc34364d5e3";
         private const string EarthGrow = "08db4dda7ffaf4b4ea061f18a93f3b92";
         private const string EarthLavaBuble = "f531d6bdff5761348adce37db1ab4324";
         private const string EarthHealing = "d5b6161c1d08a6242ad6140e4b69605f";
         private const string EarthShield = "8a3afc960c8bdcf4ba3d1d25f6fc88e5";
         private const string EarthSpin = "e1bd4ab31e7203b47a0681a88693f38e";
+        private const string EarthRock = "5f41f8a0831ad4f408ade6d3cf0986a9";
         private const string VoidBlackHole = "7ec41a00cb4aaf140b8ed8c9dd9c33e3";
         private const string VoidPortal = "88edfecdc8db16842b747b87a473f47b";
         private const string VoidExplosion01 = "30ff0b7054183d049974c8c5bbcc73fa";
+        private const string VoidExplosion02 = "8265de10b9c4c12438854c4104b386b0";
+        private const string VoidSpin = "55b7c76a960c3bb4eb06ab44b6dc18a4";
+        private const string WaterSplash = "8c9715ea3413e6347bb78a7641f6e93e";
+        private const string WindShield = "09d247bfa1a21c04cb49c841e613c8d3";
 
         [MenuItem("OZGL2/Sandbox/Create Skill Assets (전체 · VFX 연결)")]
         public static void CreateAll()
@@ -62,13 +70,7 @@ namespace OZGL2.Sandbox.EditorTools
                 d.skillPower = 90f; d.radius = 1.3f; d.projectileVfx = V(IceProjectile); d.castVfx = V(IceSpike); });
 
             n += B("Damage_03_ChainLightning", d => { Base(d, "연쇄 번개", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.ChainDamage, 15f);
-                d.skillPower = 80f; d.chainCount = 3; d.chainInterval = 0.1f; d.perTargetVfx = V(ElectricLightning01); });
-
-            n += B("Damage_04_HolyArrow", d => { Base(d, "신성 화살", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.SingleDamage, 8f);
-                d.skillPower = 200f; d.projectileVfx = V(HolyBall); d.castVfx = V(HolyCross); });
-
-            n += B("Damage_05_Earthquake", d => { Base(d, "지진", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.Knockback, 18f);
-                d.skillPower = 60f; d.radius = 3f; d.force = 6f; d.castVfx = V(EarthGrow); });
+                d.skillPower = 80f; d.chainCount = 5; d.chainInterval = 0.1f; d.castVfx = V(ElectricSpin); d.perTargetVfx = V(ElectricLightning01); });
 
             n += B("Damage_06_FireTornado", d => { Base(d, "화염 회오리", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.MovingZone, 22f);
                 d.radius = 1.6f; d.duration = 4f; d.zoneEffect = ZoneEffect.DamageOverTime; d.zoneMagnitude = 24f; d.zoneTick = 0.2f;
@@ -86,29 +88,29 @@ namespace OZGL2.Sandbox.EditorTools
                 d.skillPower = 0f; d.radius = 2.5f; d.force = 8f; d.castVfx = V(EarthSpin); d.scaleCastVfxToRadius = true; });
 
             n += B("Debuff_02_SlowMire", d => { Base(d, "감속 늪", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 14f);
-                d.radius = 2f; d.duration = 5f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.castVfx = V(EarthLavaBuble); });
+                d.radius = 2f; d.duration = 5f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.castVfx = V(EarthLavaBuble);
+                d.vfxTint = new Color(0.55f, 0.75f, 0.4f); }); // 원본 용암 이펙트를 초록빛으로 틴트해서 늪처럼
 
             n += B("Debuff_03_FrostField", d => { Base(d, "빙결 결계", SkillCategory.Debuff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 20f);
-                d.radius = 2f; d.duration = 2.5f; d.zoneEffect = ZoneEffect.Stun; d.castVfx = V(IceShield); d.scaleCastVfxToRadius = true; });
+                d.radius = 2f; d.duration = 2.5f; d.zoneEffect = ZoneEffect.Stun; d.castVfx = V(IceShield); d.scaleCastVfxToRadius = true;
+                d.vfxTint = new Color(0.8f, 0.95f, 1f); });
 
             n += B("Debuff_04_CurseMark", d => { Base(d, "저주 낙인", SkillCategory.Debuff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 16f);
                 d.radius = 2f; d.duration = 4f; d.zoneEffect = ZoneEffect.Vulnerable; d.zoneMagnitude = 1.3f; d.castVfx = V(VoidPortal); });
 
             n += B("Debuff_05_TimeStop", d => { Base(d, "시간 정지", SkillCategory.Debuff, 3, SkillCastMode.Instant, SkillEffectType.Stun, 40f);
-                d.radius = 99f; d.duration = 1.5f; d.castVfx = V(VoidPortal); });
+                d.radius = 99f; d.duration = 1.5f; d.castVfx = V(VoidExplosion02); });
 
-            // ── 버프 (광폭화·강철피부 = 마왕 전체 버프, 즉시)
-            n += B("Buff_01_Trap", d => { Base(d, "함정 설치", SkillCategory.Buff, 1, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 8f);
-                d.radius = 1.2f; d.duration = 12f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.4f; d.castVfx = V(EarthGrow); });
-
+            // ── 버프 (광폭화·강철피부 = 마왕 전체 버프, 즉시) — 함정 설치는 감속 늪이랑 메커니즘이
+            // 완전히 겹치는 데다 카테고리도 잘못 들어가 있어서(버프인데 실제 효과는 디버프) 제거함.
             n += B("Buff_02_Berserk", d => { Base(d, "광폭화", SkillCategory.Buff, 2, SkillCastMode.Instant, SkillEffectType.AllyBuff, 25f);
                 d.duration = 8f; d.buffStat = BuffStat.AttackSpeed; d.buffMultiplier = 1.35f; d.perTargetVfx = V(HolyBall); });
 
             n += B("Buff_03_IronSkin", d => { Base(d, "강철 피부", SkillCategory.Buff, 2, SkillCastMode.Instant, SkillEffectType.AllyBuff, 25f);
-                d.duration = 8f; d.buffStat = BuffStat.Defense; d.buffMultiplier = 1.3f; d.perTargetVfx = V(EarthShield); });
+                d.duration = 8f; d.buffStat = BuffStat.Defense; d.buffMultiplier = 1.3f; d.perTargetVfx = V(WindShield); });
 
             n += B("Buff_04_BlessingAura", d => { Base(d, "축복의 오라", SkillCategory.Buff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 18f);
-                d.radius = 2.5f; d.duration = 6f; d.zoneEffect = ZoneEffect.Heal; d.zoneTarget = ZoneTarget.Allies; d.zoneMagnitude = 3f; d.zoneTick = 0.5f; d.castVfx = V(HolyBlessing); });
+                d.radius = 2.5f; d.duration = 6f; d.zoneEffect = ZoneEffect.Heal; d.zoneTarget = ZoneTarget.Allies; d.zoneMagnitude = 3f; d.zoneTick = 0.5f; d.castVfx = V(HolyShield); });
 
             n += B("Buff_05_VampiricRite", d => { Base(d, "흡혈 의식", SkillCategory.Buff, 3, SkillCastMode.Instant, SkillEffectType.HealAllies, 25f);
                 d.duration = 0.4f; d.perTargetVfx = V(EarthHealing); });
@@ -116,18 +118,21 @@ namespace OZGL2.Sandbox.EditorTools
             n += B("Buff_06_RaiseDead", d => { Base(d, "망자 부활", SkillCategory.Buff, 3, SkillCastMode.Instant, SkillEffectType.Revive, 35f);
                 d.reviveCount = 3; d.perTargetVfx = V(HolyWing); });
 
-            // ── 궁극 (화려하게)
+            // ── 궁극 (화려하게) — 큰 castVfx 하나 대신, 작은 flourishVfx를 맵 전체에 잔뜩 뿌려서
+            // "화면 전체가 난리 나는" 느낌으로. (Flourish() 코드가 spread를 _vfxMaxRadius까지 넓히고
+            // 개별 크기도 줄여서 뿌린다 — SkillExecutor.cs 참고)
             n += B("Ult_01_MeteorShower", d => { Base(d, "유성우", SkillCategory.Ultimate, 4, SkillCastMode.Instant, SkillEffectType.AreaDamage, 60f);
-                d.skillPower = 150f; d.radius = 5f; d.barrageCount = 12; d.chainInterval = 0.1f; d.castVfx = V(FireExplosion02);
-                d.flourishVfx = V(FireExplosion01); d.flourishCount = 8; });
+                d.skillPower = 150f; d.radius = 5f; d.barrageCount = 12; d.chainInterval = 0.1f;
+                d.flourishVfx = V(FireExplosion01); d.flourishCount = 30; });
 
             n += B("Ult_02_AbsoluteZero", d => { Base(d, "절대 영도", SkillCategory.Ultimate, 4, SkillCastMode.Instant, SkillEffectType.Stun, 90f);
-                d.radius = 99f; d.duration = 4f; d.castVfx = V(IceSlam);
-                d.flourishVfx = V(IceRock); d.flourishCount = 12; });
+                d.radius = 99f; d.duration = 4f;
+                d.flourishVfx = V(IceRock); d.flourishCount = 35; });
 
+            // 심판은 성민 요청으로 십자가(HolyCross)만 — 큰 castVfx 없이 flourish로만 화면 전체를 채움.
             n += B("Ult_03_Judgment", d => { Base(d, "심판", SkillCategory.Ultimate, 4, SkillCastMode.Instant, SkillEffectType.AreaDamage, 90f);
-                d.skillPower = 600f; d.radius = 99f; d.castVfx = V(HolyBall);
-                d.flourishVfx = V(HolyCross); d.flourishCount = 14; });
+                d.skillPower = 600f; d.radius = 99f;
+                d.flourishVfx = V(HolyCross); d.flourishCount = 40; });
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
