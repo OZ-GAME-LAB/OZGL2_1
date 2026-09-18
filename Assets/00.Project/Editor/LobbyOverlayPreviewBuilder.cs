@@ -16,6 +16,7 @@ internal static class LobbyOverlayPreviewBuilder
 {
     private const string ROOT = "Assets/06.UI/LobbyMutedPreview/Overlays";
     private const string BASE = "Assets/06.UI/LobbyMutedPreview";
+    private const string FONT_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font";
     private const string SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
     private const string CANVAS_NAME = "Canvas_LobbyOverlays";
     private static readonly string[] NAMES = { "Panel_Frame", "Button_Frame", "Header_Ornament", "Points_Frame", "Trait_Frame_Normal", "Trait_Frame_Specialized" };
@@ -494,11 +495,13 @@ internal static class LobbyOverlayPreviewBuilder
 
     private static void PrepareFont()
     {
-        string path = ROOT + "/Fonts/DOSMyungjo Overlay Pixel.asset";
+        if (!AssetDatabase.IsValidFolder(FONT_FOLDER))
+            throw new InvalidOperationException("공유 폰트 폴더를 먼저 복원하세요: " + FONT_FOLDER);
+        string path = FONT_FOLDER + "/DOSMyungjo Overlay Pixel.asset";
         _font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);
         if (_font == null)
         {
-            Font font = AssetDatabase.LoadAssetAtPath<Font>("Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSMyungjo.ttf");
+            Font font = AssetDatabase.LoadAssetAtPath<Font>(FONT_FOLDER + "/DOSMyungjo.ttf");
             FontEngine.InitializeFontEngine();
             _font = TMP_FontAsset.CreateFontAsset(font, 90, 4, GlyphRenderMode.RASTER, 2048, 2048, AtlasPopulationMode.Dynamic, true);
             _font.name = "DOSMyungjo Overlay Pixel";
@@ -521,7 +524,7 @@ internal static class LobbyOverlayPreviewBuilder
         _fontMaterial = AssetDatabase.LoadAssetAtPath<Material>(path);
         if (_fontMaterial == null)
         {
-            _fontMaterial = new Material(AssetDatabase.LoadAssetAtPath<Shader>(BASE + "/Fonts/PixelTMPOutline.shader"));
+            _fontMaterial = new Material(AssetDatabase.LoadAssetAtPath<Shader>(FONT_FOLDER + "/PixelTMPOutline.shader"));
             _fontMaterial.name = "DOSMyungjo Overlay Outline";
             AssetDatabase.CreateAsset(_fontMaterial, path);
         }

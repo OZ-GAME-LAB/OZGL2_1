@@ -90,7 +90,8 @@ namespace OZGL2.UIFlow
             }
             if (_traitsScreen != null && _traitsScreen.gameObject.activeSelf)
             {
-                if (_traitsScreen.IsDetailOpen) _traitsScreen.HideDetail();
+                if (_traitsScreen.IsResetConfirmationOpen) _traitsScreen.CancelReset();
+                else if (_traitsScreen.IsDetailOpen) _traitsScreen.HideDetail();
                 else CloseTraits();
             }
         }
