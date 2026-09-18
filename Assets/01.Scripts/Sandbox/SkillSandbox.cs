@@ -34,6 +34,10 @@ namespace OZGL2.Sandbox
         [Header("스킬 (비우면 Resources/Skills 자동 로드)")]
         [SerializeField] private List<SkillData> _skills = new List<SkillData>();
 
+        [Header("디버그")]
+        [Tooltip("체크하면 계정 해금 상태(SkillTreeStore)와 무관하게 모든 스킬을 이번 플레이 세션에서만 봉인 해제 + 전부 장착한다. 계정 데이터는 안 건드림 — 스킬 테스트 전용 씬이라 기본값 켜둠.")]
+        [SerializeField] private bool _debugUnlockAllSkills = true;
+
         private SandboxProviders _providers;
         private SkillManager _skillManager;
         private SkillModifiers _skillMods;
@@ -123,7 +127,8 @@ namespace OZGL2.Sandbox
             _skillMods.EchoChance = _augMods.EchoChance;
             _skillMods.OnHitSlowAmount = _augMods.OnHitSlowAmount;
 
-            _skillManager.EquipCapacity = 3 + _traitMods.ExtraSkillSlots; // 슬롯은 특성 전용
+            // 디버그 모드는 등록된 스킬을 전부 장착해서 써볼 수 있게 슬롯을 넉넉히 열어둔다(실제 게임은 3+특성).
+            _skillManager.EquipCapacity = _debugUnlockAllSkills ? 30 : 3 + _traitMods.ExtraSkillSlots;
 
             _mawang.XpGainMult = Combine(_traitMods.XpGainMult, _augMods.XpGainMult);
             _mawang.XpNeedMult = _traitMods.XpNeedMult;
@@ -190,7 +195,7 @@ namespace OZGL2.Sandbox
                 bool starter = firstDamage && data.category == SkillCategory.Damage;
                 if (data.category == SkillCategory.Damage) firstDamage = false;
 
-                bool unlocked = starter || SkillTreeStore.IsUnlocked(data.skillId);
+                bool unlocked = starter || _debugUnlockAllSkills || SkillTreeStore.IsUnlocked(data.skillId);
                 var rt = _skillManager.Register(data, unlocked);
                 _runtimes.Add(rt);
 
@@ -205,6 +210,13 @@ namespace OZGL2.Sandbox
 
         private void RestoreEquipped()
         {
+            if (_debugUnlockAllSkills)
+            {
+                // 계정에 저장된 장착 구성은 무시하고 전부 장착 — 저장(SaveEquipped)도 안 해서 계정 데이터는 그대로.
+                foreach (var rt in _runtimes) _skillManager.TryEquip(rt);
+                return;
+            }
+
             var saved = SkillTreeStore.GetEquipped();
             foreach (var id in saved)
             {
