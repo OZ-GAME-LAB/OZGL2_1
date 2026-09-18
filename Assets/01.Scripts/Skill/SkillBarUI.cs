@@ -17,6 +17,7 @@ namespace OZGL2.Skill
         [SerializeField] private float _iconSize = 78f;
         [SerializeField] private float _iconSpacing = 10f;
         [SerializeField] private float _bottomMargin = 18f;
+        [SerializeField] private float _tabHeight = 34f;
 
         private SkillManager _manager;
         private Camera _camera;
@@ -26,8 +27,18 @@ namespace OZGL2.Skill
         private readonly List<Icon> _icons = new List<Icon>();
         private readonly List<IDamageable> _previewBuf = new List<IDamageable>();
 
-        private RectTransform _barPanel;
+        private RectTransform _barRoot;  // 탭 줄 + 아이콘 줄을 감싸는 바깥 컨테이너
+        private RectTransform _barPanel; // 아이콘 줄만
         private Icon _aiming;
+
+        // 스킬이 23종이라 한 줄에 다 넣으면 너무 길어져서, 카테고리 탭으로 나눠서 보여준다.
+        // null = 전체(필터 없음).
+        private SkillCategory? _activeCategory;
+        private readonly List<Tab> _tabs = new List<Tab>();
+        private static readonly SkillCategory?[] TabCategories =
+        {
+            null, SkillCategory.Damage, SkillCategory.Debuff, SkillCategory.Buff, SkillCategory.Ultimate,
+        };
 
         private Transform _reticle;
         private SpriteRenderer _reticleFill;
@@ -43,6 +54,13 @@ namespace OZGL2.Skill
             public Image CooldownFill;
             public Text CdText;
             public Outline Border;
+        }
+
+        private class Tab
+        {
+            public SkillCategory? Category;
+            public RectTransform Root;
+            public Image Bg;
         }
 
         public void Bind(SkillManager manager, Camera cam, Vector3 casterPos)
@@ -71,13 +89,34 @@ namespace OZGL2.Skill
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
 
+            // 탭 줄 + 아이콘 줄을 세로로 쌓는 바깥 컨테이너 — 화면 아래쪽에 고정.
+            var rootGo = new GameObject("BarRoot");
+            var rootRt = rootGo.AddComponent<RectTransform>();
+            rootRt.SetParent(canvasGo.transform, false);
+            rootRt.anchorMin = new Vector2(0.5f, 0f);
+            rootRt.anchorMax = new Vector2(0.5f, 0f);
+            rootRt.pivot = new Vector2(0.5f, 0f);
+            rootRt.anchoredPosition = new Vector2(0f, _bottomMargin);
+
+            var vl = rootGo.AddComponent<VerticalLayoutGroup>();
+            vl.spacing = 6f;
+            vl.childAlignment = TextAnchor.LowerCenter;
+            vl.childControlWidth = false;
+            vl.childControlHeight = false;
+            vl.childForceExpandWidth = false;
+            vl.childForceExpandHeight = false;
+
+            var rootFit = rootGo.AddComponent<ContentSizeFitter>();
+            rootFit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            rootFit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            _barRoot = rootRt;
+
+            BuildTabs(rootRt);
+
             var panelGo = new GameObject("Panel");
             var panelRt = panelGo.AddComponent<RectTransform>();
-            panelRt.SetParent(canvasGo.transform, false);
-            panelRt.anchorMin = new Vector2(0.5f, 0f);
-            panelRt.anchorMax = new Vector2(0.5f, 0f);
-            panelRt.pivot = new Vector2(0.5f, 0f);
-            panelRt.anchoredPosition = new Vector2(0f, _bottomMargin);
+            panelRt.SetParent(rootRt, false);
 
             var panelImg = panelGo.AddComponent<Image>();
             panelImg.color = new Color(0.05f, 0.05f, 0.08f, 0.9f);
@@ -99,6 +138,75 @@ namespace OZGL2.Skill
             _barPanel = panelRt;
         }
 
+        /// <summary>카테고리 탭 5개(전체/딜/디버프/버프/궁극) — 클릭하면 그 카테고리 장착 스킬만 아이콘 줄에 표시.</summary>
+        private void BuildTabs(RectTransform parent)
+        {
+            var rowGo = new GameObject("TabRow");
+            var rowRt = rowGo.AddComponent<RectTransform>();
+            rowRt.SetParent(parent, false);
+
+            var hl = rowGo.AddComponent<HorizontalLayoutGroup>();
+            hl.spacing = 4f;
+            hl.childAlignment = TextAnchor.MiddleCenter;
+            hl.childControlWidth = false;
+            hl.childControlHeight = false;
+            hl.childForceExpandWidth = false;
+            hl.childForceExpandHeight = false;
+
+            var fit = rowGo.AddComponent<ContentSizeFitter>();
+            fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            foreach (var category in TabCategories)
+            {
+                var tabGo = new GameObject($"Tab_{TabLabel(category)}");
+                var tabRt = tabGo.AddComponent<RectTransform>();
+                tabRt.SetParent(rowRt, false);
+                tabRt.sizeDelta = new Vector2(76f, _tabHeight);
+                var le = tabGo.AddComponent<LayoutElement>();
+                le.preferredWidth = 76f;
+                le.preferredHeight = _tabHeight;
+
+                var bg = tabGo.AddComponent<Image>();
+                bg.color = new Color(0.12f, 0.12f, 0.16f, 0.9f);
+
+                var labelGo = new GameObject("label").AddComponent<RectTransform>();
+                labelGo.SetParent(tabRt, false);
+                labelGo.anchorMin = Vector2.zero;
+                labelGo.anchorMax = Vector2.one;
+                labelGo.sizeDelta = Vector2.zero;
+                var label = labelGo.gameObject.AddComponent<Text>();
+                label.font = _font; label.fontSize = 15; label.fontStyle = FontStyle.Bold;
+                label.alignment = TextAnchor.MiddleCenter; label.color = new Color(0.9f, 0.9f, 0.95f);
+                label.raycastTarget = false;
+                label.text = TabLabel(category);
+
+                _tabs.Add(new Tab { Category = category, Root = tabRt, Bg = bg });
+            }
+
+            RefreshTabHighlight();
+        }
+
+        private static string TabLabel(SkillCategory? c) => c switch
+        {
+            null => "전체",
+            SkillCategory.Damage => "딜",
+            SkillCategory.Debuff => "디버프",
+            SkillCategory.Buff => "버프",
+            SkillCategory.Ultimate => "궁극",
+            _ => "",
+        };
+
+        /// <summary>현재 선택된 탭만 밝게 — 나머지는 어둡게.</summary>
+        private void RefreshTabHighlight()
+        {
+            foreach (var tab in _tabs)
+            {
+                bool active = tab.Category == _activeCategory;
+                tab.Bg.color = active ? new Color(0.35f, 0.32f, 0.18f, 0.95f) : new Color(0.12f, 0.12f, 0.16f, 0.9f);
+            }
+        }
+
         /// <summary>장착 스킬 목록이 바뀌면 호출 — 아이콘을 다시 만든다.</summary>
         public void Rebuild()
         {
@@ -111,6 +219,7 @@ namespace OZGL2.Skill
             if (_manager == null) return;
             foreach (var skill in _manager.EquippedSkills)
             {
+                if (_activeCategory.HasValue && skill.Data.category != _activeCategory.Value) continue;
                 _icons.Add(CreateIcon(skill));
             }
         }
@@ -197,6 +306,15 @@ namespace OZGL2.Skill
             {
                 if (Mouse.current.leftButton.wasPressedThisFrame)
                 {
+                    var tab = TabUnder(mouse);
+                    if (tab != null)
+                    {
+                        _activeCategory = tab.Category;
+                        RefreshTabHighlight();
+                        Rebuild();
+                        return;
+                    }
+
                     var hit = IconUnder(mouse);
                     if (hit != null && hit.Skill.IsReady(Time.time))
                     {
@@ -217,7 +335,7 @@ namespace OZGL2.Skill
 
             if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
-                bool overBar = RectTransformUtility.RectangleContainsScreenPoint(_barPanel, mouse, null);
+                bool overBar = RectTransformUtility.RectangleContainsScreenPoint(_barRoot, mouse, null);
                 if (!overBar && ScreenToWorld(mouse, out Vector3 cast))
                 {
                     _manager.TryCastTargeted(_aiming.Skill, cast);
@@ -254,6 +372,15 @@ namespace OZGL2.Skill
             foreach (var icon in _icons)
             {
                 if (icon.Root != null && RectTransformUtility.RectangleContainsScreenPoint(icon.Root, pt, null)) return icon;
+            }
+            return null;
+        }
+
+        private Tab TabUnder(Vector2 pt)
+        {
+            foreach (var tab in _tabs)
+            {
+                if (tab.Root != null && RectTransformUtility.RectangleContainsScreenPoint(tab.Root, pt, null)) return tab;
             }
             return null;
         }

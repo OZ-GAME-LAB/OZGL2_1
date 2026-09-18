@@ -21,8 +21,8 @@ namespace OZGL2.Skill
         AreaDamage,     // 지정 반경 피해 — 화염구, 운석 (barrageCount 로 다연발)
         ChainDamage,    // 가까운 대상부터 연쇄 — 연쇄 번개
         LineDamage,     // 마왕 → 지정점 직선 관통 — 얼음 가시
-        SingleDamage,   // 지정점 최근접 1체 고피해 — 신성 화살
-        Knockback,      // 반경 넉백 (+skillPower 피해) — 넉백 파동, 지진
+        SingleDamage,   // 지정점 최근접 1체 고피해
+        Knockback,      // 반경 넉백 (+skillPower 피해) — 넉백 파동
         Stun,           // 반경 즉시 정지 — 시간 정지
         Vacuum,         // 지정점으로 끌어당김 + 피해 — 공허 붕괴
         MovingZone,     // 마왕 → 지정점 방향으로 이동하는 지속 장판 — 화염 회오리
@@ -122,6 +122,8 @@ namespace OZGL2.Skill
         public bool vfxIsUi = true;
         [Tooltip("투사체가 마왕이 아니라 하늘(위)에서 떨어짐 — 운석 낙하")]
         public bool fallFromSky = false;
+        [Tooltip("VFX 색조 틴트(흰색=원본 그대로 곱하기 없음). 새 프리팹 없이 기존 VFX 색감만 바꾸고 싶을 때(예: 용암 이펙트를 늪처럼 초록빛으로) 사용 — PersistentZone(castVfx)에만 적용됨.")]
+        public Color vfxTint = Color.white;
 
         [Header("궁극기 연출")]
         [Tooltip("반경 안 랜덤 위치에 flourishCount 번 뿌리는 화려함용 프리팹")]

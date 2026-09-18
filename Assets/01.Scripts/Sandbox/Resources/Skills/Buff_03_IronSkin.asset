@@ -38,7 +38,7 @@ MonoBehaviour:
   reviveCount: 3
   projectileVfx: {fileID: 0}
   castVfx: {fileID: 0}
-  perTargetVfx: {fileID: 7539104026314144249, guid: 8a3afc960c8bdcf4ba3d1d25f6fc88e5, type: 3}
+  perTargetVfx: {fileID: 7462622011125799342, guid: 09d247bfa1a21c04cb49c841e613c8d3, type: 3}
   finishVfx: {fileID: 0}
   scaleCastVfxToRadius: 0
   vfxIsUi: 1
