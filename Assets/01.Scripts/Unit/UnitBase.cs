@@ -97,7 +97,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         if (statData != null)
         {
-            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job));
+            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
         }
 
         // PooledStageBattle(팀원 코드)은 스폰 위치만 정하고 이동 명령은 안 줘서, 여기서 직접 마왕을 향해
@@ -172,7 +172,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     {
         if (statData != null)
         {
-            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job));
+            currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
         }
         else
         {
@@ -461,7 +461,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     protected float GetAttackInterval()
     {
         float speed = statData != null ? statData.attackSpeed : 1f;
-        float speedMult = statData != null ? CombatModifierHub.GetAttackSpeedMult(statData.job) : 1f;
+        float speedMult = statData != null ? CombatModifierHub.GetAttackSpeedMult(statData.job, statData.side) : 1f;
         return 1f / Mathf.Max(speed * speedMult * EffectiveSlowMult * EffectiveBuffAttackSpeedMult, 0.01f);
     }
 
@@ -474,13 +474,13 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         if (statData.healAmount > 0f)
         {
-            float healMult = CombatModifierHub.GetHealMult(statData.job);
+            float healMult = CombatModifierHub.GetHealMult(statData.job, statData.side);
             target.Heal(Mathf.RoundToInt(statData.healAmount * healMult));
             return;
         }
 
         float targetDefense = (target.statData != null ? target.statData.defensePercent : 0f) * target.EffectiveBuffDefenseMult;
-        float attackMult = CombatModifierHub.GetAttackMult(statData.job);
+        float attackMult = CombatModifierHub.GetAttackMult(statData.job, statData.side);
         int damage = CalculateDamage(statData.attackPower * attackMult * EffectiveBuffAttackMult, targetDefense);
 
         if (statData.projectilePrefab != null)
@@ -602,7 +602,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
-        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job));
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
         SetState(UnitState.Idle);
     }
 
@@ -637,6 +637,6 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         statData.attackPower = baseStatData.attackPower * multiplier;
         statData.healAmount = baseStatData.healAmount * multiplier;
 
-        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job)); // 합성 시 풀피로 시작
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side)); // 합성 시 풀피로 시작
     }
 }

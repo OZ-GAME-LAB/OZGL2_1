@@ -16,6 +16,8 @@ namespace OZGL2.InGame
     {
         [SerializeField] private InGamePrototypeConfigSO _config;
         [SerializeField] private UISceneNavigator _navigator;
+        [Tooltip("IStageRewards 구현체(선택) — 지정하면 증강 선택에서 Dummy 대신 이걸 사용(성민 파트 실제 증강 연동용). 비우면 기존 동작 그대로.")]
+        [SerializeField] private MonoBehaviour _augmentRewardsOverride;
         private StageRunHost _host;
         private InGameGridSession _session;
         private bool _isStarting;
@@ -49,7 +51,8 @@ namespace OZGL2.InGame
                     new DummyRewardLedger(Path.Combine(directory, "settlements.json")));
                 _session.Changed += Notify;
                 Dummy = new ManualStageServices();
-                Rewards = new StageGridRewards(_session, new GridPrototypeRewards(_config.Catalog), Dummy);
+                IStageRewards augmentHandler = _augmentRewardsOverride as IStageRewards ?? Dummy;
+                Rewards = new StageGridRewards(_session, new GridPrototypeRewards(_config.Catalog), augmentHandler);
                 var preparation = new StageGridPreparation(_session, _config.Catalog.CreateInitialUnit(),
                     _config.Catalog.CreateInitialBlock(), _config.InitialAnchor);
                 var lobby = new CompletedLobby();

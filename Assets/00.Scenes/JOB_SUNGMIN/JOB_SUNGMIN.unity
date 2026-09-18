@@ -119,6 +119,58 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &180053258
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 180053260}
+  - component: {fileID: 180053259}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &180053259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180053258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0255b2f7d22cf0a4dac773a416d2f0d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Sandbox.StageBalanceSandbox
+  _stage: {fileID: 11400000, guid: 09a4a0f6a7a8e364ca1758e0e8d84603, type: 2}
+  _defenderHeroId: M_WAR_01
+  _startingDefenders: 1
+  _maxDefenders: 12
+  _heroSpacing: 1.2
+  _heroY: 4
+  _defenderSpacing: 1.2
+  _defenderY: -3
+--- !u!4 &180053260
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 180053258}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.3198, y: 2.37701, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &367330927
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,9 +327,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 903a5b2fb90a8124ea93bb1d72e8c7ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Sandbox.SkillSandbox
-  _enemyCount: 12
-  _enemyHp: 60
-  _spawnHalfArea: {x: 7, y: 3.5}
+  _heroCount: 0
+  _heroHp: 60
+  _heroX: {x: -6.5, y: 6.5}
+  _heroY: {x: 0.5, y: 4.5}
+  _monsterCount: 0
+  _monsterHp: 120
+  _heroKillXp: 10
+  _orthoSize: 6
+  _casterPosition: {x: 0, y: -3.9, z: 0}
   _skills: []
 --- !u!4 &457852975
 Transform:
@@ -393,3 +451,4 @@ SceneRoots:
   - {fileID: 2131245634}
   - {fileID: 367330929}
   - {fileID: 457852975}
+  - {fileID: 180053260}

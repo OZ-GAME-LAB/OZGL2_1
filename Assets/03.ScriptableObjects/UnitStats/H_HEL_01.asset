@@ -24,3 +24,4 @@ MonoBehaviour:
   healAmount: 6
   cost: 0
   killExpReward: 4
+  job: 5
