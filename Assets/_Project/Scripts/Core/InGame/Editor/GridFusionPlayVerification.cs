@@ -57,6 +57,9 @@ namespace OZGL2.InGame.Editor
             await _defenders.PrepareRoundAsync(CancellationToken.None);
             Check(_defenders.AliveCount == 2, "Two real defenders");
             NextPreparation(basic, shape, "reward1");
+            using var preparationView = new GridWorldPreparationView(grid, mapping, config.CellWorldSize,
+                id => config.DemonArmyCatalog.FindPrefab(id).gameObject, _root.transform);
+            preparationView.SetVisible(true);
             var ui = new GameObject("FusionPreparationUI"); ui.transform.SetParent(_root.transform);
             ui.SetActive(false);
             ui.AddComponent<UIDocument>().panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>("Assets/_Project/Data/Grid/Prototype/GridPanelSettings.asset");
@@ -80,6 +83,7 @@ namespace OZGL2.InGame.Editor
             sourceCard = panel.Q<VisualElement>("card-unit3"); Down(sourceCard, sourceCard.worldBound.center); await Frame();
             Up(panel, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
             Check(grid.FindUnit("unit1").StarLevel == 3 && grid.FindUnit("unit3") == null, "Pointer tray-to-board fusion");
+            Check(_root.GetComponentsInChildren<TextMesh>().Single().text == "★3", "World star label updates after fusion and removes consumed labels");
             Down(Runner.Board.Element, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
             Move(panel, Runner.Board.CellToPanel(new Vector2Int(-1, 0))); await Frame();
             Check(grid.GetPreviewFailure() != ePlacementFailure.NONE, "Outside is invalid");

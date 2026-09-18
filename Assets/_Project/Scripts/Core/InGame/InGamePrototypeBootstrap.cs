@@ -18,6 +18,7 @@ namespace OZGL2.InGame
     {
         [SerializeField] private InGamePrototypeConfigSO _config;
         [SerializeField] private UISceneNavigator _navigator;
+        [SerializeField] private InGamePhasePresentation _phasePresentation;
         [Tooltip("IInGameCombatParticipant를 구현한 팀원 연결 컴포넌트. 비어 있으면 외부 전투 제어는 미연결.")]
         [SerializeField] private MonoBehaviour[] _combatParticipants = Array.Empty<MonoBehaviour>();
         [Tooltip("IStageRewards를 구현한 실제 증강 선택 연결부. 비어 있으면 더미 사용.")]
@@ -26,11 +27,14 @@ namespace OZGL2.InGame
         private InGameSynergyConnection _synergyConnection;
         private RealSynergySync _runSynergy;
         public bool HasCombatParticipants => _combatConnection != null && _combatConnection.ParticipantCount > 0;
+        public bool HasExternalCombatParticipants => _combatConnection != null &&
+            Array.Exists(_combatParticipants, component => component != null && component != _phasePresentation && component is IInGameCombatParticipant);
         public bool HasSynergyConnection => _synergyConnection != null && _synergyConnection.IsConnected;
         public bool UsesDummyAugments => _augmentProvider == null;
         private StageRunHost _host;
         private InGameGridSession _session;
         private bool _isStarting;
+        private string _presentationError;
         private bool _isDestroyed;
         private bool _hasCleanupFailure;
         private bool _isReturningToLobby;
@@ -67,6 +71,7 @@ namespace OZGL2.InGame
         {
             _isStarting = true;
             Error = null;
+            _presentationError = null;
             LastNotificationError = null; LastFailedSubscriber = null; NotificationErrorCount = 0;
             try
             {
@@ -74,6 +79,7 @@ namespace OZGL2.InGame
                 if (_isDestroyed) return;
                 if (_config == null || _navigator == null) throw new InvalidOperationException("InGame configuration and navigator are required.");
                 _config.Validate();
+                _phasePresentation?.ValidateSetup();
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
                     new DummyRewardLedger(Path.Combine(directory, "settlements.json")));
@@ -82,6 +88,7 @@ namespace OZGL2.InGame
                 _synergyConnection = new InGameSynergyConnection(_config.DemonArmyCatalog, _runSynergy);
                 _session.Changed += OnSessionChanged;
                 var participants = new List<IInGameCombatParticipant>();
+                if (_phasePresentation != null) participants.Add(_phasePresentation);
                 foreach (var component in _combatParticipants)
                 {
                     if (!(component is IInGameCombatParticipant participant))
@@ -116,7 +123,7 @@ namespace OZGL2.InGame
                 Notify();
                 await _host.CurrentRun;
                 if (_isDestroyed) return;
-                Error = _host.Error;
+                Error = _presentationError ?? _host.Error;
                 bool canReturn = lobby.Result != null && lobby.Result.IsSettled && Error == null;
                 await ReleaseAsync();
                 if (_isDestroyed) return;
@@ -140,9 +147,16 @@ namespace OZGL2.InGame
                 if (!_isDestroyed) Notify();
             }
         }
-        public bool TryBeginBattle(bool skip = false) => GridSession != null && Stage != null &&
+        public bool TryBeginBattle(bool skip = false) => _phasePresentation != null ? _phasePresentation.RequestBattle(skip) : CommitBattleStart(skip);
+        internal bool CommitBattleStart(bool skip = false) => GridSession != null && Stage != null &&
             Stage.State == eStageState.PREPARATION && GridSession.TryBeginBattle(GridSession.RunId, Stage.CurrentRoundNumber, skip);
-        public void CancelRun() => _host?.CancelRun();
+        public void CancelRun() { _phasePresentation?.CancelPresentation(); _host?.CancelRun(); }
+        internal void FailCameraPresentation(string message)
+        {
+            _presentationError = "Camera presentation failed: " + message;
+            Error = _presentationError;
+            CancelRun();
+        }
         private void BeginLobbyReturn()
         {
             // 표시 구독자가 재실행을 요청해도 씬 이동 요청 이후에는 시작할 수 없다.

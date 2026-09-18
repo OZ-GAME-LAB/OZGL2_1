@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace OZGL2.Grid.UI
 {
     /// <summary>좌표 변환과 표시만 담당한다. 일반 바닥과 마왕 위치를 별도 요소로 그린다.</summary>
-    public sealed class GridBoardView
+    public sealed class GridBoardView : IGridBoardSurface
     {
         public const float CELL_SIZE = 64;
         public static readonly Color VALID_COLOR = new Color(0.2f, 0.95f, 0.48f, 0.62f);
