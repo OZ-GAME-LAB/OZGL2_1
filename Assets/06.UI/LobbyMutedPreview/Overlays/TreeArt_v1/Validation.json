@@ -1,0 +1,833 @@
+{
+  "sprites": 55,
+  "iconCount": 45,
+  "frameCount": 9,
+  "decorationCount": 1,
+  "results": [
+    {
+      "file": "Sprites/Icons/Core/Icon_DemonKing.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57147,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 69,
+        "top": 60,
+        "width": 118,
+        "height": 136,
+        "count": 8389
+      }
+    },
+    {
+      "file": "Sprites/Icons/Core/Icon_Header_Legion.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 47940,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 30,
+        "top": 37,
+        "width": 196,
+        "height": 182,
+        "count": 17596
+      }
+    },
+    {
+      "file": "Sprites/Icons/Core/Icon_Header_Wisdom.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 49837,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 52,
+        "top": 30,
+        "width": 151,
+        "height": 196,
+        "count": 15699
+      }
+    },
+    {
+      "file": "Sprites/Icons/Core/Icon_Header_Spells.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 44935,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 33,
+        "top": 30,
+        "width": 189,
+        "height": 196,
+        "count": 20601
+      }
+    },
+    {
+      "file": "Sprites/Icons/Core/Icon_Header_Curse.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 49220,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 30,
+        "top": 35,
+        "width": 196,
+        "height": 186,
+        "count": 16316
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_Sharpness.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 62626,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 75,
+        "top": 72,
+        "width": 106,
+        "height": 112,
+        "count": 2910
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_Onslaught.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59123,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 72,
+        "width": 112,
+        "height": 112,
+        "count": 6413
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_Execution.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60295,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 73,
+        "top": 72,
+        "width": 110,
+        "height": 112,
+        "count": 5241
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_Toughness.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60209,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 86,
+        "width": 112,
+        "height": 84,
+        "count": 5327
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_UndyingFlesh.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57769,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 76,
+        "width": 112,
+        "height": 104,
+        "count": 7767
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_IronArmor.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 58922,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 86,
+        "top": 72,
+        "width": 84,
+        "height": 112,
+        "count": 6614
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_Agility.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60386,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 73,
+        "top": 72,
+        "width": 109,
+        "height": 112,
+        "count": 5150
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_RepeatedStrikes.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60968,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 74,
+        "width": 112,
+        "height": 107,
+        "count": 4568
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_PiercingVolley.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61545,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 86,
+        "top": 72,
+        "width": 84,
+        "height": 112,
+        "count": 3991
+      }
+    },
+    {
+      "file": "Sprites/Icons/Legion/Icon_Legion_LegionAdvance.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59600,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 73,
+        "width": 112,
+        "height": 110,
+        "count": 5936
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Weakness.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 56744,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 79,
+        "top": 72,
+        "width": 97,
+        "height": 112,
+        "count": 8792
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Powerlessness.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59995,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 74,
+        "top": 72,
+        "width": 108,
+        "height": 112,
+        "count": 5541
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Lethargy.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57819,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 72,
+        "width": 112,
+        "height": 111,
+        "count": 7717
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Disarm.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 58329,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 82,
+        "top": 72,
+        "width": 91,
+        "height": 112,
+        "count": 7207
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Shatter.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59834,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 76,
+        "top": 72,
+        "width": 104,
+        "height": 112,
+        "count": 5702
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_VulnerabilityMark.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61945,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 81,
+        "width": 112,
+        "height": 93,
+        "count": 3591
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Slowness.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57132,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 73,
+        "width": 112,
+        "height": 109,
+        "count": 8404
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Quagmire.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57353,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 75,
+        "width": 112,
+        "height": 105,
+        "count": 8183
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_Mire.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61430,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 88,
+        "width": 112,
+        "height": 79,
+        "count": 4106
+      }
+    },
+    {
+      "file": "Sprites/Icons/Curse/Icon_Curse_DespairBrand.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61179,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 75,
+        "width": 112,
+        "height": 106,
+        "count": 4357
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_RuinEssence.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61628,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 73,
+        "top": 72,
+        "width": 110,
+        "height": 112,
+        "count": 3908
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_PreciseSpell.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61302,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 73,
+        "top": 72,
+        "width": 109,
+        "height": 112,
+        "count": 4234
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_MagicPenetration.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61522,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 84,
+        "top": 72,
+        "width": 87,
+        "height": 112,
+        "count": 4014
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_SwiftSpell.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59821,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 75,
+        "width": 112,
+        "height": 105,
+        "count": 5715
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_Acceleration.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 58513,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 85,
+        "top": 72,
+        "width": 86,
+        "height": 112,
+        "count": 7023
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_TimeDistortion.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57053,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 73,
+        "width": 112,
+        "height": 110,
+        "count": 8483
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_AreaDominion.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 58567,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 85,
+        "width": 112,
+        "height": 86,
+        "count": 6969
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_LegionShout.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60530,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 80,
+        "top": 72,
+        "width": 96,
+        "height": 112,
+        "count": 5006
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_AdditionalCommand.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 61002,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 83,
+        "top": 72,
+        "width": 90,
+        "height": 112,
+        "count": 4534
+      }
+    },
+    {
+      "file": "Sprites/Icons/Spells/Icon_Spells_DemonPower.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 58317,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 73,
+        "top": 72,
+        "width": 109,
+        "height": 112,
+        "count": 7219
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Insight.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 57389,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 80,
+        "top": 72,
+        "width": 96,
+        "height": 112,
+        "count": 8147
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_DeepInsight.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60004,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 72,
+        "width": 111,
+        "height": 112,
+        "count": 5532
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Plunder.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 56700,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 85,
+        "width": 112,
+        "height": 86,
+        "count": 8836
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_FastGrowth.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59645,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 86,
+        "top": 72,
+        "width": 84,
+        "height": 112,
+        "count": 5891
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_ExperienceCrystal.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60505,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 95,
+        "top": 72,
+        "width": 65,
+        "height": 112,
+        "count": 5031
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Teaching.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 56684,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 80,
+        "top": 72,
+        "width": 96,
+        "height": 112,
+        "count": 8852
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Expansion.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59870,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 86,
+        "width": 112,
+        "height": 83,
+        "count": 5666
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_EfficientFormation.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60805,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 73,
+        "top": 72,
+        "width": 110,
+        "height": 112,
+        "count": 4731
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_GreatArmy.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 60495,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 91,
+        "width": 112,
+        "height": 74,
+        "count": 5041
+      }
+    },
+    {
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_RulerWisdom.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 59540,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 72,
+        "top": 78,
+        "width": 112,
+        "height": 99,
+        "count": 5996
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Normal_Legion.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 44170,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 222,
+        "count": 21366
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Normal_Wisdom.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 44223,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 16,
+        "top": 16,
+        "width": 224,
+        "height": 223,
+        "count": 21313
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Normal_Spells.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 44339,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 222,
+        "count": 21197
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Normal_Curse.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 44092,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 221,
+        "count": 21444
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Specialized_Legion.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 41358,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 8,
+        "top": 8,
+        "width": 240,
+        "height": 240,
+        "count": 24178
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Specialized_Wisdom.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 41434,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 8,
+        "top": 8,
+        "width": 240,
+        "height": 239,
+        "count": 24102
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Specialized_Spells.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 41721,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 8,
+        "top": 8,
+        "width": 239,
+        "height": 240,
+        "count": 23815
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Specialized_Curse.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 41731,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 9,
+        "top": 8,
+        "width": 238,
+        "height": 240,
+        "count": 23805
+      }
+    },
+    {
+      "file": "Sprites/Frames/Frame_Central_DemonKing.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true,
+      "transparentPixels": 40257,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 16,
+        "top": 8,
+        "width": 223,
+        "height": 240,
+        "count": 25279
+      }
+    },
+    {
+      "file": "Sprites/Decor/MagicCircle_Garnet.png",
+      "width": 1024,
+      "height": 1024,
+      "alpha": true,
+      "transparentPixels": 918589,
+      "greenLeaks": 0,
+      "contentBounds": {
+        "left": 32,
+        "top": 32,
+        "width": 960,
+        "height": 960,
+        "count": 129987
+      }
+    }
+  ]
+}

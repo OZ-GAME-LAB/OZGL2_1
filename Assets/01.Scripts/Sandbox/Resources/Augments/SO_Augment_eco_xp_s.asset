@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
+  m_Name: SO_Augment_eco_xp_s
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
+  augmentId: eco_xp_s
+  displayName: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+  description: "XP \uD68D\uB4DD +10%"
+  tier: 1
+  weight: 10
+  effect: 13
+  value: 0.1
+  maxStack: 1
+  isInstant: 0
+  connStatus: "\uC2E4\uC81C"

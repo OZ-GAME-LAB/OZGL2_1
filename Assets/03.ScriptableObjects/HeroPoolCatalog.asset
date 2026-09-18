@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 409837d398c60e247905fc28c746b11d, type: 3}
+  m_Name: HeroPoolCatalog
+  m_EditorClassIdentifier:
+  _entries:
+  - _heroId: H_WAR_01
+    _prefab: {fileID: -7584488347318697607, guid: e5118c48eadbe244e96f46686537facf, type: 3}
+    _initialCapacity: 5
+    _growthCount: 3
+    _experience: 3
+  - _heroId: H_SHD_01
+    _prefab: {fileID: -6526327328208007526, guid: c4bf161337ebb874097aa31e054b2c3b, type: 3}
+    _initialCapacity: 5
+    _growthCount: 3
+    _experience: 5
+  - _heroId: H_ARC_01
+    _prefab: {fileID: 1837887036755831449, guid: 145ab7023b5f9b04e9f503bcc6509b8f, type: 3}
+    _initialCapacity: 5
+    _growthCount: 3
+    _experience: 4
+  - _heroId: H_MAG_01
+    _prefab: {fileID: -5820338468307478942, guid: 9f738bd460fa55e4da2214e84c69cd6a, type: 3}
+    _initialCapacity: 5
+    _growthCount: 3
+    _experience: 5
+  - _heroId: H_ROG_01
+    _prefab: {fileID: -4391461560221949090, guid: dccfbd361a7621046b01e3163bf923a4, type: 3}
+    _initialCapacity: 5
+    _growthCount: 3
+    _experience: 4
+  - _heroId: H_HEL_01
+    _prefab: {fileID: -986687458315360543, guid: 0b77c536f5bf5a84aa72d7eda8c701b0, type: 3}
+    _initialCapacity: 5
+    _growthCount: 3
+    _experience: 4
+  _dummyDefenderCount: 1

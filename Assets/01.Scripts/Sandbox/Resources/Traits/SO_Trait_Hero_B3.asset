@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5a32b826d4cc24cb682b778179ddd5, type: 3}
+  m_Name: SO_Trait_Hero_B3
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Progression.TraitData
+  id: 15
+  displayName: "\uCDE8\uC57D \uAC01\uC778"
+  description: "\uC6A9\uC0AC\uAC00 \uBC1B\uB294 \uC2A4\uD0AC \uD53C\uD574 +5% / \uB7AD\uD06C"
+  branch: 1
+  line: 1
+  effect: 12
+  valuePerRank: 0.05
+  maxRank: 3
+  rankCosts: 010000000200000003000000
+  parents: 0e000000
+  connStatus: "\uC0CC\uB4DC\uBC15\uC2A4"

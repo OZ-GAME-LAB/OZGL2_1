@@ -1,0 +1,2610 @@
+{
+  "version": 1,
+  "cellSize": 256,
+  "coordinateNote": "개별 PNG는 중심 pivot 0.5/0.5. 시트 top-left 및 Unity bottom-left rect 둘 다 제공.",
+  "layerOrder": [
+    "MagicCircle",
+    "Connections",
+    "Frame",
+    "Icon",
+    "Text"
+  ],
+  "sceneModified": false,
+  "records": [
+    {
+      "id": "DemonKing",
+      "label": "마왕",
+      "kind": "Core",
+      "group": "Core",
+      "file": "Sprites/Icons/Core/Icon_DemonKing.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Core.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Header_Legion",
+      "label": "마왕군 조련",
+      "kind": "Header",
+      "group": "Core",
+      "file": "Sprites/Icons/Core/Icon_Header_Legion.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Core.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Header_Wisdom",
+      "label": "지배의 지혜",
+      "kind": "Header",
+      "group": "Core",
+      "file": "Sprites/Icons/Core/Icon_Header_Wisdom.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Core.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Header_Spells",
+      "label": "주문 연구",
+      "kind": "Header",
+      "group": "Core",
+      "file": "Sprites/Icons/Core/Icon_Header_Spells.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 3,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Core.png",
+          "column": 3,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Header_Curse",
+      "label": "인간계 저주",
+      "kind": "Header",
+      "group": "Core",
+      "file": "Sprites/Icons/Core/Icon_Header_Curse.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 4,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Core.png",
+          "column": 4,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_Sharpness",
+      "label": "예리함",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 0,
+      "tier": 1,
+      "file": "Sprites/Icons/Legion/Icon_Legion_Sharpness.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 5,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1280,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1280,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_Onslaught",
+      "label": "맹공",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 0,
+      "tier": 2,
+      "file": "Sprites/Icons/Legion/Icon_Legion_Onslaught.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 6,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1536,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1536,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_Execution",
+      "label": "처형 본능",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 0,
+      "tier": 3,
+      "file": "Sprites/Icons/Legion/Icon_Legion_Execution.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 7,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1792,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1792,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_Toughness",
+      "label": "강건함",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 1,
+      "tier": 1,
+      "file": "Sprites/Icons/Legion/Icon_Legion_Toughness.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 8,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 2048,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 2048,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 3,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_UndyingFlesh",
+      "label": "불굴의 살",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 1,
+      "tier": 2,
+      "file": "Sprites/Icons/Legion/Icon_Legion_UndyingFlesh.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 0,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 4,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_IronArmor",
+      "label": "철갑",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 1,
+      "tier": 3,
+      "file": "Sprites/Icons/Legion/Icon_Legion_IronArmor.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 1,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 0,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_Agility",
+      "label": "민첩",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 2,
+      "tier": 1,
+      "file": "Sprites/Icons/Legion/Icon_Legion_Agility.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 2,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 1,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_RepeatedStrikes",
+      "label": "연격",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 2,
+      "tier": 2,
+      "file": "Sprites/Icons/Legion/Icon_Legion_RepeatedStrikes.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 3,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 2,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_PiercingVolley",
+      "label": "관통 사격",
+      "kind": "Normal",
+      "group": "Legion",
+      "lane": 2,
+      "tier": 3,
+      "file": "Sprites/Icons/Legion/Icon_Legion_PiercingVolley.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 4,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 3,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Legion_LegionAdvance",
+      "label": "마왕군의 진격",
+      "kind": "Specialized",
+      "group": "Legion",
+      "lane": null,
+      "tier": null,
+      "file": "Sprites/Icons/Legion/Icon_Legion_LegionAdvance.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 5,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1280,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1280,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Legion.png",
+          "column": 4,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Weakness",
+      "label": "쇠약",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 0,
+      "tier": 1,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Weakness.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 6,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1536,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1536,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Powerlessness",
+      "label": "무력화",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 0,
+      "tier": 2,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Powerlessness.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 7,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1792,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1792,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Lethargy",
+      "label": "나태",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 0,
+      "tier": 3,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Lethargy.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 8,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 2048,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 2048,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Disarm",
+      "label": "무장 해제",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 1,
+      "tier": 1,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Disarm.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 0,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 3,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Shatter",
+      "label": "파쇄",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 1,
+      "tier": 2,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Shatter.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 1,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 4,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_VulnerabilityMark",
+      "label": "취약 각인",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 1,
+      "tier": 3,
+      "file": "Sprites/Icons/Curse/Icon_Curse_VulnerabilityMark.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 2,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 0,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Slowness",
+      "label": "둔족",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 2,
+      "tier": 1,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Slowness.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 3,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 1,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Quagmire",
+      "label": "수렁",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 2,
+      "tier": 2,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Quagmire.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 4,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 2,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_Mire",
+      "label": "진창",
+      "kind": "Normal",
+      "group": "Curse",
+      "lane": 2,
+      "tier": 3,
+      "file": "Sprites/Icons/Curse/Icon_Curse_Mire.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 5,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 1280,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1280,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 3,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Curse_DespairBrand",
+      "label": "절망의 낙인",
+      "kind": "Specialized",
+      "group": "Curse",
+      "lane": null,
+      "tier": null,
+      "file": "Sprites/Icons/Curse/Icon_Curse_DespairBrand.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 6,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 1536,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1536,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Curse.png",
+          "column": 4,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_RuinEssence",
+      "label": "파괴의 정수",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 0,
+      "tier": 1,
+      "file": "Sprites/Icons/Spells/Icon_Spells_RuinEssence.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 7,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 1792,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1792,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_PreciseSpell",
+      "label": "정밀 주문",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 0,
+      "tier": 2,
+      "file": "Sprites/Icons/Spells/Icon_Spells_PreciseSpell.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 8,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 2048,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 2048,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_MagicPenetration",
+      "label": "마력 관통",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 0,
+      "tier": 3,
+      "file": "Sprites/Icons/Spells/Icon_Spells_MagicPenetration.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 0,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_SwiftSpell",
+      "label": "신속한 주문",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 1,
+      "tier": 1,
+      "file": "Sprites/Icons/Spells/Icon_Spells_SwiftSpell.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 1,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 3,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_Acceleration",
+      "label": "가속",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 1,
+      "tier": 2,
+      "file": "Sprites/Icons/Spells/Icon_Spells_Acceleration.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 2,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 4,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_TimeDistortion",
+      "label": "시간 왜곡",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 1,
+      "tier": 3,
+      "file": "Sprites/Icons/Spells/Icon_Spells_TimeDistortion.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 3,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 0,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_AreaDominion",
+      "label": "광역 지배",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 2,
+      "tier": 1,
+      "file": "Sprites/Icons/Spells/Icon_Spells_AreaDominion.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 4,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 1,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_LegionShout",
+      "label": "군단의 함성",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 2,
+      "tier": 2,
+      "file": "Sprites/Icons/Spells/Icon_Spells_LegionShout.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 5,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 1280,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1280,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 2,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_AdditionalCommand",
+      "label": "추가 지령",
+      "kind": "Normal",
+      "group": "Spells",
+      "lane": 2,
+      "tier": 3,
+      "file": "Sprites/Icons/Spells/Icon_Spells_AdditionalCommand.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 6,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 1536,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1536,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 3,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Spells_DemonPower",
+      "label": "마왕의 권능",
+      "kind": "Specialized",
+      "group": "Spells",
+      "lane": null,
+      "tier": null,
+      "file": "Sprites/Icons/Spells/Icon_Spells_DemonPower.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 7,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 1792,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1792,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Spells.png",
+          "column": 4,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_Insight",
+      "label": "통찰",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 0,
+      "tier": 1,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Insight.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 8,
+          "rowFromTop": 3,
+          "rectTopLeft": {
+            "x": 2048,
+            "y": 768,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 2048,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_DeepInsight",
+      "label": "심층 통찰",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 0,
+      "tier": 2,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_DeepInsight.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 0,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_Plunder",
+      "label": "약탈",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 0,
+      "tier": 3,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Plunder.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 1,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_FastGrowth",
+      "label": "속성 성장",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 1,
+      "tier": 1,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_FastGrowth.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 2,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 3,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_ExperienceCrystal",
+      "label": "숙련의 결정",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 1,
+      "tier": 2,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_ExperienceCrystal.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 3,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 4,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_Teaching",
+      "label": "가르침",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 1,
+      "tier": 3,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Teaching.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 4,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 0,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_Expansion",
+      "label": "규모 확장",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 2,
+      "tier": 1,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_Expansion.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 5,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 1280,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1280,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 1,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_EfficientFormation",
+      "label": "효율 편성",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 2,
+      "tier": 2,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_EfficientFormation.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 6,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 1536,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1536,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 2,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_GreatArmy",
+      "label": "대군세",
+      "kind": "Normal",
+      "group": "Wisdom",
+      "lane": 2,
+      "tier": 3,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_GreatArmy.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 7,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 1792,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1792,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 3,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 768,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 768,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Wisdom_RulerWisdom",
+      "label": "지배자의 지혜",
+      "kind": "Specialized",
+      "group": "Wisdom",
+      "lane": null,
+      "tier": null,
+      "file": "Sprites/Icons/Wisdom/Icon_Wisdom_RulerWisdom.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Icons_All_45.png",
+          "column": 8,
+          "rowFromTop": 4,
+          "rectTopLeft": {
+            "x": 2048,
+            "y": 1024,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 2048,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        },
+        {
+          "file": "Sheets/Icons_Wisdom.png",
+          "column": 4,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 1024,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 1024,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Normal_Legion",
+      "label": "Normal / Legion",
+      "kind": "Frame",
+      "frameType": "Normal",
+      "group": "Legion",
+      "file": "Sprites/Frames/Frame_Normal_Legion.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 0,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Normal_Wisdom",
+      "label": "Normal / Wisdom",
+      "kind": "Frame",
+      "frameType": "Normal",
+      "group": "Wisdom",
+      "file": "Sprites/Frames/Frame_Normal_Wisdom.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 1,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Normal_Spells",
+      "label": "Normal / Spells",
+      "kind": "Frame",
+      "frameType": "Normal",
+      "group": "Spells",
+      "file": "Sprites/Frames/Frame_Normal_Spells.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 2,
+          "rowFromTop": 0,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Normal_Curse",
+      "label": "Normal / Curse",
+      "kind": "Frame",
+      "frameType": "Normal",
+      "group": "Curse",
+      "file": "Sprites/Frames/Frame_Normal_Curse.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 0,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Specialized_Legion",
+      "label": "Specialized / Legion",
+      "kind": "Frame",
+      "frameType": "Specialized",
+      "group": "Legion",
+      "file": "Sprites/Frames/Frame_Specialized_Legion.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 1,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Specialized_Wisdom",
+      "label": "Specialized / Wisdom",
+      "kind": "Frame",
+      "frameType": "Specialized",
+      "group": "Wisdom",
+      "file": "Sprites/Frames/Frame_Specialized_Wisdom.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 2,
+          "rowFromTop": 1,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 256,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Specialized_Spells",
+      "label": "Specialized / Spells",
+      "kind": "Frame",
+      "frameType": "Specialized",
+      "group": "Spells",
+      "file": "Sprites/Frames/Frame_Specialized_Spells.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 0,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 0,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Specialized_Curse",
+      "label": "Specialized / Curse",
+      "kind": "Frame",
+      "frameType": "Specialized",
+      "group": "Curse",
+      "file": "Sprites/Frames/Frame_Specialized_Curse.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 1,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 256,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "Frame_Central_DemonKing",
+      "label": "Central / DemonKing",
+      "kind": "Frame",
+      "frameType": "Central",
+      "group": "DemonKing",
+      "file": "Sprites/Frames/Frame_Central_DemonKing.png",
+      "width": 256,
+      "height": 256,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "sheets": [
+        {
+          "file": "Sheets/Frames_All_9.png",
+          "column": 2,
+          "rowFromTop": 2,
+          "rectTopLeft": {
+            "x": 512,
+            "y": 512,
+            "width": 256,
+            "height": 256
+          },
+          "rectUnity": {
+            "x": 512,
+            "y": 0,
+            "width": 256,
+            "height": 256
+          }
+        }
+      ]
+    },
+    {
+      "id": "MagicCircle_Garnet",
+      "label": "중앙 배경 마법진",
+      "kind": "Decoration",
+      "recommendedAlpha": 0.22,
+      "file": "Sprites/Decor/MagicCircle_Garnet.png",
+      "width": 1024,
+      "height": 1024,
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  ]
+}

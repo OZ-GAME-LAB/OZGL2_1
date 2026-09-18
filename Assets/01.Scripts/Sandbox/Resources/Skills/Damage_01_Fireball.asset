@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637c1ad2f3ace2c4cb69b6d21e5bdbda, type: 3}
+  m_Name: Damage_01_Fireball
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Skill.SkillData
+  skillId: "\uD654\uC5FC\uAD6C"
+  displayName: "\uD654\uC5FC\uAD6C"
+  category: 0
+  tier: 1
+  castMode: 1
+  cooldown: 12
+  effectType: 0
+  skillPower: 120
+  radius: 1.5
+  duration: 2
+  castDelay: 0
+  chainInterval: 0.08
+  chainCount: 3
+  barrageCount: 1
+  force: 6
+  lineLength: 6
+  zoneMoveSpeed: 4
+  zoneEffect: 1
+  zoneTarget: 0
+  zoneTick: 0.25
+  zoneMagnitude: 0.5
+  buffStat: 0
+  buffMultiplier: 1.3
+  reviveCount: 3
+  projectileVfx: {fileID: 2378082643895765933, guid: 5108265b5ba89a448b4738200a60ebe2, type: 3}
+  castVfx: {fileID: 9176173568810107112, guid: b0b17559d1ba4c0428a7204e6cdd25de, type: 3}
+  perTargetVfx: {fileID: 0}
+  finishVfx: {fileID: 0}
+  scaleCastVfxToRadius: 0
+  vfxIsUi: 1
+  fallFromSky: 0
+  flourishVfx: {fileID: 0}
+  flourishCount: 0

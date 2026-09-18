@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80462bbc6e4e7d84ea37bebea992f586, type: 3}
+  m_Name: SO_Augment_crit_p
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
+  augmentId: crit_p
+  displayName: "\uCE58\uBA85\uC758 \uD3ED\uD48D"
+  description: "\uC2A4\uD0AC \uC2DC\uC804 \uC2DC 25% \uD655\uB960\uB85C \uD53C\uD574
+    \xD71.5"
+  tier: 3
+  weight: 7
+  effect: 19
+  value: 0.25
+  maxStack: 1
+  isInstant: 0
+  connStatus: "\uC2E4\uC81C"

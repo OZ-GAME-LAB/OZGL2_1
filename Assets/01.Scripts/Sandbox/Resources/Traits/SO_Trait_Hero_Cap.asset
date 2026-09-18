@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd5a32b826d4cc24cb682b778179ddd5, type: 3}
+  m_Name: SO_Trait_Hero_Cap
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Progression.TraitData
+  id: 19
+  displayName: "\uC808\uB9DD\uC758 \uB099\uC778"
+  description: "\uBAA8\uB4E0 \uC6A9\uC0AC \uC804 \uC2A4\uD0EF \u22125% / \uB7AD\uD06C"
+  branch: 1
+  line: 3
+  effect: 28
+  valuePerRank: 0.05
+  maxRank: 3
+  rankCosts: 030000000500000008000000
+  parents: 0c0000000f00000012000000
+  connStatus: "\uC0CC\uB4DC\uBC15\uC2A4"
