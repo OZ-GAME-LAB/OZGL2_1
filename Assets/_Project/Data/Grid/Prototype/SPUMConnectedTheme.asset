@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc71f7546c96368409c8bae862f3fa84, type: 3}
+  m_Name: SPUMConnectedTheme
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.UI.GridBoardThemeSO
+  _unclaimed: {fileID: 21300650, guid: bae98cccbeaa147719d0db15c5d488cd, type: 3}
+  _available: {fileID: 21300936, guid: bae98cccbeaa147719d0db15c5d488cd, type: 3}
+  _platform: {fileID: 21301228, guid: bae98cccbeaa147719d0db15c5d488cd, type: 3}
+  _unclaimedTint: {r: 1, g: 1, b: 0.92, a: 1}
+  _availableTint: {r: 0.38, g: 0.44, b: 0.45, a: 1}
+  _platformTint: {r: 0.5, g: 0.37, b: 0.55, a: 1}
+  _platformBorder: {r: 0.45, g: 0.31, b: 0.49, a: 1}
+  _availableBorder: {r: 0.2, g: 0.26, b: 0.25, a: 1}
+  _borderWidth: 0.0625
+  _unclaimedUIOverlay: {r: 0, g: 0, b: 0, a: 0}

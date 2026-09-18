@@ -7,13 +7,15 @@ namespace OZGL2.Grid.UI
     public sealed class GridDragInput : IDisposable
     {
         private readonly GridManager _manager;
-        private readonly GridBoardView _board;
+        private readonly IGridBoardSurface _board;
+        private readonly Func<bool> _canInteract;
         private readonly VisualElement _root;
         private readonly VisualElement _tray;
         private int _pointerId = -1;
         private Vector2Int _grabOffset;
-        public GridDragInput(GridManager manager, GridBoardView board, VisualElement root, VisualElement tray)
+        public GridDragInput(GridManager manager, IGridBoardSurface board, VisualElement root, VisualElement tray, Func<bool> canInteract = null)
         {
+            _canInteract = canInteract ?? (() => true);
             _manager = manager; _board = board; _root = root; _tray = tray;
             root.focusable = true;
             board.Element.RegisterCallback<PointerDownEvent>(OnBoardDown);
@@ -26,22 +28,22 @@ namespace OZGL2.Grid.UI
         }
         public void BeginCard(string id, PointerDownEvent evt)
         {
-            if (evt.button != 0 || !_manager.BeginUnitDrag(id)) return;
+            if (!_canInteract() || evt.button != 0 || !_manager.BeginUnitDrag(id)) return;
             _grabOffset = Vector2Int.zero; Capture(evt); Update(evt.position);
         }
         public void BeginBlockCard(string id, PointerDownEvent evt)
         {
-            if (evt.button != 0 || !_manager.BeginBlockDrag(id)) return;
+            if (!_canInteract() || evt.button != 0 || !_manager.BeginBlockDrag(id)) return;
             _grabOffset = Vector2Int.zero; Capture(evt); Update(evt.position);
         }
         public void BeginExpansion(PointerDownEvent evt)
         {
-            if (evt.button != 0 || !_manager.BeginExpansionDrag()) return;
+            if (!_canInteract() || evt.button != 0 || !_manager.BeginExpansionDrag()) return;
             _grabOffset = Vector2Int.zero; Capture(evt); Update(evt.position);
         }
         private void OnBoardDown(PointerDownEvent evt)
         {
-            if (evt.button != 0) return;
+            if (!_canInteract() || evt.button != 0) return;
             var cell = _board.PanelToCell(evt.position);
             var block = _manager.GetBlockAt(cell);
             if (block == null) return;
@@ -67,6 +69,7 @@ namespace OZGL2.Grid.UI
         private void OnUp(PointerUpEvent evt)
         {
             if (_pointerId != evt.pointerId || evt.button != 0) return;
+            if (!_canInteract()) { Cancel(); return; }
             string targetId = null;
             // MovePreview가 화면을 갱신하기 전에 현재 카드의 레이아웃으로 드롭 대상을 확정한다.
             if (_tray.worldBound.Contains(evt.position))
@@ -79,15 +82,16 @@ namespace OZGL2.Grid.UI
                 {
                     if (!_manager.TryFuseUnits(_manager.SelectedId, targetId)) _manager.CancelDrag();
                 }
-                else _manager.DropToTray();
+                else if (!_manager.DropToTray()) _manager.CancelDrag();
             }
-            else if (_manager.DragKind == eGridDragKind.BLOCK && _tray.worldBound.Contains(evt.position)) _manager.DropToTray();
+            else if (_manager.DragKind == eGridDragKind.BLOCK && _tray.worldBound.Contains(evt.position))
+            { if (!_manager.DropToTray()) _manager.CancelDrag(); }
             else if (!_manager.CommitPreview()) _manager.CancelDrag();
             Release(); evt.StopPropagation();
         }
         private void OnKey(KeyDownEvent evt)
         {
-            if (!_manager.HasSelection) return;
+            if (!_canInteract() || !_manager.HasSelection) return;
             if (evt.keyCode == KeyCode.R)
             {
                 _manager.RotatePreview();

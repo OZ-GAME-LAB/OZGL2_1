@@ -26,6 +26,23 @@ namespace OZGL2.Grid.Prototype
         private GridDragInput _input;
         private GridPrototypeFlow _flow;
         private bool _isBound;
+        private IGridBoardSurface _worldSurface;
+        private System.Func<bool, bool> _beginBattle;
+        private System.Func<bool> _canInteract;
+        private System.Func<string> _worldStatus;
+        private System.Func<bool> _canRecover;
+        private System.Action _retryCamera;
+        private System.Action _exitCameraError;
+        private VisualElement _recovery;
+        public void ConfigureRecovery(System.Func<bool> canRecover, System.Action retry, System.Action exit)
+        { _canRecover = canRecover; _retryCamera = retry; _exitCameraError = exit; RefreshControls(); }
+        public void ConfigureWorld(IGridBoardSurface surface, System.Func<bool, bool> beginBattle, System.Func<bool> canInteract, System.Func<string> status = null)
+        {
+            Detach(); _worldSurface = surface; _beginBattle = beginBattle; _canInteract = canInteract; _worldStatus = status;
+            if (surface == null) { _canRecover = null; _retryCamera = null; _exitCameraError = null; }
+            if (Session != null && !Session.IsEnded && isActiveAndEnabled) Attach();
+        }
+        public void RefreshControls() { if (_isBound) Render(); }
         public GridRunSession Session { get; private set; }
         public GridManager Manager => Session?.Grid;
         public GridBoardView Board { get; private set; }
@@ -66,16 +83,25 @@ namespace OZGL2.Grid.Prototype
         private void Build()
         {
             _root = GetComponent<UIDocument>().rootVisualElement; _root.Clear();
-            _root.style.backgroundColor = new Color(0.035f, 0.055f, 0.09f);
+            _root.style.backgroundColor = _worldSurface != null ? Color.clear : new Color(0.035f, 0.055f, 0.09f);
+            _root.style.paddingBottom = _worldSurface != null ? 110 : 0;
             _root.style.alignItems = Align.Center; _root.style.justifyContent = Justify.Center;
             _root.style.color = new Color(0.87f, 0.92f, 1); _root.style.fontSize = 18;
             var title = new Label("CASTLE GRID  /  PREPARATION PROTOTYPE"); title.style.fontSize = 26; _root.Add(title);
             _status = new Label(); _status.style.marginTop = 10; _root.Add(_status);
             _message = new Label(); _message.style.marginTop = 8; _message.style.height = 28; _root.Add(_message);
-            Board = new GridBoardView(Manager, _boardTheme); _root.Add(Board.Element);
+            Board = _worldSurface == null ? new GridBoardView(Manager, _boardTheme) : null;
+            var surface = _worldSurface ?? Board;
+            _root.Add(surface.Element);
+            if (_worldSurface != null)
+            {
+                _root.style.justifyContent = Justify.FlexStart;
+                surface.Element.style.flexGrow = 1; surface.Element.style.width = Length.Percent(100);
+                surface.Element.style.minHeight = 0;
+            }
             _root.Add(new Label("STORAGE / Units first · R: rotate · Esc: cancel · Drag here to return"));
             _tray = CreateTray("storage-tray", 116); _root.Add(_tray);
-            _input = new GridDragInput(Manager, Board, _root, _tray);
+            _input = new GridDragInput(Manager, surface, _root, _tray, _canInteract);
             _expansionCard = new Label("FLOOR +2  —  Drag this required reward onto the dotted area") { name = "expansion-card" };
             _expansionCard.style.height = 44; _expansionCard.style.width = 780;
             _expansionCard.style.unityTextAlign = TextAnchor.MiddleCenter;
@@ -83,8 +109,11 @@ namespace OZGL2.Grid.Prototype
             _expansionCard.style.marginTop = 10;
             _expansionCard.RegisterCallback<PointerDownEvent>(_input.BeginExpansion); _root.Add(_expansionCard);
             var actions = new VisualElement(); actions.style.flexDirection = FlexDirection.Row; actions.style.marginTop = 14; _root.Add(actions);
-            _start = AddButton(actions, "Start battle", () => Session.TryBeginBattle(Session.RunId, Session.NextRound));
-            _skip = AddButton(actions, "Skip preparation", () => Session.TryBeginBattle(Session.RunId, Session.NextRound, true));
+            _start = AddButton(actions, "Start battle", () => BeginBattle(false));
+            _skip = AddButton(actions, "Skip preparation", () => BeginBattle(true));
+            _recovery = new VisualElement(); _recovery.style.flexDirection = FlexDirection.Row; _root.Add(_recovery);
+            AddButton(_recovery, "Retry camera", () => _retryCamera?.Invoke());
+            AddButton(_recovery, "End current run", () => _exitCameraError?.Invoke());
             _clear = AddButton(actions, "Simulate round clear", () => _flow?.TryFinishBattle());
             _reward = AddButton(actions, "Choose floor +2", () => _flow?.TryChooseExpansion());
             _unitRewardA = AddButton(actions, "Unit A", () => _flow?.TryChooseUnit(0));
@@ -95,6 +124,12 @@ namespace OZGL2.Grid.Prototype
             _storageOverlay.style.backgroundColor = new Color(0.02f, 0.03f, 0.06f, 0.98f);
             _storageOverlay.style.alignItems = Align.Center; _storageOverlay.style.justifyContent = Justify.Center;
             _root.Add(_storageOverlay);
+        }
+        private void BeginBattle(bool skip)
+        {
+            if (_canInteract != null && !_canInteract()) return;
+            if (_beginBattle != null) _beginBattle(skip);
+            else Session.TryBeginBattle(Session.RunId, Session.NextRound, skip);
         }
         private static VisualElement CreateTray(string name, float height)
         {
@@ -113,10 +148,11 @@ namespace OZGL2.Grid.Prototype
         private void Render()
         {
             if (Session.IsEnded) { Detach(); ShowUnavailable("Grid run ended."); return; }
-            Board.Render();
+            (_worldSurface ?? Board).Render();
             _status.text = Manager.Phase + "  |  FLOOR " + Manager.FloorCells.Count + "/" +
                 (Manager.Definition.MaximumSize.x * Manager.Definition.MaximumSize.y) + "  |  DEPLOYED " + Manager.PlacedCount + "  |  STORAGE " + Manager.StoredCount + "/" + Manager.Definition.StorageCapacity;
             _message.text = Manager.HasSelection ? (Manager.CanFusePreview ? "Fuse: same unit + same star" : Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
+                Manager.LastDropFailure == ePlacementFailure.DISCONNECTED ? "Keep platforms connected by an edge. Moving or returning this block must not split them." :
                 Manager.Phase == eGridPhase.WAITING || (Manager.Phase == eGridPhase.REWARD && Session.PendingRewardId == null) ? "Waiting for preparation permission." :
                 Manager.RequiresExpansionPlacement ? "Place the floor reward before starting or skipping." :
                 Manager.Phase == eGridPhase.REWARD ? "Round clear: choose a reward to enter the next preparation." :
@@ -147,7 +183,9 @@ namespace OZGL2.Grid.Prototype
             foreach (var card in _tray.Children())
                 card.style.opacity = card.name == "card-" + Manager.SelectedId || card.name == "block-card-" + Manager.SelectedId ? 0.4f : 1;
             _expansionCard.style.display = Manager.Phase == eGridPhase.PREPARATION && Manager.RequiresExpansionPlacement ? DisplayStyle.Flex : DisplayStyle.None;
-            _start.SetEnabled(Manager.CanBeginBattle); _skip.SetEnabled(Manager.CanSkipPreparation);
+            bool ready = _canInteract == null || _canInteract();
+            _recovery.style.display = _canRecover != null && _canRecover() ? DisplayStyle.Flex : DisplayStyle.None;
+            _start.SetEnabled(ready && Manager.CanBeginBattle); _skip.SetEnabled(ready && Manager.CanSkipPreparation);
             _clear.style.display = _flow != null && Manager.Phase == eGridPhase.BATTLE ? DisplayStyle.Flex : DisplayStyle.None;
             bool hasReward = !Manager.HasPendingStorage && _flow != null && Manager.Phase == eGridPhase.REWARD && Session.PendingRewardId != null;
             _reward.style.display = hasReward && Manager.CanExpand ? DisplayStyle.Flex : DisplayStyle.None;
@@ -158,6 +196,8 @@ namespace OZGL2.Grid.Prototype
                 _unitRewardB.text = "Choose " + _flow.Rewards.GetCandidate(Session.CompletedRounds, 1).DisplayName + " + block";
             }
             RenderStorageRequest();
+            var status = _worldStatus?.Invoke();
+            if (!string.IsNullOrEmpty(status)) _message.text = status;
         }
         private static VisualElement CreateStorageCard(GridStoredItem item, FootprintDefinition shape)
         {

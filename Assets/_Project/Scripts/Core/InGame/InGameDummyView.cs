@@ -16,6 +16,7 @@ namespace OZGL2.InGame
         [SerializeField] private GameObject _battlePage;
         [Tooltip("끄면 이 개발용 텍스트 오버레이만 안 그림(그리드 바인딩/페이지 전환 로직은 그대로 동작).")]
         [SerializeField] private bool _showDummyOverlay = true;
+        private Vector2 _scroll;
         private void OnEnable()
         {
             if (_bootstrap == null) return;
@@ -52,8 +53,9 @@ namespace OZGL2.InGame
             // 보여줄 게 하나도 없으면(전투 진행 중 등) 박스 배경조차 그리지 않는다 — 화면 안 가리게.
             if (!_showDummyOverlay && !hasRewardPending && !hasDummyPending && !hasError && !canRetry) return;
 
-            float width = Mathf.Min(600, Screen.width - 24);
-            GUILayout.BeginArea(new Rect((Screen.width - width) / 2, 24, width, Screen.height - 48), GUI.skin.box);
+            float width = Mathf.Min(340, Screen.width - 24);
+            GUILayout.BeginArea(new Rect(12, 12, width, Mathf.Min(360, Screen.height - 24)), GUI.skin.box);
+            _scroll = GUILayout.BeginScrollView(_scroll);
             var stage = _bootstrap.Stage;
             if (_showDummyOverlay)
             {
@@ -63,7 +65,7 @@ namespace OZGL2.InGame
                 GUILayout.Label("Augment selection: " + (_bootstrap.UsesDummyAugments ? "dummy" : "external provider"));
                 GUILayout.Label("Combat adapters: " + _bootstrap.CombatParticipantNames);
                 GUILayout.Label("External operation: " + _bootstrap.ExternalOperationStatus);
-                if (!_bootstrap.HasCombatParticipants) GUILayout.Label("Skill gating / effect cleanup / caster position: not connected");
+                GUILayout.Label(_bootstrap.HasExternalCombatParticipants ? "External adapters present. Verify skill gating / cleanup coverage separately." : "External combat adapters: not connected (camera presentation is separate).");
                 if (_bootstrap.NotificationErrorCount > 0)
                     GUILayout.Label("UI notification errors: " + _bootstrap.NotificationErrorCount + " / " + _bootstrap.LastFailedSubscriber);
                 if (stage != null)
@@ -102,7 +104,7 @@ namespace OZGL2.InGame
             {
                 if (GUILayout.Button("Retry from round 1", GUILayout.Height(44))) _bootstrap.StartPrototype();
             }
-            GUILayout.EndArea();
+            GUILayout.EndScrollView(); GUILayout.EndArea();
         }
     }
 }

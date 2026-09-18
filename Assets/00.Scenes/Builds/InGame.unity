@@ -435,10 +435,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: InGamePrototype
       objectReference: {fileID: 0}
+    - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      propertyPath: _phasePresentation
+      value: 
+      objectReference: {fileID: 8701223948942012783}
     - target: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _boardTheme
       value: 
-      objectReference: {fileID: 11400000, guid: c4740c5f86219a54988e781f3e69bf0f, type: 2}
+      objectReference: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -446,6 +450,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8701223948942012781}
+    - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8701223948942012784}
+    - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8701223948942012783}
   m_SourcePrefab: {fileID: 100100000, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
 --- !u!1 &8701223948942012779 stripped
 GameObject:
@@ -476,8 +486,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameGridPresentation
   _bootstrap: {fileID: 8701223948942012780}
-  _theme: {fileID: 11400000, guid: c4740c5f86219a54988e781f3e69bf0f, type: 2}
-  _synergy: {fileID: 0}
+  _theme: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
+--- !u!114 &8701223948942012782 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+  m_PrefabInstance: {fileID: 8701223948942012778}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e69f64d889b5ef4409fcc8da7fc3f819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.Prototype.GridPrototypeRunner
+--- !u!114 &8701223948942012783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701223948942012779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fc5e124a7337a64e97a1443cf07a761, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGamePhasePresentation
+  _bootstrap: {fileID: 8701223948942012780}
+  _runner: {fileID: 8701223948942012782}
+  _camera: {fileID: 8701223948942012784}
+--- !u!114 &8701223948942012784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701223948942012779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 379e1e0e2a68f4f4b86c1bde6234a7e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameCameraTransition
+  _camera: {fileID: 979777110}
+  _config: {fileID: 11400000, guid: 51e90804add57184baa9253233fa606a, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

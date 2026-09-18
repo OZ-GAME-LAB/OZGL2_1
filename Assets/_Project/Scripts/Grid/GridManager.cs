@@ -30,6 +30,7 @@ namespace OZGL2.Grid
         /// <summary>기물 추가 또는 실제 배치/해제/확장 확정 후 통지. 미리보기에는 발생하지 않는다.</summary>
         public event Action LayoutChanged;
         public Exception LastObserverError { get; private set; }
+        public ePlacementFailure LastDropFailure { get; private set; }
         public IReadOnlyList<BlockPlacement> Blocks => _blockView;
         public IReadOnlyList<UnitPlacement> Units => _unitView;
         public IReadOnlyCollection<Vector2Int> FloorCells => _floorView;
@@ -182,6 +183,7 @@ namespace OZGL2.Grid
             var unit = FindBlock(id);
             if (Phase != eGridPhase.PREPARATION || HasSelection || HasPendingStorage || _isNotifying || unit == null) return false;
             _selectedId = id; DragKind = eGridDragKind.BLOCK; _previewAnchor = unit.Anchor; _previewRotation = unit.Rotation;
+            LastDropFailure = ePlacementFailure.NONE;
             Notify(); return true;
         }
         public bool BeginUnitDrag(string id)
@@ -189,6 +191,7 @@ namespace OZGL2.Grid
             var unit = FindUnit(id);
             if (Phase != eGridPhase.PREPARATION || HasSelection || HasPendingStorage || _isNotifying || unit == null) return false;
             _selectedId = id; DragKind = eGridDragKind.UNIT; _previewRotation = unit.Rotation;
+            LastDropFailure = ePlacementFailure.NONE;
             _previewAnchor = unit.IsPlaced ? unit.Anchor : new Vector2Int(-1, -1);
             Notify(); return true;
         }
@@ -196,6 +199,7 @@ namespace OZGL2.Grid
         {
             if (Phase != eGridPhase.PREPARATION || !RequiresExpansionPlacement || HasSelection || HasPendingStorage || _isNotifying) return false;
             DragKind = eGridDragKind.EXPANSION; _selectedId = null; _previewRotation = 0; _previewAnchor = new Vector2Int(-1, -1);
+            LastDropFailure = ePlacementFailure.NONE;
             Notify(); return true;
         }
         public void MovePreview(Vector2Int anchor) { if (!HasSelection || _isNotifying) return; _previewAnchor = anchor; Notify(); }
@@ -222,7 +226,9 @@ namespace OZGL2.Grid
         }
         public bool CommitPreview()
         {
-            if (_isNotifying || GetPreviewFailure() != ePlacementFailure.NONE) return false;
+            if (_isNotifying) return false;
+            LastDropFailure = GetPreviewFailure();
+            if (LastDropFailure != ePlacementFailure.NONE) return false;
             if (CanFusePreview) return TryFuseUnits(SelectedId, GetUnitAt(_previewAnchor).InstanceId);
             if (IsExpansionDrag)
             {
@@ -241,7 +247,7 @@ namespace OZGL2.Grid
             {
                 int index = blocks.FindIndex(block => block.InstanceId == _selectedId);
                 var block = blocks[index];
-                if (block.IsPlaced && block.Anchor == _previewAnchor && block.Rotation == _previewRotation)
+                if (block.IsPlaced && new HashSet<Vector2Int>(block.Footprint.GetCells(block.Anchor, block.Rotation)).SetEquals(GetPreviewCells()))
                 { ClearSelection(); Notify(); return true; }
                 ReturnUnitsFromBlock(units, _selectedId);
                 blocks[index] = block.WithPlacement(true, _previewAnchor, _previewRotation);
@@ -251,6 +257,8 @@ namespace OZGL2.Grid
         public bool DropToTray()
         {
             if (_isNotifying || HasPendingStorage || Phase != eGridPhase.PREPARATION || _selectedId == null) return false;
+            LastDropFailure = GetTrayDropFailure();
+            if (LastDropFailure != ePlacementFailure.NONE) return false;
             var blocks = new List<BlockPlacement>(_blocks);
             var units = new List<UnitPlacement>(_units);
             if (DragKind == eGridDragKind.UNIT)
@@ -265,6 +273,14 @@ namespace OZGL2.Grid
                 blocks[index] = blocks[index].WithPlacement(false, blocks[index].Anchor, blocks[index].Rotation);
             }
             return ApplyOrRequest(blocks, units, eGridStorageOperation.LAYOUT, null);
+        }
+        public ePlacementFailure GetTrayDropFailure()
+        {
+            if (Phase != eGridPhase.PREPARATION) return ePlacementFailure.NOT_PREPARING;
+            if (HasPendingStorage) return ePlacementFailure.STORAGE_PENDING;
+            if (_selectedId == null) return ePlacementFailure.NO_SELECTION;
+            return DragKind == eGridDragKind.BLOCK ?
+                GridPlacementRules.ValidateBlockRemoval(_blocks, _selectedId) : ePlacementFailure.NONE;
         }
         public void CancelDrag() { if (!HasSelection || _isNotifying) return; ClearSelection(); Notify(); }
         private void ReturnUnitsFromBlock(List<UnitPlacement> units, string blockId)

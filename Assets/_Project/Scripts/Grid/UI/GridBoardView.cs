@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace OZGL2.Grid.UI
 {
     /// <summary>좌표 변환과 표시만 담당한다. 일반 바닥과 마왕 위치를 별도 요소로 그린다.</summary>
-    public sealed class GridBoardView
+    public sealed class GridBoardView : IGridBoardSurface
     {
         public const float CELL_SIZE = 64;
         public static readonly Color VALID_COLOR = new Color(0.2f, 0.95f, 0.48f, 0.62f);
@@ -60,8 +60,9 @@ namespace OZGL2.Grid.UI
                 {
                     var cell = new Vector2Int(x, y);
                     var tile = new VisualElement { pickingMode = PickingMode.Ignore };
-                    Place(tile, cell, CELL_SIZE - 4);
+                    Place(tile, cell, CELL_SIZE);
                     ApplySurface(tile, GridBoardThemeSO.GetSurface(_manager, cell));
+                    AddBorders(tile, cell);
                     _floorLayer.Add(tile);
                     if (frontier != null && frontier.Contains(cell)) AddDashes(tile);
                 }
@@ -101,10 +102,19 @@ namespace OZGL2.Grid.UI
             }
             else tile.style.backgroundColor = surface == eGridCellSurface.UNCLAIMED ? new Color(0.48f, 0.44f, 0.36f) :
                 surface == eGridCellSurface.AVAILABLE ? new Color(0.13f, 0.18f, 0.18f) : new Color(0.20f, 0.13f, 0.23f);
-            if (surface != eGridCellSurface.PLATFORM) return;
-            var border = _theme != null ? _theme.PlatformBorder : new Color(0.38f, 0.30f, 0.48f);
-            tile.style.borderTopWidth = tile.style.borderBottomWidth = tile.style.borderLeftWidth = tile.style.borderRightWidth = 2;
-            tile.style.borderTopColor = tile.style.borderBottomColor = tile.style.borderLeftColor = tile.style.borderRightColor = border;
+        }
+        private void AddBorders(VisualElement tile, Vector2Int cell)
+        {
+            var surface = GridBoardThemeSO.GetSurface(_manager, cell);
+            var color = _theme != null ? _theme.GetBorderColor(surface) : new Color(0.38f, 0.30f, 0.48f);
+            foreach (var rect in GridSurfaceLayout.GetBorders(_manager, cell, _theme != null ? _theme.BorderWidth : 0.0625f))
+            {
+                var edge = new VisualElement { name = "surface-border", pickingMode = PickingMode.Ignore };
+                edge.style.position = Position.Absolute;
+                edge.style.left = rect.x * CELL_SIZE; edge.style.top = (1 - rect.yMax) * CELL_SIZE;
+                edge.style.width = rect.width * CELL_SIZE; edge.style.height = rect.height * CELL_SIZE;
+                edge.style.backgroundColor = color; tile.Add(edge);
+            }
         }
         private void AddCell(VisualElement parent, Vector2Int cell, Color color, string name)
         {
