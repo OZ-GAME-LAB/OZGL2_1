@@ -1,0 +1,48 @@
+{
+  "mode": "built-in image_gen",
+  "authorization": "2026-09-18 user approved alpha cleanup, proportion fit and symmetry normalization; preserve originals",
+  "specs": [
+    {
+      "key": "Button_Footer_310x75",
+      "w": 620,
+      "h": 150,
+      "ref": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/Sprites/Button_Frame.png",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D pixel-art Unity UI sprite. Reference image 1 is STYLE REFERENCE only. Redraw a single empty gothic dark-fantasy button frame, NOT a screenshot and NOT a spritesheet. Antique ivory metal thin double bevel, subtle muted garnet diamond gem at each side, black-charcoal opaque interior, crisp deliberate pixel clusters, elegant restrained weathered finish. Exact bilateral symmetry, equally sized corner motifs, clean wide usable empty text area. No text, no icons, no letters, no watermark, no perspective, no blur, no glow, no green chroma in the actual ornament. True transparent alpha outside silhouette, no painted checkerboard. SHAPE: total ornament silhouette width:height exactly 310:75 (4.133:1). Long horizontal footer button, restrained compact side diamonds without long spikes. Naturally proportioned details, do not flatten/squash/stretch another frame. Center this single long object on landscape canvas with generous transparent padding; use approximately 80% canvas width."
+    },
+    {
+      "key": "Button_Dialog_244x72",
+      "w": 488,
+      "h": 144,
+      "ref": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/Sprites/Button_Frame.png",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D pixel-art Unity UI sprite. Reference image 1 is STYLE REFERENCE only. Redraw a single empty gothic dark-fantasy button frame, NOT a screenshot and NOT a spritesheet. Antique ivory metal thin double bevel, subtle muted garnet diamond gem at each side, black-charcoal opaque interior, crisp deliberate pixel clusters, elegant restrained weathered finish. Exact bilateral symmetry, equally sized corner motifs, clean wide usable empty text area. No text, no icons, no letters, no watermark, no perspective, no blur, no glow, no green chroma in the actual ornament. True transparent alpha outside silhouette, no painted checkerboard. SHAPE: total ornament silhouette width:height exactly 244:72 (3.389:1). Medium-width dialog action button, angled corners and compact side diamonds, no large cross spears. Naturally proportioned details, do not flatten/squash/stretch another frame. Center on landscape canvas with generous transparent padding."
+    },
+    {
+      "key": "Button_Back_268x85",
+      "w": 536,
+      "h": 170,
+      "ref": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/Sprites/Button_Frame.png",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D pixel-art Unity UI sprite. Reference image 1 is STYLE REFERENCE only. Redraw a single empty gothic dark-fantasy button frame, NOT a screenshot and NOT a spritesheet. Antique ivory metal thin double bevel, subtle muted garnet diamond gem at each side, black-charcoal opaque interior, crisp deliberate pixel clusters, elegant restrained weathered finish. Exact bilateral symmetry, equally sized corner motifs, clean wide usable empty text area. No text, no icons, no letters, no watermark, no perspective, no blur, no glow, no green chroma in the actual ornament. True transparent alpha outside silhouette, no painted checkerboard. SHAPE: total ornament silhouette width:height exactly 268:85 (3.153:1). Broad comfortable-height navigation button. Clipped corners, subtle cross-tipped side diamonds sized proportionally, not huge. No arrow icon, no text. Center on landscape canvas with transparent padding. Redraw at this aspect ratio, no stretching."
+    },
+    {
+      "key": "Button_Step_142x72",
+      "w": 284,
+      "h": 144,
+      "ref": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/Sprites/Button_Frame.png",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D pixel-art Unity UI sprite. Reference image 1 is STYLE REFERENCE only. Redraw a single empty gothic dark-fantasy button frame, NOT a screenshot and NOT a spritesheet. Antique ivory metal thin double bevel, subtle muted garnet diamond gem at each side, black-charcoal opaque interior, crisp deliberate pixel clusters, elegant restrained weathered finish. Exact bilateral symmetry, equally sized corner motifs, clean wide usable empty text area. No text, no icons, no letters, no watermark, no perspective, no blur, no glow, no green chroma in the actual ornament. True transparent alpha outside silhouette, no painted checkerboard. SHAPE: total ornament silhouette width:height exactly 142:72 (1.972:1). Compact chunky near-2:1 stepper button to hold a single plus/minus glyph later. NO plus or minus drawn now. Proportionally short frame, empty black center, small side garnet diamonds. Do not squash a long frame. Center on landscape canvas with transparent padding."
+    },
+    {
+      "key": "Divider_CurrentNext",
+      "w": 640,
+      "h": 40,
+      "ref": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/Sprites/Button_Frame.png",
+      "prompt": "Use case: stylized-concept. Asset type: one isolated horizontal divider sprite for dark-fantasy pixel UI. Image 1 STYLE reference: reuse thin antique ivory metal, muted garnet. Draw ONLY one fine symmetrical horizontal divider: slender ivory-dark-metal rule with a tiny muted garnet lozenge exactly at center and matching tapering ends. Minimal delicate ornament, important to be readable at 320x20 logical UI pixels, total width:height about16:1. No surrounding panel, no button frame, no text, no glyphs, no broad dark rectangular background. True transparent alpha around thin ornament, no checkerboard. Center one divider on canvas, crisp pixel-art with restrained aged luxurious feel."
+    },
+    {
+      "key": "Frame_DemonKing_Symmetric",
+      "w": 256,
+      "h": 256,
+      "ref": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Frames/Frame_Central_DemonKing.png",
+      "prompt": "Use case: precise-object-edit. Asset type: isolated 2D pixel-art Unity central demon-king FRAME ONLY. Image 1 EDIT TARGET. Recreate this red metal diamond frame with exact mirror symmetry across BOTH the vertical and horizontal centerlines: four identically shaped red diamond corner ornaments, matching ivory-red facets and matching spikes, precisely equal double rails and balanced spacing on all four diagonal sides. Preserve bright garnet/crimson and charcoal palette, pixel-art gothic luxurious look, same overall thickness and diamond silhouette. Keep the center EMPTY opaque near-black to receive a separate demon icon later; NO demon, NO face, NO letters or text baked into this frame. True transparent alpha OUTSIDE frame silhouette, no checkerboard, no background scene. Single square sprite, centrally aligned, fully visible with even transparent outer padding. Front-on flat view, no perspective, no asymmetric lighting or corner ornaments."
+    }
+  ]
+}

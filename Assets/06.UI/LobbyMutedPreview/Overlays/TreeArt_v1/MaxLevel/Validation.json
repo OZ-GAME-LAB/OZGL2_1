@@ -1,0 +1,206 @@
+{
+  "generator": "built-in image_gen",
+  "postprocess": "approved background removal and nearest-neighbor size alignment only",
+  "results": [
+    {
+      "key": "Normal_Legion",
+      "file": "Frame_Normal_Legion_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 44367,
+      "center": [
+        39,
+        70,
+        48,
+        255
+      ],
+      "bounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 222
+      },
+      "originalBounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 222
+      }
+    },
+    {
+      "key": "Normal_Curse",
+      "file": "Frame_Normal_Curse_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 44396,
+      "center": [
+        64,
+        40,
+        74,
+        255
+      ],
+      "bounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 221
+      },
+      "originalBounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 221
+      }
+    },
+    {
+      "key": "Normal_Spells",
+      "file": "Frame_Normal_Spells_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 44393,
+      "center": [
+        34,
+        62,
+        83,
+        255
+      ],
+      "bounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 221
+      },
+      "originalBounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 222
+      }
+    },
+    {
+      "key": "Normal_Wisdom",
+      "file": "Frame_Normal_Wisdom_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 44407,
+      "center": [
+        75,
+        51,
+        26,
+        255
+      ],
+      "bounds": {
+        "left": 16,
+        "top": 17,
+        "width": 224,
+        "height": 222
+      },
+      "originalBounds": {
+        "left": 16,
+        "top": 16,
+        "width": 224,
+        "height": 223
+      }
+    },
+    {
+      "key": "Specialized_Legion",
+      "file": "Frame_Specialized_Legion_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 41048,
+      "center": [
+        36,
+        71,
+        45,
+        255
+      ],
+      "bounds": {
+        "left": 8,
+        "top": 8,
+        "width": 239,
+        "height": 240
+      },
+      "originalBounds": {
+        "left": 8,
+        "top": 8,
+        "width": 240,
+        "height": 240
+      }
+    },
+    {
+      "key": "Specialized_Curse",
+      "file": "Frame_Specialized_Curse_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 40160,
+      "center": [
+        69,
+        40,
+        74,
+        255
+      ],
+      "bounds": {
+        "left": 8,
+        "top": 9,
+        "width": 239,
+        "height": 239
+      },
+      "originalBounds": {
+        "left": 9,
+        "top": 8,
+        "width": 238,
+        "height": 240
+      }
+    },
+    {
+      "key": "Specialized_Spells",
+      "file": "Frame_Specialized_Spells_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 41503,
+      "center": [
+        28,
+        61,
+        85,
+        255
+      ],
+      "bounds": {
+        "left": 8,
+        "top": 11,
+        "width": 240,
+        "height": 234
+      },
+      "originalBounds": {
+        "left": 8,
+        "top": 8,
+        "width": 239,
+        "height": 240
+      }
+    },
+    {
+      "key": "Specialized_Wisdom",
+      "file": "Frame_Specialized_Wisdom_Max.png",
+      "width": 256,
+      "height": 256,
+      "transparentPixels": 40779,
+      "center": [
+        72,
+        48,
+        21,
+        255
+      ],
+      "bounds": {
+        "left": 8,
+        "top": 9,
+        "width": 240,
+        "height": 238
+      },
+      "originalBounds": {
+        "left": 8,
+        "top": 8,
+        "width": 240,
+        "height": 239
+      }
+    }
+  ]
+}
