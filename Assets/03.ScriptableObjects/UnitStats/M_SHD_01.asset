@@ -15,8 +15,9 @@ MonoBehaviour:
   unitId: M_SHD_01
   displayName: 방패병(탱커)
   side: 1
+  job: 1
   maxHealth: 320
-  attackPower: 8
+  attackPower: 11
   attackSpeed: 0.8
   defensePercent: 0.35
   attackRange: 1
@@ -24,4 +25,5 @@ MonoBehaviour:
   healAmount: 0
   cost: 1
   killExpReward: 0
+  starLevel: 1
   job: 1

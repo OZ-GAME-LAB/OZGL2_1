@@ -15,13 +15,16 @@ MonoBehaviour:
   unitId: M_WAR_01
   displayName: 전사(근딜)
   side: 1
+  job: 0
   maxHealth: 140
-  attackPower: 16
+  attackPower: 18
   attackSpeed: 1
   defensePercent: 0.1
   attackRange: 1
   moveSpeed: 0
   healAmount: 0
+  splashRadius: 1.5
   cost: 1
   killExpReward: 0
+  starLevel: 1
   job: 0
