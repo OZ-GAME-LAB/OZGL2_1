@@ -14,6 +14,8 @@ namespace OZGL2.InGame
         [SerializeField] private GridPrototypeRunner _gridView;
         [SerializeField] private UIPageGroup _pages;
         [SerializeField] private GameObject _battlePage;
+        [Tooltip("끄면 이 개발용 텍스트 오버레이만 안 그림(그리드 바인딩/페이지 전환 로직은 그대로 동작).")]
+        [SerializeField] private bool _showDummyOverlay = true;
         private void OnEnable()
         {
             if (_bootstrap == null) return;
@@ -41,26 +43,38 @@ namespace OZGL2.InGame
         private void OnGUI()
         {
             if (_bootstrap == null || _battlePage == null || !_battlePage.activeSelf) return;
+
+            var stageCheck = _bootstrap.Stage;
+            bool hasRewardPending = _bootstrap.Rewards?.Pending != null;
+            bool hasDummyPending = _bootstrap.Dummy != null && _bootstrap.Dummy.PendingRequest != eDummyRequest.NONE;
+            bool hasError = !string.IsNullOrEmpty(_bootstrap.Error);
+            bool canRetry = stageCheck != null && !stageCheck.IsRunning;
+            // 보여줄 게 하나도 없으면(전투 진행 중 등) 박스 배경조차 그리지 않는다 — 화면 안 가리게.
+            if (!_showDummyOverlay && !hasRewardPending && !hasDummyPending && !hasError && !canRetry) return;
+
             float width = Mathf.Min(600, Screen.width - 24);
             GUILayout.BeginArea(new Rect((Screen.width - width) / 2, 24, width, Screen.height - 48), GUI.skin.box);
-            GUILayout.Label("INGAME / PROTOTYPE CORE LOOP");
-            GUILayout.Label("Dummy battle and rewards · Final UI will replace this screen");
-            GUILayout.Label("Synergy: " + (_bootstrap.HasSynergyConnection ? "connected" : "not connected"));
-            GUILayout.Label("Augment selection: " + (_bootstrap.UsesDummyAugments ? "dummy" : "external provider"));
-            GUILayout.Label("Combat adapters: " + _bootstrap.CombatParticipantNames);
-            GUILayout.Label("External operation: " + _bootstrap.ExternalOperationStatus);
-            if (!_bootstrap.HasCombatParticipants) GUILayout.Label("Skill gating / effect cleanup / caster position: not connected");
-            if (_bootstrap.NotificationErrorCount > 0)
-                GUILayout.Label("UI notification errors: " + _bootstrap.NotificationErrorCount + " / " + _bootstrap.LastFailedSubscriber);
             var stage = _bootstrap.Stage;
-            if (stage != null)
+            if (_showDummyOverlay)
             {
-                GUILayout.Label("Round " + stage.CurrentRoundNumber + " / " + stage.TotalRounds + " — " + stage.State);
-                GUILayout.Label("Cleared: " + stage.ClearedRoundCount);
-                if (_bootstrap.GridSession?.Deployment != null)
-                    GUILayout.Label("Deployment captured. First battle starts with the basic unit automatically.");
+                GUILayout.Label("INGAME / PROTOTYPE CORE LOOP");
+                GUILayout.Label("Dummy battle and rewards · Final UI will replace this screen");
+                GUILayout.Label("Synergy: " + (_bootstrap.HasSynergyConnection ? "connected" : "not connected"));
+                GUILayout.Label("Augment selection: " + (_bootstrap.UsesDummyAugments ? "dummy" : "external provider"));
+                GUILayout.Label("Combat adapters: " + _bootstrap.CombatParticipantNames);
+                GUILayout.Label("External operation: " + _bootstrap.ExternalOperationStatus);
+                if (!_bootstrap.HasCombatParticipants) GUILayout.Label("Skill gating / effect cleanup / caster position: not connected");
+                if (_bootstrap.NotificationErrorCount > 0)
+                    GUILayout.Label("UI notification errors: " + _bootstrap.NotificationErrorCount + " / " + _bootstrap.LastFailedSubscriber);
+                if (stage != null)
+                {
+                    GUILayout.Label("Round " + stage.CurrentRoundNumber + " / " + stage.TotalRounds + " — " + stage.State);
+                    GUILayout.Label("Cleared: " + stage.ClearedRoundCount);
+                    if (_bootstrap.GridSession?.Deployment != null)
+                        GUILayout.Label("Deployment captured. First battle starts with the basic unit automatically.");
+                }
+                GUILayout.Space(16);
             }
-            GUILayout.Space(16);
             var dummy = _bootstrap.Dummy;
             if (dummy != null && dummy.PendingRequest == eDummyRequest.BATTLE)
             {

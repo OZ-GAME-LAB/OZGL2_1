@@ -28,7 +28,7 @@ namespace OZGL2.Skill
         MovingZone,     // 마왕 → 지정점 방향으로 이동하는 지속 장판 — 화염 회오리
         PersistentZone, // 지정점 고정 지속 장판 (zoneEffect) — 빙결 결계·감속 늪·저주 낙인·축복 오라·함정
         HealAllies,     // 전 아군 체력 % 회복 — 흡혈 의식
-        AllyBuff,       // 전 아군 스탯 버프 (일정시간) — 광폭화·강철 피부  ※스탯 수정자 대기, 현재 로그+연출
+        AllyBuff,       // 전 아군 스탯 버프 (일정시간) — 광폭화·강철 피부
         Revive,         // 죽은 아군 일부 부활 — 망자 부활
     }
 
