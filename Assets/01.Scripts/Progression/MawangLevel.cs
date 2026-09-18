@@ -19,7 +19,6 @@ namespace OZGL2.Progression
         private const string KeyLevel = "OZGL2.Mawang.Level";
         private const string KeyXp = "OZGL2.Mawang.Xp";
         private const string KeyPoints = "OZGL2.Mawang.LP";
-        private readonly bool _isPersistent;
 
         public int Level { get; private set; } = 1;
         public int Xp { get; private set; }
@@ -41,13 +40,8 @@ namespace OZGL2.Progression
         public event Action XpChanged;
         public event Action PointsChanged;
 
-        public MawangLevel() : this(true) { }
-
-        // 테스트 계정은 기존 유저의 레벨·LP를 읽거나 덮어쓰지 않는다.
-        public MawangLevel(bool isPersistent)
+        public MawangLevel()
         {
-            _isPersistent = isPersistent;
-            if (!_isPersistent) return;
             Level = Mathf.Max(1, PlayerPrefs.GetInt(KeyLevel, 1));
             Xp = PlayerPrefs.GetInt(KeyXp, 0);
             Points = PlayerPrefs.GetInt(KeyPoints, 0);
@@ -122,13 +116,10 @@ namespace OZGL2.Progression
         /// <summary>디버그 — 레벨·XP·LP 전부 초기화.</summary>
         public void ClearSaved()
         {
-            if (_isPersistent)
-            {
-                PlayerPrefs.DeleteKey(KeyLevel);
-                PlayerPrefs.DeleteKey(KeyXp);
-                PlayerPrefs.DeleteKey(KeyPoints);
-                PlayerPrefs.Save();
-            }
+            PlayerPrefs.DeleteKey(KeyLevel);
+            PlayerPrefs.DeleteKey(KeyXp);
+            PlayerPrefs.DeleteKey(KeyPoints);
+            PlayerPrefs.Save();
             Level = 1;
             Xp = 0;
             Points = 0;
@@ -138,7 +129,6 @@ namespace OZGL2.Progression
 
         private void Save()
         {
-            if (!_isPersistent) return;
             PlayerPrefs.SetInt(KeyLevel, Level);
             PlayerPrefs.SetInt(KeyXp, Xp);
             PlayerPrefs.SetInt(KeyPoints, Points);

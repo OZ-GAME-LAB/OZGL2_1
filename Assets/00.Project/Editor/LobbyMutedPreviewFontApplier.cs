@@ -16,7 +16,7 @@ internal static class LobbyMutedPreviewFontApplier
 {
     private const string PREVIEW_SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
     private const string SOURCE_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/";
-    private const string OUTPUT_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font";
+    private const string OUTPUT_FOLDER = "Assets/06.UI/LobbyMutedPreview/Fonts";
     private const string GOTHIC_ASSET = OUTPUT_FOLDER + "/DOSGothic Pixel.asset";
     private const string MYUNGJO_ASSET = OUTPUT_FOLDER + "/DOSMyungjo Pixel.asset";
     private const string GOTHIC_OUTLINE_MATERIAL = OUTPUT_FOLDER + "/DOSGothic Pixel Outline.mat";
@@ -97,7 +97,7 @@ internal static class LobbyMutedPreviewFontApplier
     {
         if (!AssetDatabase.IsValidFolder(OUTPUT_FOLDER))
         {
-            throw new InvalidOperationException("공유 폰트 폴더를 먼저 복원하세요: " + OUTPUT_FOLDER);
+            AssetDatabase.CreateFolder("Assets/06.UI/LobbyMutedPreview", "Fonts");
         }
     }
 

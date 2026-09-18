@@ -16,23 +16,18 @@ namespace OZGL2.Progression
         private readonly List<TraitData> _defs = new List<TraitData>();
         private readonly Dictionary<TraitId, TraitData> _byId = new Dictionary<TraitId, TraitData>();
         private readonly Dictionary<TraitId, int> _ranks = new Dictionary<TraitId, int>();
-        private readonly bool _isPersistent;
 
         public event Action Changed;
 
-        public TraitTree(IEnumerable<TraitData> defs) : this(defs, true) { }
-
-        // 검증/시뮬레이션은 계정 PlayerPrefs를 건드리지 않는 모델을 사용할 수 있다.
-        public TraitTree(IEnumerable<TraitData> defs, bool isPersistent)
+        public TraitTree(IEnumerable<TraitData> defs)
         {
-            _isPersistent = isPersistent;
             foreach (var d in defs)
             {
                 if (d == null) continue;
                 _defs.Add(d);
                 _byId[d.id] = d;
             }
-            if (_isPersistent) Load();
+            Load();
         }
 
         public IReadOnlyList<TraitData> Defs => _defs;
@@ -79,73 +74,12 @@ namespace OZGL2.Progression
             return true;
         }
 
-        /// <summary>내릴 한 단계에 지불한 LP. 데이터가 유효하지 않으면 -1.</summary>
-        public int RefundCost(TraitId id)
-        {
-            var d = Def(id);
-            int rank = RankOf(id);
-            if (d == null || rank <= 0 || rank > d.maxRank) return -1;
-            return d.CostForRank(rank - 1);
-        }
-
-        /// <summary>이미 습득한 후속 특성의 선행 조건을 깨는 레벨 다운은 허용하지 않는다.</summary>
-        public bool CanUnrank(TraitId id)
-        {
-            if (RankOf(id) <= 0 || RefundCost(id) <= 0) return false;
-            foreach (var d in _defs)
-            {
-                if (RankOf(d.id) <= 0 || d.parents == null) continue;
-                foreach (var parent in d.parents) if (parent == id) return false;
-            }
-            return true;
-        }
-
-        /// <summary>랭크 -1 및 해당 단계 LP 전액 환급. 레벨 0도 저장해 재접속 시 유지한다.</summary>
-        public bool TryUnrank(TraitId id, MawangLevel mawang)
-        {
-            if (mawang == null || !CanUnrank(id)) return false;
-            int refund = RefundCost(id);
-            _ranks[id] = RankOf(id) - 1;
-            Save();
-            mawang.Refund(refund);
-            Changed?.Invoke();
-            return true;
-        }
-
         public void ResetAll()
         {
-            if (_isPersistent)
-            {
-                foreach (var d in _defs) PlayerPrefs.DeleteKey(KeyPrefix + d.id);
-                PlayerPrefs.Save();
-            }
+            foreach (var d in _defs) PlayerPrefs.DeleteKey(KeyPrefix + d.id);
+            PlayerPrefs.Save();
             _ranks.Clear();
             Changed?.Invoke();
-        }
-
-        /// <summary>현재 배분한 포인트. 모든 단계가 동일하게 1 LP다.</summary>
-        public int AllocatedPoints
-        {
-            get
-            {
-                int total = 0;
-                foreach (var d in _defs) total += Mathf.Clamp(RankOf(d.id), 0, d.maxRank) * TraitData.RANK_LP_COST;
-                return total;
-            }
-        }
-
-        /// <summary>모든 특성을 한 번에 초기화하고 LP를 환급한다. 재요청은 환급하지 않는다.</summary>
-        public bool TryResetAndRefund(MawangLevel mawang)
-        {
-            int refund = AllocatedPoints;
-            if (mawang == null || refund <= 0) return false;
-            _ranks.Clear();
-            // 0도 저장해야 이전 계정 랭크가 다시 로드되지 않는다.
-            foreach (var d in _defs) _ranks[d.id] = 0;
-            Save();
-            mawang.Refund(refund);
-            Changed?.Invoke();
-            return true;
         }
 
         // ─────────────────────────────── 합산
@@ -171,15 +105,6 @@ namespace OZGL2.Progression
             sm.RadiusMult = m.SkillRadiusMult;
             sm.BuffDurationMult = m.SkillBuffDurationMult;
             sm.ReviveBonus = 0;
-        }
-
-        /// <summary>한 특성의 특정 랭크 효과만 미리 계산한다. 저장/현재 트리/계정은 변경하지 않는다.</summary>
-        public static TraitModifiers PreviewModifiers(TraitData definition, int rank)
-        {
-            var modifiers = TraitModifiers.Neutral;
-            if (definition != null && rank > 0)
-                ApplyEffect(ref modifiers, definition.effect, definition.valuePerRank, Mathf.Clamp(rank, 0, definition.maxRank));
-            return modifiers;
         }
 
         private static void ApplyEffect(ref TraitModifiers m, TraitEffect e, float v, int rank)
@@ -242,7 +167,6 @@ namespace OZGL2.Progression
 
         private void Save()
         {
-            if (!_isPersistent) return;
             foreach (var kv in _ranks) PlayerPrefs.SetInt(KeyPrefix + kv.Key, kv.Value);
             PlayerPrefs.Save();
         }

@@ -14,9 +14,9 @@
    - DOSGothic/DOSMyungjo 원본, Pixel/SDF 에셋, Pixel Outline 머티리얼.
    - 해당 폴더로 함께 이동된 `PixelTMPOutline.shader`와 `.meta`.
    - NotoSansCJKkr, TerrarumSansBitmap, 기존 라이선스/출처 파일.
-   - 복구 후 같은 폴더로 이동한 `DOSMyungjo Overlay Pixel.asset`, `LiberationSans SDF.asset`, `LiberationSans SDF - Fallback.asset` 및 각각의 원래 `.meta`.
-
-`LiberationSans.ttf` 원본은 Git에서 공유하는 기존 `Assets/TextMesh Pro/Fonts/` 경로를 유지합니다. Overlay 전용 `DOSMyungjo Overlay Outline.mat`도 Git에서 공유하는 기존 `Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/` 경로를 유지합니다.
+2. `Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/DOSMyungjo Overlay Pixel.asset` 및 `.meta`.
+3. `Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset` 및 `.meta`.
+4. `Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset` 및 `.meta`.
 
 외부 유료 에셋의 폰트는 기존 `98.ExternalAssets` 별도 배포 정책을 따릅니다. Git 제외 여부가 라이선스상 재배포 허용을 뜻하지는 않으므로, 팀 내 사용 범위와 각 폰트 라이선스를 지킵니다.
 
@@ -28,11 +28,11 @@
 4. Unity를 열고 `UI_Lobby_MutedPreview`의 로비·메뉴·특성 텍스트와 Outline 머티리얼을 확인합니다.
 5. Missing Font / Missing Material / Missing Shader와 Console 오류를 확인합니다.
 
-특히 `01.Font`로 옮긴 로비·Overlay·LiberationSans 폰트의 이전 경로 사본은 중복 배치하지 않습니다. 필요한 `.meta`를 잃었다면 임의 재생성하지 말고 공유본에서 복원합니다. Unity에서 이동할 때는 Project 창 또는 `AssetDatabase.MoveAsset`을 사용해 GUID와 하위 에셋 참조를 유지합니다.
+특히 `01.Font`로 옮긴 로비 폰트의 기존 `Assets/06.UI/LobbyMutedPreview/Fonts/` 사본은 중복 배치하지 않습니다. 필요한 `.meta`를 잃었다면 임의 재생성하지 말고 공유본에서 복원합니다.
 
 ## 주의 사항
 
 - 폰트 묶음 없이는 새 clone만으로 UI를 재현할 수 없습니다. 공유본 버전을 사용하는 커밋과 함께 안내해야 합니다.
 - 현재 로비·오버레이 폰트는 Dynamic 방식입니다. 원본 `.ttf`도 반드시 필요합니다.
-- `LobbyMutedPreviewFontApplier.cs`와 `LobbyOverlayPreviewBuilder.cs`의 폰트 및 Outline 셰이더 경로는 `01.Font`를 사용합니다. 기존 에셋의 GUID를 보존하려면 공유본을 복원한 뒤 도구를 사용합니다. 누락된 에셋을 도구로 재생성하면 기존 Scene/Prefab 참조를 복원하는 대신 새로운 GUID가 만들어질 수 있습니다.
+- `LobbyMutedPreviewFontApplier.cs`는 현재 이전 출력 경로인 `Assets/06.UI/LobbyMutedPreview/Fonts`를 사용합니다. 이동 후 이 도구를 실행하면 기존 이동본을 갱신하지 않고 별도 에셋을 만들 수 있으므로, 경로 정리 전에는 재실행하지 않습니다. 이번 Git 제외 작업은 도구 코드를 변경하지 않습니다.
 - 이 문서는 공유 절차이며 Drive 업로드 완료 기록이 아닙니다. 업로드 위치와 공유본 버전은 배포자가 별도로 안내해야 합니다.
