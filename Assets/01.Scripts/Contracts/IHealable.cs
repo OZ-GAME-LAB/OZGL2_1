@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace OZGL2.Contracts
 {
-    /// <summary>회복·버프를 받을 수 있는 아군(몬스터). 흡혈 의식·축복 오라·광폭화 등이 사용.</summary>
+    /// <summary>회복·버프를 받을 수 있는 아군(몬스터). 흡혈 의식·광폭화 등이 사용.</summary>
     public interface IHealable
     {
         Vector3 Position { get; }

@@ -20,12 +20,12 @@ MonoBehaviour:
   cooldown: 60
   effectType: 0
   skillPower: 150
-  radius: 5
+  radius: 99
   duration: 2
   castDelay: 0
   chainInterval: 0.1
   chainCount: 3
-  barrageCount: 12
+  barrageCount: 20
   force: 6
   lineLength: 6
   zoneMoveSpeed: 4

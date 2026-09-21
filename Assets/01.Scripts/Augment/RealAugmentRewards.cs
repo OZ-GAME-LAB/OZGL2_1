@@ -20,14 +20,16 @@ namespace OZGL2.Augment
         private List<AugmentData> _pending;
         private TaskCompletionSource<bool> _waiting;
 
-        private void Awake()
+        private void Awake() => ResolveAugments();
+
+        /// <summary>RealSynergySync와 같은 프리팹 안에 있으면 Awake 순서가 정해져 있지 않아서, Awake 시점엔
+        /// 아직 sync.Augments가 비어있을 수 있다 — 그래서 증강을 실제로 쓰는 시점에도 다시 시도한다.</summary>
+        private bool ResolveAugments()
         {
+            if (_augments != null) return true;
             var sync = Object.FindFirstObjectByType<RealSynergySync>();
             _augments = sync != null ? sync.Augments : null;
-            if (_augments == null)
-            {
-                Debug.LogWarning("[RealAugmentRewards] RealSynergySync를 못 찾음 — 증강 연동이 비활성 상태로 동작함(뽑기 자동 스킵).");
-            }
+            return _augments != null;
         }
 
         public Task SelectGeneralRewardAsync(RewardRequest request, string rewardId, CancellationToken cancellationToken)
@@ -38,7 +40,11 @@ namespace OZGL2.Augment
 
         public async Task SelectAugmentAsync(RewardRequest request, AugmentTierWeights weights, CancellationToken cancellationToken)
         {
-            if (_augments == null) return;
+            if (!ResolveAugments())
+            {
+                Debug.LogWarning("[RealAugmentRewards] RealSynergySync를 못 찾음 — 증강 연동이 비활성 상태로 동작함(뽑기 자동 스킵).");
+                return;
+            }
 
             _pending = _augments.Draw3(TierWeightsToStage(weights));
             if (_pending == null || _pending.Count == 0) return;
