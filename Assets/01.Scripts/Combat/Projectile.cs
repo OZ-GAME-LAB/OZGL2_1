@@ -42,16 +42,21 @@ public class Projectile : MonoBehaviour
     private float traveledDistance;
     private Vector2 defaultFacing = Vector2.up;
     private float splashRadius;
+    private float splashSecondaryDamagePercent = 1f;
+    private int splashMaxTargets;
 
     private const float HitDistance = 0.15f;
 
-    public void Init(UnitBase targetUnit, int damageAmount, float moveSpeed, Vector2 spriteDefaultFacing, float splashRadiusAmount = 0f)
+    public void Init(UnitBase targetUnit, int damageAmount, float moveSpeed, Vector2 spriteDefaultFacing,
+        float splashRadiusAmount = 0f, float splashSecondaryDamagePercentAmount = 1f, int splashMaxTargetsAmount = 0)
     {
         originalTarget = targetUnit;
         damage = damageAmount;
         speed = moveSpeed;
         defaultFacing = spriteDefaultFacing.sqrMagnitude > 0.0001f ? spriteDefaultFacing.normalized : Vector2.up;
         splashRadius = splashRadiusAmount;
+        splashSecondaryDamagePercent = splashSecondaryDamagePercentAmount;
+        splashMaxTargets = splashMaxTargetsAmount;
         enemySide = targetUnit != null ? targetUnit.Side : UnitSide.Hero;
 
         Vector3 aimPoint = targetUnit != null ? targetUnit.transform.position : transform.position;
@@ -148,7 +153,11 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject);
     }
 
-    /// <summary>스플래시(마법사 광역 등, splashRadius > 0인 경우만): 명중 지점 기준 반경 안의 다른 적도 동일 피해.</summary>
+    /// <summary>
+    /// 스플래시(마법사 광역 등, splashRadius > 0인 경우만): 명중 지점 기준 반경 안의 다른 적도 피해.
+    /// 간접 피해 비율(splashSecondaryDamagePercent)과 최대 인원 수(splashMaxTargets, 0=무제한)로 너프 가능.
+    /// 인원 제한이 있으면 가까운 대상부터 우선 적용한다.
+    /// </summary>
     private void ApplySplashDamage(UnitBase primaryTarget)
     {
         if (splashRadius <= 0f)
@@ -159,6 +168,7 @@ public class Projectile : MonoBehaviour
         var candidates = UnitRegistry.GetUnits(enemySide);
         float radiusSqr = splashRadius * splashRadius;
 
+        var inRange = new List<(UnitBase unit, float distSqr)>();
         for (int i = 0; i < candidates.Count; i++)
         {
             UnitBase unit = candidates[i];
@@ -170,8 +180,17 @@ public class Projectile : MonoBehaviour
             float distSqr = (unit.transform.position - primaryTarget.transform.position).sqrMagnitude;
             if (distSqr <= radiusSqr)
             {
-                unit.TakeDamage(damage);
+                inRange.Add((unit, distSqr));
             }
+        }
+
+        inRange.Sort((a, b) => a.distSqr.CompareTo(b.distSqr));
+        int hitCount = splashMaxTargets > 0 ? Mathf.Min(splashMaxTargets, inRange.Count) : inRange.Count;
+        int secondaryDamage = Mathf.Max(0, Mathf.RoundToInt(damage * splashSecondaryDamagePercent));
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            inRange[i].unit.TakeDamage(secondaryDamage);
         }
     }
 

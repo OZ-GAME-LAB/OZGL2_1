@@ -110,6 +110,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             SetState(UnitState.Idle);
         }
+
+        // 여기서는 아직 GameObject가 비활성 상태다(PooledHero.Rent가 SetActive(true) 전에 이 메서드를
+        // 호출함). SPUM PlayAnimation은 Animator.SetBool로 상태를 반영하는데, 비활성 Animator엔 값을
+        // 넣어도 실제로 안 먹혀서 여기서 강제 재생해도 소용없었음 — 실제 활성화 시점인 OnEnable에서 다시 재생한다.
     }
 
     void IPooledHeroState.ResetForReturn()
@@ -152,6 +156,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     protected virtual void OnEnable()
     {
         UnitRegistry.Register(this);
+
+        // 풀에서 재대여되면 ResetForSpawn()이 SetActive(true) 되기 전에 currentState/이동 목표를
+        // 미리 정해두는데, 그때는 아직 비활성이라 SPUM PlayAnimation(Animator.SetBool)이 실제로
+        // 안 먹힌다 — 실제로 활성화되는 지금(OnEnable) 다시 재생해서 예전 프레임 애니메이션에
+        // 멈춰있던 것처럼 보이는(주로 Idle로 걸어오는) 현상을 막는다.
+        PlaySpumAnimation(currentState);
     }
 
     protected virtual void OnDisable()
@@ -180,6 +190,54 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         InitSpumAnimation();
+        EnsureClickCollider();
+        UnitHealthBar.Attach(this);
+    }
+
+    /// <summary>
+    /// 클릭 선택(사거리 표시용) 판정용 콜라이더가 없으면 자식 SpriteRenderer들의 바운즈에 맞춰
+    /// 자동으로 하나 붙여준다. 프리팹마다 일일이 콜라이더를 넣어둘 필요가 없게 하기 위함.
+    /// </summary>
+    private void EnsureClickCollider()
+    {
+        if (GetComponent<Collider2D>() != null)
+        {
+            return;
+        }
+
+        var renderers = GetComponentsInChildren<SpriteRenderer>();
+        if (renderers.Length == 0)
+        {
+            return;
+        }
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        Vector3 scale = transform.lossyScale;
+        Vector2 size = new Vector2(
+            Mathf.Abs(scale.x) > 0.0001f ? bounds.size.x / Mathf.Abs(scale.x) : bounds.size.x,
+            Mathf.Abs(scale.y) > 0.0001f ? bounds.size.y / Mathf.Abs(scale.y) : bounds.size.y);
+
+        var collider = gameObject.AddComponent<BoxCollider2D>();
+        collider.isTrigger = true;
+        collider.size = size;
+        collider.offset = transform.InverseTransformPoint(bounds.center);
+    }
+
+    private UnitRangeIndicator _rangeIndicator;
+
+    /// <summary>클릭 선택 시 사거리 원을 켜고 끈다(UnitSelectionController가 호출).</summary>
+    public void SetRangeIndicatorVisible(bool visible)
+    {
+        if (_rangeIndicator == null)
+        {
+            _rangeIndicator = UnitRangeIndicator.Attach(this);
+        }
+        _rangeIndicator.SetVisible(visible);
     }
 
     /// <summary>
@@ -530,8 +588,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     }
 
     /// <summary>
-    /// 스플래시(3번 — 지금은 전사 전용, splashRadius > 0인 근접 유닛에만 적용): 주 타겟 위치 기준
-    /// 반경 안의 다른 적에게도 동일 피해. 발사체 공격에는 적용 안 함(필요해지면 Projectile 쪽에 별도 구현).
+    /// 스플래시(근접 전사): 주 타겟 위치 기준 반경 안의 다른 적에게도 피해. 간접 피해 비율과 최대
+    /// 인원 수는 UnitStatData(splashSecondaryDamagePercent/splashMaxTargets)로 유닛별 조절.
+    /// 발사체 공격의 스플래시는 Projectile.ApplySplashDamage가 별도로 처리한다.
     /// </summary>
     protected virtual void ApplySplashDamage(UnitBase primaryTarget, int damage)
     {
@@ -544,6 +603,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         var candidates = UnitRegistry.GetUnits(enemySide);
         float radiusSqr = statData.splashRadius * statData.splashRadius;
 
+        var inRange = new System.Collections.Generic.List<(UnitBase unit, float distSqr)>();
         for (int i = 0; i < candidates.Count; i++)
         {
             UnitBase unit = candidates[i];
@@ -555,8 +615,18 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             float distSqr = (unit.transform.position - primaryTarget.transform.position).sqrMagnitude;
             if (distSqr <= radiusSqr)
             {
-                unit.TakeDamage(damage);
+                inRange.Add((unit, distSqr));
             }
+        }
+
+        // 최대 인원 수 제한이 있으면 가까운 대상부터 우선 적용.
+        inRange.Sort((a, b) => a.distSqr.CompareTo(b.distSqr));
+        int hitCount = statData.splashMaxTargets > 0 ? Mathf.Min(statData.splashMaxTargets, inRange.Count) : inRange.Count;
+        int secondaryDamage = Mathf.Max(0, Mathf.RoundToInt(damage * statData.splashSecondaryDamagePercent));
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            inRange[i].unit.TakeDamage(secondaryDamage);
         }
     }
 
@@ -576,7 +646,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
         GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
         Projectile projectile = projectileObj.AddComponent<Projectile>();
-        projectile.Init(target, damage, statData.projectileSpeed, statData.projectileDefaultFacing, statData.splashRadius);
+        projectile.Init(target, damage, statData.projectileSpeed, statData.projectileDefaultFacing,
+            statData.splashRadius, statData.splashSecondaryDamagePercent, statData.splashMaxTargets);
     }
 
     /// <summary>

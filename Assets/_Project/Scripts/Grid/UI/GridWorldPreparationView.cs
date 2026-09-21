@@ -20,7 +20,12 @@ namespace OZGL2.Grid.UI
         private GameObject _dragActor;
         private string _dragId;
         private int _dragStar;
+        private LineRenderer _rangeLine;
+        private Material _rangeMaterial;
+        private const int RANGE_SEGMENTS = 48;
         public bool IsVisible { get; private set; }
+        /// <summary>(콘텐츠 ID, 성급) → 사거리(월드 단위). Grid가 전투 코드를 직접 참조하지 않도록 외부에서 주입한다. 없으면 사거리 표시 안 함.</summary>
+        public Func<string, int, float> RangeProvider { get; set; }
         public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, GameObject> prefab, Transform parent)
             : this(grid, mapping, cellSize, (id, star) => prefab(id), parent) { }
         public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, int, GameObject> prefab, Transform parent)
@@ -77,6 +82,38 @@ namespace OZGL2.Grid.UI
             {
                 _dragActor.transform.position = _mapping.GetWorldPosition(_grid.PreviewAnchor);
                 _dragActor.GetComponentInChildren<TextMesh>(true).text = "★" + _grid.FindUnit(selected).StarLevel;
+            }
+            UpdateRangeIndicator(selected, selectedStar);
+        }
+        /// <summary>유닛을 누르고(드래그) 있는 동안만 드래그 위치 기준으로 사거리 원을 표시한다.</summary>
+        private void UpdateRangeIndicator(string selectedId, int starLevel)
+        {
+            float range = 0f;
+            if (_dragActor != null && selectedId != null && RangeProvider != null)
+                range = RangeProvider(_grid.FindUnit(selectedId).Definition.Id, starLevel);
+            if (range <= 0f)
+            {
+                if (_rangeLine != null) _rangeLine.gameObject.SetActive(false);
+                return;
+            }
+            if (_rangeLine == null)
+            {
+                var go = new GameObject("RangeIndicator"); go.transform.SetParent(_root.transform, false);
+                _rangeLine = go.AddComponent<LineRenderer>();
+                _rangeMaterial = new Material(Shader.Find("Sprites/Default"));
+                _rangeLine.material = _rangeMaterial;
+                _rangeLine.useWorldSpace = true; _rangeLine.loop = true;
+                _rangeLine.positionCount = RANGE_SEGMENTS;
+                _rangeLine.startWidth = _rangeLine.endWidth = _cellSize * 0.05f;
+                _rangeLine.startColor = _rangeLine.endColor = new Color(1f, 1f, 1f, 0.7f);
+                _rangeLine.sortingOrder = 600;
+            }
+            _rangeLine.gameObject.SetActive(true);
+            Vector3 center = _dragActor.transform.position;
+            for (int i = 0; i < RANGE_SEGMENTS; i++)
+            {
+                float angle = (float)i / RANGE_SEGMENTS * Mathf.PI * 2f;
+                _rangeLine.SetPosition(i, center + new Vector3(Mathf.Cos(angle) * range, Mathf.Sin(angle) * range, 0f));
             }
         }
         private GameObject CreateActor(string contentId, int starLevel, string name)
@@ -153,6 +190,7 @@ namespace OZGL2.Grid.UI
         {
             _grid.Changed -= Refresh;
             _root.SetActive(false); UnityEngine.Object.Destroy(_root); UnityEngine.Object.Destroy(_solid);
+            if (_rangeMaterial != null) UnityEngine.Object.Destroy(_rangeMaterial);
         }
     }
 }
