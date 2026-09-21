@@ -64,6 +64,33 @@ namespace OZGL2.Skill
         private void OnDestroy()
         {
             if (_manager != null) _manager.CastRequested -= OnCast;
+            ReleaseSprite(_disc);
+            ReleaseSprite(_ring);
+        }
+
+        /// <summary>대상이 풀로 반환되기 전에 지연 피해, 장판, 시각 효과를 즉시 중단한다.</summary>
+        public void CancelActiveEffects()
+        {
+            StopAllCoroutines();
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                var child = transform.GetChild(i);
+                if (child == _caster) continue;
+                child.gameObject.SetActive(false);
+                Destroy(child.gameObject);
+            }
+            _enemyBuf.Clear();
+            _allyBuf.Clear();
+            // StopAllCoroutines로 도트 코루틴이 같이 죽는데 기록만 남으면, 다음에 같은 대상에게 도트를 걸 때
+            // "이미 타는 중"으로 착각해 영영 안 걸린다 — 라운드 정리 때 기록도 같이 비운다.
+            _dotEnd.Clear();
+        }
+
+        private static void ReleaseSprite(Sprite sprite)
+        {
+            if (sprite == null) return;
+            Destroy(sprite.texture);
+            Destroy(sprite);
         }
 
         private Vector3 CasterPos => _caster != null ? _caster.position : Vector3.zero;
@@ -74,7 +101,7 @@ namespace OZGL2.Skill
         /// </summary>
         public void Detonate(Vector3 point, float power, float radius)
         {
-            if (_enemies == null || power <= 0f) return;
+            if (_enemies == null || power <= 0f || (_manager != null && !_manager.IsCastingEnabled)) return;
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf) e.TakeDamage(power);
@@ -85,6 +112,7 @@ namespace OZGL2.Skill
 
         private void OnCast(SkillCastRequest req)
         {
+            if (_manager == null || !_manager.IsCastingEnabled) return;
             SkillData d = req.Skill.Data;
             float power = req.Power;                          // SkillManager 가 치명타까지 반영해서 넘김
             float radius = req.Skill.EffectiveRadius;         // 특성 "광역 지배"

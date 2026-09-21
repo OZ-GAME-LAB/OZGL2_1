@@ -91,6 +91,23 @@ namespace OZGL2.Skill
             Rebuild();
         }
 
+        public void RefreshContext(Camera camera, Vector3 casterPosition)
+        {
+            EndAim();
+            _camera = camera;
+            _casterPos = casterPosition;
+        }
+
+        private void OnDisable() => EndAim();
+
+        private void OnDestroy()
+        {
+            if (_disc != null) { Destroy(_disc.texture); Destroy(_disc); }
+            if (_ring != null) { Destroy(_ring.texture); Destroy(_ring); }
+            if (_square != null) { Destroy(_square.texture); Destroy(_square); }     // 방향형 스킬 화살표용
+            if (_triangle != null) { Destroy(_triangle.texture); Destroy(_triangle); }
+        }
+
         // ─────────────────────────────── UI 생성
 
         private void BuildCanvas()
@@ -355,7 +372,8 @@ namespace OZGL2.Skill
 
         private void Update()
         {
-            if (_manager == null || Mouse.current == null) return;
+            if (_manager == null || !_manager.IsCastingEnabled) { EndAim(); return; }
+            if (Mouse.current == null) return;
             UpdateCooldowns();
 
             Vector2 mouse = Mouse.current.position.ReadValue();
@@ -435,14 +453,14 @@ namespace OZGL2.Skill
 
         private void EndAim()
         {
-            if (_aiming != null)
+            if (_aiming != null && _aiming.Border != null)
             {
                 _aiming.Border.effectColor = new Color(1f, 1f, 1f, 0.9f);
                 _aiming.Border.effectDistance = new Vector2(2f, -2f);
             }
             _aiming = null;
-            _reticle.gameObject.SetActive(false);
-            _arrow.gameObject.SetActive(false);
+            if (_reticle != null) _reticle.gameObject.SetActive(false);
+            if (_arrow != null) _arrow.gameObject.SetActive(false);
             ClearPreview();
         }
 
@@ -502,6 +520,7 @@ namespace OZGL2.Skill
 
         private void ClearPreview()
         {
+            if (_manager == null) return;
             foreach (var t in _manager.AllTargets) (t as IHighlightable)?.SetHighlight(false);
         }
 

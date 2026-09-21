@@ -66,6 +66,12 @@ namespace OZGL2.InGame
                 var mapping = new GridWorldMapping(config.GridWorldOrigin, Vector3.right * config.CellWorldSize, Vector3.up * config.CellWorldSize);
                 _preview = new GridWorldPreparationView(session.Grid, mapping, config.CellWorldSize,
                     (id, star) => { var prefab = config.DemonArmyCatalog.FindPrefab(id, star); return prefab != null ? prefab.gameObject : null; }, transform);
+                // 배치 중 드래그하는 유닛의 사거리 표시용 (전투 프리팹의 statData.attackRange, 월드 단위 그대로).
+                _preview.RangeProvider = (id, star) =>
+                {
+                    var prefab = config.DemonArmyCatalog.FindPrefab(id, star);
+                    return prefab != null && prefab.statData != null ? prefab.statData.attackRange : 0f;
+                };
                 Surface = new GridWorldInputSurface(_camera.Camera, config.GridWorldOrigin, config.CellWorldSize, () => _preview?.Refresh());
                 _runner.ConfigureWorld(Surface, RequestBattle, () => CanInteract, () => Error ?? (_busy ? "Camera transitioning..." : null));
                 _runner.ConfigureRecovery(() => CanRetryCamera, () => RetryCamera(), () => ExitAfterCameraError());

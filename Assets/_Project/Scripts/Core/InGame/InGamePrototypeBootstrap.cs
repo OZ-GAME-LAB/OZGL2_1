@@ -25,6 +25,7 @@ namespace OZGL2.InGame
         [SerializeField] private MonoBehaviour _augmentProvider;
         private InGameCombatConnection _combatConnection;
         private InGameSynergyConnection _synergyConnection;
+        private InGameSkillConnection _skillConnection;
         private RealSynergySync _runSynergy;
         public bool HasCombatParticipants => _combatConnection != null && _combatConnection.ParticipantCount > 0;
         public bool HasExternalCombatParticipants => _combatConnection != null &&
@@ -77,17 +78,19 @@ namespace OZGL2.InGame
             {
                 await ReleaseAsync();
                 if (_isDestroyed) return;
+                _runSynergy = RealCombatBootstrap.EnsureInitialized();
+                _runSynergy.BeginRun();
+                _skillConnection = new InGameSkillConnection(_runSynergy);
                 if (_config == null || _navigator == null) throw new InvalidOperationException("InGame configuration and navigator are required.");
                 _config.Validate();
                 _phasePresentation?.ValidateSetup();
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
                     new DummyRewardLedger(Path.Combine(directory, "settlements.json")));
-                _runSynergy = FindFirstObjectByType<RealSynergySync>();
-                _runSynergy?.Augments.ResetRun();
                 _synergyConnection = new InGameSynergyConnection(_config.DemonArmyCatalog, _runSynergy);
                 _session.Changed += OnSessionChanged;
                 var participants = new List<IInGameCombatParticipant>();
+                participants.Add(_skillConnection);
                 if (_phasePresentation != null) participants.Add(_phasePresentation);
                 foreach (var component in _combatParticipants)
                 {
@@ -150,7 +153,12 @@ namespace OZGL2.InGame
         public bool TryBeginBattle(bool skip = false) => _phasePresentation != null ? _phasePresentation.RequestBattle(skip) : CommitBattleStart(skip);
         internal bool CommitBattleStart(bool skip = false) => GridSession != null && Stage != null &&
             Stage.State == eStageState.PREPARATION && GridSession.TryBeginBattle(GridSession.RunId, Stage.CurrentRoundNumber, skip);
-        public void CancelRun() { _phasePresentation?.CancelPresentation(); _host?.CancelRun(); }
+        public void CancelRun()
+        {
+            _skillConnection?.StopCombat();
+            _phasePresentation?.CancelPresentation();
+            _host?.CancelRun();
+        }
         internal void FailCameraPresentation(string message)
         {
             _presentationError = "Camera presentation failed: " + message;
@@ -205,6 +213,13 @@ namespace OZGL2.InGame
         private async Task ReleaseCoreAsync()
         {
             var errors = new List<Exception>();
+            // 종료를 기다리는 동안에도 새 입력과 지연 피해가 발생하지 않게 먼저 닫는다.
+            try
+            {
+                if (_skillConnection != null) _skillConnection.StopCombat();
+                else if (_runSynergy != null) _runSynergy.StopCombat();
+            }
+            catch (Exception exception) { errors.Add(exception); }
             var host = _host;
             if (host != null)
             {
@@ -220,12 +235,13 @@ namespace OZGL2.InGame
             if (Stage != null) Stage.StateChanged -= OnStateChanged;
             try { _synergyConnection?.Dispose(); } catch (Exception exception) { errors.Add(exception); }
             _synergyConnection = null;
-            try { if (_runSynergy != null) _runSynergy.Augments.ResetRun(); }
+            try { if (_runSynergy != null && (_skillConnection == null || _skillConnection.IsCurrent)) _runSynergy.Augments.ResetRun(); }
             catch (Exception exception) { errors.Add(exception); }
             _runSynergy = null;
             try { if (_combatConnection != null) await _combatConnection.EndRoundAsync(); }
             catch (Exception exception) { errors.Add(exception); }
             _combatConnection = null;
+            _skillConnection = null;
             try { _defenders?.Dispose(); } catch (Exception exception) { errors.Add(exception); }
             _defenders = null;
             try { _heroPool?.Dispose(); } catch (Exception exception) { errors.Add(exception); }

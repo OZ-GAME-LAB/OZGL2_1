@@ -103,9 +103,10 @@ namespace OZGL2.InGame.Editor
             Check(Vector3.Distance(actual.transform.position, mapping.GetWorldPosition(origin + Vector2Int.up)) < 0.001f, "Existing defender moved");
             Check(asset.starLevel == originalStar && asset.maxHealth == originalHp && actual.statData != asset, "Shared SO untouched");
             Check(_root.GetComponentsInChildren<SpriteRenderer>().Count(r => r.name.StartsWith("Cell_")) == 40, "Forty real asset cells");
-            int retainedHealth = actual.currentHealth = Math.Max(1, actual.currentHealth - 1);
+            int fullHealth = actual.currentHealth;
+            actual.currentHealth = Math.Max(1, fullHealth - 1);
             await _defenders.PrepareRoundAsync(CancellationToken.None);
-            Check(_root.GetComponentsInChildren<UnitBase>().Single() == actual && actual.currentHealth == retainedHealth, "Unchanged model retains instance and health");
+            Check(_root.GetComponentsInChildren<UnitBase>().Single() == actual && actual.currentHealth == fullHealth, "Unchanged model retains instance and restores round health");
             NextPreparation(basic, shape, "reward2");
             // 검증 종료 후 준비 화면을 남겨 바닥 상태와 성급 표시를 육안 확인한다.
             await Frame();

@@ -38,8 +38,12 @@ public class UnitStatData : ScriptableObject
     // Projectile이 이 값을 기준으로 실제 진행 방향을 바라보게 회전시킨다.
     public Vector2 projectileDefaultFacing = Vector2.up;
 
-    [Header("스플래시 (근접 전용 — 0이면 단일 대상. 발사체 유닛에는 미적용)")]
-    public float splashRadius = 0f;      // 주 타겟 위치 기준 이 반경 안의 다른 적도 동일 피해
+    [Header("스플래시 (0이면 단일 대상. 근접·발사체 공격 양쪽에 적용)")]
+    public float splashRadius = 0f;      // 주 타겟 위치 기준 이 반경 안의 다른 적도 피해
+
+    [Range(0f, 1f)]
+    public float splashSecondaryDamagePercent = 1f; // 주 타겟 외 간접 피격 대상에게 적용할 피해 비율(1=전액, 0.5=절반)
+    public int splashMaxTargets = 0;     // 간접 피격 최대 인원수(주 타겟 제외). 0 이하면 무제한
 
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)

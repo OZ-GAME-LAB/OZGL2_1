@@ -10,11 +10,12 @@ namespace OZGL2.InGame
     {
         private readonly DemonArmyCatalog _catalog;
         private readonly RealSynergySync _target;
+        private readonly OZGL2.Skill.SkillManager _skillManager;
         private GridRunSession _session;
-        public bool IsConnected => _target != null;
+        public bool IsConnected => _target != null && ReferenceEquals(_target.SkillManager, _skillManager);
 
         public InGameSynergyConnection(DemonArmyCatalog catalog, RealSynergySync target)
-        { _catalog = catalog; _target = target; }
+        { _catalog = catalog; _target = target; _skillManager = target != null ? target.SkillManager : null; }
 
         public void Bind(GridRunSession session)
         {
@@ -28,7 +29,7 @@ namespace OZGL2.InGame
 
         private void SyncCounts()
         {
-            if (_target == null) return;
+            if (!IsConnected) return;
             var counts = new Dictionary<SynergyJob, int>();
             if (_session != null)
                 foreach (var unit in _session.Grid.Units)

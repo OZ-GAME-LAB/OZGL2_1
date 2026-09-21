@@ -78,12 +78,48 @@ namespace OZGL2.Synergy
 
         private void OnDestroy()
         {
+            StopCombat();
             if (_synergy != null) _synergy.Changed -= Sync;
             if (_traits != null) _traits.Changed -= Sync;
             if (_augments != null) _augments.Changed -= Sync;
         }
 
         public void SetCount(SynergyJob job, int count) => _synergy.SetCount(job, count);
+
+        /// <summary>새 게임에서만 계정 장착 정보를 다시 읽는다. 라운드 전환에는 호출하지 않는다.</summary>
+        public void BeginRun()
+        {
+            StopCombat();
+            if (_executor != null)
+            {
+                _executor.gameObject.SetActive(false);
+                Destroy(_executor.gameObject);
+            }
+            if (_skillBar != null) Destroy(_skillBar.gameObject);
+            _augments.ResetRun();
+            SetupSkills();
+            SetCombatEnabled(false);
+            Sync();
+        }
+
+        public void PrepareCombat(Vector3 casterPosition)
+        {
+            StopCombat();
+            _executor.SetCasterPosition(casterPosition);
+            _skillBar.RefreshContext(Camera.main, casterPosition);
+        }
+
+        public void SetCombatEnabled(bool isEnabled)
+        {
+            if (_skillManager != null) _skillManager.IsCastingEnabled = isEnabled;
+            if (_skillBar != null) _skillBar.gameObject.SetActive(isEnabled);
+        }
+
+        public void StopCombat()
+        {
+            SetCombatEnabled(false);
+            if (_executor != null) _executor.CancelActiveEffects();
+        }
 
         /// <summary>스킬 매니저·실행기를 만들고, 계정 영구 해금/장착 상태 그대로 실제 씬에 올린다.</summary>
         private void SetupSkills()
@@ -131,7 +167,7 @@ namespace OZGL2.Synergy
         /// </summary>
         private void Update()
         {
-            if (_skillManager == null) return;
+            if (_skillManager == null || !_skillManager.IsCastingEnabled) return;
 
             // Bind() 시점엔 라운드가 아직 시작 안 돼서 UnitRegistry.KingWorldPosition이 비어있을 수
             // 있어(그러면 스킬 시전 위치가 (0,0,0) 같은 엉뚱한 곳에 고정됨) — 왕 위치가 실제로 잡힐
