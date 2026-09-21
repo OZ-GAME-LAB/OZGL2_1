@@ -1,0 +1,40 @@
+[
+  {
+    "name": "Card_Hover_Amber",
+    "crop": {
+      "left": 46,
+      "top": 28,
+      "width": 1160,
+      "height": 1198
+    },
+    "source": "Tools\\Art\\Sources\\SkillCardStates_v2\\Card_Hover_Amber_Source.png",
+    "output": "Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Card_Hover_Amber.png",
+    "width": 192,
+    "height": 192,
+    "content": {
+      "left": 7,
+      "top": 4,
+      "width": 178,
+      "height": 184
+    }
+  },
+  {
+    "name": "Card_Selected_Gold",
+    "crop": {
+      "left": 36,
+      "top": 12,
+      "width": 1182,
+      "height": 1194
+    },
+    "source": "Tools\\Art\\Sources\\SkillCardStates_v2\\Card_Selected_Gold_Source.png",
+    "output": "Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Card_Selected_Gold.png",
+    "width": 192,
+    "height": 192,
+    "content": {
+      "left": 6,
+      "top": 5,
+      "width": 180,
+      "height": 182
+    }
+  }
+]
