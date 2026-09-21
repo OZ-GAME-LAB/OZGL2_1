@@ -26,8 +26,9 @@ MonoBehaviour:
   projectilePrefab: {fileID: 3930159081165078694, guid: 28caf29c89fd9dd489eb927a24059dc9, type: 3}
   projectileSpeed: 5
   projectileDefaultFacing: {x: 1, y: 0}
-  splashRadius: 1.5
+  splashRadius: 1.2
+  splashSecondaryDamagePercent: 0.35
+  splashMaxTargets: 2
   cost: 0
   killExpReward: 5
   starLevel: 1
-  job: 3

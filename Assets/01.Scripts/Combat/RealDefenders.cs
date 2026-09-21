@@ -76,8 +76,9 @@ public sealed class RealDefenders : IStageDefenders, IDisposable
             instance.hasMoveTarget = false;
             instance.currentTarget = null;
             if (instance.statData.starLevel != unit.StarLevel) instance.ApplyStarLevel(unit.StarLevel);
-            if (instance.currentState == UnitState.Dead) instance.Revive();
-            else instance.SetState(UnitState.Idle);
+            // 라운드 시작마다 죽었던 유닛만 부활시키는 게 아니라 생존 유닛도 전부 풀피로 회복한다.
+            // Revive()는 원래도 "풀피 회복 + Idle 전환"이라 죽었든 살았든 그대로 써도 안전함.
+            instance.Revive();
         }
         return Task.CompletedTask;
     }
