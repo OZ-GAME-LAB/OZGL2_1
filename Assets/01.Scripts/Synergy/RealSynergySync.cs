@@ -97,6 +97,7 @@ namespace OZGL2.Synergy
             }
             if (_skillBar != null) Destroy(_skillBar.gameObject);
             _augments.ResetRun();
+            MawangXpBridge.Mawang?.ResetForNewRun(); // 마왕 레벨·XP는 런마다 Lv1, LP는 이월
             SetupSkills();
             SetCombatEnabled(false);
             Sync();
