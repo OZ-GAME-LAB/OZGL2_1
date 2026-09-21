@@ -43,6 +43,9 @@ namespace OZGL2.Skill
         /// <summary>동시 장착 가능 스킬 수. 특성 "지령" 으로 3→5.</summary>
         public int EquipCapacity { get; set; } = 3;
 
+        /// <summary>코어루프가 전투 외 단계의 모든 입력 경로를 차단한다. 독립 샌드박스는 기본 허용.</summary>
+        public bool IsCastingEnabled { get; set; } = true;
+
         public SkillManager(ITargetProvider targets, SkillModifiers mods = null)
         {
             _targets = targets;
@@ -104,7 +107,7 @@ namespace OZGL2.Skill
         public bool TryCastInstant(SkillRuntime skill)
         {
             float now = Time.time;
-            if (skill == null || skill.Data.castMode != SkillCastMode.Instant || !skill.IsReady(now))
+            if (!IsCastingEnabled || skill == null || skill.Data.castMode != SkillCastMode.Instant || !skill.IsReady(now))
             {
                 return false;
             }
@@ -117,7 +120,7 @@ namespace OZGL2.Skill
         public bool TryCastTargeted(SkillRuntime skill, Vector3 worldPoint)
         {
             float now = Time.time;
-            if (skill == null || skill.Data.castMode != SkillCastMode.Targeted || !skill.IsReady(now))
+            if (!IsCastingEnabled || skill == null || skill.Data.castMode != SkillCastMode.Targeted || !skill.IsReady(now))
             {
                 return false;
             }
@@ -132,6 +135,7 @@ namespace OZGL2.Skill
 
         private void Raise(SkillRuntime skill, Vector3 point, bool isEcho = false)
         {
+            if (!IsCastingEnabled) return;
             float power = skill.EffectivePower;
             if (!isEcho && _mods.CritChance > 0f && UnityEngine.Random.value < _mods.CritChance)
             {

@@ -25,11 +25,18 @@ namespace OZGL2.Synergy
             string sceneName = SceneManager.GetActiveScene().name;
             if (System.Array.IndexOf(RelevantScenes, sceneName) < 0) return;
 
-            if (Object.FindFirstObjectByType<RealSynergySync>() != null) return;
+            EnsureInitialized();
+        }
+
+        /// <summary>씬 전환으로 진입해도 코어루프가 전투 시작 전에 연결을 보장한다.</summary>
+        public static RealSynergySync EnsureInitialized()
+        {
+            var existing = Object.FindFirstObjectByType<RealSynergySync>();
+            if (existing != null) return existing;
 
             var go = new GameObject("RealSynergySync (auto)");
             Object.DontDestroyOnLoad(go);
-            go.AddComponent<RealSynergySync>();
+            return go.AddComponent<RealSynergySync>();
         }
     }
 }
