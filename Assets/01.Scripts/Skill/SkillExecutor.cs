@@ -225,6 +225,7 @@ namespace OZGL2.Skill
             {
                 e.TakeDamage(power);
                 if (_mods.OnHitSlowAmount > 0f) (e as IStatusReceiver)?.ApplySlow(_mods.OnHitSlowAmount, 2f);
+                ApplySkillHitSlow(d, e);
             }
 
             if (d.castVfx != null)
@@ -277,6 +278,7 @@ namespace OZGL2.Skill
         {
             Vector3 from = CasterPos;
             Vector3 dir = (point - from).normalized;
+            if (dir.sqrMagnitude < 0.0001f) dir = Vector3.up;
             Vector3 to = from + dir * d.lineLength;
             float hitR = Mathf.Max(radius, 0.4f);
 
@@ -285,7 +287,8 @@ namespace OZGL2.Skill
                 : Code(Disc(), new Color(0.6f, 0.85f, 1f), from, 0.45f, 22);
 
             var hit = new HashSet<IDamageable>();
-            const float dur = 0.16f;
+            // zoneMoveSpeed를 비행 속도로 쓴다(0이면 예전처럼 거의 즉발) — 회오리처럼 눈에 보이게 날아가도록.
+            float dur = d.zoneMoveSpeed > 0f ? Mathf.Max(d.lineLength / d.zoneMoveSpeed, 0.05f) : 0.16f;
             float t = 0f;
             while (t < dur)
             {
@@ -298,13 +301,21 @@ namespace OZGL2.Skill
                     if ((e.Position - cur).sqrMagnitude <= hitR * hitR)
                     {
                         e.TakeDamage(power);
+                        ApplySkillHitSlow(d, e);
                         hit.Add(e);
+                        if (d.perTargetVfx != null) AutoDestroy(SpawnVfx(d.perTargetVfx, e.Position, Quaternion.identity, d.vfxIsUi));
                     }
                 }
                 yield return null;
             }
 
             KillVfx(proj);
+        }
+
+        /// <summary>스킬 자체 피격 감속(onHitSlowMultiplier) — 얼음 계열 스킬이 실제로 감속을 걸도록.</summary>
+        private static void ApplySkillHitSlow(SkillData d, IDamageable target)
+        {
+            if (d.onHitSlowMultiplier > 0f) (target as IStatusReceiver)?.ApplySlow(d.onHitSlowMultiplier, d.onHitSlowSeconds);
         }
 
         private IEnumerator SingleShot(SkillData d, float power, Vector3 point)
@@ -425,7 +436,7 @@ namespace OZGL2.Skill
                 : Code(Disc(), ZoneColor(d.zoneEffect), origin, radius * 2f, 6);
             if (visual != null)
             {
-                if (d.castVfx != null) { ScaleAreaVfx(visual, radius); ApplyTint(visual, d.vfxTint); }
+                if (d.castVfx != null) { ScaleAreaVfx(visual, radius); ApplyRecolor(visual, d.vfxRecolor); ApplyTint(visual, d.vfxTint); }
                 visual.transform.SetParent(go.transform, true);
                 Destroy(visual, d.effectType == SkillEffectType.MovingZone ? duration : duration + 0.5f);
             }
@@ -433,6 +444,66 @@ namespace OZGL2.Skill
 
         /// <summary>기존 VFX 프리팹 색만 곱해서 바꾼다 — 새 프리팹 없이 같은 이펙트를 다른 속성처럼
         /// 보이게 할 때 씀(예: 용암 이펙트를 초록빛으로 틴트해서 늪처럼). 흰색(기본값)이면 원본 그대로.</summary>
+        private static readonly Dictionary<(Texture2D, Color32), Texture2D> _recolorTex = new Dictionary<(Texture2D, Color32), Texture2D>();
+        private static readonly Dictionary<(Sprite, Color32), Sprite> _recolorSprite = new Dictionary<(Sprite, Color32), Sprite>();
+
+        /// <summary>VFX의 색조를 target 색으로 교체(밝기·흰 하이라이트 유지). 곱하기 틴트로는 파랑→노랑 같은 색 계열
+        /// 변경이 안 돼서, 스프라이트를 복제해 픽셀 색을 바꿔치기한다. 결과는 캐시. 프레임 전환은 오브젝트
+        /// 활성화 방식이라 스프라이트를 갈아끼워도 애니메이션에 안 덮인다.</summary>
+        private static void ApplyRecolor(GameObject go, Color target)
+        {
+            if (go == null || target.a <= 0f) return;
+            Color32 key = target;
+            foreach (var img in go.GetComponentsInChildren<UnityEngine.UI.Image>(true))
+            {
+                var sp = img.sprite;
+                if (sp == null) continue;
+                if (!_recolorSprite.TryGetValue((sp, key), out var recolored) || recolored == null)
+                {
+                    var src = sp.texture;
+                    if (!_recolorTex.TryGetValue((src, key), out var tex) || tex == null)
+                    {
+                        tex = RecolorTexture(src, target);
+                        _recolorTex[(src, key)] = tex;
+                    }
+                    var pivot = new Vector2(sp.pivot.x / sp.rect.width, sp.pivot.y / sp.rect.height);
+                    recolored = Sprite.Create(tex, sp.textureRect, pivot, sp.pixelsPerUnit);
+                    _recolorSprite[(sp, key)] = recolored;
+                }
+                img.sprite = recolored;
+            }
+        }
+
+        private static Texture2D RecolorTexture(Texture2D src, Color target)
+        {
+            // 읽기 불가 텍스처라 GPU로 복사(Blit)해서 읽는다.
+            var rt = RenderTexture.GetTemporary(src.width, src.height, 0, RenderTextureFormat.ARGB32);
+            Graphics.Blit(src, rt);
+            var prev = RenderTexture.active;
+            RenderTexture.active = rt;
+            var tex = new Texture2D(src.width, src.height, TextureFormat.RGBA32, false);
+            tex.ReadPixels(new Rect(0, 0, src.width, src.height), 0, 0);
+            RenderTexture.active = prev;
+            RenderTexture.ReleaseTemporary(rt);
+
+            var px = tex.GetPixels32();
+            for (int i = 0; i < px.Length; i++)
+            {
+                float r = px[i].r / 255f, g = px[i].g / 255f, b = px[i].b / 255f;
+                float v = Mathf.Max(r, Mathf.Max(g, b));
+                float sat = v > 0.0001f ? (v - Mathf.Min(r, Mathf.Min(g, b))) / v : 0f;
+                float nr = Mathf.Lerp(v, target.r * v, sat);
+                float ng = Mathf.Lerp(v, target.g * v, sat);
+                float nb = Mathf.Lerp(v, target.b * v, sat);
+                px[i] = new Color32((byte)(nr * 255f), (byte)(ng * 255f), (byte)(nb * 255f), px[i].a);
+            }
+            tex.SetPixels32(px);
+            tex.filterMode = src.filterMode;
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.Apply();
+            return tex;
+        }
+
         private static void ApplyTint(GameObject go, Color tint)
         {
             if (go == null || tint == Color.white) return;

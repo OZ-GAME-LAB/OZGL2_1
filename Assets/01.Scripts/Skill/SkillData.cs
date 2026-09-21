@@ -93,8 +93,12 @@ namespace OZGL2.Skill
         public float force = 6f;
         [Tooltip("LineDamage 길이(칸)")]
         public float lineLength = 6f;
-        [Tooltip("MovingZone 이동 속도")]
+        [Tooltip("MovingZone 이동 속도 / LineDamage 투사체 비행 속도(0이면 거의 즉발)")]
         public float zoneMoveSpeed = 4f;
+        [Tooltip("맞은 대상에게 거는 감속 배율(0~1, 0=감속 없음). AreaDamage·LineDamage 피격 시 적용 — 얼음 계열 부가효과용")]
+        public float onHitSlowMultiplier = 0f;
+        [Tooltip("피격 감속 지속시간(초)")]
+        public float onHitSlowSeconds = 2f;
 
         [Header("Zone")]
         public ZoneEffect zoneEffect = ZoneEffect.Slow;
@@ -124,6 +128,8 @@ namespace OZGL2.Skill
         public bool fallFromSky = false;
         [Tooltip("VFX 색조 틴트(흰색=원본 그대로 곱하기 없음). 새 프리팹 없이 기존 VFX 색감만 바꾸고 싶을 때(예: 용암 이펙트를 늪처럼 초록빛으로) 사용 — PersistentZone(castVfx)에만 적용됨.")]
         public Color vfxTint = Color.white;
+        [Tooltip("VFX 색상 교체(알파 0=사용 안 함). 곱하기 틴트로는 못 바꾸는 색상 계열(예: 파란 번개→노란 번개)을 바꿀 때 — 밝기·흰색 하이라이트는 유지하고 색조만 이 색으로 바꾼 스프라이트 복제본을 씀. 장판(Zone) castVfx에 적용.")]
+        public Color vfxRecolor = Color.clear;
 
         [Header("궁극기 연출")]
         [Tooltip("반경 안 랜덤 위치에 flourishCount 번 뿌리는 화려함용 프리팹")]

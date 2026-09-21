@@ -137,6 +137,7 @@ namespace OZGL2.Synergy
             // 있어(그러면 스킬 시전 위치가 (0,0,0) 같은 엉뚱한 곳에 고정됨) — 왕 위치가 실제로 잡힐
             // 때까지, 그리고 라운드마다 바뀔 수 있으니 계속 최신 위치로 앵커를 맞춰준다.
             _executor?.SetCasterPosition(CasterPosition);
+            _skillBar?.SetCasterPosition(CasterPosition);
 
             int i = 0;
             foreach (var skill in _skillManager.EquippedSkills)

@@ -61,6 +61,7 @@ namespace OZGL2.Skill
             if (_moving)
             {
                 transform.position += _moveDir * (_moveSpeed * Time.deltaTime);
+                if (IsOffScreen(transform.position, _radius)) { Destroy(gameObject); return; } // 화면 밖으로 완전히 나가면 즉시 사라짐
                 ShoveEnemies();
             }
 
@@ -71,6 +72,17 @@ namespace OZGL2.Skill
 
             _nextTickTime = Time.time + _tick;
             ApplyTick();
+        }
+
+        /// <summary>장판이 카메라 화면 밖으로 완전히 벗어났는지(반경만큼 여유). 카메라를 못 쓰면(비직교 등) false.</summary>
+        private static bool IsOffScreen(Vector3 pos, float margin)
+        {
+            var cam = Camera.main;
+            if (cam == null || !cam.orthographic) return false;
+            float h = cam.orthographicSize + margin;
+            float w = cam.orthographicSize * cam.aspect + margin;
+            Vector3 c = cam.transform.position;
+            return Mathf.Abs(pos.x - c.x) > w || Mathf.Abs(pos.y - c.y) > h;
         }
 
         private void ShoveEnemies()

@@ -46,6 +46,8 @@ namespace OZGL2.Sandbox.EditorTools
         private const string WaterSplash = "8c9715ea3413e6347bb78a7641f6e93e";
         private const string WindShield = "09d247bfa1a21c04cb49c841e613c8d3";
         private const string WindExplosion = "9f0206c86425d7545bb5888fa1a26733";
+        private const string ElectricTornado = "fe6f7ef18c162654487f9d26718614fd";
+        private const string WaterWave = "b04f058dd24beb340b64d291f725b288";
 
         [MenuItem("OZGL2/Sandbox/Create Skill Assets (전체 · VFX 연결)")]
         public static void CreateAll()
@@ -67,8 +69,11 @@ namespace OZGL2.Sandbox.EditorTools
             n += B("Damage_01_Fireball", d => { Base(d, "화염구", SkillCategory.Damage, 1, SkillCastMode.Targeted, SkillEffectType.AreaDamage, 12f);
                 d.skillPower = 120f; d.radius = 1.5f; d.projectileVfx = V(FireBall); d.castVfx = V(FireExplosion01); });
 
-            n += B("Damage_02_IceShard", d => { Base(d, "얼음 가시", SkillCategory.Damage, 1, SkillCastMode.Targeted, SkillEffectType.AreaDamage, 10f);
-                d.skillPower = 90f; d.radius = 1.3f; d.projectileVfx = V(IceProjectile); d.castVfx = V(IceSpike); });
+            // 얼음 가시: 마왕에서 조준 방향으로 날아가며 경로의 적을 관통, 맞으면 감속(화살표 조준).
+            n += B("Damage_02_IceShard", d => { Base(d, "얼음 가시", SkillCategory.Damage, 1, SkillCastMode.Targeted, SkillEffectType.LineDamage, 10f);
+                d.skillPower = 90f; d.radius = 0.9f; d.lineLength = 12f; d.zoneMoveSpeed = 16f;
+                d.onHitSlowMultiplier = 0.6f; d.onHitSlowSeconds = 2f;
+                d.castVfx = V(IceProjectile); d.perTargetVfx = V(IceSpike); });
 
             n += B("Damage_03_ChainLightning", d => { Base(d, "연쇄 번개", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.ChainDamage, 15f);
                 d.skillPower = 80f; d.radius = 3f; d.chainCount = 5; d.chainInterval = 0.1f; d.perTargetVfx = V(ElectricLightning01); }); // 번개가 떨어지는 VFX 하나만
@@ -87,6 +92,14 @@ namespace OZGL2.Sandbox.EditorTools
             // ── 디버프 (시간 정지만 즉시, 나머지 조준형)
             n += B("Debuff_01_KnockbackWave", d => { Base(d, "넉백 파동", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.Knockback, 10f);
                 d.skillPower = 0f; d.radius = 2.5f; d.force = 8f; d.castVfx = V(WindExplosion); d.scaleCastVfxToRadius = true; });
+
+            // 방향형 신규 2종 — 화염 회오리처럼 화살표 방향으로 날아가는 이동 장판(화면 밖으로 나가면 사라짐)
+            n += B("Debuff_06_ElectricTornado", d => { Base(d, "번개 회오리", SkillCategory.Debuff, 3, SkillCastMode.Targeted, SkillEffectType.MovingZone, 22f);
+                d.radius = 1.4f; d.duration = 3.5f; d.zoneEffect = ZoneEffect.Stun; d.zoneTick = 0.3f; d.force = 0f; d.zoneMoveSpeed = 5f; d.castVfx = V(ElectricTornado);
+                d.vfxRecolor = new Color(1f, 0.85f, 0.1f); }); // 파란 번개 스프라이트를 노란색으로 색조 교체
+
+            n += B("Debuff_07_TidalWave", d => { Base(d, "파도", SkillCategory.Debuff, 2, SkillCastMode.Targeted, SkillEffectType.MovingZone, 16f);
+                d.radius = 2.6f; d.duration = 3f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.force = 3f; d.zoneMoveSpeed = 7f; d.castVfx = V(WaterWave); });
 
             n += B("Debuff_02_SlowMire", d => { Base(d, "감속 늪", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 14f);
                 d.radius = 2f; d.duration = 5f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.castVfx = V(EarthSpin);
@@ -150,7 +163,7 @@ namespace OZGL2.Sandbox.EditorTools
             d.vfxIsUi = true;
             // reset (덮어쓰기 시 이전 값 잔존 방지)
             d.projectileVfx = null; d.castVfx = null; d.perTargetVfx = null; d.finishVfx = null; d.flourishVfx = null;
-            d.flourishCount = 0; d.barrageCount = 1; d.castDelay = 0f; d.fallFromSky = false; d.scaleCastVfxToRadius = false;
+            d.flourishCount = 0; d.onHitSlowMultiplier = 0f; d.onHitSlowSeconds = 2f; d.vfxRecolor = Color.clear; d.barrageCount = 1; d.castDelay = 0f; d.fallFromSky = false; d.scaleCastVfxToRadius = false;
         }
 
         private static int B(string assetName, Action<SkillData> cfg)

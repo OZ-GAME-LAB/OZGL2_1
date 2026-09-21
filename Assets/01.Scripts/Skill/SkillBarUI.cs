@@ -46,6 +46,19 @@ namespace OZGL2.Skill
         private Sprite _disc;
         private Sprite _ring;
 
+        // 방향형 스킬(화염 회오리 등)은 원형 사거리 대신 마왕→커서 방향 화살표로 조준을 보여준다.
+        private Transform _arrow;
+        private SpriteRenderer _arrowShaft;
+        private SpriteRenderer _arrowHead;
+        private Sprite _square;
+        private Sprite _triangle;
+
+        /// <summary>마왕(시전 기준점) 위치 갱신 — 화살표 시작점. 실제 씬에서 왕 위치가 나중에 확정되므로 호출자가 계속 갱신.</summary>
+        public void SetCasterPosition(Vector3 pos) => _casterPos = pos;
+
+        private static bool IsDirectional(SkillData d) =>
+            d.effectType == SkillEffectType.MovingZone || d.effectType == SkillEffectType.LineDamage;
+
         private class Icon
         {
             public SkillRuntime Skill;
@@ -287,6 +300,45 @@ namespace OZGL2.Skill
             _reticleFill = ReticlePart("fill", GetDisc(), 18);
             _reticleRing = ReticlePart("ring", GetRing(), 19);
             go.SetActive(false);
+
+            var arrowGo = new GameObject("AimArrow");
+            arrowGo.transform.SetParent(transform);
+            _arrow = arrowGo.transform;
+            _arrowShaft = ArrowPart("shaft", GetSquare(), 18);
+            _arrowHead = ArrowPart("head", GetTriangle(), 19);
+            arrowGo.SetActive(false);
+        }
+
+        private SpriteRenderer ArrowPart(string name, Sprite sp, int order)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(_arrow, false);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = sp;
+            sr.sortingOrder = order;
+            return sr;
+        }
+
+        /// <summary>마왕에서 커서까지 화살표를 그린다(몸통 + 끝의 삼각 화살촉). 폭은 스킬 반경에 비례.</summary>
+        private void UpdateArrow(Vector3 target, float radius)
+        {
+            Vector3 from = _casterPos; from.z = 0f;
+            Vector3 delta = target - from;
+            float len = delta.magnitude;
+            if (len < 0.05f) { _arrow.gameObject.SetActive(false); return; }
+            _arrow.gameObject.SetActive(true);
+
+            Vector3 dir = delta / len;
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            float shaftW = Mathf.Clamp(radius * 0.5f, 0.35f, 1.2f);
+            float headLen = Mathf.Min(shaftW * 2.4f, len);
+            float headW = shaftW * 2.4f;
+            float shaftLen = Mathf.Max(len - headLen, 0.01f);
+
+            _arrowShaft.transform.SetPositionAndRotation(from + dir * (shaftLen * 0.5f), Quaternion.Euler(0f, 0f, angle));
+            _arrowShaft.transform.localScale = new Vector3(shaftLen, shaftW, 1f);
+            _arrowHead.transform.SetPositionAndRotation(from + dir * (shaftLen + headLen * 0.5f), Quaternion.Euler(0f, 0f, angle));
+            _arrowHead.transform.localScale = new Vector3(headLen, headW, 1f);
         }
 
         private SpriteRenderer ReticlePart(string name, Sprite s, int order)
@@ -333,10 +385,27 @@ namespace OZGL2.Skill
 
             if (ScreenToWorld(mouse, out Vector3 world))
             {
-                _reticle.position = world;
-                float dia = Mathf.Min(_aiming.Skill.EffectiveRadius * 2f, 40f);
-                _reticle.localScale = Vector3.one * dia;
-                Preview(world, _aiming.Skill.EffectiveRadius);
+                if (IsDirectional(_aiming.Skill.Data))
+                {
+                    Vector3 end = world;
+                    var ad = _aiming.Skill.Data;
+                    if (ad.effectType == SkillEffectType.LineDamage)
+                    {
+                        // 직선 관통은 사거리(lineLength)가 고정이라, 커서는 방향만 정하고 화살표는 그 길이만큼.
+                        Vector3 origin = _casterPos; origin.z = 0f;
+                        Vector3 d = world - origin;
+                        if (d.sqrMagnitude > 0.0001f) end = origin + d.normalized * ad.lineLength;
+                    }
+                    UpdateArrow(end, _aiming.Skill.EffectiveRadius);
+                    PreviewAlongPath(end, _aiming.Skill.EffectiveRadius);
+                }
+                else
+                {
+                    _reticle.position = world;
+                    float dia = Mathf.Min(_aiming.Skill.EffectiveRadius * 2f, 40f);
+                    _reticle.localScale = Vector3.one * dia;
+                    Preview(world, _aiming.Skill.EffectiveRadius);
+                }
             }
 
             if (Mouse.current.leftButton.wasReleasedThisFrame)
@@ -356,9 +425,12 @@ namespace OZGL2.Skill
             Color t = ReticleColor(icon.Skill.Data);
             _reticleFill.color = new Color(t.r, t.g, t.b, 0.22f);
             _reticleRing.color = new Color(t.r, t.g, t.b, 1f);
+            _arrowShaft.color = new Color(t.r, t.g, t.b, 0.55f);
+            _arrowHead.color = new Color(t.r, t.g, t.b, 0.9f);
             icon.Border.effectColor = new Color(t.r, t.g, t.b, 1f);
             icon.Border.effectDistance = new Vector2(4f, -4f);
-            _reticle.gameObject.SetActive(true);
+            _reticle.gameObject.SetActive(!IsDirectional(icon.Skill.Data));
+            _arrow.gameObject.SetActive(false); // 첫 프레임에 커서 위치가 잡히면 UpdateArrow가 켠다
         }
 
         private void EndAim()
@@ -370,6 +442,7 @@ namespace OZGL2.Skill
             }
             _aiming = null;
             _reticle.gameObject.SetActive(false);
+            _arrow.gameObject.SetActive(false);
             ClearPreview();
         }
 
@@ -410,6 +483,21 @@ namespace OZGL2.Skill
             ClearPreview();
             _manager.QueryTargetsInRadius(center, radius, _previewBuf);
             foreach (var t in _previewBuf) (t as IHighlightable)?.SetHighlight(true);
+        }
+
+        /// <summary>마왕→커서 선분에서 반경 안에 있는 대상을 하이라이트(방향형 스킬용).</summary>
+        private void PreviewAlongPath(Vector3 target, float radius)
+        {
+            ClearPreview();
+            Vector3 a = _casterPos; a.z = 0f;
+            Vector3 ab = target - a;
+            float abSqr = Mathf.Max(ab.sqrMagnitude, 0.0001f);
+            foreach (var t in _manager.AllTargets)
+            {
+                if (t.IsDead) continue;
+                float k = Mathf.Clamp01(Vector3.Dot(t.Position - a, ab) / abSqr);
+                if (((a + ab * k) - t.Position).sqrMagnitude <= radius * radius) (t as IHighlightable)?.SetHighlight(true);
+            }
         }
 
         private void ClearPreview()
@@ -465,6 +553,31 @@ namespace OZGL2.Skill
 
         private Sprite GetDisc() => _disc ??= MakeCircle(64, 0f);
         private Sprite GetRing() => _ring ??= MakeCircle(96, 0.84f);
+        private Sprite GetSquare()
+        {
+            if (_square != null) return _square;
+            var tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+            for (int y = 0; y < 4; y++) for (int x = 0; x < 4; x++) tex.SetPixel(x, y, Color.white);
+            tex.Apply();
+            return _square = Sprite.Create(tex, new Rect(0f, 0f, 4f, 4f), new Vector2(0.5f, 0.5f), 4f);
+        }
+
+        /// <summary>+x 방향(오른쪽)을 가리키는 1x1 삼각형 — 화살촉.</summary>
+        private Sprite GetTriangle()
+        {
+            if (_triangle != null) return _triangle;
+            const int size = 64;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            float c = (size - 1) * 0.5f;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float halfWidthAtX = c * (1f - (float)x / (size - 1));
+                tex.SetPixel(x, y, Mathf.Abs(y - c) <= halfWidthAtX ? Color.white : Color.clear);
+            }
+            tex.Apply();
+            return _triangle = Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), size);
+        }
 
         private static Sprite MakeCircle(int size, float innerFraction)
         {
