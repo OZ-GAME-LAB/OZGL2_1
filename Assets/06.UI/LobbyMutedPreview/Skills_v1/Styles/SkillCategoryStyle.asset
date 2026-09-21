@@ -21,6 +21,6 @@ MonoBehaviour:
   _buffFrame: {fileID: 21300000, guid: e3202cc3d6fa6394cbc2194882d86f13, type: 3}
   _debuffFrame: {fileID: 21300000, guid: 1859f9134e750fd47a03ee8730784ba9, type: 3}
   _damageFrameLayout: {x: 0.94811845, y: 0.9509541, z: 0.003148044, w: -0.0018944584}
-  _buffFrameLayout: {x: 0.999524, y: 1.0132989, z: 0.005290462, w: -0.006788296}
-  _debuffFrameLayout: {x: 0.966152, y: 0.9947133, z: -0.013058116, w: 0.01731035}
+  _buffFrameLayout: {x: 0.9982469, y: 1.0062735, z: -0.003746004, w: -0.000718412}
+  _debuffFrameLayout: {x: 0.9766297, y: 0.977775, z: -0.011985075, w: 0.010483412}
   _slotOpacity: 0.044

@@ -1,10 +1,16 @@
 # 스킬 세팅 아트 미리보기 v1
 
+## 공용 Overlay 통합 — 2026-09-21
+
+- 새 스킬 화면은 `Canvas_LobbyOverlays/Canvas_SkillSettings`에서 관리한다. 원본 Prefab·아트·표시 설정은 유지한다.
+- 앞으로 도감·업적도 같은 부모 Prefab 아래에 배치한다. 구조와 입력 정책은 `Docs/UI/LobbyOverlayManagement.md`를 따른다.
+- 스킬 진입은 `UILobbyOverlayView.OpenSkills`, 뒤로는 `CloseTop`, ESC/미저장 확인은 부모 루트의 `UIPopupController` 스택으로 처리한다.
+
 ## 적용 범위
 
 - 대상 Scene: `Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity`
 - 새 Prefab: `Prefabs/Canvas_SkillSettings.prefab`
-- Scene의 `Canvas_Popups/Canvas_SkillSettings`에 배치하고 `Canvas_Lobby`의 `SkillsButton`에서 연다.
+- Scene의 `Canvas_LobbyOverlays/Canvas_SkillSettings`에 중첩 배치하고 `Canvas_Lobby`의 `SkillsButton`에서 연다.
 - 기존 `Popup_Skills`, 메뉴·설정·특성 Prefab 및 다른 Scene은 변경하지 않는다.
 - Scene의 뒤로 버튼만 기존 `UIPopupController.CloseTopPopup`에 연결한 인스턴스 override이다. 다른 씬에 재사용할 때 이 연결과 PopupRoot 등록이 필요하다.
 - 배경은 특성창처럼 공용 `LobbyMutedPreview/Sprites/Lobby_Background.png`를 재사용하고, `BackgroundShade`에 검은색 불투명도 60%(Alpha 0.60)를 적용한다. 생성했던 `Skill_Background.png`는 미사용 원본으로 보존한다.
@@ -19,7 +25,7 @@
 - 생성 PNG 39개: 최초 37개(미사용 배경 1개 포함) + 주황 호버/금색 선택 프레임 2개. 기존 보라색 선택 프레임은 보존하지만 목록과 상세 화면에서 사용하지 않는다. 글자는 이미지에 포함하지 않는다.
 - `UISkillArtButton`: 일반·호버·누름·선택·비활성 Sprite 전환과 별도 TMP Label 색을 담당한다. 카테고리의 실제 선택 상태는 키보드 포커스와 별개이다.
 - `UISkillLoadoutPreview`: 전체/딜/버프/디버프 필터, 3개 슬롯 임시 장착/해제, 상세 표시를 담당한다.
-- `UISkillPreviewCatalogSO`: 이미지 검토용 12개 스킬의 이름·수치·분류·아이콘만 가진다. 실제 게임 밸런스/해금 데이터가 아니다.
+- `UISkillPreviewCatalogSO`: 이미지 검토용 12개 스킬의 이름·설명·수치·분류·아이콘만 가진다. 실제 게임 밸런스/해금 데이터가 아니다.
 - 런타임 상태는 컴포넌트의 임시 배열에만 저장하며 ScriptableObject를 변경하지 않는다.
 
 ## 저장 범위 — 실제 게임 저장 아님
@@ -34,6 +40,9 @@
 
 ## Inspector 체크
 
+- 스킬 설명: `SkillPreviewCatalog.asset` → `Entries` → 해당 스킬 → `Description`에 입력한다. 여러 줄 입력을 지원한다. 실제 효과를 임의로 확정하지 않도록 기존 항목의 설명 기본값은 빈 문자열이다.
+- 설명 표시: `Canvas_LobbyOverlays/Canvas_SkillSettings`의 `UISkillLoadoutPreview.Detail Description` → 자식 `Skill_Description`의 TMP. 목록 선택·카테고리 전환·장착 슬롯 선택·재열기 시 해당 Entry의 설명을 표시하며, 빈 설명/선택 없음은 이전 내용을 지운다. TMP의 기존 배치·폰트 설정을 유지하므로 필요한 문단 줄바꿈은 Description에 직접 입력한다.
+- 설명 참조는 부모 `Canvas_LobbyOverlays.prefab` 안의 스킬 화면에서 관리한다. 원본 스킬 Prefab에는 이 설명 오브젝트가 없으므로 null 참조를 허용하며 자동 검색/생성을 하지 않는다. Edit Mode 재연결 메뉴: `Tools/OZGL2/Lobby/Connect Skill Description` (Undo 지원, 해당 참조만 부모 Prefab에 Apply, Scene 자동 저장 없음).
 - 문구: 각 버튼의 `Label`에 있는 TMP Text를 수정한다.
 - 상태별 이미지: `UISkillArtButton`의 Normal/Hover/Pressed/Chosen/Disabled를 확인한다.
 - 목록 카드만 `Keep Chosen While Pressed`가 켜져 있다. 호버는 `Card_Hover_Amber`, 선택은 `Card_Selected_Gold`를 사용하며 선택 후 재누름/이탈에도 금색을 유지한다. 탭/장착 슬롯/기타 버튼 동작은 유지한다.
@@ -63,6 +72,15 @@
 - 검증: Play Mode에서 스킬창을 연 뒤 `Tools/OZGL2/Lobby/Validate Skill Settings Preview`
   - 미리보기 상태만 테스트하고 기본 3개 장착 시안으로 복원한다. 실제 게임 저장은 읽기만 한다.
   - Canvas 활성화 다음 프레임에 `LobbySkillSettingsPreviewValidation.ValidateRaycast()`로 클릭 대상을 별도 검사한다.
+
+### 설명 데이터 연결 검증 (2026-09-21)
+
+- `UISkillPreviewCatalogSO.Entry.Description`에 여러 줄 입력란을 추가하고 `UISkillLoadoutPreview.Detail Description`으로 선택한 스킬의 설명을 표시한다. 실제 효과나 설명 문구는 임의로 생성하지 않아 기존 12개 항목은 빈 설명으로 유지했다.
+- 부모 `Canvas_LobbyOverlays.prefab`의 기존 `Skill_Description` TMP 참조만 저장했다. 텍스트 위치/크기/폰트/줄바꿈 모드, 원본 스킬 Prefab과 Scene 파일은 유지했다. 현재 미저장 Scene 변경도 저장/되돌리지 않았다.
+- 검증 메뉴: `Tools/OZGL2/Lobby/Validate Skill Descriptions`. 원본 SO 대신 임시 복제본으로 27개 검사 통과(12개 스킬 선택, 카테고리/장착 슬롯 전환, 재열기, 빈 설명/카탈로그, 장착·저장 불변, 원본 복원). 기존 UI 42개 검사도 통과했다.
+- 실제 Game View에서 2줄 테스트 설명이 정상 렌더링되고 잘리지 않음을 확인한 뒤 임시 문구를 제거했다. 카탈로그와 실제 PlayerPrefs는 변경하지 않았다. Console 오류·경고 0개.
+- 설명 본문은 `Description`에서 편집한다. 현재 TMP의 기존 NoWrap/Ellipsis 설정을 유지했으므로 긴 문장은 직접 줄바꿈하고, 설명 영역을 넘는 분량은 별도 레이아웃 검토가 필요하다.
+- 비 16:9 해상도, 매우 긴 설명, 플레이어 빌드는 미확인이다. Layer/Tag, 물리/Animator/Input System, ProjectSettings/Packages 변경 없음.
 
 ## 검증 기록 (2026-09-19)
 

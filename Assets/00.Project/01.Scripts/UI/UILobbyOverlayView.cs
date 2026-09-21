@@ -14,6 +14,8 @@ namespace OZGL2.UIFlow
         [SerializeField] private CanvasGroup _lobbyGroup;
         [SerializeField] private UIPopupController _legacyPopupController;
         [SerializeField] private GraphicRaycaster _legacyRaycaster;
+        [SerializeField] private UIPopupController _overlayPopupController;
+        [SerializeField] private UIPopupPanel _skillsScreen;
         [SerializeField] private GameObject _menuPanel;
         [SerializeField] private GameObject _settingsPanel;
         [SerializeField] private UITraitOverlayView _traitsScreen;
@@ -38,13 +40,13 @@ namespace OZGL2.UIFlow
         private GameObject _previousSelection;
 
         public bool IsOpen => IsActive(_menuPanel) || IsActive(_settingsPanel) ||
-                              (_traitsScreen != null && _traitsScreen.gameObject.activeSelf);
+                              (_traitsScreen != null && _traitsScreen.gameObject.activeSelf) || HasOverlayPopup();
         public bool IsBgmEnabled => _isBgmEnabled;
         public bool IsSfxEnabled => _isSfxEnabled;
 
         public void OpenMenu()
         {
-            if (_menuPanel == null || HasLegacyPopup()) return;
+            if (_menuPanel == null || HasLegacyPopup() || HasOverlayPopup()) return;
             LockBackground();
             _menuPanel.SetActive(true);
             if (_settingsPanel != null) _settingsPanel.SetActive(false);
@@ -54,7 +56,7 @@ namespace OZGL2.UIFlow
 
         public void OpenTraits()
         {
-            if (_traitsScreen == null || HasLegacyPopup()) return;
+            if (_traitsScreen == null || HasLegacyPopup() || HasOverlayPopup()) return;
             LockBackground();
             if (_menuPanel != null) _menuPanel.SetActive(false);
             if (_settingsPanel != null) _settingsPanel.SetActive(false);
@@ -65,7 +67,7 @@ namespace OZGL2.UIFlow
 
         public void OpenSettings()
         {
-            if (_settingsPanel == null || HasLegacyPopup()) return;
+            if (_settingsPanel == null || HasLegacyPopup() || HasOverlayPopup()) return;
             LockBackground();
             if (_menuPanel != null) _menuPanel.SetActive(false);
             _settingsPanel.SetActive(true);
@@ -73,8 +75,23 @@ namespace OZGL2.UIFlow
             Select(_settingsFirst);
         }
 
+        public void OpenSkills() => OpenOverlayPopup(_skillsScreen);
+
+        // 이후 도감/업적도 이 Canvas의 직계 자식 화면을 연결한다. 저장/선택 데이터는 각 화면이 맡는다.
+        public void OpenOverlayPopup(UIPopupPanel screen)
+        {
+            if (screen == null || screen.transform.parent != transform || _overlayPopupController == null ||
+                !_overlayPopupController.isActiveAndEnabled || IsOpen || HasLegacyPopup()) return;
+            _overlayPopupController.OpenPopup(screen);
+        }
+
         public void CloseTop()
         {
+            if (HasOverlayPopup())
+            {
+                _overlayPopupController.CloseTopPopup();
+                return;
+            }
             if (IsActive(_settingsPanel))
             {
                 OpenMenu();
@@ -133,13 +150,17 @@ namespace OZGL2.UIFlow
 
         private void Update()
         {
-            if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame || HasLegacyPopup()) return;
+            // 팝업 스택의 ESC는 해당 Controller가 처리한다. 같은 입력으로 메뉴가 다시 열리지 않게 한다.
+            if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame || HasLegacyPopup() || HasOverlayPopup()) return;
             if (IsOpen) CloseTop();
             else OpenMenu();
         }
 
         private void OnDisable()
         {
+            // 루트 종료 시만 강제 정리한다. 일반 뒤로/ESC는 닫기 확인 정책을 거친다.
+            if (_overlayPopupController != null)
+                while (_overlayPopupController.OpenCount > 0) _overlayPopupController.CloseConfirmedPopup();
             if (_menuPanel != null) _menuPanel.SetActive(false);
             if (_settingsPanel != null) _settingsPanel.SetActive(false);
             if (_traitsScreen != null) _traitsScreen.gameObject.SetActive(false);
@@ -147,6 +168,7 @@ namespace OZGL2.UIFlow
         }
 
         private bool HasLegacyPopup() => _legacyPopupController != null && _legacyPopupController.OpenCount > 0;
+        private bool HasOverlayPopup() => _overlayPopupController != null && _overlayPopupController.OpenCount > 0;
         private static bool IsActive(GameObject panel) => panel != null && panel.activeSelf;
 
         private void LockBackground()

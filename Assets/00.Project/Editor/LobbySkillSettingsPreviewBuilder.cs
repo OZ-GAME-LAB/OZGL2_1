@@ -22,12 +22,41 @@ public static class LobbySkillSettingsPreviewBuilder
     private static TMP_FontAsset _font;
     private static Material _material;
 
+    [MenuItem("Tools/OZGL2/Lobby/Connect Skill Description")]
+    public static void ConnectSkillDescription()
+    {
+        var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        if (scene.path != SCENE || EditorApplication.isPlayingOrWillChangePlaymode || PrefabStageUtility.GetCurrentPrefabStage() != null)
+            throw new InvalidOperationException("UI_Lobby_MutedPreview 씬의 Edit Mode에서 실행하세요.");
+        const string overlayPrefab = OVERLAYS + "/Prefabs/Canvas_LobbyOverlays.prefab";
+        var host = GameObject.Find("Canvas_LobbyOverlays");
+        var skill = host != null ? host.transform.Find("Canvas_SkillSettings") : null;
+        if (skill == null || !skill.TryGetComponent(out UISkillLoadoutPreview view))
+            throw new InvalidOperationException("공용 Overlay의 스킬 화면이 필요합니다.");
+        var description = skill.Find("Skill_Description");
+        if (description == null || !description.TryGetComponent(out TMP_Text label) ||
+            PrefabUtility.GetCorrespondingObjectFromSource(label) == null ||
+            PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(host) != overlayPrefab)
+            throw new InvalidOperationException("부모 Prefab에 저장된 Skill_Description TMP가 필요합니다.");
+        Undo.RecordObject(view, "Connect skill catalog description");
+        var properties = new SerializedObject(view);
+        var reference = properties.FindProperty("_detailDescription");
+        reference.objectReferenceValue = label;
+        properties.ApplyModifiedProperties();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(view);
+        // 다른 사용자 override나 미저장 씬 배치를 Apply/저장하지 않는다.
+        properties.Update();
+        PrefabUtility.ApplyPropertyOverride(properties.FindProperty("_detailDescription"), overlayPrefab, InteractionMode.UserAction);
+        Debug.Log("Canvas_LobbyOverlays의 스킬 설명 TMP 참조만 연결했습니다. Undo 지원, Scene은 저장하지 않습니다.", view);
+    }
+
     [MenuItem("Tools/OZGL2/Lobby/Build Skill Settings Preview")]
     public static void Build()
     {
         var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
         if (scene.path != SCENE || Application.isPlaying) throw new InvalidOperationException("편집 모드 UI_Lobby_MutedPreview 씬에서만 실행하세요.");
         if (AssetDatabase.LoadAssetAtPath<GameObject>(PREFAB) != null) throw new InvalidOperationException("기존 스킬 프리팹을 덮어쓰지 않습니다.");
+        if (GameObject.Find("Canvas_LobbyOverlays") == null) throw new InvalidOperationException("공용 Canvas_LobbyOverlays를 먼저 배치하세요.");
         GameObject uiRoot = GameObject.Find("UI_Root");
         GameObject lobby = GameObject.Find("Canvas_Lobby");
         if (uiRoot == null || lobby == null || !uiRoot.TryGetComponent(out UIPopupController popupController)) throw new InvalidOperationException("로비 UI 연결이 필요합니다.");
@@ -184,7 +213,8 @@ public static class LobbySkillSettingsPreviewBuilder
         Undo.CollapseUndoOperations(undo);
         EditorSceneManager.MarkSceneDirty(scene);
         AssetDatabase.SaveAssets();
-        Debug.Log("스킬 세팅 프리팹 생성: 기존 팝업 보존, 4개 필터, 3개 장착 슬롯, TMP 분리. 실제 게임 저장은 미연결입니다.");
+        LobbyOverlayIntegrationBuilder.Integrate();
+        Debug.Log("스킬 세팅 프리팹 생성 및 Canvas_LobbyOverlays 통합: 기존 팝업 보존, 4개 필터, 3개 장착 슬롯, TMP 분리. 실제 게임 저장은 미연결입니다.");
     }
 
     private static UISkillPreviewCatalogSO CreateCatalog()

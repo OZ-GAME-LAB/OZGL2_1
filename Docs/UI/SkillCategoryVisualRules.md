@@ -57,8 +57,11 @@
 - 원본 `Equip_Red.png` / `Equip_Purple.png`는 보존한다. 빈 슬롯은 기존 `Red Frame` 형태에 `SkillFrame_Empty.mat`을 적용해 무채색으로 표시한다. 별도 PNG 변형은 만들지 않으며 명암/투명도/정렬을 보존한다.
 - `SkillCategoryStyle.asset`의 `Empty Frame Material`이 무채색 표시 설정이다. `SKILL_EMPTY_FRAME` 모드는 Button tint를 포함해 RGB 채도를 제거한다. 장착하면 해당 Material을 해제해 분류 프레임의 원래 색으로 돌아간다. 호버 중에도 빈 프레임에 분류색이 묻지 않는다.
 - 세 슬롯은 위치와 관계없이 같은 분류 규칙을 적용한다. 분류가 다른 스킬로 교체하면 즉시 새 Sprite로 갱신한다.
-- 슬롯 루트(246×246, 기존 위치)는 입력과 아이콘의 기준으로 고정한다. 프레임만 `EquippedSlot_X/FrameArt` 자식 Image에 표시한다. 렌더 순서는 FrameArt → CategorySlotTint → Icon이다.
-- `SkillCategoryStyle.asset`의 분류별 `Frame Layout`은 `(가로 배율, 세로 배율, 가로 위치 비율, 세로 위치 비율)`이다. `LobbySkillFrameAlignmentBuilder`가 256px 원본의 장식 중심을 측정한 기준으로 연결한다. 기존 슬롯 프레임의 가로 188.96px/세로 184.39px 간격에 맞추며 아이콘/클릭 영역을 움직이지 않는다.
+- 슬롯 루트는 사용자가 지정한 크기와 위치를 유지하고 입력과 아이콘의 기준으로 사용한다. 프레임만 `EquippedSlot_X/FrameArt` 자식 Image에 표시한다. 렌더 순서는 FrameArt → CategorySlotTint → Icon이다.
+- `SkillCategoryStyle.asset`의 분류별 `Frame Layout`은 `(가로 배율, 세로 배율, 가로 위치 비율, 세로 위치 비율)`이다. `LobbySkillFrameAlignmentBuilder`가 256px 원본의 장식 중심을 측정한 기준으로 연결한다. 배율과 이동량은 현재 슬롯 크기에 비례하므로 슬롯을 리사이즈해도 아이콘/클릭 영역을 움직이지 않는다.
+- 버프/디버프는 회색 기본 프레임(`Equip_Red`)의 좌/우/상/하 보석 **내부 중심 4개**에 맞춘다. Pivot은 모두 중앙이지만 이미지 속 도형은 중앙과 다를 수 있다. 전체 알파 영역, 반짝임, 임의의 `(128,128)` 중심에 맞추지 않는다. 공격 프레임은 승인된 기존 보정을 유지한다.
+- 보정 기준은 alpha > 127, 명도 `0.2126R + 0.7152G + 0.0722B >= 120`인 보석 내부의 4방향 연결 성분이다. 텍셀 중심 좌표(index + 0.5)를 측정하고 네 점의 X/Y를 각각 최소제곱 정렬했다. 버프 Layout은 `(0.998246923, 1.006273469, -0.003746004, -0.000718412)`, 디버프는 `(0.976629704, 0.977774973, -0.011985075, 0.010483412)`이다.
+- 보정만 재적용할 때는 Edit Mode의 `Tools/OZGL2/Lobby/Align Buff And Debuff Frames (Style Only)`를 사용한다. Undo 지원, 위 SO만 저장하며 Scene/Prefab/원본 PNG와 공격 프레임/색/불투명도는 변경하지 않는다. 화면은 다음 스킬창 열기 또는 장착 갱신 때 반영된다.
 - FrameArt는 Preserve Aspect와 Raycast Target을 끈다. 크기/위치는 스킬 갱신 시 공유 레이아웃에서 적용되므로 지속적인 조정은 개별 FrameArt가 아니라 공유 설정에서 한다. 빈 슬롯은 기존 원본 Sprite와 기본 배치에 무채색 Material을 적용한다.
 - 프레임 자체에 아이콘/문구를 합치지 않는다. 기존 흰색 아이콘과 옅은 내부색은 별도 레이어이다.
 - `IsArcane` 필드는 기존 카탈로그 호환을 위해 남아 있지만 프레임 표시에는 사용하지 않는다.
@@ -100,3 +103,12 @@
 - Scene 파일과 원본 PNG, 미리보기 카탈로그, 실제 저장 데이터는 그대로 유지했다.
 - 결과 화면: `Tools/Art/Previews/SkillSettings_v3_CategoryColors.png`.
 - 공유용 규칙은 이 문서와 스킬 README에 기록한다. 루트 `AGENTS.md`에도 참조를 추가했지만 해당 파일은 기존 `.git/info/exclude` 설정에 따라 로컬 전용이다. 제외 설정은 변경하지 않았다.
+
+### 장착 프레임 미세 정렬 검증 — 2026-09-21
+
+- 네 Sprite의 Pivot은 모두 `(128,128)`로 동일했다. 차이는 이미지 내부 보석 중심과 기존 버프/디버프 보정값에 있었다.
+- 현재 321.08 크기 슬롯에서 네 보석 중심의 RMS 오차는 버프 약 3.56 → 0.41, 디버프 약 2.75 → 0.07 UI 단위로 감소했다. 화면 픽셀 정렬/Point 샘플링에 따른 차이는 별도이다.
+- `LobbySkillSaveFlowValidation.ValidateAlignmentAndHover()`의 Play Mode 150개 검사 통과: 3분류 × 3슬롯, 네 보석의 원본 256 기준 오차 ≤ 1px, 슬롯/아이콘 Transform 불변, 확인창 호버, 검증 후 저장 구성 복원.
+- Game View에서 빈 회색 슬롯과 딜/버프/디버프 장착 화면을 비교했다. 컴파일 및 Console 오류·경고 0개.
+- 이번 수정은 공유 SO의 버프/디버프 Layout과 Editor 보정/검증 코드에 한정했다. Scene/Prefab 파일 해시는 작업 전후 동일하며 원본 PNG, 공격 보정, 슬롯 농도, 실제 저장 데이터는 보존했다.
+- Inspector 추가 연결은 없다. 이후 원본 프레임 아트를 교체한다면 이 문서의 측정 기준과 검증용 보석 좌표도 함께 갱신한다.

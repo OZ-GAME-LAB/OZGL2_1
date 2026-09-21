@@ -7,14 +7,34 @@ using UnityEngine.UI;
 // PNG를 다시 그리지 않고, 프레임의 장식 중심 간격을 기존 슬롯 기준으로 보정한다.
 public static class LobbySkillFrameAlignmentBuilder
 {
-    private static readonly Vector2 REFERENCE_SPAN = new Vector2(188.96f, 184.39f);
-    // 256px 이미지에서 측정한 좌/우 장식 중심 X, 상/하 장식 중심 Y. Y는 이미지 아래 방향.
-    private static readonly Vector4[] LANDMARKS =
+    private const string STYLE_PATH = "Assets/06.UI/LobbyMutedPreview/Skills_v1/Styles/SkillCategoryStyle.asset";
+    // 회색 Equip_Red의 좌/우/상/하 보석 중심에 256px 원본의 네 중심을 최소제곱 정렬한 값.
+    // 불투명 영역이나 반짝임의 중심이 아니라 보석 내부를 측정한다. Z/W는 슬롯 크기 대비 이동량.
+    private static readonly Vector4 BUFF_LAYOUT = new Vector4(.998246923f, 1.006273469f, -.003746004f, -.000718412f);
+    private static readonly Vector4 DEBUFF_LAYOUT = new Vector4(.976629704f, .977774973f, -.011985075f, .010483412f);
+
+    [MenuItem("Tools/OZGL2/Lobby/Align Buff And Debuff Frames (Style Only)")]
+    public static void AlignBuffAndDebuffFrames()
     {
-        new Vector4(27.50f, 226.80f, 30.54f, 224.44f),
-        new Vector4(32.12f, 221.17f, 35.30f, 217.27f),
-        new Vector4(33.67f, 229.25f, 39.77f, 225.14f)
-    };
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Edit Mode에서 실행하세요.");
+        var style = AssetDatabase.LoadAssetAtPath<UISkillCategoryStyleSO>(STYLE_PATH);
+        if (style == null) throw new InvalidOperationException("스킬 표시 설정 없음: " + STYLE_PATH);
+        ConfigureCategoryLayouts(style);
+        // 다른 dirty 에셋/씬은 저장하지 않는다. Ctrl+Z로 보정값을 되돌릴 수 있다.
+        AssetDatabase.SaveAssetIfDirty(style);
+        Debug.Log("버프/디버프 Frame Layout 보정 완료. 공격/빈 프레임, 슬롯/아이콘, Scene/Prefab은 변경하지 않았습니다.", style);
+    }
+
+    private static void ConfigureCategoryLayouts(UISkillCategoryStyleSO style)
+    {
+        Undo.RecordObject(style, "Align buff and debuff frame cores");
+        var styleSo = new SerializedObject(style);
+        // 이미 승인된 공격 프레임 보정과 사용자 지정 색/불투명도는 그대로 보존한다.
+        styleSo.FindProperty("_buffFrameLayout").vector4Value = BUFF_LAYOUT;
+        styleSo.FindProperty("_debuffFrameLayout").vector4Value = DEBUFF_LAYOUT;
+        styleSo.ApplyModifiedProperties();
+    }
 
     public static void Configure(GameObject root)
     {
@@ -24,18 +44,11 @@ public static class LobbySkillFrameAlignmentBuilder
         var style = so.FindProperty("_categoryStyle").objectReferenceValue as UISkillCategoryStyleSO;
         var catalog = so.FindProperty("_catalog").objectReferenceValue as UISkillPreviewCatalogSO;
         if (style == null || catalog == null) throw new InvalidOperationException("표시 설정/카탈로그 없음");
-        Undo.RecordObject(style, "Align category frame landmarks");
+        ConfigureCategoryLayouts(style);
+        // 프리팹 신규 구성 경로에서는 기존 공격 프레임의 승인된 보정도 초기화한다.
+        // 위 Style Only 메뉴는 이 경로를 실행하지 않는다.
         var styleSo = new SerializedObject(style);
-        string[] fields = { "_damageFrameLayout", "_buffFrameLayout", "_debuffFrameLayout" };
-        for (int i = 0; i < fields.Length; i++)
-        {
-            Vector4 points = LANDMARKS[i];
-            float sx = REFERENCE_SPAN.x / (points.y - points.x);
-            float sy = REFERENCE_SPAN.y / (points.w - points.z);
-            float cx = (points.x + points.y) * .5f;
-            float cy = (points.z + points.w) * .5f;
-            styleSo.FindProperty(fields[i]).vector4Value = new Vector4(sx, sy, (128 - cx) * sx / 256, (cy - 128) * sy / 256);
-        }
+        styleSo.FindProperty("_damageFrameLayout").vector4Value = new Vector4(.94811845f, .9509541f, .003148044f, -.0018944584f);
         styleSo.ApplyModifiedProperties();
         var frames = so.FindProperty("_equippedFrames");
         var slots = so.FindProperty("_equippedSlotRects");

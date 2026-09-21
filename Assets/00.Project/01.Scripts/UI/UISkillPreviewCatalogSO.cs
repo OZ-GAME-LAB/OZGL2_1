@@ -15,6 +15,7 @@ namespace OZGL2.UIFlow
         {
             [SerializeField] private string _id;
             [SerializeField] private string _displayName;
+            [SerializeField, TextArea(3, 8)] private string _description = string.Empty;
             [SerializeField] private eSkillPreviewCategory _category;
             [SerializeField] private Sprite _icon;
             [SerializeField] private bool _isArcane;
@@ -23,6 +24,7 @@ namespace OZGL2.UIFlow
             [SerializeField] private string _cooldown = "8초";
             public string Id => _id;
             public string DisplayName => _displayName;
+            public string Description => _description ?? string.Empty;
             public eSkillPreviewCategory Category => _category;
             public Sprite Icon => _icon;
             public bool IsArcane => _isArcane;

@@ -24,6 +24,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Image _detailSlotTint;
         [SerializeField] private Sprite _redFrame;
         [SerializeField] private TMP_Text _detailName;
+        [SerializeField] private TMP_Text _detailDescription;
         [SerializeField] private Image _detailIcon;
         [SerializeField] private TMP_Text _effectLabel;
         [SerializeField] private TMP_Text _effectValue;
@@ -219,6 +220,7 @@ namespace OZGL2.UIFlow
             }
             bool valid = IsValid(_selected);
             if (_detailName != null) _detailName.text = valid ? _catalog.Entries[_selected].DisplayName : "스킬 선택";
+            if (_detailDescription != null) _detailDescription.text = valid ? _catalog.Entries[_selected].Description : string.Empty;
             if (_detailIcon != null) { _detailIcon.sprite = valid ? _catalog.Entries[_selected].Icon : null; _detailIcon.enabled = valid && _detailIcon.sprite != null; }
             ApplyCategoryStyle(_detailIcon, _detailSlotTint, valid ? _catalog.Entries[_selected] : null);
             if (_effectLabel != null) _effectLabel.text = valid ? _catalog.Entries[_selected].EffectLabel : "효과";

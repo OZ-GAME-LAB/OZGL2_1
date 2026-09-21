@@ -20,7 +20,8 @@ public static class LobbySkillSettingsPreviewValidation
             throw new InvalidOperationException("UI_Lobby_MutedPreview Play Mode에서 스킬창을 열고 실행하세요.");
         var view = UnityEngine.Object.FindFirstObjectByType<UISkillLoadoutPreview>();
         if (view == null) throw new InvalidOperationException("스킬창을 먼저 여세요.");
-        var popup = GameObject.Find("UI_Root").GetComponent<UIPopupController>();
+        var popup = view.GetComponentInParent<UIPopupController>();
+        if (popup == null) throw new InvalidOperationException("Canvas_LobbyOverlays의 Controller 연결이 필요합니다.");
         var panel = view.GetComponent<UIPopupPanel>();
         var root = view.transform;
         var checks = new List<string>();
@@ -127,7 +128,8 @@ public static class LobbySkillSettingsPreviewValidation
         if (style == null || catalog == null) throw new InvalidOperationException("표시 설정/카탈로그 연결 누락");
         var checks = new List<string>();
         Action<bool, string> check = (ok, message) => { if (!ok) throw new InvalidOperationException(message); checks.Add(message); };
-        var popup = GameObject.Find("UI_Root").GetComponent<UIPopupController>();
+        var popup = view.GetComponentInParent<UIPopupController>();
+        if (popup == null) throw new InvalidOperationException("Canvas_LobbyOverlays의 Controller 연결이 필요합니다.");
         var panel = view.GetComponent<UIPopupPanel>();
         string savedBefore = PlayerPrefs.GetString("OZGL2.Skill.Equip", "");
         try
@@ -180,6 +182,83 @@ public static class LobbySkillSettingsPreviewValidation
             popup.OpenPopup(panel);
         }
         return checks.Count + " category style checks passed\n" + string.Join("\n", checks);
+    }
+
+    [MenuItem("Tools/OZGL2/Lobby/Validate Skill Descriptions")]
+    public static void ValidateDescriptionsFromMenu() => Debug.Log(ValidateDescriptions());
+
+    public static string ValidateDescriptions()
+    {
+        if (!Application.isPlaying || UnityEngine.SceneManagement.SceneManager.GetActiveScene().path != "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity")
+            throw new InvalidOperationException("UI_Lobby_MutedPreview Play Mode에서 실행하세요.");
+        var view = UnityEngine.Object.FindFirstObjectByType<UISkillLoadoutPreview>();
+        if (view == null || view.HasChanges || view.IsExitConfirmationOpen)
+            throw new InvalidOperationException("저장 상태의 스킬창을 먼저 여세요.");
+        var properties = new SerializedObject(view);
+        var catalog = properties.FindProperty("_catalog").objectReferenceValue as UISkillPreviewCatalogSO;
+        var label = properties.FindProperty("_detailDescription").objectReferenceValue as TMP_Text;
+        var controller = view.GetComponentInParent<UIPopupController>();
+        var panel = view.GetComponent<UIPopupPanel>();
+        if (catalog == null || catalog.Entries.Count == 0 || label == null || controller == null || !controller.IsTopPopup(panel))
+            throw new InvalidOperationException("카탈로그/설명 TMP/Popup 연결이 필요합니다.");
+        int categoryBefore = view.CategoryIndex;
+        string selectedBefore = view.SelectedSkillId;
+        string[] equippedBefore = view.GetEquippedIds();
+        string savedBefore = PlayerPrefs.GetString("OZGL2.Skill.Equip", "");
+        // 원본 SO를 수정하지 않고 같은 구성의 메모리 복제본에만 테스트 문구를 넣는다.
+        var sample = UnityEngine.Object.Instantiate(catalog);
+        int count = 0;
+        Action<bool, string> check = (ok, reason) => { if (!ok) throw new InvalidOperationException(reason); count++; };
+        Action<UISkillPreviewCatalogSO> setCatalog = value =>
+        {
+            properties.Update();
+            properties.FindProperty("_catalog").objectReferenceValue = value;
+            properties.ApplyModifiedPropertiesWithoutUndo();
+        };
+        Action checkSelected = () =>
+        {
+            var entry = sample.Entries.FirstOrDefault(e => e != null && e.Id == view.SelectedSkillId);
+            check(label.text == (entry != null ? entry.Description : string.Empty), "선택 스킬과 설명 불일치");
+        };
+        try
+        {
+            check(label.transform == view.transform.Find("Skill_Description"), "기존 Skill_Description TMP 연결");
+            var sampleProperties = new SerializedObject(sample);
+            var entries = sampleProperties.FindProperty("_entries");
+            for (int i = 0; i < entries.arraySize; i++)
+                entries.GetArrayElementAtIndex(i).FindPropertyRelative("_description").stringValue = "설명 검증 " + i + "\n두 번째 줄";
+            sampleProperties.ApplyModifiedPropertiesWithoutUndo();
+            setCatalog(sample);
+            view.ShowCategory(0);
+            for (int i = 0; i < sample.Entries.Count; i++) { view.SelectSkill(i); checkSelected(); }
+            for (int category = 0; category < 4; category++) { view.ShowCategory(category); checkSelected(); }
+            for (int slot = 0; slot < 3; slot++) { view.SelectEquippedSlot(slot); checkSelected(); }
+            controller.CloseTopPopup(); controller.OpenPopup(panel); checkSelected();
+            sampleProperties.Update();
+            sampleProperties.FindProperty("_entries").GetArrayElementAtIndex(0).FindPropertyRelative("_description").stringValue = string.Empty;
+            sampleProperties.ApplyModifiedPropertiesWithoutUndo();
+            view.ShowCategory(0); view.SelectSkill(0);
+            check(label.text == string.Empty, "빈 설명은 이전 문구 제거");
+            setCatalog(null); view.ShowCategory(0);
+            check(label.text == string.Empty, "카탈로그/선택 없음은 설명 제거");
+            sampleProperties.Update(); sampleProperties.FindProperty("_entries").arraySize = 0;
+            sampleProperties.ApplyModifiedPropertiesWithoutUndo();
+            setCatalog(sample); view.ShowCategory(0);
+            check(label.text == string.Empty, "빈 카탈로그는 설명 제거");
+        }
+        finally
+        {
+            setCatalog(catalog);
+            view.ShowCategory(categoryBefore);
+            int selected = Enumerable.Range(0, catalog.Entries.Count).Where(i => catalog.Entries[i] != null && catalog.Entries[i].Id == selectedBefore).DefaultIfEmpty(-1).First();
+            view.SelectSkill(selected);
+            UnityEngine.Object.DestroyImmediate(sample);
+        }
+        check(view.GetEquippedIds().SequenceEqual(equippedBefore) && !view.HasChanges, "장착/미리보기 저장 구성 불변");
+        check(savedBefore == PlayerPrefs.GetString("OZGL2.Skill.Equip", ""), "실제 저장 데이터 불변");
+        var restored = catalog.Entries.FirstOrDefault(e => e != null && e.Id == view.SelectedSkillId);
+        check(label.text == (restored != null ? restored.Description : string.Empty), "실제 카탈로그 설명 복원");
+        return count + " skill description checks passed";
     }
 
     // 활성화 직후 Canvas 갱신이 끝난 다음 프레임에 별도로 호출한다.

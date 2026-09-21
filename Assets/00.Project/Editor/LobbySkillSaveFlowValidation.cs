@@ -21,7 +21,8 @@ public static class LobbySkillSaveFlowValidation
         var view = UnityEngine.Object.FindFirstObjectByType<UISkillLoadoutPreview>();
         if (view == null || view.HasChanges) throw new InvalidOperationException("저장 상태의 스킬창을 먼저 여세요.");
         var root = view.transform;
-        var controller = GameObject.Find("UI_Root").GetComponent<UIPopupController>();
+        var controller = view.GetComponentInParent<UIPopupController>();
+        if (controller == null) throw new InvalidOperationException("Canvas_LobbyOverlays의 Controller 연결이 필요합니다.");
         var panel = view.GetComponent<UIPopupPanel>();
         var dialog = root.Find("ExitConfirmation").GetComponent<UIPopupPanel>();
         var save = root.Find("Save").GetComponent<UISkillArtButton>();
@@ -113,33 +114,127 @@ public static class LobbySkillSaveFlowValidation
         var view = UnityEngine.Object.FindFirstObjectByType<UISkillLoadoutPreview>();
         if (view == null || view.HasChanges) throw new InvalidOperationException("저장 상태의 스킬창 필요");
         var root = view.transform;
-        var controller = GameObject.Find("UI_Root").GetComponent<UIPopupController>();
+        var controller = view.GetComponentInParent<UIPopupController>();
+        if (controller == null) throw new InvalidOperationException("Canvas_LobbyOverlays의 Controller 연결이 필요합니다.");
         var panel = view.GetComponent<UIPopupPanel>();
+        if (!controller.IsTopPopup(panel) || view.IsExitConfirmationOpen)
+            throw new InvalidOperationException("확인창을 닫고 저장 상태의 스킬창을 먼저 여세요.");
+        var so = new SerializedObject(view);
+        var catalog = so.FindProperty("_catalog").objectReferenceValue as UISkillPreviewCatalogSO;
+        var style = so.FindProperty("_categoryStyle").objectReferenceValue as UISkillCategoryStyleSO;
+        var emptySprite = so.FindProperty("_redFrame").objectReferenceValue as Sprite;
+        if (catalog == null || catalog.Entries == null || style == null || emptySprite == null)
+            throw new InvalidOperationException("스킬 카탈로그/분류 스타일/빈 프레임 연결이 필요합니다.");
+        string[] savedIds = view.GetEquippedIds();
+        var categories = new[] { eSkillPreviewCategory.DAMAGE, eSkillPreviewCategory.BUFF, eSkillPreviewCategory.DEBUFF };
+        int[] indexes = categories.Select(category => Enumerable.Range(0, catalog.Entries.Count)
+            .First(i => catalog.Entries[i] != null && catalog.Entries[i].Category == category)).ToArray();
+        var slots = Enumerable.Range(0, 3).Select(i => root.Find("EquippedSlot_" + i) as RectTransform).ToArray();
+        if (slots.Any(slot => slot == null)) throw new InvalidOperationException("장착 슬롯 3개 연결이 필요합니다.");
+        var icons = slots.Select(slot => slot.Find("Icon") as RectTransform).ToArray();
+        var frames = slots.Select(slot => slot.Find("FrameArt")?.GetComponent<Image>()).ToArray();
+        if (icons.Any(icon => icon == null) || frames.Any(frame => frame == null))
+            throw new InvalidOperationException("각 장착 슬롯의 Icon/FrameArt 연결이 필요합니다.");
+        // 사용자가 조정한 슬롯/아이콘 배치를 기준으로 삼고, 예전 고정 크기나 위치를 강제하지 않는다.
+        var snapshots = slots.Concat(icons).Select(rect => new
+        {
+            Rect = rect,
+            Position = rect.anchoredPosition3D,
+            Size = rect.sizeDelta,
+            Scale = rect.localScale,
+            Rotation = rect.localRotation,
+            AnchorMin = rect.anchorMin,
+            AnchorMax = rect.anchorMax,
+            Pivot = rect.pivot
+        }).ToArray();
+        // PNG의 중앙 보석만 독립 측정한 좌/우/상/하 중심. 텍셀 중심(index + 0.5), Y는 아래 방향이다.
+        // 전체 장식의 색 면적이나 Builder의 레이아웃 계산 상수를 검증 기준으로 재사용하지 않는다.
+        Vector2[] emptyCores =
+        {
+            new Vector2(33.567416f, 126.589888f), new Vector2(222.693548f, 126.725806f),
+            new Vector2(128.159341f, 36.137363f), new Vector2(128.2f, 220.355556f)
+        };
+        Vector2[][] categoryCores =
+        {
+            new[] { new Vector2(27.964646f, 126.267677f), new Vector2(227.014851f, 126.153465f), new Vector2(127.7f, 30.510526f), new Vector2(127.69f, 224.5f) },
+            new[] { new Vector2(34.046392f, 126.520619f), new Vector2(223.5f, 126.5f), new Vector2(129.5f, 36.5f), new Vector2(129.417647f, 219.570588f) },
+            new[] { new Vector2(34.394737f, 129.310526f), new Vector2(228.046392f, 129.479381f), new Vector2(131.364583f, 36.770833f), new Vector2(131.395833f, 225.177083f) }
+        };
         int count = 0;
         Action<bool, string> check = (ok, reason) => { if (!ok) throw new InvalidOperationException(reason); count++; };
+        Action clearEquipped = () =>
+        {
+            foreach (string id in view.GetEquippedIds())
+            {
+                int index = Enumerable.Range(0, catalog.Entries.Count).First(i => catalog.Entries[i] != null && catalog.Entries[i].Id == id);
+                view.SelectSkill(index);
+                view.UnequipSelected();
+            }
+        };
+        Func<Image, RectTransform, Vector2, Vector3> getCoreInSlot = (image, slot, core) =>
+        {
+            Rect rect = image.GetPixelAdjustedRect();
+            var point = new Vector3(rect.xMin + rect.width * core.x / 256f, rect.yMax - rect.height * core.y / 256f, 0f);
+            return slot.InverseTransformPoint(image.rectTransform.TransformPoint(point));
+        };
+        Action checkUnchanged = () =>
+        {
+            foreach (var snapshot in snapshots)
+            {
+                var rect = snapshot.Rect;
+                check(rect.anchoredPosition3D == snapshot.Position && rect.sizeDelta == snapshot.Size &&
+                    rect.localScale == snapshot.Scale && rect.localRotation == snapshot.Rotation &&
+                    rect.anchorMin == snapshot.AnchorMin && rect.anchorMax == snapshot.AnchorMax && rect.pivot == snapshot.Pivot,
+                    "장착 변경 중 슬롯/아이콘 배치 변경: " + rect.name);
+            }
+        };
         try
         {
             view.ShowCategory(0);
-            foreach (int index in new[] { 0, 4, 2 }) { view.SelectSkill(index); view.UnequipSelected(); }
-            int[] indexes = { 4, 3, 6 };
-            Vector4[] landmarks = { new Vector4(27.5f, 226.8f, 30.54f, 224.44f), new Vector4(32.12f, 221.17f, 35.3f, 217.27f), new Vector4(33.67f, 229.25f, 39.77f, 225.14f) };
-            Vector2[] positions = { new Vector2(-165, 124), new Vector2(165, 124), new Vector2(0, -155) };
-            for (int i = 0; i < 3; i++)
+            clearEquipped();
+            var emptyPoints = new Vector3[3][];
+            for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
             {
-                view.SelectSkill(indexes[i]); view.EquipSelected();
-                var slot = root.Find("EquippedSlot_" + i) as RectTransform;
-                var frame = slot.Find("FrameArt") as RectTransform;
-                Vector4 p = landmarks[i];
-                float cx = frame.anchoredPosition.x + frame.rect.width * ((p.x + p.y) * .5f - 128) / 256;
-                float cy = frame.anchoredPosition.y + frame.rect.height * (128 - (p.z + p.w) * .5f) / 256;
-                check(Mathf.Abs(cx) < .01f && Mathf.Abs(cy) < .01f, "프레임 중심 불일치: " + i);
-                check(Mathf.Abs(frame.rect.width * (p.y-p.x) / 256 - slot.rect.width * 188.96f / 256) < .01f, "프레임 가로 간격 불일치");
-                check(Mathf.Abs(frame.rect.height * (p.w-p.z) / 256 - slot.rect.height * 184.39f / 256) < .01f, "프레임 세로 간격 불일치");
-                check(slot.anchoredPosition == positions[i] && slot.sizeDelta == new Vector2(246, 246), "기존 슬롯 위치/클릭 영역 불변");
-                check(((RectTransform)slot.Find("Icon")).anchoredPosition == Vector2.zero, "아이콘 중심 불변");
-                check(frame.GetSiblingIndex() == 0 && !frame.GetComponent<Image>().raycastTarget, "프레임 레이어/입력 설정");
+                var slot = slots[slotIndex];
+                var frame = frames[slotIndex];
+                check(slot.rect.width > 0f && slot.rect.height > 0f, "슬롯 표시 크기 필요: " + slotIndex);
+                check(frame.sprite == emptySprite && frame.overrideSprite == emptySprite && frame.material == style.EmptyFrameMaterial,
+                    "빈 슬롯 기준 Sprite/Material 불일치: " + slotIndex);
+                check(frame.type == Image.Type.Simple && !frame.preserveAspect && !frame.useSpriteMesh &&
+                    frame.sprite.rect.size == new Vector2(256f, 256f), "빈 프레임 측정 규격 불일치: " + slotIndex);
+                emptyPoints[slotIndex] = emptyCores.Select(core => getCoreInSlot(frame, slot, core)).ToArray();
             }
+            checkUnchanged();
+            for (int shift = 0; shift < categories.Length; shift++)
+            {
+                for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
+                {
+                    int categoryIndex = (slotIndex + shift) % categories.Length;
+                    view.SelectSkill(indexes[categoryIndex]);
+                    view.EquipSelected();
+                    var slot = slots[slotIndex];
+                    var frame = frames[slotIndex];
+                    Sprite expected = style.GetEquippedFrame(categories[categoryIndex]);
+                    check(expected != null && frame.sprite == expected && frame.overrideSprite == expected,
+                        "분류 프레임 불일치: " + slotIndex + " / " + categories[categoryIndex]);
+                    check(frame.type == Image.Type.Simple && !frame.preserveAspect && !frame.useSpriteMesh &&
+                        frame.sprite.rect.size == new Vector2(256f, 256f), "분류 프레임 측정 규격 불일치");
+                    for (int coreIndex = 0; coreIndex < emptyCores.Length; coreIndex++)
+                    {
+                        Vector3 delta = getCoreInSlot(frame, slot, categoryCores[categoryIndex][coreIndex]) - emptyPoints[slotIndex][coreIndex];
+                        var sourceError = new Vector2(delta.x * 256f / slot.rect.width, delta.y * 256f / slot.rect.height);
+                        check(sourceError.magnitude <= 1f,
+                            "빈 프레임 대비 보석 중심 오차: " + slotIndex + " / " + categories[categoryIndex] + " / " + coreIndex + " = " + sourceError.magnitude.ToString("F3") + "px");
+                    }
+                    check(frame.transform.GetSiblingIndex() == 0 && !frame.raycastTarget, "프레임 레이어/입력 설정");
+                    checkUnchanged();
+                }
+                clearEquipped();
+            }
+            // 원래 장착 상태가 비어 있어도 확인창의 호버 검증을 위한 미저장 변경을 만든다.
+            if (savedIds.Length == 0) { view.SelectSkill(indexes[0]); view.EquipSelected(); }
             controller.CloseTopPopup();
+            check(view.IsExitConfirmationOpen, "호버 검증용 나가기 확인창 열림");
             var cancel = root.Find("ExitConfirmation/Panel/Cancel").GetComponent<UISkillArtButton>();
             var leave = root.Find("ExitConfirmation/Panel/Leave").GetComponent<UISkillArtButton>();
             check(cancel.image.sprite == leave.image.sprite, "두 버튼 공통 테두리");
@@ -169,6 +264,8 @@ public static class LobbySkillSaveFlowValidation
             else if (controller.IsTopPopup(panel)) { controller.CloseTopPopup(); if (view.IsExitConfirmationOpen) view.ConfirmExitWithoutSaving(); }
             controller.OpenPopup(panel);
         }
+        check(!view.HasChanges && view.GetEquippedIds().SequenceEqual(savedIds), "검증 후 원래 저장된 장착 구성 복원");
+        checkUnchanged();
         return count + " alignment/hover checks passed";
     }
 

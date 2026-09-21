@@ -1,5 +1,12 @@
 # 로비 메뉴 / 특성 Overlay 시안
 
+## 현재 관리 기준 — 2026-09-21
+
+- 스킬 세팅도 `Canvas_LobbyOverlays/Canvas_SkillSettings` 중첩 Prefab으로 관리한다. 원본 스킬 Prefab과 디자인은 유지한다.
+- 앞으로 **도감·업적도 Canvas_LobbyOverlays 아래에 추가**한다. 기존 구형 팝업의 즉시 재구현은 이번 범위가 아니다.
+- 현재 구조·연결·Undo·검증 규칙은 `Docs/UI/LobbyOverlayManagement.md`를 따른다.
+- 아래는 최초 메뉴/특성 시안 제작 당시 기록이다. 과거의 “스킬은 기존 팝업 사용” 및 특성 미구현 설명은 현재 상태를 나타내지 않는다.
+
 ## 적용 범위
 
 - 적용 씬: `Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity`만.
