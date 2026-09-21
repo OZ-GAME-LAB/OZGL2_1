@@ -1,0 +1,442 @@
+{
+  "mode": "built-in image_gen; user approved split/alpha cleanup/uniform sizing only",
+  "sheets": [
+    {
+      "name": "Background",
+      "generated": "exec-73c8bd5d-01a1-42d2-963a-f99160aff69e.png",
+      "background": true
+    },
+    {
+      "name": "Buttons",
+      "generated": "exec-6dbd022d-e43e-45a8-ba66-86cb0e9b9e10.png",
+      "cells": [
+        {
+          "name": "Button_Tab_Normal",
+          "crop": {
+            "left": 95,
+            "top": 25,
+            "width": 295,
+            "height": 175
+          },
+          "width": 160,
+          "height": 80
+        },
+        {
+          "name": "Button_Action_Normal",
+          "crop": {
+            "left": 480,
+            "top": 25,
+            "width": 425,
+            "height": 175
+          },
+          "width": 240,
+          "height": 96
+        },
+        {
+          "name": "Button_Save_Normal",
+          "crop": {
+            "left": 945,
+            "top": 25,
+            "width": 680,
+            "height": 175
+          },
+          "width": 520,
+          "height": 136
+        },
+        {
+          "name": "Button_Tab_Hover",
+          "crop": {
+            "left": 95,
+            "top": 200,
+            "width": 295,
+            "height": 175
+          },
+          "width": 160,
+          "height": 80
+        },
+        {
+          "name": "Button_Action_Hover",
+          "crop": {
+            "left": 480,
+            "top": 200,
+            "width": 425,
+            "height": 175
+          },
+          "width": 240,
+          "height": 96
+        },
+        {
+          "name": "Button_Save_Hover",
+          "crop": {
+            "left": 945,
+            "top": 200,
+            "width": 680,
+            "height": 175
+          },
+          "width": 520,
+          "height": 136
+        },
+        {
+          "name": "Button_Tab_Pressed",
+          "crop": {
+            "left": 95,
+            "top": 380,
+            "width": 295,
+            "height": 175
+          },
+          "width": 160,
+          "height": 80
+        },
+        {
+          "name": "Button_Action_Pressed",
+          "crop": {
+            "left": 480,
+            "top": 380,
+            "width": 425,
+            "height": 175
+          },
+          "width": 240,
+          "height": 96
+        },
+        {
+          "name": "Button_Save_Pressed",
+          "crop": {
+            "left": 945,
+            "top": 380,
+            "width": 680,
+            "height": 175
+          },
+          "width": 520,
+          "height": 136
+        },
+        {
+          "name": "Button_Tab_Selected",
+          "crop": {
+            "left": 95,
+            "top": 552,
+            "width": 295,
+            "height": 175
+          },
+          "width": 160,
+          "height": 80
+        },
+        {
+          "name": "Button_Action_Selected",
+          "crop": {
+            "left": 480,
+            "top": 552,
+            "width": 425,
+            "height": 175
+          },
+          "width": 240,
+          "height": 96
+        },
+        {
+          "name": "Button_Save_Selected",
+          "crop": {
+            "left": 945,
+            "top": 552,
+            "width": 680,
+            "height": 175
+          },
+          "width": 520,
+          "height": 136
+        },
+        {
+          "name": "Button_Tab_Disabled",
+          "crop": {
+            "left": 95,
+            "top": 730,
+            "width": 295,
+            "height": 175
+          },
+          "width": 160,
+          "height": 80
+        },
+        {
+          "name": "Button_Action_Disabled",
+          "crop": {
+            "left": 480,
+            "top": 730,
+            "width": 425,
+            "height": 175
+          },
+          "width": 240,
+          "height": 96
+        },
+        {
+          "name": "Button_Save_Disabled",
+          "crop": {
+            "left": 945,
+            "top": 730,
+            "width": 680,
+            "height": 175
+          },
+          "width": 520,
+          "height": 136
+        }
+      ]
+    },
+    {
+      "name": "Chrome",
+      "generated": "exec-a76ef4f4-96f6-4839-b79b-7cb7c3003119.png",
+      "cells": [
+        {
+          "name": "Card_Normal",
+          "crop": {
+            "left": 25,
+            "top": 65,
+            "width": 350,
+            "height": 325
+          },
+          "width": 192,
+          "height": 192
+        },
+        {
+          "name": "Card_Selected",
+          "crop": {
+            "left": 410,
+            "top": 65,
+            "width": 335,
+            "height": 325
+          },
+          "width": 192,
+          "height": 192
+        },
+        {
+          "name": "Stats",
+          "crop": {
+            "left": 780,
+            "top": 155,
+            "width": 459,
+            "height": 205
+          },
+          "width": 420,
+          "height": 164
+        },
+        {
+          "name": "Equip_Red",
+          "crop": {
+            "left": 25,
+            "top": 440,
+            "width": 352,
+            "height": 347
+          },
+          "width": 256,
+          "height": 256
+        },
+        {
+          "name": "Equip_Purple",
+          "crop": {
+            "left": 405,
+            "top": 440,
+            "width": 350,
+            "height": 347
+          },
+          "width": 256,
+          "height": 256
+        },
+        {
+          "name": "Title",
+          "crop": {
+            "left": 768,
+            "top": 482,
+            "width": 480,
+            "height": 263
+          },
+          "width": 500,
+          "height": 250
+        },
+        {
+          "name": "Connectors",
+          "crop": {
+            "left": 20,
+            "top": 805,
+            "width": 365,
+            "height": 368
+          },
+          "width": 512,
+          "height": 512,
+          "seeds": [
+            [
+              0.5,
+              0.5
+            ]
+          ]
+        },
+        {
+          "name": "Heading_Divider",
+          "crop": {
+            "left": 397,
+            "top": 922,
+            "width": 450,
+            "height": 145
+          },
+          "width": 440,
+          "height": 142
+        },
+        {
+          "name": "Back_Arrow",
+          "crop": {
+            "left": 925,
+            "top": 890,
+            "width": 225,
+            "height": 225
+          },
+          "width": 80,
+          "height": 80
+        }
+      ]
+    },
+    {
+      "name": "Icons_Chroma",
+      "generated": "exec-1e03310a-ed04-4d8c-8cdd-04815bf5b8a3.png",
+      "cells": [
+        {
+          "name": "Icon_Fire",
+          "crop": {
+            "left": 0,
+            "top": 0,
+            "width": 362,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Focus",
+          "crop": {
+            "left": 362,
+            "top": 0,
+            "width": 362,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Strike",
+          "crop": {
+            "left": 724,
+            "top": 0,
+            "width": 363,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Sword",
+          "crop": {
+            "left": 0,
+            "top": 362,
+            "width": 362,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Abyss",
+          "crop": {
+            "left": 362,
+            "top": 362,
+            "width": 362,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Crown",
+          "crop": {
+            "left": 724,
+            "top": 362,
+            "width": 363,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Moon",
+          "crop": {
+            "left": 0,
+            "top": 724,
+            "width": 362,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Curse",
+          "crop": {
+            "left": 362,
+            "top": 724,
+            "width": 362,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Trident",
+          "crop": {
+            "left": 724,
+            "top": 724,
+            "width": 363,
+            "height": 362
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Vortex",
+          "crop": {
+            "left": 0,
+            "top": 1086,
+            "width": 362,
+            "height": 361
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Crosshair",
+          "crop": {
+            "left": 362,
+            "top": 1086,
+            "width": 362,
+            "height": 361
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        },
+        {
+          "name": "Icon_Portal",
+          "crop": {
+            "left": 724,
+            "top": 1086,
+            "width": 363,
+            "height": 361
+          },
+          "width": 192,
+          "height": 192,
+          "clearAllGray": true
+        }
+      ]
+    }
+  ]
+}
