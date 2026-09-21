@@ -26,7 +26,7 @@ namespace OZGL2.Skill
         Stun,           // 반경 즉시 정지 — 시간 정지
         Vacuum,         // 지정점으로 끌어당김 + 피해 — 공허 붕괴
         MovingZone,     // 마왕 → 지정점 방향으로 이동하는 지속 장판 — 화염 회오리
-        PersistentZone, // 지정점 고정 지속 장판 (zoneEffect) — 빙결 결계·감속 늪·저주 낙인
+        PersistentZone, // 지정점 고정 지속 장판 (zoneEffect) — 감속 늪·저주 낙인
         HealAllies,     // 전 아군 체력 % 회복 — 흡혈 의식
         AllyBuff,       // 전 아군 스탯 버프 (일정시간) — 광폭화·강철 피부
         Revive,         // 죽은 아군 일부 부활 — 망자 부활
@@ -34,7 +34,7 @@ namespace OZGL2.Skill
 
     public enum ZoneEffect
     {
-        Stun,           // 빙결 결계
+        Stun,           // 정지 장판(번개 회오리 등)
         Slow,           // 감속 늪, 함정
         Vulnerable,     // 저주 낙인 (받는 피해 +)
         DamageOverTime, // 독 안개 류
@@ -99,6 +99,12 @@ namespace OZGL2.Skill
         public float onHitSlowMultiplier = 0f;
         [Tooltip("피격 감속 지속시간(초)")]
         public float onHitSlowSeconds = 2f;
+        [Tooltip("맞은 대상에게 거는 지속(도트) 피해 — 틱당 피해량(0=없음). AreaDamage·LineDamage·ChainDamage는 맞을 때 onHitDotSeconds 동안, Zone(장판)은 안에 있는 동안 onHitDotTick마다 적용 — 독 늪 같은 부가효과용")]
+        public float onHitDotDamage = 0f;
+        [Tooltip("도트 지속시간(초)")]
+        public float onHitDotSeconds = 3f;
+        [Tooltip("도트 틱 간격(초)")]
+        public float onHitDotTick = 0.5f;
 
         [Header("Zone")]
         public ZoneEffect zoneEffect = ZoneEffect.Slow;
@@ -126,6 +132,12 @@ namespace OZGL2.Skill
         public bool vfxIsUi = true;
         [Tooltip("투사체가 마왕이 아니라 하늘(위)에서 떨어짐 — 운석 낙하")]
         public bool fallFromSky = false;
+        [Tooltip("착탄 이펙트를 위(+)/아래(-)로 옮기는 값(월드 칸). 이펙트 모양 때문에 중심이 어색해 보일 때 눈으로 맞추는 용도 — 실제 판정 위치는 그대로.")]
+        public float visualOffsetY = 0f;
+        [Tooltip("착탄 이펙트를 오른쪽(+)/왼쪽(-)으로 옮기는 값(월드 칸). 판정 위치는 그대로.")]
+        public float visualOffsetX = 0f;
+        [Tooltip("투사체/이동 VFX 크기 배율(1=원본). 직선 스킬(LineDamage)의 날아가는 이펙트가 작아 보일 때 키움.")]
+        public float vfxScale = 1f;
         [Tooltip("VFX 색조 틴트(흰색=원본 그대로 곱하기 없음). 새 프리팹 없이 기존 VFX 색감만 바꾸고 싶을 때(예: 용암 이펙트를 늪처럼 초록빛으로) 사용 — PersistentZone(castVfx)에만 적용됨.")]
         public Color vfxTint = Color.white;
         [Tooltip("VFX 색상 교체(알파 0=사용 안 함). 곱하기 틴트로는 못 바꾸는 색상 계열(예: 파란 번개→노란 번개)을 바꿀 때 — 밝기·흰색 하이라이트는 유지하고 색조만 이 색으로 바꾼 스프라이트 복제본을 씀. 장판(Zone) castVfx에 적용.")]

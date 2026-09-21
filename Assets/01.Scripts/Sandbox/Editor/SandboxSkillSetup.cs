@@ -45,6 +45,7 @@ namespace OZGL2.Sandbox.EditorTools
         private const string VoidSpin = "55b7c76a960c3bb4eb06ab44b6dc18a4";
         private const string WaterSplash = "8c9715ea3413e6347bb78a7641f6e93e";
         private const string WindShield = "09d247bfa1a21c04cb49c841e613c8d3";
+        private const string Explosion006 = "53537e45e684e2e4488180494e8f9d1a"; // 둥근 불덩이 폭발(프레임 중심에 대칭) — 운석 착탄용
         private const string WindExplosion = "9f0206c86425d7545bb5888fa1a26733";
         private const string ElectricTornado = "fe6f7ef18c162654487f9d26718614fd";
         private const string WaterWave = "b04f058dd24beb340b64d291f725b288";
@@ -73,7 +74,7 @@ namespace OZGL2.Sandbox.EditorTools
             n += B("Damage_02_IceShard", d => { Base(d, "얼음 가시", SkillCategory.Damage, 1, SkillCastMode.Targeted, SkillEffectType.LineDamage, 10f);
                 d.skillPower = 90f; d.radius = 0.9f; d.lineLength = 12f; d.zoneMoveSpeed = 16f;
                 d.onHitSlowMultiplier = 0.6f; d.onHitSlowSeconds = 2f;
-                d.castVfx = V(IceProjectile); d.perTargetVfx = V(IceSpike); });
+                d.castVfx = V(IceProjectile); d.perTargetVfx = V(IceSpike); d.vfxScale = 2.4f; });
 
             n += B("Damage_03_ChainLightning", d => { Base(d, "연쇄 번개", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.ChainDamage, 15f);
                 d.skillPower = 80f; d.radius = 3f; d.chainCount = 5; d.chainInterval = 0.1f; d.perTargetVfx = V(ElectricLightning01); }); // 번개가 떨어지는 VFX 하나만
@@ -83,11 +84,12 @@ namespace OZGL2.Sandbox.EditorTools
                 d.zoneMoveSpeed = 8f; d.force = 8f; d.castVfx = V(FireTornado); });
 
             n += B("Damage_07_Meteor", d => { Base(d, "운석 낙하", SkillCategory.Damage, 3, SkillCastMode.Targeted, SkillEffectType.AreaDamage, 30f);
-                d.skillPower = 400f; d.radius = 4f; d.castDelay = 0.8f; d.fallFromSky = true;
-                d.projectileVfx = V(FireBall); d.castVfx = V(FireExplosion02); });
+                d.skillPower = 400f; d.radius = 4f; d.castDelay = 0.8f; d.fallFromSky = true; d.visualOffsetX = 0.2f; // 폭발 이펙트 미세 조정(오른쪽 +)
+                d.projectileVfx = V(FireBall); d.castVfx = V(Explosion006); });
 
             n += B("Damage_08_VoidCollapse", d => { Base(d, "공허 붕괴", SkillCategory.Damage, 3, SkillCastMode.Targeted, SkillEffectType.Vacuum, 28f);
-                d.skillPower = 150f; d.radius = 2.5f; d.force = 7f; d.castVfx = V(VoidBlackHole); d.finishVfx = V(VoidExplosion01); });
+                d.skillPower = 150f; d.radius = 2.5f; d.force = 7f; d.castVfx = V(VoidBlackHole); d.finishVfx = V(VoidExplosion01);
+                d.onHitDotDamage = 10f; d.onHitDotSeconds = 3f; d.onHitDotTick = 0.5f; }); // 붕괴에 휘말린 적은 3초간 도트
 
             // ── 디버프 (시간 정지만 즉시, 나머지 조준형)
             n += B("Debuff_01_KnockbackWave", d => { Base(d, "넉백 파동", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.Knockback, 10f);
@@ -103,14 +105,12 @@ namespace OZGL2.Sandbox.EditorTools
 
             n += B("Debuff_02_SlowMire", d => { Base(d, "감속 늪", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 14f);
                 d.radius = 2f; d.duration = 5f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.castVfx = V(EarthSpin);
-                d.vfxTint = new Color(0.8f, 0.85f, 0.55f); }); // 원형 소용돌이(EarthSpin) + 누런 초록 틴트로 늪처럼
-
-            n += B("Debuff_03_FrostField", d => { Base(d, "빙결 결계", SkillCategory.Debuff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 20f);
-                d.radius = 2f; d.duration = 2.5f; d.zoneEffect = ZoneEffect.Stun; d.castVfx = V(IceShield); d.scaleCastVfxToRadius = true;
-                d.vfxTint = new Color(0.8f, 0.95f, 1f); });
+                d.vfxTint = new Color(0.8f, 0.85f, 0.55f);
+                d.onHitDotDamage = 8f; d.onHitDotTick = 0.5f; }); // 독 늪: 장판 안에 있는 동안 0.5초마다 8 도트 // 원형 소용돌이(EarthSpin) + 누런 초록 틴트로 늪처럼
 
             n += B("Debuff_04_CurseMark", d => { Base(d, "저주 낙인", SkillCategory.Debuff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 16f);
-                d.radius = 2f; d.duration = 4f; d.zoneEffect = ZoneEffect.Vulnerable; d.zoneMagnitude = 1.3f; d.castVfx = V(VoidPortal); });
+                d.radius = 2f; d.duration = 4f; d.zoneEffect = ZoneEffect.Vulnerable; d.zoneMagnitude = 1.3f; d.castVfx = V(VoidPortal);
+                d.onHitDotDamage = 6f; d.onHitDotTick = 0.5f; }); // 저주: 받는 피해 1.3배 + 장판 안에서 도트
 
             n += B("Debuff_05_TimeStop", d => { Base(d, "시간 정지", SkillCategory.Debuff, 3, SkillCastMode.Instant, SkillEffectType.Stun, 40f);
                 d.radius = 99f; d.duration = 1.5f; d.castVfx = V(VoidExplosion02); });
@@ -163,7 +163,7 @@ namespace OZGL2.Sandbox.EditorTools
             d.vfxIsUi = true;
             // reset (덮어쓰기 시 이전 값 잔존 방지)
             d.projectileVfx = null; d.castVfx = null; d.perTargetVfx = null; d.finishVfx = null; d.flourishVfx = null;
-            d.flourishCount = 0; d.onHitSlowMultiplier = 0f; d.onHitSlowSeconds = 2f; d.vfxRecolor = Color.clear; d.barrageCount = 1; d.castDelay = 0f; d.fallFromSky = false; d.scaleCastVfxToRadius = false;
+            d.flourishCount = 0; d.onHitSlowMultiplier = 0f; d.onHitSlowSeconds = 2f; d.vfxScale = 1f; d.visualOffsetX = 0f; d.visualOffsetY = 0f; d.onHitDotDamage = 0f; d.onHitDotSeconds = 3f; d.onHitDotTick = 0.5f; d.vfxRecolor = Color.clear; d.barrageCount = 1; d.castDelay = 0f; d.fallFromSky = false; d.scaleCastVfxToRadius = false;
         }
 
         private static int B(string assetName, Action<SkillData> cfg)

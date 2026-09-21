@@ -128,6 +128,7 @@ namespace OZGL2.Skill
             GameObject proj = d.projectileVfx != null
                 ? SpawnVfx(d.projectileVfx, from, Face(point - from), d.vfxIsUi)
                 : Code(Disc(), new Color(1f, 0.62f, 0.16f), from, 0.4f, 22);
+            if (d.projectileVfx != null) CenterOnVisible(proj);
             yield return Move(proj.transform, from, point, _projectileTravelTime);
             KillVfx(proj);
             Impact(d, power, point, radius);
@@ -150,12 +151,21 @@ namespace OZGL2.Skill
             }
             Destroy(tele);
 
+            // 떨어지는 운석 본체는 프리팹(비대칭 초승달 모양이라 "어디가 중심인지"가 프레임마다 흔들림) 대신
+            // 코드로 그린 둥근 불덩이 + 꼬리를 쓴다 — 착탄 지점이 조준 링 정중앙과 정확히 일치하도록.
             Vector3 from = point + Vector3.up * _skyHeight;
-            GameObject meteor = d.projectileVfx != null
-                ? SpawnVfx(d.projectileVfx, from, Quaternion.identity, d.vfxIsUi)
-                : Code(Disc(), new Color(1f, 0.5f, 0.15f), from, 0.6f, 22);
-            yield return Move(meteor.transform, from, point, 0.18f);
-            KillVfx(meteor);
+            var meteor = new GameObject("Meteor");
+            meteor.transform.SetParent(transform);
+            meteor.transform.position = from;
+            for (int i = 0; i < 4; i++)
+            {
+                var part = Code(Disc(), new Color(1f, Mathf.Lerp(0.85f, 0.35f, i / 3f), 0.1f, Mathf.Lerp(1f, 0.35f, i / 3f)),
+                    from + Vector3.up * (i * 0.55f), Mathf.Lerp(1.3f, 0.6f, i / 3f), 22 - i);
+                part.transform.SetParent(meteor.transform, true);
+            }
+            // 운석은 조준 지점(사거리 원 정중앙)에 정확히 수직으로 떨어진다 — 어떤 보정값도 섞지 않는다.
+            yield return Move(meteor.transform, point + Vector3.up * _skyHeight, point, 0.22f);
+            Destroy(meteor);
             Impact(d, power, point, radius);
         }
 
@@ -230,7 +240,8 @@ namespace OZGL2.Skill
 
             if (d.castVfx != null)
             {
-                var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi);
+                // visualOffsetX/Y: 이펙트 모양 때문에 눈으로 봤을 때 살짝 어긋나는 걸 손으로 미세 조정하는 값(판정 위치는 그대로).
+                var fx = SpawnVfx(d.castVfx, point + new Vector3(d.visualOffsetX, d.visualOffsetY, 0f), Quaternion.identity, d.vfxIsUi);
                 ScaleAreaVfx(fx, r);
                 AutoDestroy(fx);
             }
@@ -260,6 +271,7 @@ namespace OZGL2.Skill
                 IDamageable next = NearestUnhit(cursor, hit, from, radius);
                 if (next == null) break;
                 next.TakeDamage(power);
+                ApplySkillHitSlow(d, next);
                 hit.Add(next);
                 if (d.perTargetVfx != null)
                 {
@@ -285,6 +297,11 @@ namespace OZGL2.Skill
             GameObject proj = d.castVfx != null
                 ? SpawnVfx(d.castVfx, from, Face(dir), d.vfxIsUi)
                 : Code(Disc(), new Color(0.6f, 0.85f, 1f), from, 0.45f, 22);
+            if (proj != null && d.castVfx != null)
+            {
+                proj.transform.localScale *= Mathf.Max(d.vfxScale, 0.1f); // 날아가는 이펙트 크기 배율
+                CenterOnVisible(proj);
+            }
 
             var hit = new HashSet<IDamageable>();
             // zoneMoveSpeed를 비행 속도로 쓴다(0이면 예전처럼 거의 즉발) — 회오리처럼 눈에 보이게 날아가도록.
@@ -312,10 +329,40 @@ namespace OZGL2.Skill
             KillVfx(proj);
         }
 
-        /// <summary>스킬 자체 피격 감속(onHitSlowMultiplier) — 얼음 계열 스킬이 실제로 감속을 걸도록.</summary>
-        private static void ApplySkillHitSlow(SkillData d, IDamageable target)
+        /// <summary>스킬 자체 피격 부가효과 — 감속(onHitSlow*)과 도트(onHitDot*). 맞을 때마다 호출.</summary>
+        private void ApplySkillHitSlow(SkillData d, IDamageable target)
         {
             if (d.onHitSlowMultiplier > 0f) (target as IStatusReceiver)?.ApplySlow(d.onHitSlowMultiplier, d.onHitSlowSeconds);
+            if (d.onHitDotDamage > 0f) ApplyDot(target, d.onHitDotDamage, d.onHitDotSeconds, d.onHitDotTick);
+        }
+
+        private readonly Dictionary<IDamageable, float> _dotEnd = new Dictionary<IDamageable, float>();
+
+        /// <summary>대상에게 지속 피해. 이미 타고 있으면 새로 겹치지 않고 종료 시각만 연장한다(중첩 폭증 방지).</summary>
+        private void ApplyDot(IDamageable target, float damagePerTick, float seconds, float tick)
+        {
+            if (target == null || seconds <= 0f) return;
+            float end = Time.time + seconds;
+            if (_dotEnd.TryGetValue(target, out var current))
+            {
+                _dotEnd[target] = Mathf.Max(current, end);
+                return;
+            }
+            _dotEnd[target] = end;
+            StartCoroutine(DotRoutine(target, damagePerTick, Mathf.Max(0.1f, tick)));
+        }
+
+        private IEnumerator DotRoutine(IDamageable target, float damagePerTick, float tick)
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(tick);
+                // 인터페이스 참조는 유니티 오브젝트가 파괴돼도 null이 아니라 따로 확인.
+                bool gone = target == null || (target is Object o && o == null);
+                if (gone || target.IsDead || !_dotEnd.TryGetValue(target, out var end) || Time.time > end) break;
+                target.TakeDamage(damagePerTick);
+            }
+            if (target != null) _dotEnd.Remove(target);
         }
 
         private IEnumerator SingleShot(SkillData d, float power, Vector3 point)
@@ -377,7 +424,7 @@ namespace OZGL2.Skill
 
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
-            foreach (var e in _enemyBuf) e.TakeDamage(power);
+            foreach (var e in _enemyBuf) { e.TakeDamage(power); ApplySkillHitSlow(d, e); }
 
             if (fx != null) AutoDestroy(fx);
             if (d.finishVfx != null) AutoDestroy(SpawnVfx(d.finishVfx, point, Quaternion.identity, d.vfxIsUi));
@@ -594,9 +641,47 @@ namespace OZGL2.Skill
             float visibleNative = Mathf.Max(_vfxBaseSize * MeasureVisibleFraction(fx), 0.1f);
             float mul = Mathf.Clamp(targetDiameter / visibleNative, 0.3f, 30f);
             fx.transform.localScale *= mul;
+            CenterOnVisible(fx);
         }
 
-        /// <summary>프리팹 안 모든 프레임 이미지 중 가장 넓게 보이는 폭이 프레임 폭의 몇 배인지(0~1).</summary>
+        /// <summary>이펙트 프레임 안에서 "눈에 보이는 부분"의 중심이 프레임 중심과 다른 경우(예: 화염 폭발은 8~10px
+        /// 아래에 그려져 있음)를 보정해서, 보이는 중심이 정확히 조준 지점(사거리 원의 중심)에 오게 한다.
+        /// 가장 넓게 보이는 프레임을 기준으로 한다.</summary>
+        private static void CenterOnVisible(GameObject fx)
+        {
+            if (fx == null || fx.transform.childCount == 0) return;
+            var child = fx.transform.GetChild(0) as RectTransform;
+            if (child == null) return;
+
+            // 프레임마다 보이는 모양이 다르므로 충분히 큰 프레임들(최대 폭의 50% 이상)의 무게중심 평균을 쓴다.
+            // 바운딩 박스 중심이 아니라 알파 무게중심이라, 납작한 지면 폭발처럼 아래쪽에 덩어리가 몰린 이펙트도
+            // "눈에 보이는 덩어리"의 중심이 조준 지점에 오게 된다.
+            var images = child.GetComponentsInChildren<UnityEngine.UI.Image>(true);
+            float maxWidth = 0f;
+            foreach (var img in images)
+                if (img.sprite != null) maxWidth = Mathf.Max(maxWidth, GetSpriteStats(img.sprite).widthPx);
+            if (maxWidth <= 0f) return;
+
+            Vector2 sum = Vector2.zero;
+            int count = 0;
+            foreach (var img in images)
+            {
+                if (img.sprite == null) continue;
+                var st = GetSpriteStats(img.sprite);
+                if (st.widthPx < maxWidth * 0.5f) continue;
+                sum += st.centroidOffsetPx;
+                count++;
+            }
+            if (count == 0) return;
+            // 가로(x)는 보정하지 않는다: 이펙트 프레임은 원래 가로 중앙에 대칭으로 그려져 있고, 프레임별 무게중심 x
+            // 흔들림은 뒤쪽 프레임의 파편이 한쪽으로 튀어서 생기는 애니메이션 노이즈라 평균을 내면 오히려 한쪽(왼쪽)
+            // 으로 밀린다. 세로(y)는 지면 폭발처럼 덩어리가 아래로 몰린 경우가 있어 무게중심으로 맞춘다.
+            Vector2 avg = sum / count;
+            child.anchoredPosition = new Vector2(0f, -avg.y * child.localScale.x);
+        }
+
+        /// <summary>프리팹 안 모든 프레임 이미지 중 가장 넓게 보이는 폭이 프레임 폭의 몇 배인지(0~1) —
+        /// 실제 픽셀 알파로 잰다(스프라이트 메시 bounds는 여유가 있어 실제보다 넓게 나와서 VFX가 작아졌음).</summary>
         private static float MeasureVisibleFraction(GameObject fx)
         {
             float best = 0f;
@@ -604,9 +689,62 @@ namespace OZGL2.Skill
             {
                 var sp = img.sprite;
                 if (sp == null || sp.rect.width <= 0f) continue;
-                best = Mathf.Max(best, sp.bounds.size.x * sp.pixelsPerUnit / sp.rect.width);
+                best = Mathf.Max(best, GetSpriteStats(sp).widthPx / sp.rect.width);
             }
             return best > 0.05f ? Mathf.Clamp(best, 0.2f, 1f) : 1f;
+        }
+
+        private struct SpriteStats { public float widthPx; public Vector2 centroidOffsetPx; }
+        private static readonly Dictionary<Sprite, SpriteStats> _statsCache = new Dictionary<Sprite, SpriteStats>();
+        private static readonly Dictionary<Texture2D, Color32[]> _pixelCache = new Dictionary<Texture2D, Color32[]>();
+
+        /// <summary>스프라이트의 실제 보이는 폭(알파 기준)과, 프레임 중심에서 본 "무게중심"(알파 가중 평균) 오프셋.
+        /// 읽기 불가 텍스처라 GPU로 복사해서 읽고 결과는 캐시한다.</summary>
+        private static SpriteStats GetSpriteStats(Sprite sp)
+        {
+            if (_statsCache.TryGetValue(sp, out var cached)) return cached;
+
+            var tex = sp.texture;
+            if (!_pixelCache.TryGetValue(tex, out var px))
+            {
+                var rt = RenderTexture.GetTemporary(tex.width, tex.height, 0, RenderTextureFormat.ARGB32);
+                Graphics.Blit(tex, rt);
+                var prev = RenderTexture.active;
+                RenderTexture.active = rt;
+                var readable = new Texture2D(tex.width, tex.height, TextureFormat.RGBA32, false);
+                readable.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+                RenderTexture.active = prev;
+                RenderTexture.ReleaseTemporary(rt);
+                px = readable.GetPixels32();
+                Object.Destroy(readable);
+                _pixelCache[tex] = px;
+            }
+
+            Rect r = sp.textureRect;
+            int x0 = Mathf.RoundToInt(r.x), y0 = Mathf.RoundToInt(r.y), w = Mathf.RoundToInt(r.width), h = Mathf.RoundToInt(r.height);
+            int minX = int.MaxValue, maxX = int.MinValue;
+            double sumX = 0, sumY = 0, sumA = 0;
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    float a = px[(y0 + y) * tex.width + (x0 + x)].a / 255f;
+                    if (a < 0.3f) continue;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    sumX += x * a; sumY += y * a; sumA += a;
+                }
+            }
+
+            var stats = new SpriteStats();
+            if (sumA > 0.0)
+            {
+                stats.widthPx = maxX - minX + 1;
+                // 스프라이트 피벗(=프레임 중심)에서 본 무게중심 오프셋(픽셀, 위쪽 +).
+                stats.centroidOffsetPx = new Vector2((float)(sumX / sumA) + 0.5f - sp.pivot.x, (float)(sumY / sumA) + 0.5f - sp.pivot.y);
+            }
+            _statsCache[sp] = stats;
+            return stats;
         }
 
         private GameObject SpawnVfx(GameObject prefab, Vector3 pos, Quaternion rot, bool isUi)
