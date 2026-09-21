@@ -29,6 +29,9 @@ MonoBehaviour:
   force: 6
   lineLength: 6
   zoneMoveSpeed: 4
+  onHitDotDamage: 6
+  onHitDotSeconds: 4
+  onHitDotTick: 0.5
   zoneEffect: 2
   zoneTarget: 0
   zoneTick: 0.25

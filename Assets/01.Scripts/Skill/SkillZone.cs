@@ -6,7 +6,7 @@ namespace OZGL2.Skill
 {
     /// <summary>
     /// 지속 장판. 수명 동안 틱마다 반경 내 대상에 효과를 적용한다.
-    ///  - 고정: 빙결 결계·감속 늪·저주 낙인·축복 오라·함정
+    ///  - 고정: 감속 늪·저주 낙인
     ///  - 이동: 화염 회오리 (마왕 → 지정점 방향으로 이동하며 끌어당김 + 도트딜)
     /// </summary>
     public class SkillZone : MonoBehaviour
@@ -20,6 +20,9 @@ namespace OZGL2.Skill
         private float _tick;
         private float _endTime;
         private float _nextTickTime;
+        private float _dotDamage;
+        private float _dotTick;
+        private float _nextDotTime;
 
         private bool _moving;
         private Vector3 _moveDir;
@@ -38,6 +41,8 @@ namespace OZGL2.Skill
             _radius = radiusOverride > 0f ? radiusOverride : d.radius;
             _magnitude = d.zoneMagnitude;
             _tick = Mathf.Max(0.05f, d.zoneTick);
+            _dotDamage = d.onHitDotDamage;   // 장판 안에 있는 동안 틱마다 들어가는 도트(독 늪 등)
+            _dotTick = Mathf.Max(0.1f, d.onHitDotTick);
             _endTime = Time.time + (durationOverride > 0f ? durationOverride : d.duration);
         }
 
@@ -61,6 +66,7 @@ namespace OZGL2.Skill
             if (_moving)
             {
                 transform.position += _moveDir * (_moveSpeed * Time.deltaTime);
+                if (IsOffScreen(transform.position, _radius)) { Destroy(gameObject); return; } // 화면 밖으로 완전히 나가면 즉시 사라짐
                 ShoveEnemies();
             }
 
@@ -73,11 +79,22 @@ namespace OZGL2.Skill
             ApplyTick();
         }
 
+        /// <summary>장판이 카메라 화면 밖으로 완전히 벗어났는지(반경만큼 여유). 카메라를 못 쓰면(비직교 등) false.</summary>
+        private static bool IsOffScreen(Vector3 pos, float margin)
+        {
+            var cam = Camera.main;
+            if (cam == null || !cam.orthographic) return false;
+            float h = cam.orthographicSize + margin;
+            float w = cam.orthographicSize * cam.aspect + margin;
+            Vector3 c = cam.transform.position;
+            return Mathf.Abs(pos.x - c.x) > w || Mathf.Abs(pos.y - c.y) > h;
+        }
+
         private void ShoveEnemies()
         {
             if (_enemies == null || _pullForce <= 0f) return;
             _enemyBuffer.Clear();
-            _enemies.QueryInRadius(transform.position, _radius * 1.2f, _enemyBuffer);
+            _enemies.QueryInRadius(transform.position, _radius, _enemyBuffer);
             foreach (var e in _enemyBuffer)
             {
                 // 회오리 진행 방향으로 강하게 밀치고, 살짝 휘감기(옆으로) 섞음
@@ -107,8 +124,11 @@ namespace OZGL2.Skill
             if (_enemies == null) return;
             _enemyBuffer.Clear();
             _enemies.QueryInRadius(transform.position, _radius, _enemyBuffer);
+            bool dotNow = _dotDamage > 0f && Time.time >= _nextDotTime;
+            if (dotNow) _nextDotTime = Time.time + _dotTick;
             foreach (var e in _enemyBuffer)
             {
+                if (dotNow) e.TakeDamage(_dotDamage);
                 var status = e as IStatusReceiver;
                 switch (_effect)
                 {

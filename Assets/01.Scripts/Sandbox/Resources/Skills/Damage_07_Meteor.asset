@@ -29,6 +29,9 @@ MonoBehaviour:
   force: 6
   lineLength: 6
   zoneMoveSpeed: 4
+  onHitDotDamage: 0
+  onHitDotSeconds: 3
+  onHitDotTick: 0.5
   zoneEffect: 1
   zoneTarget: 0
   zoneTick: 0.25
@@ -37,11 +40,12 @@ MonoBehaviour:
   buffMultiplier: 1.3
   reviveCount: 3
   projectileVfx: {fileID: 2378082643895765933, guid: 5108265b5ba89a448b4738200a60ebe2, type: 3}
-  castVfx: {fileID: 5455977272119292228, guid: 2fb13dafea85206428417f5761f1a577, type: 3}
+  castVfx: {fileID: 1148100095273426946, guid: 53537e45e684e2e4488180494e8f9d1a, type: 3}
   perTargetVfx: {fileID: 0}
   finishVfx: {fileID: 0}
   scaleCastVfxToRadius: 0
   vfxIsUi: 1
   fallFromSky: 1
+  visualOffsetX: 0.2
   flourishVfx: {fileID: 0}
   flourishCount: 0
