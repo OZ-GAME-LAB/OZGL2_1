@@ -2,14 +2,15 @@
 
 ## 범위와 현재 연결 상태
 
-SO 직업, 전투 배율/회복 계산, 스킬 효과, 투사체 내부 코드는 변경하지 않는다.
+SO 직업, 전투 배율/회복 계산, 스킬 피해 계산은 각 담당 시스템이 유지한다. 코어루프는 공개 초기화·사용 차단·정리 API로 연결한다.
 
 | 연결 | 상태 |
 |---|---|
 | 배치/회수/합성 → 시너지 집계 | `InGameSynergyConnection`에서 기존 `RealSynergySync.SetCount` 호출 |
-| 증강 초기화 | 실행 시작/종료 시 기존 `RealSynergySync.Augments.ResetRun` 호출. 라운드 사이에는 유지 |
+| 증강 초기화 | 실행 시작 시 `RealSynergySync.BeginRun`, 종료 시 `Augments.ResetRun` 호출. 라운드 사이에는 유지 |
 | 실제 증강 선택 | Bootstrap의 Augment Provider가 비어 있으면 기존 더미. 실제 선택 UI는 미연결 |
-| 전투 사용 차단/효과 정리/마왕 위치 | 코어루프 호출 규격 구현. 팀원 어댑터가 아직 없으므로 실제 스킬·투사체는 미연결 |
+| 스킬 사용 차단/효과 정리/마왕 위치 | `InGameSkillConnection`을 Bootstrap이 자동 등록. `RealSynergySync`의 공개 API로 연결 |
+| 투사체 정리 | 씬의 `ProjectileCombatParticipant`가 Combat Participants에 등록되어 있어야 함 |
 | 동시 전멸 | 패배 반환 후 기존 저장/정산/로비 흐름 사용. 진단 Outcome은 SIMULTANEOUS 유지 |
 
 Bootstrap의 `HasCombatParticipants`, `HasSynergyConnection`, `UsesDummyAugments`로 조립 상태를 확인한다. 참여자 존재는 모든 팀 기능의 연결 완료를 뜻하지 않는다.
@@ -38,7 +39,20 @@ Bootstrap의 `HasCombatParticipants`, `HasSynergyConnection`, `UsesDummyAugments
 
 정리 실패 전에 승패가 확정됐다면 `StageBattleCleanupException.ConfirmedResult`로 결과를 전달한다. StageManager는 클리어 수·경험치·라운드 결과를 저장하고 ERROR로 멈춘다. 일반 보상, 정산, 다음 전투와 로비 이동은 자동 진행하지 않는다. 디스크 저장 자체가 실패하면 PersistenceError로 남는다.
 
-이 연결은 `StateChanged` 표시 이벤트에 의존하지 않는다. 기존 스킬 입력/효과/투사체는 어댑터를 등록하기 전까지 차단·정리되지 않는다.
+이 연결은 `StateChanged` 표시 이벤트에 의존하지 않는다. 스킬 어댑터는 자동 등록되므로 Inspector에서 별도로 추가하지 않는다. 투사체와 이후 팀원 어댑터는 Combat Participants에 등록한다.
+
+## InGame 초기화와 스킬 수명주기 (2026-09-21)
+
+- `InGamePrototypeBootstrap`이 `RealCombatBootstrap.EnsureInitialized()`를 호출하므로 로비에서 씬을 로드한 경우에도 시너지·스킬 연결을 보장한다. 기존 인스턴스는 재사용한다.
+- 새 게임 또는 취소 후 재시작 시 `BeginRun()`이 기존 입력·효과를 중단하고 계정 장착 정보를 다시 읽는다. 이전 SkillManager는 시전 불가 상태로 남고, 이전 실행기·스킬바는 비활성화 후 제거한다.
+- 스킬·시너지 연결은 생성 시의 SkillManager를 실행 식별자로 보관한다. 이전 실행의 늦은 정리/집계가 새 실행을 덮어쓰지 않으며, 이전 연결로 전투를 다시 켜려 하면 실패 처리한다. 설정 검증 실패 시에도 스킬은 차단한다.
+- 라운드 사이에는 같은 SkillManager를 유지한다. 쿨다운은 기존 시간 기준으로 계속 흐르며, 전투 시작마다 초기화하지 않는다.
+- 준비 완료 전, 준비·보상·종료 단계에는 `IsCastingEnabled=false`다. 키보드·스킬바·직접 TryCast 호출 모두 발동과 쿨다운 소비가 차단된다.
+- 스킬바는 전투에서만 활성화되며 비활성화 시 진행 중인 조준을 취소한다. 매 라운드 현재 카메라와 확정된 마왕 위치를 갱신한다.
+- 종료·취소 시 실행기의 코루틴을 중단하고 소유한 장판·VFX를 즉시 비활성화한 뒤 제거한다. 용사 풀 반환보다 먼저 처리하여 이전 공격이 재사용된 대상을 공격하지 못하게 한다.
+- 이미 유닛에 적용된 버프·상태이상의 만료 규칙은 유닛 시스템 소관이며 이 연결에서 변경하지 않는다. UI의 계정 장착 저장 연결도 별도다.
+
+검증 메뉴: `OZGL2/InGame/Verify Skill Lifecycle (Empty Play Scene)`. InGame Bootstrap이 없는 Play 씬에서 실행한다. 시전 차단, 지연 피해 취소, 반복 정리, 다음 전투의 시전, 장판·조준 제거, 이전 실행의 정리 격리, 설정 실패 시 차단을 확인한다.
 
 ## 증강 담당자
 
