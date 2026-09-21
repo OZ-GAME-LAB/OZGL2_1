@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: InGamePrototypeConfig
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGamePrototypeConfigSO
   _stage: {fileID: 11400000, guid: da62b523b62549058375eed5948e2319, type: 2}
+  _stageCatalog: {fileID: 11400000, guid: 7643036bc4940764d8ef2187809b0ea2, type: 2}
+  _allowEditorDirectStart: 1
   _catalog: {fileID: 11400000, guid: 9078badd44fe4c55a417d7718dd0f447, type: 2}
   _initialAnchor: {x: 3, y: 0}
   _lobbyScenePath: Assets/00.Scenes/Builds/Lobby.unity
@@ -21,3 +23,4 @@ MonoBehaviour:
   _demonArmyCatalog: {fileID: 11400000, guid: 3b939de62a4742fcb02fddfbb200c868, type: 2}
   _gridWorldOrigin: {x: 0, y: 0, z: 0}
   _cellWorldSize: 1
+  _externalOperationTimeoutSeconds: 10
