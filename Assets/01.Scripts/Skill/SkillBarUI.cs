@@ -16,8 +16,8 @@ namespace OZGL2.Skill
     {
         [SerializeField] private float _iconSize = 78f;
         [SerializeField] private float _iconSpacing = 10f;
-        [SerializeField] private float _bottomMargin = 18f;
-        [SerializeField] private float _tabHeight = 34f;
+        [SerializeField] private float _bottomMargin = 40f;
+        [SerializeField] private float _tabHeight = 44f;
 
         private SkillManager _manager;
         private Camera _camera;
@@ -68,7 +68,10 @@ namespace OZGL2.Skill
             _manager = manager;
             _camera = cam != null ? cam : Camera.main;
             _casterPos = casterPos;
-            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            // 내장 LegacyRuntime 폰트는 한글을 시스템 폴백으로 그려서 작은 크기에서 흐리게 뭉개짐 — 한글이 있는
+            // OS 폰트를 먼저 시도하고, 없으면 기존 내장 폰트로 폴백.
+            _font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", "NanumGothic", "Noto Sans CJK KR" }, 32);
+            if (_font == null) _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             BuildCanvas();
             BuildReticle();
@@ -162,9 +165,9 @@ namespace OZGL2.Skill
                 var tabGo = new GameObject($"Tab_{TabLabel(category)}");
                 var tabRt = tabGo.AddComponent<RectTransform>();
                 tabRt.SetParent(rowRt, false);
-                tabRt.sizeDelta = new Vector2(76f, _tabHeight);
+                tabRt.sizeDelta = new Vector2(100f, _tabHeight);
                 var le = tabGo.AddComponent<LayoutElement>();
-                le.preferredWidth = 76f;
+                le.preferredWidth = 100f;
                 le.preferredHeight = _tabHeight;
 
                 var bg = tabGo.AddComponent<Image>();
@@ -176,7 +179,7 @@ namespace OZGL2.Skill
                 labelGo.anchorMax = Vector2.one;
                 labelGo.sizeDelta = Vector2.zero;
                 var label = labelGo.gameObject.AddComponent<Text>();
-                label.font = _font; label.fontSize = 15; label.fontStyle = FontStyle.Bold;
+                label.font = _font; label.fontSize = 22; label.fontStyle = FontStyle.Bold;
                 label.alignment = TextAnchor.MiddleCenter; label.color = new Color(0.9f, 0.9f, 0.95f);
                 label.raycastTarget = false;
                 label.text = TabLabel(category);
@@ -262,13 +265,16 @@ namespace OZGL2.Skill
             nameGo.anchorMax = new Vector2(0.5f, 0f);
             nameGo.pivot = new Vector2(0.5f, 1f);
             nameGo.anchoredPosition = new Vector2(0f, -3f);
-            nameGo.sizeDelta = new Vector2(_iconSize + 40f, 18f);
+            nameGo.sizeDelta = new Vector2(_iconSize + 40f, 26f);
             var nameText = nameGo.gameObject.AddComponent<Text>();
-            nameText.font = _font; nameText.fontSize = 14;
+            nameText.font = _font; nameText.fontSize = 19; nameText.fontStyle = FontStyle.Bold;
             nameText.alignment = TextAnchor.UpperCenter; nameText.color = new Color(0.92f, 0.92f, 0.95f);
             nameText.horizontalOverflow = HorizontalWrapMode.Overflow;
             nameText.verticalOverflow = VerticalWrapMode.Overflow;
             nameText.text = skill.Data.displayName;
+            var nameOutline = nameGo.gameObject.AddComponent<Outline>();
+            nameOutline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+            nameOutline.effectDistance = new Vector2(1.2f, -1.2f);
 
             return new Icon { Skill = skill, Root = root, Bg = bg, CooldownFill = fillImg, CdText = cdText, Border = border };
         }

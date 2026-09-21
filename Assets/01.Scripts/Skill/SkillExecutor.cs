@@ -16,12 +16,12 @@ namespace OZGL2.Skill
         [SerializeField] private float _uiVfxLifetime = 0.85f;
         [SerializeField] private float _fallbackLifetime = 1.5f;
         [SerializeField] private float _skyHeight = 8f;
-        [Tooltip("Pixel Art VFX 프리팹의 기준 월드 크기(칸). UI 캔버스 스케일이 64px=1칸이라 1")]
-        [SerializeField] private float _vfxBaseSize = 1f;
+        [Tooltip("Pixel Art VFX 프리팹의 기준 월드 크기(칸). 캔버스 스케일이 64px=1칸인데 프리팹 루트가 64x64에 localScale 2라서 실제로는 2칸 — 1로 두면 사거리 표시보다 VFX가 2배 크게 나옴")]
+        [SerializeField] private float _vfxBaseSize = 2f;
         [Tooltip("맵 전체(radius 큰) 스킬의 VFX 스케일 상한 — 이 칸수로 캡")]
         [SerializeField] private float _vfxMaxRadius = 9f;
-        [Tooltip("피해 판정에 더하는 여유(유닛 스프라이트 반폭) — 링에 걸친 적도 맞게")]
-        [SerializeField] private float _hitMargin = 0.35f;
+        [Tooltip("피해 판정에 더하는 여유. 0이면 조준 사거리 표시(반경)와 정확히 일치 — 예전 0.35는 표시보다 넓게 맞아서 0으로 맞춤")]
+        [SerializeField] private float _hitMargin = 0f;
         [SerializeField] private bool _playSfx = false;
 
         private SkillManager _manager;
@@ -106,7 +106,7 @@ namespace OZGL2.Skill
                     else StartCoroutine(DelayedImpact(d, power, radius, p));
                     break;
 
-                case SkillEffectType.ChainDamage: StartCoroutine(Chain(d, power, p)); break;
+                case SkillEffectType.ChainDamage: StartCoroutine(Chain(d, power, radius, p)); break;
                 case SkillEffectType.LineDamage: StartCoroutine(LineShot(d, power, radius, p)); break;
                 case SkillEffectType.SingleDamage: StartCoroutine(SingleShot(d, power, p)); break;
                 case SkillEffectType.Knockback: KnockbackHit(d, power, radius, p); break;
@@ -181,10 +181,37 @@ namespace OZGL2.Skill
 
         private IEnumerator Barrage(SkillData d, float power, float radius, Vector3 center)
         {
-            for (int i = 0; i < d.barrageCount; i++)
+            // 개별 낙하(반경 1.7)가 사거리 표시 밖으로 삐져나가지 않게, 낙하 중심을 (radius - 1.7) 안쪽으로 제한.
+            const float dropRadius = 1.7f;
+            float spread = Mathf.Max(0f, radius - dropRadius);
+            bool mapWide = IsMapWide(radius);
+
+            // 맵 전체 낙하는 화면에 랜덤으로만 떨구면 절반 정도만 맞아서, 살아있는 용사 전원을 한 발씩
+            // 먼저 겨냥하고(낙하 시점의 실제 위치 기준) 남는 발수만 랜덤으로 뿌린다.
+            List<IDamageable> aimed = null;
+            int count = d.barrageCount;
+            if (mapWide)
             {
-                Vector3 p = center + (Vector3)(Random.insideUnitCircle * radius);
-                Impact(d, power, p, 1.7f); // 개별 낙하는 작게
+                aimed = new List<IDamageable>();
+                foreach (var e in _enemies.All) if (!e.IsDead) aimed.Add(e);
+                for (int k = aimed.Count - 1; k > 0; k--)
+                {
+                    int j = Random.Range(0, k + 1);
+                    (aimed[k], aimed[j]) = (aimed[j], aimed[k]);
+                }
+                count = Mathf.Max(count, aimed.Count);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 p;
+                if (mapWide)
+                {
+                    bool hasTarget = i < aimed.Count && !(aimed[i] is Object gone && gone == null) && !aimed[i].IsDead;
+                    p = hasTarget ? aimed[i].Position + (Vector3)(Random.insideUnitCircle * 0.4f) : RandomScreenPoint(center, spread);
+                }
+                else p = center + (Vector3)(Random.insideUnitCircle * spread);
+                Impact(d, power, p, dropRadius); // 개별 낙하는 작게
                 yield return new WaitForSeconds(Mathf.Max(0.05f, d.chainInterval));
             }
         }
@@ -208,20 +235,28 @@ namespace OZGL2.Skill
             }
             else
             {
-                StartCoroutine(ExpandFade(point, r, new Color(1f, 0.5f, 0.15f), 0.35f, false));
+                // 맵 전체 궁극기(flourish로 연출)는 화면 전체를 덮는 거대한 원이 뜨지 않게 폴백을 생략.
+                if (!(IsMapWide(r) && HasFlourish(d)))
+                    StartCoroutine(ExpandFade(point, r, new Color(1f, 0.5f, 0.15f), 0.35f, false));
             }
         }
 
-        private IEnumerator Chain(SkillData d, float power, Vector3 from)
+        private IEnumerator Chain(SkillData d, float power, float radius, Vector3 from)
         {
-            // 시전 지점에 한 번 크게 터지는 연출을 깔아서(전기 소용돌이 등) 체인 전체가 더 커 보이게 함.
-            if (d.castVfx != null) AutoDestroy(SpawnVfx(d.castVfx, from, Quaternion.identity, d.vfxIsUi));
+            // 연쇄는 조준 사거리(radius) 안의 대상끼리만 튄다 — 예전엔 맵 전체에서 가장 가까운 적으로
+            // 계속 튀어서 사거리 표시보다 훨씬 멀리까지 맞았다. 시전 이펙트도 사거리 크기에 맞춰 스케일.
+            if (d.castVfx != null)
+            {
+                var cast = SpawnVfx(d.castVfx, from, Quaternion.identity, d.vfxIsUi);
+                ScaleAreaVfx(cast, radius);
+                AutoDestroy(cast);
+            }
 
             var hit = new HashSet<IDamageable>();
             Vector3 cursor = from;
             for (int i = 0; i < d.chainCount; i++)
             {
-                IDamageable next = NearestUnhit(cursor, hit);
+                IDamageable next = NearestUnhit(cursor, hit, from, radius);
                 if (next == null) break;
                 next.TakeDamage(power);
                 hit.Add(next);
@@ -307,7 +342,8 @@ namespace OZGL2.Skill
             _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf) (e as IStatusReceiver)?.ApplyStun(d.duration);
             if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
-            else StartCoroutine(ExpandFade(point, Mathf.Min(radius, 14f), new Color(0.4f, 0.8f, 1f), 0.5f, true));
+            else if (!(IsMapWide(radius) && HasFlourish(d)))
+                StartCoroutine(ExpandFade(point, Mathf.Min(radius, 14f), new Color(0.4f, 0.8f, 1f), 0.5f, true));
         }
 
         private IEnumerator Vacuum(SkillData d, float power, float radius, Vector3 point)
@@ -320,7 +356,7 @@ namespace OZGL2.Skill
             {
                 t += Time.deltaTime;
                 _enemyBuf.Clear();
-                _enemies.QueryInRadius(point, radius * 2.5f, _enemyBuf);
+                _enemies.QueryInRadius(point, radius, _enemyBuf); // 흡입 범위도 사거리 표시 안으로만
                 foreach (var e in _enemyBuf)
                 {
                     (e as IStatusReceiver)?.ApplyKnockback(point - e.Position, d.force * Time.deltaTime * 4f);
@@ -337,6 +373,22 @@ namespace OZGL2.Skill
             else StartCoroutine(ExpandFade(point, radius * 1.4f, new Color(0.6f, 0.3f, 0.85f), 0.35f, false));
         }
 
+        private static bool IsMapWide(float radius) => radius >= 20f;
+        private static bool HasFlourish(SkillData d) => d.flourishVfx != null && d.flourishCount > 0;
+
+        /// <summary>맵 전체 스킬용 — 카메라에 보이는 화면 전체에서 랜덤 위치. 시전 지점(가장 가까운 용사 위치)을
+        /// 중심으로 한 원으로 뿌리면 한쪽에 몰려서 "맵 전체"로 안 보이던 문제 방지. 카메라를 못 쓰면 원형 폴백.</summary>
+        private static Vector3 RandomScreenPoint(Vector3 fallbackCenter, float fallbackRadius)
+        {
+            var cam = Camera.main;
+            if (cam == null || !cam.orthographic)
+                return fallbackCenter + (Vector3)(Random.insideUnitCircle * fallbackRadius);
+            float h = cam.orthographicSize * 0.95f;
+            float w = h * cam.aspect;
+            Vector3 c = cam.transform.position;
+            return new Vector3(c.x + Random.Range(-w, w), c.y + Random.Range(-h, h), 0f);
+        }
+
         private IEnumerator Flourish(SkillData d, float radius, Vector3 center)
         {
             // 유성우·절대영도·심판처럼 radius=99(맵 전체) 스킬은 예전엔 6칸으로 좁게 캡해서 화면 한
@@ -348,7 +400,7 @@ namespace OZGL2.Skill
             float spread = Mathf.Min(radius, _vfxMaxRadius);
             for (int i = 0; i < d.flourishCount; i++)
             {
-                Vector3 p = center + (Vector3)(Random.insideUnitCircle * spread);
+                Vector3 p = IsMapWide(radius) ? RandomScreenPoint(center, spread) : center + (Vector3)(Random.insideUnitCircle * spread);
                 var fx = SpawnVfx(d.flourishVfx, p, Quaternion.identity, d.vfxIsUi);
                 if (fx != null) fx.transform.localScale *= 0.6f;
                 AutoDestroy(fx);
@@ -433,7 +485,10 @@ namespace OZGL2.Skill
             public float ExpireTime;
             private void Update()
             {
-                if (Target == null || Target.IsDead || Time.time >= ExpireTime) { Destroy(gameObject); return; }
+                // 인터페이스 참조는 유니티 오브젝트가 Destroy돼도 C# null이 아니라서, 파괴 여부를 따로 확인해야
+                // 함(안 하면 죽어서 사라진 유닛의 transform을 읽다가 MissingReferenceException).
+                bool gone = Target == null || (Target is Object o && o == null);
+                if (gone || Target.IsDead || Time.time >= ExpireTime) { Destroy(gameObject); return; }
                 transform.position = Target.Position;
             }
         }
@@ -458,13 +513,29 @@ namespace OZGL2.Skill
 
         // ─────────────────────────────────────────── VFX
 
-        /// <summary>영역 스킬 VFX 를 radius 지름에 맞춰 스케일. 맵 전체는 _vfxMaxRadius 로 캡.</summary>
+        /// <summary>영역 스킬 VFX 를 사거리 표시(지름 = radius*2)와 "눈에 보이는 크기"가 같게 스케일. 맵 전체는
+        /// _vfxMaxRadius 로 캡. 이펙트 프레임(64px)에는 투명 여백이 많아서(실측 폭 비율 0.5~0.9) 프레임
+        /// 크기 기준으로 맞추면 표시보다 작게 보이므로, 스프라이트의 실제 보이는 폭(tight mesh)을 재서 보정한다.</summary>
         private void ScaleAreaVfx(GameObject fx, float radius)
         {
             if (fx == null || radius <= 0f) return;
             float targetDiameter = Mathf.Min(radius, _vfxMaxRadius) * 2f;
-            float mul = Mathf.Clamp(targetDiameter / Mathf.Max(_vfxBaseSize, 0.1f), 0.6f, 8f);
+            float visibleNative = Mathf.Max(_vfxBaseSize * MeasureVisibleFraction(fx), 0.1f);
+            float mul = Mathf.Clamp(targetDiameter / visibleNative, 0.3f, 30f);
             fx.transform.localScale *= mul;
+        }
+
+        /// <summary>프리팹 안 모든 프레임 이미지 중 가장 넓게 보이는 폭이 프레임 폭의 몇 배인지(0~1).</summary>
+        private static float MeasureVisibleFraction(GameObject fx)
+        {
+            float best = 0f;
+            foreach (var img in fx.GetComponentsInChildren<UnityEngine.UI.Image>(true))
+            {
+                var sp = img.sprite;
+                if (sp == null || sp.rect.width <= 0f) continue;
+                best = Mathf.Max(best, sp.bounds.size.x * sp.pixelsPerUnit / sp.rect.width);
+            }
+            return best > 0.05f ? Mathf.Clamp(best, 0.2f, 1f) : 1f;
         }
 
         private GameObject SpawnVfx(GameObject prefab, Vector3 pos, Quaternion rot, bool isUi)
@@ -588,13 +659,15 @@ namespace OZGL2.Skill
             _ => new Color(1f, 1f, 1f, 0.2f),
         };
 
-        private IDamageable NearestUnhit(Vector3 from, HashSet<IDamageable> exclude)
+        private IDamageable NearestUnhit(Vector3 from, HashSet<IDamageable> exclude, Vector3 areaCenter, float areaRadius)
         {
             IDamageable best = null;
             float bestSqr = float.MaxValue;
+            float areaSqr = areaRadius * areaRadius;
             foreach (var c in _enemies.All)
             {
                 if (c.IsDead || exclude.Contains(c)) continue;
+                if ((c.Position - areaCenter).sqrMagnitude > areaSqr) continue; // 사거리 밖은 연쇄 대상 아님
                 float s = (c.Position - from).sqrMagnitude;
                 if (s < bestSqr) { bestSqr = s; best = c; }
             }

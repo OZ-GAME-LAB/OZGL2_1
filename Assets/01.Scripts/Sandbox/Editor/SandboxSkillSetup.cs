@@ -45,6 +45,7 @@ namespace OZGL2.Sandbox.EditorTools
         private const string VoidSpin = "55b7c76a960c3bb4eb06ab44b6dc18a4";
         private const string WaterSplash = "8c9715ea3413e6347bb78a7641f6e93e";
         private const string WindShield = "09d247bfa1a21c04cb49c841e613c8d3";
+        private const string WindExplosion = "9f0206c86425d7545bb5888fa1a26733";
 
         [MenuItem("OZGL2/Sandbox/Create Skill Assets (전체 · VFX 연결)")]
         public static void CreateAll()
@@ -70,7 +71,7 @@ namespace OZGL2.Sandbox.EditorTools
                 d.skillPower = 90f; d.radius = 1.3f; d.projectileVfx = V(IceProjectile); d.castVfx = V(IceSpike); });
 
             n += B("Damage_03_ChainLightning", d => { Base(d, "연쇄 번개", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.ChainDamage, 15f);
-                d.skillPower = 80f; d.chainCount = 5; d.chainInterval = 0.1f; d.castVfx = V(ElectricSpin); d.perTargetVfx = V(ElectricLightning01); });
+                d.skillPower = 80f; d.radius = 3f; d.chainCount = 5; d.chainInterval = 0.1f; d.perTargetVfx = V(ElectricLightning01); }); // 번개가 떨어지는 VFX 하나만
 
             n += B("Damage_06_FireTornado", d => { Base(d, "화염 회오리", SkillCategory.Damage, 2, SkillCastMode.Targeted, SkillEffectType.MovingZone, 22f);
                 d.radius = 1.6f; d.duration = 4f; d.zoneEffect = ZoneEffect.DamageOverTime; d.zoneMagnitude = 24f; d.zoneTick = 0.2f;
@@ -85,11 +86,11 @@ namespace OZGL2.Sandbox.EditorTools
 
             // ── 디버프 (시간 정지만 즉시, 나머지 조준형)
             n += B("Debuff_01_KnockbackWave", d => { Base(d, "넉백 파동", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.Knockback, 10f);
-                d.skillPower = 0f; d.radius = 2.5f; d.force = 8f; d.castVfx = V(EarthSpin); d.scaleCastVfxToRadius = true; });
+                d.skillPower = 0f; d.radius = 2.5f; d.force = 8f; d.castVfx = V(WindExplosion); d.scaleCastVfxToRadius = true; });
 
             n += B("Debuff_02_SlowMire", d => { Base(d, "감속 늪", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 14f);
-                d.radius = 2f; d.duration = 5f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.castVfx = V(EarthLavaBuble);
-                d.vfxTint = new Color(0.55f, 0.75f, 0.4f); }); // 원본 용암 이펙트를 초록빛으로 틴트해서 늪처럼
+                d.radius = 2f; d.duration = 5f; d.zoneEffect = ZoneEffect.Slow; d.zoneMagnitude = 0.5f; d.castVfx = V(EarthSpin);
+                d.vfxTint = new Color(0.8f, 0.85f, 0.55f); }); // 원형 소용돌이(EarthSpin) + 누런 초록 틴트로 늪처럼
 
             n += B("Debuff_03_FrostField", d => { Base(d, "빙결 결계", SkillCategory.Debuff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 20f);
                 d.radius = 2f; d.duration = 2.5f; d.zoneEffect = ZoneEffect.Stun; d.castVfx = V(IceShield); d.scaleCastVfxToRadius = true;
@@ -109,9 +110,6 @@ namespace OZGL2.Sandbox.EditorTools
             n += B("Buff_03_IronSkin", d => { Base(d, "강철 피부", SkillCategory.Buff, 2, SkillCastMode.Instant, SkillEffectType.AllyBuff, 25f);
                 d.duration = 8f; d.buffStat = BuffStat.Defense; d.buffMultiplier = 1.3f; d.perTargetVfx = V(WindShield); });
 
-            n += B("Buff_04_BlessingAura", d => { Base(d, "축복의 오라", SkillCategory.Buff, 2, SkillCastMode.Targeted, SkillEffectType.PersistentZone, 18f);
-                d.radius = 2.5f; d.duration = 6f; d.zoneEffect = ZoneEffect.Heal; d.zoneTarget = ZoneTarget.Allies; d.zoneMagnitude = 3f; d.zoneTick = 0.5f; d.castVfx = V(HolyShield); });
-
             n += B("Buff_05_VampiricRite", d => { Base(d, "흡혈 의식", SkillCategory.Buff, 3, SkillCastMode.Instant, SkillEffectType.HealAllies, 25f);
                 d.duration = 0.4f; d.perTargetVfx = V(EarthHealing); });
 
@@ -122,7 +120,7 @@ namespace OZGL2.Sandbox.EditorTools
             // "화면 전체가 난리 나는" 느낌으로. (Flourish() 코드가 spread를 _vfxMaxRadius까지 넓히고
             // 개별 크기도 줄여서 뿌린다 — SkillExecutor.cs 참고)
             n += B("Ult_01_MeteorShower", d => { Base(d, "유성우", SkillCategory.Ultimate, 4, SkillCastMode.Instant, SkillEffectType.AreaDamage, 60f);
-                d.skillPower = 150f; d.radius = 5f; d.barrageCount = 12; d.chainInterval = 0.1f;
+                d.skillPower = 150f; d.radius = 99f; d.barrageCount = 20; d.chainInterval = 0.1f;
                 d.flourishVfx = V(FireExplosion01); d.flourishCount = 30; });
 
             n += B("Ult_02_AbsoluteZero", d => { Base(d, "절대 영도", SkillCategory.Ultimate, 4, SkillCastMode.Instant, SkillEffectType.Stun, 90f);

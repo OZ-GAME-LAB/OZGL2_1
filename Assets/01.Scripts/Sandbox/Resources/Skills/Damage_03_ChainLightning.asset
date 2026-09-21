@@ -20,7 +20,7 @@ MonoBehaviour:
   cooldown: 15
   effectType: 1
   skillPower: 80
-  radius: 1.5
+  radius: 3
   duration: 2
   castDelay: 0
   chainInterval: 0.1
@@ -37,7 +37,7 @@ MonoBehaviour:
   buffMultiplier: 1.3
   reviveCount: 3
   projectileVfx: {fileID: 0}
-  castVfx: {fileID: 1621793699250464576, guid: 24652970e200e6f4eb1fb3d54f6dee46, type: 3}
+  castVfx: {fileID: 0}
   perTargetVfx: {fileID: 3863542223517440126, guid: 945b93ccedb48d54cb3718120dbcea6b, type: 3}
   finishVfx: {fileID: 0}
   scaleCastVfxToRadius: 0

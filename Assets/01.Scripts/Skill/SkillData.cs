@@ -26,7 +26,7 @@ namespace OZGL2.Skill
         Stun,           // 반경 즉시 정지 — 시간 정지
         Vacuum,         // 지정점으로 끌어당김 + 피해 — 공허 붕괴
         MovingZone,     // 마왕 → 지정점 방향으로 이동하는 지속 장판 — 화염 회오리
-        PersistentZone, // 지정점 고정 지속 장판 (zoneEffect) — 빙결 결계·감속 늪·저주 낙인·축복 오라·함정
+        PersistentZone, // 지정점 고정 지속 장판 (zoneEffect) — 빙결 결계·감속 늪·저주 낙인
         HealAllies,     // 전 아군 체력 % 회복 — 흡혈 의식
         AllyBuff,       // 전 아군 스탯 버프 (일정시간) — 광폭화·강철 피부
         Revive,         // 죽은 아군 일부 부활 — 망자 부활
@@ -38,7 +38,7 @@ namespace OZGL2.Skill
         Slow,           // 감속 늪, 함정
         Vulnerable,     // 저주 낙인 (받는 피해 +)
         DamageOverTime, // 독 안개 류
-        Heal,           // 축복의 오라 (아군)
+        Heal,           // 아군 지속 회복 장판(현재 쓰는 스킬 없음)
     }
 
     public enum ZoneTarget

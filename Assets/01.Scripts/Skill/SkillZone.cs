@@ -6,7 +6,7 @@ namespace OZGL2.Skill
 {
     /// <summary>
     /// 지속 장판. 수명 동안 틱마다 반경 내 대상에 효과를 적용한다.
-    ///  - 고정: 빙결 결계·감속 늪·저주 낙인·축복 오라·함정
+    ///  - 고정: 빙결 결계·감속 늪·저주 낙인
     ///  - 이동: 화염 회오리 (마왕 → 지정점 방향으로 이동하며 끌어당김 + 도트딜)
     /// </summary>
     public class SkillZone : MonoBehaviour
@@ -77,7 +77,7 @@ namespace OZGL2.Skill
         {
             if (_enemies == null || _pullForce <= 0f) return;
             _enemyBuffer.Clear();
-            _enemies.QueryInRadius(transform.position, _radius * 1.2f, _enemyBuffer);
+            _enemies.QueryInRadius(transform.position, _radius, _enemyBuffer);
             foreach (var e in _enemyBuffer)
             {
                 // 회오리 진행 방향으로 강하게 밀치고, 살짝 휘감기(옆으로) 섞음
