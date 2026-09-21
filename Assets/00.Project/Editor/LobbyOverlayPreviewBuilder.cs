@@ -159,6 +159,14 @@ internal static class LobbyOverlayPreviewBuilder
         background.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(BASE + "/Sprites/Lobby_Background.png");
         background.raycastTarget = true;
         Solid("BackgroundShade", screen, new Color(0.015f, 0.015f, 0.02f, 0.40f), false);
+        // 트리나 고정 UI 위가 아닌 배경 레이어에 로비의 하단 그라데이션을 재사용한다.
+        Transform gradient = GameObject.Find("Canvas_Lobby").transform.Find("BackgroundBottomGradient");
+        if (gradient != null)
+        {
+            GameObject copy = Object.Instantiate(gradient.gameObject, screen, false);
+            copy.name = "BackgroundBottomGradient";
+            foreach (Graphic graphic in copy.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+        }
 
         RectTransform viewport = Rect("TraitTreeViewport", screen, new Vector2(0, -95), new Vector2(1720, 710));
         Image surface = viewport.gameObject.AddComponent<Image>();

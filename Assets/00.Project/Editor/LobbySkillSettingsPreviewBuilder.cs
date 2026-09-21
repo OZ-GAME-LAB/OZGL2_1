@@ -62,7 +62,15 @@ public static class LobbySkillSettingsPreviewBuilder
         background.raycastTarget = true;
         Image shade = Picture("BackgroundShade", root, null, Vector2.zero, Vector2.zero);
         Stretch(shade.rectTransform);
-        shade.color = new Color(0, 0, 0, .30f);
+        shade.color = new Color(0, 0, 0, .60f);
+        // 로비와 같은 높이/색/텍스처를 UI 아래에 복사한다. 입력은 가로채지 않는다.
+        Transform gradient = lobby.transform.Find("BackgroundBottomGradient");
+        if (gradient != null)
+        {
+            GameObject copy = Object.Instantiate(gradient.gameObject, root, false);
+            copy.name = "BackgroundBottomGradient";
+            foreach (Graphic graphic in copy.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+        }
 
         Transform account = lobby.transform.Find("AccountStatus");
         if (account != null)
@@ -121,7 +129,7 @@ public static class LobbySkillSettingsPreviewBuilder
         int[] initial = { 0, 4, 2 };
         for (int i = 0; i < 3; i++)
         {
-            equippedFrames[i] = Picture("EquippedSlot_" + i, root, Sprite(i == 1 ? "Equip_Purple" : "Equip_Red"), positions[i], new Vector2(246, 246));
+            equippedFrames[i] = Picture("EquippedSlot_" + i, root, Sprite("Equip_Red"), positions[i], new Vector2(246, 246));
             equippedFrames[i].raycastTarget = true;
             Button button = equippedFrames[i].gameObject.AddComponent<Button>();
             button.targetGraphic = equippedFrames[i];
@@ -135,7 +143,6 @@ public static class LobbySkillSettingsPreviewBuilder
         AssignArray(view, "_equippedIcons", equippedIcons);
         AssignArray(view, "_equippedFrames", equippedFrames);
         Assign(view, "_redFrame", Sprite("Equip_Red"));
-        Assign(view, "_purpleFrame", Sprite("Equip_Purple"));
 
         CreatePanel("SkillDetailPanel", root, new Vector2(697, 43), new Vector2(455, 684));
         Picture("DetailIconFrame", root, Sprite("Card_Selected_Gold"), new Vector2(697, 187), new Vector2(290, 290));
@@ -158,6 +165,9 @@ public static class LobbySkillSettingsPreviewBuilder
         UnityEventTools.AddPersistentListener(save.onClick, view.SavePreview);
 
         // 외부 Scene 참조는 Prefab 저장 이후에 인스턴스 override로만 연결한다.
+        LobbySkillCategoryStyleBuilder.Configure(root.gameObject);
+        LobbySkillSaveFlowBuilder.Configure(root.gameObject);
+        LobbySkillFrameAlignmentBuilder.Configure(root.gameObject);
         PrefabUtility.SaveAsPrefabAssetAndConnect(root.gameObject, PREFAB, InteractionMode.AutomatedAction);
         UnityEventTools.AddPersistentListener(back.onClick, popupController.CloseTopPopup);
         PrefabUtility.RecordPrefabInstancePropertyModifications(back);

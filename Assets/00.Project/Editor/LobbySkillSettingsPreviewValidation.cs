@@ -55,7 +55,7 @@ public static class LobbySkillSettingsPreviewValidation
         popup.OpenPopup(panel);
         check(string.Join(",", view.GetEquippedIds()) == saved, "재열기 시 미리보기 저장 유지");
         view.SelectSkill(1); view.UnequipSelected(); check(view.HasChanges, "저장 전 변경 표시");
-        popup.CloseTopPopup(); popup.OpenPopup(panel);
+        popup.CloseTopPopup(); view.ConfirmExitWithoutSaving(); popup.OpenPopup(panel);
         check(string.Join(",", view.GetEquippedIds()) == saved, "저장하지 않은 변경 취소");
         view.SelectSkill(1); view.UnequipSelected(); view.SelectSkill(4); view.EquipSelected(); view.SavePreview();
         popup.CloseTopPopup(); popup.OpenPopup(panel);
@@ -109,6 +109,77 @@ public static class LobbySkillSettingsPreviewValidation
         second.interactable = true;
         EventSystem.current.SetSelectedGameObject(null);
         view.SelectSkill(4);
+    }
+
+    [MenuItem("Tools/OZGL2/Lobby/Validate Skill Category Visual Style")]
+    public static void RunCategoryStyleFromMenu() => Debug.Log(RunCategoryStyle());
+
+    public static string RunCategoryStyle()
+    {
+        if (!Application.isPlaying || UnityEngine.SceneManagement.SceneManager.GetActiveScene().path != "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity")
+            throw new InvalidOperationException("UI_Lobby_MutedPreview Play Mode에서 실행하세요.");
+        var view = UnityEngine.Object.FindFirstObjectByType<UISkillLoadoutPreview>();
+        if (view == null) throw new InvalidOperationException("스킬창을 먼저 여세요.");
+        var root = view.transform;
+        var properties = new SerializedObject(view);
+        var style = properties.FindProperty("_categoryStyle").objectReferenceValue as UISkillCategoryStyleSO;
+        var catalog = properties.FindProperty("_catalog").objectReferenceValue as UISkillPreviewCatalogSO;
+        if (style == null || catalog == null) throw new InvalidOperationException("표시 설정/카탈로그 연결 누락");
+        var checks = new List<string>();
+        Action<bool, string> check = (ok, message) => { if (!ok) throw new InvalidOperationException(message); checks.Add(message); };
+        var popup = GameObject.Find("UI_Root").GetComponent<UIPopupController>();
+        var panel = view.GetComponent<UIPopupPanel>();
+        string savedBefore = PlayerPrefs.GetString("OZGL2.Skill.Equip", "");
+        try
+        {
+            view.ShowCategory(0);
+            check(Mathf.Approximately(root.Find("BackgroundShade").GetComponent<Image>().color.a, .6f), "스킬 배경 60% 유지");
+            check(root.Find("BackgroundBottomGradient") != null, "로비 하단 그라데이션 유지");
+            check(style.SlotTintMaterial.IsKeywordEnabled("SKILL_SLOT_TINT"), "옅은 슬롯 전용 표시 모드");
+            for (int i = 0; i < catalog.Entries.Count; i++)
+            {
+                var card = root.Find("SkillGrid/SkillCard_" + i.ToString("00"));
+                var icon = card.Find("Icon").GetComponent<Image>();
+                var tint = card.Find("CategorySlotTint").GetComponent<Image>();
+                var category = catalog.Entries[i].Category;
+                check(icon.material == style.GetIconMaterial(category), "카드 " + i + " 분류 Material");
+                check(icon.sprite == catalog.Entries[i].Icon, "카드 " + i + " 원본 Sprite 유지");
+                check(tint.enabled && tint.color == style.GetSlotColor(category), "카드 " + i + " 분류 배경");
+                check(!tint.raycastTarget && !icon.raycastTarget && tint.transform.GetSiblingIndex() < icon.transform.GetSiblingIndex(), "카드 " + i + " 레이어/입력");
+            }
+            Color[] colors = { new Color32(165, 64, 63, 255), new Color32(187, 153, 75, 255), new Color32(131, 81, 154, 255) };
+            for (int categoryIndex = 0; categoryIndex < 3; categoryIndex++)
+            {
+                var category = (eSkillPreviewCategory)categoryIndex;
+                Material material = style.GetIconMaterial(category);
+                check(material.GetColor("_FaceColor") == (Color)new Color32(248, 242, 235, 255), category + " 공통 흰색 본체");
+                check(material.GetColor("_OutlineColor") == colors[categoryIndex], category + " 게임 팔레트 외곽선");
+                check(!ShaderUtil.ShaderHasError(material.shader), category + " Shader 오류 없음");
+                int index = Enumerable.Range(0, catalog.Entries.Count).First(i => catalog.Entries[i].Category == category);
+                view.SelectSkill(index);
+                check(root.Find("DetailIcon").GetComponent<Image>().material == material, category + " 상세 아이콘 갱신");
+                check(root.Find("DetailIconFrame/CategorySlotTint").GetComponent<Image>().color == style.GetSlotColor(category), category + " 상세 배경 갱신");
+                // 실제 저장하지 않고 미리보기 슬롯만 바꿔서 분류 간 전환/빈 슬롯 처리를 검사한다.
+                foreach (string id in view.GetEquippedIds())
+                {
+                    int equippedIndex = Enumerable.Range(0, catalog.Entries.Count).First(i => catalog.Entries[i].Id == id);
+                    view.SelectSkill(equippedIndex); view.UnequipSelected();
+                }
+                check(!root.Find("EquippedSlot_0/CategorySlotTint").GetComponent<Image>().enabled, category + " 빈 슬롯 색 제거");
+                view.SelectSkill(index); view.EquipSelected();
+                check(root.Find("EquippedSlot_0/Icon").GetComponent<Image>().material == material, category + " 장착 아이콘 갱신");
+                check(root.Find("EquippedSlot_0/CategorySlotTint").GetComponent<Image>().color == style.GetSlotColor(category), category + " 장착 배경 갱신");
+            }
+            check(savedBefore == PlayerPrefs.GetString("OZGL2.Skill.Equip", ""), "실제 스킬 저장 불변");
+        }
+        finally
+        {
+            // 미저장 테스트 변경은 취소하고 마지막 미리보기 저장 상태로 돌아간다.
+            popup.CloseTopPopup();
+            if (view.IsExitConfirmationOpen) view.ConfirmExitWithoutSaving();
+            popup.OpenPopup(panel);
+        }
+        return checks.Count + " category style checks passed\n" + string.Join("\n", checks);
     }
 
     // 활성화 직후 Canvas 갱신이 끝난 다음 프레임에 별도로 호출한다.

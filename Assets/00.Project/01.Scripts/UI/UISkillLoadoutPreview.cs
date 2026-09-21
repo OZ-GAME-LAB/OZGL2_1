@@ -17,8 +17,12 @@ namespace OZGL2.UIFlow
         [SerializeField] private Image[] _cardIcons;
         [SerializeField] private Image[] _equippedIcons;
         [SerializeField] private Image[] _equippedFrames;
+        [SerializeField] private RectTransform[] _equippedSlotRects;
+        [SerializeField] private UISkillCategoryStyleSO _categoryStyle;
+        [SerializeField] private Image[] _cardSlotTints;
+        [SerializeField] private Image[] _equippedSlotTints;
+        [SerializeField] private Image _detailSlotTint;
         [SerializeField] private Sprite _redFrame;
-        [SerializeField] private Sprite _purpleFrame;
         [SerializeField] private TMP_Text _detailName;
         [SerializeField] private Image _detailIcon;
         [SerializeField] private TMP_Text _effectLabel;
@@ -28,6 +32,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private UISkillArtButton _equipButton;
         [SerializeField] private UISkillArtButton _unequipButton;
         [SerializeField] private UISkillArtButton _saveButton;
+        [SerializeField] private UIPopupPanel _exitConfirmation;
         [SerializeField] private int[] _initialEquipped = { 0, 4, 2 };
         [SerializeField] private int _initialSelected = 4;
 
@@ -36,22 +41,57 @@ namespace OZGL2.UIFlow
         private bool _hasInitialized;
         private int _selected = -1;
         private int _category;
+        private UIPopupPanel _panel;
 
         public int CategoryIndex => _category;
         public int EquippedCount { get { int count = 0; foreach (int i in _draft) if (IsValid(i)) count++; return count; } }
         public string SelectedSkillId => IsValid(_selected) ? _catalog.Entries[_selected].Id : string.Empty;
         public bool HasChanges { get { for (int i = 0; i < SLOT_COUNT; i++) if (_draft[i] != _committed[i]) return true; return false; } }
+        public bool IsExitConfirmationOpen => _exitConfirmation != null && _exitConfirmation.gameObject.activeInHierarchy;
         // 실제 게임 저장을 도입할 때 연결할 이벤트. 미리보기 자체는 디스크에 저장하지 않는다.
         public event Action<IReadOnlyList<string>> SaveRequested;
 
         private void OnEnable()
         {
+            if (TryGetComponent(out _panel)) _panel.SetDismissGuard(TryDismiss);
             InitializeIfNeeded();
             Array.Copy(_committed, _draft, SLOT_COUNT);
             _category = 0;
             _selected = IsValid(_initialSelected) ? _initialSelected : FindFirstVisible();
             SetStatus(string.Empty);
             Refresh();
+        }
+
+        private void OnDisable()
+        {
+            if (_panel != null) _panel.SetDismissGuard(null);
+        }
+
+        private bool TryDismiss()
+        {
+            if (!HasChanges) return true;
+            if (_panel != null && _panel.Controller != null && _exitConfirmation != null)
+                _panel.Controller.OpenPopup(_exitConfirmation);
+            else
+                Debug.LogWarning("스킬 나가기 확인창 연결이 없습니다. 변경 사항을 보호하기 위해 닫기를 중단합니다.", this);
+            return false;
+        }
+
+        public void CancelExit()
+        {
+            UIPopupController controller = _panel != null ? _panel.Controller : null;
+            if (controller != null && controller.IsTopPopup(_exitConfirmation)) controller.CloseTopPopup();
+        }
+
+        public void ConfirmExitWithoutSaving()
+        {
+            UIPopupController controller = _panel != null ? _panel.Controller : null;
+            if (controller == null || !controller.IsTopPopup(_exitConfirmation)) return;
+            Array.Copy(_committed, _draft, SLOT_COUNT);
+            SetStatus(string.Empty);
+            Refresh();
+            controller.CloseTopPopup(); // 확인창을 닫고 원래 화면의 포커스를 복원한다.
+            if (controller.IsTopPopup(_panel)) controller.CloseTopPopup();
         }
 
         public void ShowCategory(int category)
@@ -81,26 +121,29 @@ namespace OZGL2.UIFlow
 
         public void EquipSelected()
         {
+            if (IsExitConfirmationOpen) return;
             if (!IsValid(_selected) || Array.IndexOf(_draft, _selected) >= 0) return;
             int slot = Array.IndexOf(_draft, -1);
             if (slot < 0) return;
             _draft[slot] = _selected;
-            SetStatus("저장 전 변경사항");
+            SetStatus(string.Empty);
             Refresh();
         }
 
         public void UnequipSelected()
         {
+            if (IsExitConfirmationOpen) return;
             if (!IsValid(_selected)) return;
             int slot = Array.IndexOf(_draft, _selected);
             if (slot < 0) return;
             _draft[slot] = -1;
-            SetStatus("저장 전 변경사항");
+            SetStatus(string.Empty);
             Refresh();
         }
 
         public void SavePreview()
         {
+            if (_catalog == null || !HasChanges || IsExitConfirmationOpen) return;
             Array.Copy(_draft, _committed, SLOT_COUNT);
             var ids = new List<string>();
             foreach (int index in _committed) if (IsValid(index)) ids.Add(_catalog.Entries[index].Id);
@@ -148,6 +191,7 @@ namespace OZGL2.UIFlow
                 {
                     _cardIcons[i].sprite = IsValid(i) ? _catalog.Entries[i].Icon : null;
                     _cardIcons[i].enabled = _cardIcons[i].sprite != null;
+                    ApplyCategoryStyle(_cardIcons[i], GetImage(_cardSlotTints, i), IsValid(i) ? _catalog.Entries[i] : null);
                 }
             }
             for (int i = 0; i < SLOT_COUNT; i++)
@@ -157,22 +201,50 @@ namespace OZGL2.UIFlow
                 {
                     _equippedIcons[i].sprite = hasSkill ? _catalog.Entries[_draft[i]].Icon : null;
                     _equippedIcons[i].enabled = hasSkill;
+                    ApplyCategoryStyle(_equippedIcons[i], GetImage(_equippedSlotTints, i), hasSkill ? _catalog.Entries[_draft[i]] : null);
                 }
                 if (_equippedFrames != null && i < _equippedFrames.Length && _equippedFrames[i] != null)
-                    _equippedFrames[i].sprite = hasSkill && _catalog.Entries[_draft[i]].IsArcane ? _purpleFrame : _redFrame;
+                {
+                    Sprite frame = hasSkill && _categoryStyle != null ? _categoryStyle.GetEquippedFrame(_catalog.Entries[_draft[i]].Category) : null;
+                    _equippedFrames[i].sprite = frame != null ? frame : _redFrame;
+                    _equippedFrames[i].material = !hasSkill && _categoryStyle != null ? _categoryStyle.EmptyFrameMaterial : null;
+                    if (_equippedSlotRects != null && i < _equippedSlotRects.Length && _equippedSlotRects[i] != null && _equippedSlotRects[i] != _equippedFrames[i].rectTransform)
+                    {
+                        Vector4 layout = frame != null ? _categoryStyle.GetEquippedFrameLayout(_catalog.Entries[_draft[i]].Category) : new Vector4(1, 1, 0, 0);
+                        Vector2 size = _equippedSlotRects[i].rect.size;
+                        _equippedFrames[i].rectTransform.sizeDelta = new Vector2(size.x * layout.x, size.y * layout.y);
+                        _equippedFrames[i].rectTransform.anchoredPosition = new Vector2(size.x * layout.z, size.y * layout.w);
+                    }
+                }
             }
             bool valid = IsValid(_selected);
             if (_detailName != null) _detailName.text = valid ? _catalog.Entries[_selected].DisplayName : "스킬 선택";
             if (_detailIcon != null) { _detailIcon.sprite = valid ? _catalog.Entries[_selected].Icon : null; _detailIcon.enabled = valid && _detailIcon.sprite != null; }
+            ApplyCategoryStyle(_detailIcon, _detailSlotTint, valid ? _catalog.Entries[_selected] : null);
             if (_effectLabel != null) _effectLabel.text = valid ? _catalog.Entries[_selected].EffectLabel : "효과";
             if (_effectValue != null) _effectValue.text = valid ? _catalog.Entries[_selected].EffectValue : "—";
             if (_cooldown != null) _cooldown.text = valid ? _catalog.Entries[_selected].Cooldown : "—";
             bool isEquipped = valid && Array.IndexOf(_draft, _selected) >= 0;
             if (_equipButton != null) _equipButton.interactable = valid && !isEquipped && EquippedCount < SLOT_COUNT;
             if (_unequipButton != null) _unequipButton.interactable = isEquipped;
-            if (_saveButton != null) _saveButton.interactable = _catalog != null;
+            if (_saveButton != null) _saveButton.interactable = _catalog != null && HasChanges;
         }
 
+        private void ApplyCategoryStyle(Image icon, Image slotTint, UISkillPreviewCatalogSO.Entry entry)
+        {
+            if (_categoryStyle == null) return; // 설정되지 않은 기존 UI는 원래 표시를 유지한다.
+            if (icon != null)
+            {
+                icon.material = entry != null ? _categoryStyle.GetIconMaterial(entry.Category) : null;
+                icon.color = Color.white;
+            }
+            if (slotTint == null) return;
+            slotTint.enabled = entry != null && icon != null && icon.enabled;
+            slotTint.material = _categoryStyle.SlotTintMaterial;
+            slotTint.color = entry != null ? _categoryStyle.GetSlotColor(entry.Category) : Color.clear;
+        }
+
+        private static Image GetImage(Image[] images, int index) => images != null && index >= 0 && index < images.Length ? images[index] : null;
         private void SetStatus(string text) { if (_status != null) _status.text = text; }
     }
 }

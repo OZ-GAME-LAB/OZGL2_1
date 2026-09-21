@@ -13,6 +13,7 @@ namespace OZGL2.UIFlow
         private readonly List<UIPopupPanel> _openPopups = new List<UIPopupPanel>();
         private readonly List<GameObject> _previousSelections = new List<GameObject>();
         public int OpenCount => _openPopups.Count;
+        public bool IsTopPopup(UIPopupPanel popup) => popup != null && _openPopups.Count > 0 && _openPopups[_openPopups.Count - 1] == popup;
 
         public void OpenPopup(UIPopupPanel popup)
         {
@@ -22,6 +23,7 @@ namespace OZGL2.UIFlow
             if (_screenGroup != null) _screenGroup.interactable = false;
             _openPopups.Add(popup);
             popup.transform.SetAsLastSibling();
+            popup.BindController(this);
             popup.gameObject.SetActive(true);
             popup.SetInteractable(true);
             if (popup.FirstSelected != null) popup.FirstSelected.Select();
@@ -30,7 +32,10 @@ namespace OZGL2.UIFlow
 
         public void CloseTopPopup()
         {
-            if (_openPopups.Count == 0 || !_openPopups[_openPopups.Count - 1].CanDismiss) return;
+            if (_openPopups.Count == 0) return;
+            UIPopupPanel popup = _openPopups[_openPopups.Count - 1];
+            // 확인창이 열리면 대상이 바뀌므로, 원래 팝업이 여전히 맨 위인지도 확인한다.
+            if (!popup.TryDismiss() || !IsTopPopup(popup)) return;
             CloseConfirmedPopup();
         }
 
@@ -43,7 +48,11 @@ namespace OZGL2.UIFlow
             GameObject previousSelection = _previousSelections[index];
             _openPopups.RemoveAt(index);
             _previousSelections.RemoveAt(index);
-            if (popup != null) popup.gameObject.SetActive(false);
+            if (popup != null)
+            {
+                popup.gameObject.SetActive(false);
+                popup.BindController(null);
+            }
             if (_openPopups.Count > 0) _openPopups[_openPopups.Count - 1].SetInteractable(true);
             else if (_screenGroup != null) _screenGroup.interactable = true;
             if (EventSystem.current != null)
