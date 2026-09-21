@@ -27,6 +27,10 @@ namespace OZGL2.InGame
         private InGameSynergyConnection _synergyConnection;
         private InGameSkillConnection _skillConnection;
         private RealSynergySync _runSynergy;
+        private SelectedStageSource _selectedSource;
+        private bool _hasResolvedSelection;
+        private string _selectionError;
+        public string SelectedStageId => _selectedSource?.CreateSnapshot().StageId;
         public bool HasCombatParticipants => _combatConnection != null && _combatConnection.ParticipantCount > 0;
         public bool HasExternalCombatParticipants => _combatConnection != null &&
             Array.Exists(_combatParticipants, component => component != null && component != _phasePresentation && component is IInGameCombatParticipant);
@@ -82,7 +86,8 @@ namespace OZGL2.InGame
                 _runSynergy.BeginRun();
                 _skillConnection = new InGameSkillConnection(_runSynergy);
                 if (_config == null || _navigator == null) throw new InvalidOperationException("InGame configuration and navigator are required.");
-                _config.Validate();
+                ResolveSelection();
+                _config.Validate(_selectedSource.CreateSnapshot());
                 _phasePresentation?.ValidateSetup();
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
@@ -122,7 +127,7 @@ namespace OZGL2.InGame
                 _host.OwnResource(_heroPool);
                 _host.OwnResource(_defenders);
                 _host.OwnResource(_session);
-                if (!_host.StartRun(Stage, _config.Stage)) throw new InvalidOperationException("Stage run did not start.");
+                if (!_host.StartRun(Stage, _selectedSource)) throw new InvalidOperationException("Stage run did not start.");
                 Notify();
                 await _host.CurrentRun;
                 if (_isDestroyed) return;
@@ -135,7 +140,12 @@ namespace OZGL2.InGame
                 if (canReturn)
                 {
                     BeginLobbyReturn();
-                    _navigator.LoadScene(_config.LobbyScenePath);
+                    if (!_navigator.TryLoadScene(_config.LobbyScenePath, out var navigationError))
+                    {
+                        _isReturningToLobby = false;
+                        throw new InvalidOperationException(navigationError);
+                    }
+                    _selectedSource = null;
                 }
             }
             catch (Exception exception)
@@ -151,6 +161,42 @@ namespace OZGL2.InGame
             }
         }
         public bool TryBeginBattle(bool skip = false) => _phasePresentation != null ? _phasePresentation.RequestBattle(skip) : CommitBattleStart(skip);
+        public bool TryRetryStage()
+        {
+            if (!CanRetry || _selectedSource == null) return false;
+            StartPrototype();
+            return true;
+        }
+
+        private void ResolveSelection()
+        {
+            if (_hasResolvedSelection)
+            {
+                if (_selectedSource == null) throw new InvalidOperationException(_selectionError ?? "Stage selection is required.");
+                return;
+            }
+            _hasResolvedSelection = true;
+            try
+            {
+                var session = StageLaunchRuntime.Session;
+                var request = session.Consume(gameObject.scene.path);
+                StageDefinition definition;
+                if (request != null)
+                {
+                    if (_config.StageCatalog == null) throw new InvalidOperationException("Stage catalog is required.");
+                    definition = _config.StageCatalog.Resolve(request.StageId);
+                }
+                else
+                {
+                    if (!StageLaunchRuntime.IsDirectEditorEntry(gameObject.scene) || !_config.AllowEditorDirectStart || session.HasLaunchHistory)
+                        throw new InvalidOperationException("Select a stage before entering InGame.");
+                    if (_config.Stage == null) throw new InvalidOperationException("Editor test stage is missing.");
+                    definition = _config.Stage.CreateSnapshot();
+                }
+                _selectedSource = new SelectedStageSource(definition);
+            }
+            catch (Exception exception) { _selectionError = exception.Message; throw; }
+        }
         internal bool CommitBattleStart(bool skip = false) => GridSession != null && Stage != null &&
             Stage.State == eStageState.PREPARATION && GridSession.TryBeginBattle(GridSession.RunId, Stage.CurrentRoundNumber, skip);
         public void CancelRun()

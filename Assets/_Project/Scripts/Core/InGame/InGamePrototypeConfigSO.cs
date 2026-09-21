@@ -10,6 +10,11 @@ namespace OZGL2.InGame
     public sealed class InGamePrototypeConfigSO : ScriptableObject
     {
         [SerializeField] private StageDataSO _stage;
+        [SerializeField] private StageCatalogSO _stageCatalog;
+        [SerializeField, Tooltip("Editor에서 선택 화면 없이 직접 실행할 때만 테스트 Stage를 허용합니다.")]
+        private bool _allowEditorDirectStart;
+        public StageCatalogSO StageCatalog => _stageCatalog;
+        public bool AllowEditorDirectStart => _allowEditorDirectStart;
         [SerializeField] private GridPrototypeCatalogSO _catalog;
         [SerializeField] private Vector2Int _initialAnchor;
         [SerializeField] private string _lobbyScenePath;
@@ -33,7 +38,13 @@ namespace OZGL2.InGame
 
         public void Validate()
         {
-            if (_stage == null || _catalog == null || string.IsNullOrWhiteSpace(_lobbyScenePath))
+            if (_stage == null) throw new InvalidOperationException("Editor test stage is required.");
+            Validate(_stage.CreateSnapshot());
+        }
+
+        public void Validate(StageDefinition stage)
+        {
+            if (stage == null || _catalog == null || string.IsNullOrWhiteSpace(_lobbyScenePath))
                 throw new InvalidOperationException("InGame stage, grid catalog and lobby scene are required.");
             if (_heroPoolCatalog == null)
                 throw new InvalidOperationException("InGame hero pool catalog is required.");
@@ -44,7 +55,6 @@ namespace OZGL2.InGame
                 !float.IsFinite(_heroSpawnPosition.x) || !float.IsFinite(_heroSpawnPosition.y) || !float.IsFinite(_heroSpawnPosition.z))
                 throw new InvalidOperationException("Invalid grid coordinates or external operation timeout (1–3600 seconds).");
             _ = new GridWorldMapping(_gridWorldOrigin, Vector3.right * _cellWorldSize, Vector3.up * _cellWorldSize);
-            var stage = _stage.CreateSnapshot();
             var heroIds = new System.Collections.Generic.HashSet<string>();
             foreach (var entry in _heroPoolCatalog.CreateSnapshot())
             {
