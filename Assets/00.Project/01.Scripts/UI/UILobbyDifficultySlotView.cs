@@ -16,6 +16,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private RectTransform _artworkMotion;
         [SerializeField] private TMP_Text _nameLabel;
         [SerializeField] private TMP_Text _descriptionLabel;
+        [SerializeField] private UILobbyDifficultyRecordPanel _recordPanel;
 
         private bool _hasEntry;
 
@@ -33,6 +34,8 @@ namespace OZGL2.UIFlow
             }
             if (_nameLabel != null) _nameLabel.text = _hasEntry ? entry.DisplayName : string.Empty;
             if (_descriptionLabel != null) _descriptionLabel.text = _hasEntry ? entry.Description : string.Empty;
+            // 중앙 기록도 투명 상태의 바인딩 시점에 함께 바꿔 이전 난이도 기록이 비치지 않게 한다.
+            if (_recordPanel != null) _recordPanel.Bind(entry);
             if (_visualGroup != null) _visualGroup.alpha = _hasEntry ? 1f : 0f;
             SetTransition(1f, 0f);
         }

@@ -49,6 +49,8 @@ namespace OZGL2.UIFlow
         public eLobbyDifficulty SelectedDifficulty => SelectedEntry != null ? SelectedEntry.Difficulty : _initialDifficulty;
         public LobbyDifficultyCatalogSO.Entry SelectedEntry => _catalog == null ? null : _catalog.GetEntry(_selectedIndex);
         public event Action<eLobbyDifficulty> SelectionChanged;
+        /// <summary>표시 전환 시작/종료 알림. false는 슬롯과 기록의 표시 복구가 끝난 뒤 전달한다.</summary>
+        public event Action<bool> TransitionStateChanged;
 
         public bool TryValidate(out string reason)
         {
@@ -86,7 +88,6 @@ namespace OZGL2.UIFlow
         public bool SetArtworkSet(LobbyDifficultyArtworkSetSO artworkSet)
         {
             if (artworkSet == null || !artworkSet.IsComplete) return false;
-            CancelTransition();
             _artworkSet = artworkSet;
             RefreshPresentation();
             return true;
@@ -96,16 +97,19 @@ namespace OZGL2.UIFlow
         public void RefreshPresentation()
         {
             _refreshPending = false;
+            SetTransitionState(true);
             CancelTransition();
             if (!TryValidate(out _))
             {
                 BindSlots(-1);
+                SetTransitionState(false);
                 RefreshButtons();
                 return;
             }
             if (!Application.isPlaying || _selectedIndex < 0 || _selectedIndex >= _catalog.Count)
                 _selectedIndex = _catalog.GetIndex(_initialDifficulty);
             BindSlots(_selectedIndex);
+            SetTransitionState(false);
             RefreshButtons();
         }
 
@@ -116,15 +120,17 @@ namespace OZGL2.UIFlow
 
             if (!animate)
             {
+                SetTransitionState(true);
                 _selectedIndex = index;
                 BindSlots(_selectedIndex);
+                SetTransitionState(false);
                 RefreshButtons();
                 SelectionChanged?.Invoke(SelectedDifficulty);
                 return true;
             }
 
             int direction = index > _selectedIndex ? 1 : -1;
-            _isTransitioning = true;
+            SetTransitionState(true);
             LeaseStartButton();
             RefreshButtons();
 
@@ -147,10 +153,10 @@ namespace OZGL2.UIFlow
             {
                 if (_transition != sequence) return;
                 _transition = null;
-                _isTransitioning = false;
                 _selectedIndex = index;
                 RestoreStartButton();
                 BindSlots(_selectedIndex);
+                SetTransitionState(false);
                 RefreshButtons();
                 SelectionChanged?.Invoke(SelectedDifficulty);
             });
@@ -158,9 +164,9 @@ namespace OZGL2.UIFlow
             {
                 if (_transition != sequence) return;
                 _transition = null;
-                _isTransitioning = false;
                 RestoreStartButton();
                 BindSlots(_selectedIndex);
+                SetTransitionState(false);
                 RefreshButtons();
             });
             return true;
@@ -217,9 +223,16 @@ namespace OZGL2.UIFlow
         {
             Sequence sequence = _transition;
             _transition = null;
-            _isTransitioning = false;
             if (sequence != null && sequence.IsActive()) sequence.Kill(false);
             RestoreStartButton();
+            // 호출자가 올바른 슬롯을 복구한 뒤 SetTransitionState(false)로 호버 잠금을 해제한다.
+        }
+
+        private void SetTransitionState(bool isTransitioning)
+        {
+            if (_isTransitioning == isTransitioning) return;
+            _isTransitioning = isTransitioning;
+            TransitionStateChanged?.Invoke(isTransitioning);
         }
 
         private void SubscribeInput()
@@ -255,8 +268,13 @@ namespace OZGL2.UIFlow
             UnsubscribeInput();
             CancelTransition();
             // Edit Mode의 Undo/컴포넌트 제거 도중 복구되는 표시 값을 다시 덮어쓰지 않는다.
-            if (!Application.isPlaying) return;
+            if (!Application.isPlaying)
+            {
+                SetTransitionState(false);
+                return;
+            }
             BindSlots(_selectedIndex);
+            SetTransitionState(false);
             RefreshButtons();
         }
 
@@ -264,6 +282,7 @@ namespace OZGL2.UIFlow
         {
             UnsubscribeInput();
             CancelTransition();
+            SetTransitionState(false);
         }
 
         private void OnValidate()
