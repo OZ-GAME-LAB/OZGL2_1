@@ -28,11 +28,6 @@ MonoBehaviour:
     _initialCapacity: 2
     _growthCount: 2
     _experience: 3
-  - _heroId: H_WAR_01
-    _prefab: {fileID: 6276394462226140206, guid: 6bb2712532a9f354ebcc14cc63ad8959, type: 3}
-    _initialCapacity: 2
-    _growthCount: 2
-    _experience: 3
   - _heroId: H_SHD_01
     _prefab: {fileID: -6526327328208007526, guid: c4bf161337ebb874097aa31e054b2c3b, type: 3}
     _initialCapacity: 5
