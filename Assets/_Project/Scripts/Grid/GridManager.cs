@@ -40,7 +40,8 @@ namespace OZGL2.Grid
         public string SelectedId => _selectedId;
         public Vector2Int PreviewAnchor => _previewAnchor;
         public int PreviewRotation => _previewRotation;
-        public bool CanBeginBattle => Phase == eGridPhase.PREPARATION && !RequiresExpansionPlacement && !HasSelection && !HasPendingStorage && PlacedCount > 0;
+        public bool CanBeginBattle => Phase == eGridPhase.PREPARATION && !RequiresExpansionPlacement && !HasSelection &&
+            !HasPendingStorage && PlacedCount > 0 && GetInvalidCells().Count == 0;
         public bool CanSkipPreparation => _canSkipPreparation && CanBeginBattle;
         public int PlacedCount { get { int count = 0; foreach (var unit in _units) if (unit.IsPlaced) count++; return count; } }
         public GridManager(GridDefinition definition, Func<UnitPlacement, UnitPlacement, bool> canFuse = null)
@@ -75,6 +76,9 @@ namespace OZGL2.Grid
                 (HasSelection && (DragKind != eGridDragKind.UNIT || SelectedId != sourceId))) return false;
             var source = FindUnit(sourceId);
             var target = FindUnit(targetId);
+            // 성급이 오르며 발판이 커져서(예: 1x1 → 4칸) 지금 자리에 다 못 들어가도 합성 자체는 막지 않는다.
+            // 대신 자리가 부족한 채로 남아있는 동안은 GetInvalidCells()가 그 칸들을 표시하고
+            // CanBeginBattle이 false가 되어 정리하기 전까진 웨이브를 시작할 수 없게 한다.
             return source != null && target != null && _canFuse != null && _canFuse(source, target);
         }
         /// <summary>대상 위치와 발판을 보존하고 소모된 유닛의 점유만 반환한다.</summary>
@@ -89,6 +93,21 @@ namespace OZGL2.Grid
             ClearSelection();
             ApplyState(new List<BlockPlacement>(_blocks), units, null);
             return true;
+        }
+        /// <summary>
+        /// 합성으로 발판이 커져서(성급 상승) 지금 자리에 다 못 들어가는 유닛들이 차지하려는 칸 전체.
+        /// 비어있지 않으면 화면에서 빨갛게 표시하고, CanBeginBattle이 false가 되어 웨이브 시작을 막는다.
+        /// </summary>
+        public IReadOnlyCollection<Vector2Int> GetInvalidCells()
+        {
+            var result = new HashSet<Vector2Int>();
+            foreach (var unit in _units)
+            {
+                if (!unit.IsPlaced) continue;
+                if (GridPlacementRules.ValidateUnit(Definition, _blocks, _units, unit.InstanceId, unit.GetCells()) != ePlacementFailure.NONE)
+                    result.UnionWith(unit.GetCells());
+            }
+            return result;
         }
         public bool CanFusePreview => DragKind == eGridDragKind.UNIT &&
             CanFuseUnits(SelectedId, GetUnitAt(_previewAnchor)?.InstanceId);
@@ -207,7 +226,8 @@ namespace OZGL2.Grid
         public Vector2Int[] GetPreviewCells()
         {
             if (!HasSelection) return Array.Empty<Vector2Int>();
-            var shape = DragKind == eGridDragKind.UNIT ? FindUnit(_selectedId).Definition.Footprint :
+            var draggedUnit = DragKind == eGridDragKind.UNIT ? FindUnit(_selectedId) : null;
+            var shape = draggedUnit != null ? draggedUnit.Definition.GetFootprint(draggedUnit.StarLevel) :
                 IsExpansionDrag ? Definition.Expansion : FindBlock(_selectedId).Footprint;
             return shape.GetCells(_previewAnchor, _previewRotation);
         }

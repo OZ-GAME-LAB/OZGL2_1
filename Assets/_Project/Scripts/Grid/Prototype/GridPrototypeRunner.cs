@@ -164,7 +164,8 @@ namespace OZGL2.Grid.Prototype
                 _tray.Clear();
                 foreach (var item in Manager.GetStoredItems())
                 {
-                    var shape = item.Kind == eGridDragKind.UNIT ? Manager.FindUnit(item.InstanceId).Definition.Footprint : Manager.FindBlock(item.InstanceId).Footprint;
+                    var storedUnit = item.Kind == eGridDragKind.UNIT ? Manager.FindUnit(item.InstanceId) : null;
+                    var shape = storedUnit != null ? storedUnit.Definition.GetFootprint(storedUnit.StarLevel) : Manager.FindBlock(item.InstanceId).Footprint;
                     var card = CreateStorageCard(item, shape);
                     if (item.Kind == eGridDragKind.UNIT)
                     {

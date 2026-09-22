@@ -13,7 +13,10 @@ namespace OZGL2.Stage
             internal readonly Stack<PooledHero> Available = new Stack<PooledHero>();
             internal Bucket(HeroPoolEntry entry) { Entry = entry; }
         }
-        private readonly Dictionary<string, Bucket> _buckets = new Dictionary<string, Bucket>();
+        // 같은 heroId에 모델링 변형(외형만 다른 프리팹)을 여러 개 등록할 수 있게 리스트로 관리한다.
+        // Rent()마다 그중 하나를 랜덤으로 골라 스폰한다 — 스탯(HeroPoolEntry.Experience 등)은 같아야 하고
+        // 외형(프리팹)만 달라야 한다는 전제.
+        private readonly Dictionary<string, List<Bucket>> _buckets = new Dictionary<string, List<Bucket>>();
         private readonly Dictionary<PooledHero, Bucket> _owners = new Dictionary<PooledHero, Bucket>();
         private readonly Dictionary<PooledHero, long> _active = new Dictionary<PooledHero, long>();
         private readonly Transform _root;
@@ -29,9 +32,14 @@ namespace OZGL2.Stage
                 if (entry == null || string.IsNullOrWhiteSpace(entry.HeroId) || entry.Prefab == null ||
                     entry.InitialCapacity < 0 || entry.GrowthCount <= 0 || entry.Experience < 0)
                     throw new ArgumentException("Invalid hero pool entry.");
-                _buckets.Add(entry.HeroId, new Bucket(entry));
+                if (!_buckets.TryGetValue(entry.HeroId, out var variants))
+                {
+                    variants = new List<Bucket>();
+                    _buckets.Add(entry.HeroId, variants);
+                }
+                variants.Add(new Bucket(entry));
             }
-            try { foreach (var bucket in _buckets.Values) Grow(bucket, bucket.Entry.InitialCapacity); }
+            try { foreach (var variants in _buckets.Values) foreach (var bucket in variants) Grow(bucket, bucket.Entry.InitialCapacity); }
             catch (Exception initializationError)
             {
                 try { Dispose(); }
@@ -39,7 +47,8 @@ namespace OZGL2.Stage
                 throw;
             }
         }
-        public int GetExperience(string heroId) => _buckets[heroId].Entry.Experience;
+        // 변형끼리 경험치가 다르면 밸런스 오류이므로, 대표로 첫 번째 변형 값을 쓴다.
+        public int GetExperience(string heroId) => _buckets[heroId][0].Entry.Experience;
         public bool Contains(string heroId) => _buckets.ContainsKey(heroId);
         public HeroLease Rent(string heroId, Vector3 position, Action<HeroLease> onDeath, Action<HeroLease> onReturnReady,
             Action<HeroLease, Exception> onFault = null)
@@ -47,7 +56,8 @@ namespace OZGL2.Stage
             if (_isDisposed) throw new ObjectDisposedException(nameof(HeroPool));
             if (onDeath == null) throw new ArgumentNullException(nameof(onDeath));
             if (onReturnReady == null) throw new ArgumentNullException(nameof(onReturnReady));
-            var bucket = _buckets[heroId];
+            var variants = _buckets[heroId];
+            var bucket = variants[UnityEngine.Random.Range(0, variants.Count)];
             if (bucket.Available.Count == 0) Grow(bucket, bucket.Entry.GrowthCount);
             var hero = bucket.Available.Pop();
             long id = checked(++_nextLease);

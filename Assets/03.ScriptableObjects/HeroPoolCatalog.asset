@@ -18,29 +18,114 @@ MonoBehaviour:
     _initialCapacity: 5
     _growthCount: 3
     _experience: 3
+  - _heroId: H_WAR_01
+    _prefab: {fileID: 6996068076039282187, guid: 8162daf5c3c99be45948392dcd9a81ac, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 3
+  - _heroId: H_WAR_01
+    _prefab: {fileID: 7030269396024672376, guid: 3f0c910c220684b4bbb2e8305a14922d, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 3
   - _heroId: H_SHD_01
     _prefab: {fileID: -6526327328208007526, guid: c4bf161337ebb874097aa31e054b2c3b, type: 3}
     _initialCapacity: 5
     _growthCount: 3
+    _experience: 5
+  - _heroId: H_SHD_01
+    _prefab: {fileID: 8470589170948208189, guid: aebe9c0ec4a15f1409e6854fe1ceff0d, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 5
+  - _heroId: H_SHD_01
+    _prefab: {fileID: 5055222616540995320, guid: fd89a2cb7ab2f974d98c13755c9fbc0e, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 5
+  - _heroId: H_SHD_01
+    _prefab: {fileID: 7040283714633169674, guid: 20ffcb40d20df7b4f8a798a6474d326e, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
     _experience: 5
   - _heroId: H_ARC_01
     _prefab: {fileID: 1837887036755831449, guid: 145ab7023b5f9b04e9f503bcc6509b8f, type: 3}
     _initialCapacity: 5
     _growthCount: 3
     _experience: 4
+  - _heroId: H_ARC_01
+    _prefab: {fileID: 7921139125369621714, guid: d53bb802e3d62014db4ff8fc0d2a1390, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
+  - _heroId: H_ARC_01
+    _prefab: {fileID: 5031497098747209272, guid: a989c8b9a8ed75747b86fbcc1bf84ae5, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
+  - _heroId: H_ARC_01
+    _prefab: {fileID: 7495189987347514564, guid: cc5c618b772569c42ac113acb7a8ebd6, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
   - _heroId: H_MAG_01
     _prefab: {fileID: -5820338468307478942, guid: 9f738bd460fa55e4da2214e84c69cd6a, type: 3}
     _initialCapacity: 5
     _growthCount: 3
+    _experience: 5
+  - _heroId: H_MAG_01
+    _prefab: {fileID: 7078485937119469954, guid: 8e73c3632d70bc8439bc29d28987d116, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 5
+  - _heroId: H_MAG_01
+    _prefab: {fileID: 8196166426995511950, guid: c9e14322f304c8440972da32da219836, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 5
+  - _heroId: H_MAG_01
+    _prefab: {fileID: 6884940098280752797, guid: cc662b113eee35a4cb0b4d9fac1279a3, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 5
+  - _heroId: H_MAG_01
+    _prefab: {fileID: 7284081190594576273, guid: 73c992fdc7a1a9f4e9133aacbaff544e, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
     _experience: 5
   - _heroId: H_ROG_01
     _prefab: {fileID: -4391461560221949090, guid: dccfbd361a7621046b01e3163bf923a4, type: 3}
     _initialCapacity: 5
     _growthCount: 3
     _experience: 4
+  - _heroId: H_ROG_01
+    _prefab: {fileID: 8453267713742942311, guid: 71abe8db1ff453949aef3ad0a708c031, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
+  - _heroId: H_ROG_01
+    _prefab: {fileID: 6492870666813140506, guid: 716435ddebd441647832c5b298cd192b, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
+  - _heroId: H_ROG_01
+    _prefab: {fileID: 8714144306612582401, guid: b535a80acd1d12847a70800097429bfc, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
   - _heroId: H_HEL_01
     _prefab: {fileID: -986687458315360543, guid: 0b77c536f5bf5a84aa72d7eda8c701b0, type: 3}
     _initialCapacity: 5
     _growthCount: 3
+    _experience: 4
+  - _heroId: H_HEL_01
+    _prefab: {fileID: 8204700269652585076, guid: c575d9666d312504089ca72018dc4835, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
+    _experience: 4
+  - _heroId: H_HEL_01
+    _prefab: {fileID: 9184468367927496107, guid: cfe50afac75662e4286744430407ba95, type: 3}
+    _initialCapacity: 2
+    _growthCount: 2
     _experience: 4
   _dummyDefenderCount: 1

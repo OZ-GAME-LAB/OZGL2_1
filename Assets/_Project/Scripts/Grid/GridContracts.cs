@@ -67,19 +67,35 @@ namespace OZGL2.Grid
             => new UnitPlacement(InstanceId, Definition, isPlaced, anchor, rotation, StarLevel);
         public UnitPlacement WithStarLevel(int starLevel)
             => new UnitPlacement(InstanceId, Definition, IsPlaced, Anchor, Rotation, starLevel);
-        public Vector2Int[] GetCells() => Definition.Footprint.GetCells(Anchor, Rotation);
+        public Vector2Int[] GetCells() => Definition.GetFootprint(StarLevel).GetCells(Anchor, Rotation);
     }
     public sealed class UnitDefinition
     {
         public string Id { get; }
         public string DisplayName { get; }
         public FootprintDefinition Footprint { get; }
+        public FootprintDefinition FootprintStar2 { get; }
+        public FootprintDefinition FootprintStar3 { get; }
         public string RewardBlockId { get; }
-        public UnitDefinition(string id, string displayName, FootprintDefinition footprint, string rewardBlockId = null)
+        public UnitDefinition(string id, string displayName, FootprintDefinition footprint, string rewardBlockId = null,
+            FootprintDefinition footprintStar2 = null, FootprintDefinition footprintStar3 = null)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Unit ID required.");
             Id = id; DisplayName = displayName; Footprint = footprint ?? throw new ArgumentNullException(nameof(footprint));
             RewardBlockId = rewardBlockId ?? footprint.Id;
+            // 성급별 발판이 없으면(콘텐츠 담당자가 아직 안 채운 유닛) 1성 발판을 그대로 쓴다.
+            FootprintStar2 = footprintStar2 ?? footprint;
+            FootprintStar3 = footprintStar3 ?? footprint;
+        }
+        /// <summary>성급(1~3)에 맞는 발판을 반환한다. 범위 밖 값은 1성 발판으로 처리한다.</summary>
+        public FootprintDefinition GetFootprint(int starLevel)
+        {
+            switch (starLevel)
+            {
+                case 2: return FootprintStar2;
+                case 3: return FootprintStar3;
+                default: return Footprint;
+            }
         }
     }
 }

@@ -16,3 +16,5 @@ MonoBehaviour:
   _displayName: 힐러
   _requiredBlockId: single
   _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}
+  _footprintStar2: {fileID: 11400000, guid: 184679c7140047bbab340d2f9a194bcb, type: 2}
+  _footprintStar3: {fileID: 11400000, guid: 0147b59f76164f3cbcf384fa1ce09dbc, type: 2}

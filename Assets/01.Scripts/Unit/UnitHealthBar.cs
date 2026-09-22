@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -30,11 +31,18 @@ public class UnitHealthBar : MonoBehaviour
         Sprite sprite = GetWhiteSprite();
 
         // 자식 SpriteRenderer(SPUM 파츠)들을 합친 바운즈로 바 위치/폭을 잡는다.
+        // "Shadow"(발밑 그림자)는 프리팹/팩마다 크기·위치가 제각각이라 몸통 실제 폭과 무관하게
+        // 바운즈를 왜곡시킬 수 있어서 제외한다 — 일부 모델링에서 체력바 크기가 안 맞던 원인.
         var renderers = unit.GetComponentsInChildren<SpriteRenderer>();
         Bounds bounds = default;
         bool hasBounds = false;
         foreach (var renderer in renderers)
         {
+            if (renderer.name.IndexOf("Shadow", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                continue;
+            }
+
             if (!hasBounds) { bounds = renderer.bounds; hasBounds = true; }
             else bounds.Encapsulate(renderer.bounds);
         }
