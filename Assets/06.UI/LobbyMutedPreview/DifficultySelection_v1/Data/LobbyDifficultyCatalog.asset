@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d564677887795a44bd7b5b210aa8a86, type: 3}
+  m_Name: LobbyDifficultyCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.LobbyDifficultyCatalogSO
+  _entries:
+  - _difficulty: 0
+    _displayName: "\uC26C\uC6C0"
+    _description: "\uC18C\uC218 \uC815\uCC30\uB300\uB97C \uC0C1\uB300\uD558\uB294
+      \uBC29\uC5B4\uC804"
+  - _difficulty: 1
+    _displayName: "\uBCF4\uD1B5"
+    _description: "\uC911\uBB34\uC7A5 \uAE30\uC0AC\uB2E8\uACFC\uC758 \uC804\uD22C"
+  - _difficulty: 2
+    _displayName: "\uC5B4\uB824\uC6C0"
+    _description: "\uC815\uC608 \uC131\uAE30\uC0AC\uC758 \uB300\uADDC\uBAA8 \uCE68\uACF5"

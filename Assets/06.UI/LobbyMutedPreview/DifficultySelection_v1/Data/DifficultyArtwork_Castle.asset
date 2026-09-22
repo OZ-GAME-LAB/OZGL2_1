@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5d2cbe9030b18040b5839dcf6b619e5, type: 3}
+  m_Name: DifficultyArtwork_Castle
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.LobbyDifficultyArtworkSetSO
+  _displayName: "01 \uB9C8\uC655\uC131 \uACF5\uC131\uC804"
+  _easy: {fileID: 21300000, guid: 04df810f90757474aaa46bbcfdf51531, type: 3}
+  _normal: {fileID: 21300000, guid: f74f3d2180466dc4e8c92392de92ab7a, type: 3}
+  _hard: {fileID: 21300000, guid: 9b6e862ecfda6334eb3714e1e8bd7e85, type: 3}
