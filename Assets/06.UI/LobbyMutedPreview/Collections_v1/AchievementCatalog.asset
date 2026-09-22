@@ -18,43 +18,52 @@ MonoBehaviour:
     _description: "\uCCAB \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD558\uAE30"
     _icon: {fileID: 21300000, guid: b447c3495fe03a34c9859ed62d298f91, type: 3}
     _target: 1
+    _progressPerSegment: 1
   - _id: first_gate
     _displayName: "\uCCAB \uAD00\uBB38 \uB3CC\uD30C"
     _description: "\uAD00\uBB38 5\uD68C \uB3CC\uD30C\uD558\uAE30"
     _icon: {fileID: 21300000, guid: 4fa346b618ddfe348a4b388ba5cf63b6, type: 3}
     _target: 5
+    _progressPerSegment: 1
   - _id: veteran
     _displayName: "\uC804\uC7A5\uC758 \uC218\uB828\uC790"
     _description: "\uC804\uD22C 10\uD68C \uC644\uB8CC\uD558\uAE30"
     _icon: {fileID: 21300000, guid: c0abb263edaaa054aa77420eb172ea6c, type: 3}
     _target: 10
+    _progressPerSegment: 1
   - _id: hero_hunter_1
     _displayName: "\uC6A9\uC0AC \uC0AC\uB0E5\uAFBC I"
     _description: "\uC6A9\uC0AC 100\uBA85 \uCC98\uCE58\uD558\uAE30"
     _icon: {fileID: 21300000, guid: 2de49f2a0b54c9b4eaf1c0722a1d3c19, type: 3}
     _target: 100
+    _progressPerSegment: 10
   - _id: hero_hunter_2
     _displayName: "\uC6A9\uC0AC \uC0AC\uB0E5\uAFBC II"
     _description: "\uC6A9\uC0AC 500\uBA85 \uCC98\uCE58\uD558\uAE30"
     _icon: {fileID: 21300000, guid: 421ff272ebf723d47b8306a745448d1f, type: 3}
     _target: 500
+    _progressPerSegment: 50
   - _id: giant_fall
     _displayName: "\uAC70\uC778\uC758 \uBAB0\uB77D"
     _description: "\uAC70\uC778 1\uD68C \uCC98\uCE58\uD558\uAE30"
     _icon: {fileID: 21300000, guid: 5e074da97d622ca47bd73078dea1b3e5, type: 3}
     _target: 1
+    _progressPerSegment: 1
   - _id: growth
     _displayName: "\uC131\uC7A5\uC758 \uC2DC\uC791"
     _description: "\uC131\uC7A5 10\uD68C \uB2EC\uC131\uD558\uAE30"
     _icon: {fileID: 21300000, guid: a07e6b4d0cf4bba4eae82bebd445dedf, type: 3}
     _target: 10
+    _progressPerSegment: 1
   - _id: tuning
     _displayName: "\uD798\uC758 \uC870\uC728"
     _description: "\uD798\uC758 \uC870\uC728 5\uD68C \uB2EC\uC131\uD558\uAE30"
     _icon: {fileID: 21300000, guid: 314a2bf9937105c43abc2c0aa8c1f915, type: 3}
     _target: 5
+    _progressPerSegment: 1
   - _id: ready
     _displayName: "\uC804\uD22C \uC900\uBE44 \uC644\uB8CC"
     _description: "\uC7A5\uCC29 \uC2AC\uB86F 3\uAC1C \uCC44\uC6B0\uAE30"
     _icon: {fileID: 21300000, guid: 0a346873f563d024c81b194869ade411, type: 3}
     _target: 3
+    _progressPerSegment: 1

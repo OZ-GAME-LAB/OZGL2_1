@@ -14,6 +14,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private TMP_Text _progressText;
         [SerializeField] private TMP_Text _completedText;
         [SerializeField] private Image _progressFill;
+        [SerializeField] private UIAchievementProgressDividers _progressDividers;
         [SerializeField] private Image _frame;
         [SerializeField, Tooltip("선택 연결: 칸별 진행도 이미지입니다. 구분선 이미지는 연결하지 않습니다.")]
         private Image[] _segments;
@@ -50,6 +51,12 @@ namespace OZGL2.UIFlow
             if (_completedText != null) _completedText.color = stateColor;
 
             SetFill(_progressFill, ProgressRatio, stateColor);
+            if (_progressDividers != null)
+            {
+                if (hasEntry) _progressDividers.Configure(Target, entry.ProgressPerSegment);
+                else _progressDividers.Clear();
+                _progressDividers.SetCompleted(IsCompleted);
+            }
             if (_frame != null)
             {
                 _frame.color = stateColor;

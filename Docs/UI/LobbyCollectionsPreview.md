@@ -15,7 +15,7 @@
 | 설정 | 에셋/오브젝트 | 편집 항목 |
 | --- | --- | --- |
 | 유닛 도감 | `Collections_v1/UnitCatalog.asset` | ID, Display Name, Description, Portrait, Faction, Default Unlocked |
-| 업적 정의 | `Collections_v1/AchievementCatalog.asset` | ID, Display Name, Description, Icon, Target |
+| 업적 정의 | `Collections_v1/AchievementCatalog.asset` | ID, Display Name, Description, Icon, Target, Progress Per Segment |
 | 스킬 기본 해금 | `Assets/06.UI/LobbyMutedPreview/Skills_v1/SkillPreviewCatalog.asset` | 각 Entry의 Default Unlocked |
 | 미리보기 진행/해금 예외 | `Canvas_LobbyOverlays > UILobbyCollectionState` | Initial Achievement Progress, Initial Unlock Overrides |
 | 화면 어둡기 | 각 새 Canvas의 `BackgroundShade > Image > Color Alpha` | 기본 0.60 |
@@ -23,6 +23,7 @@
 | 도감 카드 | 도감 원본 Prefab의 `UnitCard_Template` | Frame / Portrait / Lock / Name |
 | 업적 카드 디자인 | `Collections_v1/Prefabs/AchievementCard.prefab` | Frame / IconFrame / Icon / Name / Description / Progress / ProgressFill / Status |
 | 업적 목록 배치 | `Canvas_Achievements.prefab`의 Content > GridLayoutGroup | Cell Size / Spacing / Constraint Count |
+| 업적 달성 표시 | `Canvas_Achievements.prefab`의 CompletedBadge / CompletedCount | 프레임·트로피 / TMP 글자 배치 |
 
 ID는 중복 없이 유지한다. 기존 유닛은 `unit.M_WAR_01` 같은 `unit.` + UnitStatData.unitId를 사용한다. 스킬은 기존 `ui_preview_*` ID를 유지한다. 실제 게임의 한글 Skill ID와 다르므로 직접 연결하지 않는다.
 
@@ -41,7 +42,70 @@ ID는 중복 없이 유지한다. 기존 유닛은 `unit.M_WAR_01` 같은 `unit.
 - `UIAchievementCardView`의 Icon / Name Text / Description Text / Progress Text / Completed Text / Progress Fill / Frame 참조를 유지한다. 자식 오브젝트를 교체했다면 대응 필드를 다시 연결한다.
 - 이름·설명·아이콘·목표치는 `AchievementCatalog.asset`, 현재 진행도는 `UILobbyCollectionState`에서 공급한다. 카드 프리팹의 샘플 문구나 아이콘을 바꿔도 실행 시 업적 데이터가 덮어쓴다.
 - 진행 막대·Status·연결된 Frame의 상태색은 `UIAchievementCardView`의 In Progress Color / Completed Color로 설정한다. 해당 Image의 Color만 변경하면 실행 시 상태색이 다시 적용된다. ProgressFill은 진행 비율에 따라 Horizontal Filled로 표시한다.
-- `Segment_1` 등의 구분선은 장식이다. `_segments`는 칸별 진행도 Image용이므로 구분선을 연결하지 않는다.
+- 진행 구분선은 `ProgressFill/Dividers`의 `UIAchievementProgressDividers`가 카탈로그의 목표/칸당 횟수에 맞춰 그린다. 카드의 Progress Dividers 참조를 유지한다. 기존 `Segment_1..9`는 비활성 보존하며 다시 켜지 않는다. `_segments`는 별도 칸별 채움 Image용이므로 구분선을 연결하지 않는다.
+
+### 업적별 칸 수와 계산식 편집
+
+`AchievementCatalog.asset > Entries > 해당 업적`에서 다음 두 값을 설정한다. 기존 ScriptableObject에 표시 설정만 추가했으며 현재 진행도는 여전히 별도 런타임 State가 관리한다.
+
+- **Target**: 달성에 필요한 전체 횟수.
+- **Progress Per Segment**: **몇 회당 1칸인지**. 1 이상 정수이며 업적마다 다르게 입력할 수 있다.
+- 칸 수 = `ceil(Target / Progress Per Segment)`, 구분선 수 = `칸 수 - 1`.
+- i번째 경계 위치 = `(i × Progress Per Segment) / Target`, 전체 채움 비율 = `현재 진행도 / Target`.
+
+| Target | Progress Per Segment | 칸 / 구분선 | 표시 예 |
+| --- | --- | --- | --- |
+| 5 | 1 | 5칸 / 4선 | 3/5 → 3칸 채움 |
+| 100 | 10 | 10칸 / 9선 | 73/100 → 7칸 + 다음 칸의 30% |
+| 100 | 25 | 4칸 / 3선 | 25회마다 1칸 |
+| 500 | 50 | 10칸 / 9선 | 73/500 → 1칸 + 다음 칸의 46% |
+| 95 | 10 | 10칸 / 9선 | 마지막 칸은 남은 5회에 해당하는 절반 폭 |
+| 1 | 1 | 1칸 / 0선 | 단일 막대 |
+
+목표 이하로 딱 나누어떨어지지 않아도 마지막 나머지 칸을 유지한다. 값이 목표 이상이면 구분선 없는 한 칸이다. 현재 샘플은 100회 업적=10회당 1칸, 500회 업적=50회당 1칸, 나머지=1회당 1칸으로 설정했다.
+
+편집은 Edit Mode에서 하고 다음 Play Mode에 확인한다. 실행 중 State의 Changed 이벤트나 `UIAchievementView.Refresh()` 시에도 카탈로그 값을 다시 읽는다. 자동 Update 폴링은 하지 않는다.
+
+`Dividers`는 채움 이미지의 전체 RectTransform을 따라가는 단일 UI 메시다. 칸마다 GameObject를 만들지 않으며 Raycast를 막지 않는다. 비정상적으로 큰 목표를 입력해도 논리 칸 수/진행 비율은 유지하되 UI 정점 한도를 보호하기 위해 기본 최대 4096개의 실제 경계만 고르게 표시한다. 실제 사용 시 카드 폭에 맞는 칸당 횟수를 지정한다.
+
+### Gothic Metal 진행 막대 — 2026-09-22
+
+- `AchievementCard.prefab`의 진행 막대에 독립 생성한 프레임·Fill·눈금 3종을 연결했다. 카드 이름·아이콘·문구·외곽 카드 디자인은 유지한다.
+- `ProgressRail > Image > Source Image`: `Styles/GothicProgress_Frame.asset`. 내부가 투명한 프레임이며 Fill보다 뒤 순서(화면에서는 앞)에 렌더한다.
+- `ProgressTrack`: 빈 영역의 어두운 바탕. `ProgressFill`: `Styles/GothicProgress_Fill.asset`, 기존 `현재 진행도 / Target`만큼 가로로 채운다. 상태색은 카드의 In Progress Color / Completed Color로 편집한다.
+- `ProgressFill/Dividers > UIAchievementProgressDividers > Tick Sprite`: `Styles/GothicProgress_Tick.asset`. 한 개짜리 눈금을 계산된 경계마다 반복한다. Height Ratio / Bottom Inset / Line Width로 높이·하단 여백·두께를 편집한다. Completed Tint는 밝은 완료 Fill에 대비되는 눈금 색이다.
+- 목표/칸당 횟수는 기존 `AchievementCatalog.asset`의 Target / Progress Per Segment로 편집한다. PNG에 눈금 수나 글자를 굽지 않았으므로 3/5=4눈금, 100회=10회당 1칸 등의 계산은 그대로 유지된다. 진행/저장/해금/보상 데이터는 이번에 수정하지 않았다.
+- 이미지 생성 스킬에 따라 프레임·Fill의 첫 결과에 포함된 가짜 체크무늬를 검출하고, 내장 이미지 편집으로 실제 투명 PNG를 다시 만들었다. PNG는 무수정 복사하고 Unity Sprite 영역으로 여백만 제외했다. 생성 방식·원본·전체 프롬프트·영역 좌표: `Tools/Art/achievement_gothic_progress_prompts.md`.
+- Unity API와 Undo로 원본 카드 프리팹의 진행 막대만 변경·저장했다. 진행 막대 외 49개 컴포넌트 직렬화 값 불변. 새 이미지/Sprite/.meta 생성과 디스크 저장의 복구는 Undo만으로 보장되지 않으므로 Git Diff에서 별도 확인한다.
+- 검증: 계산/메시/스프라이트 UV/짧은 눈금/상태 틴트 122항목, 실제 업적 카드 123항목, 기존 Collections 회귀 226항목 통과. 9개 실제 CanvasRenderer의 경계 수·색상, 3/5→5/5 상태 전환과 달성 카운터 갱신도 확인했다.
+- 최종 Game View: `Temp/AchievementProgress/gothic-metal-final.png`(Git 제외). 기존 미저장 로비 Scene은 저장하지 않고 보존한다. 다른 Prefab/Scene/ProjectSettings/Packages는 이번에 변경하지 않았다. 최종 카드 Prefab Mode에서 편집을 이어갈 수 있다.
+- 추가 수동 확인: 다른 화면비에서 진행 막대·문구 간격, 원하는 막대색/눈금 높이. Layer/Tag/Collider/Rigidbody/Animator/Input System 추가 설정은 없다.
+
+### 상단 달성 배지
+
+- `CompletedBadge`: 기존 로비 `HUD_Level.png` 프레임 재사용.
+- `CompletedBadge/Trophy`: 새로 생성한 실제 투명 PNG `Sprites/CompletedTrophy_v2.png`. 이전 `CompletedTrophy.asset`의 사각 영역 재사용은 배경/픽셀 품질 문제로 중단했으며 해당 이전 에셋은 미사용으로 보존한다. 새 PNG는 Point·무압축·Mipmaps Off, Image는 Preserve Aspect 및 Raycast Off로 설정했다.
+- `CompletedCount`: 기존 TMP 및 `_summaryText` 참조 유지. `달성 n / 전체`는 런타임에서 갱신된다. 장식은 Raycast 비활성이다.
+
+### 진행 분할·배지 적용 기록 — 2026-09-22
+
+- Runtime 변경: `UIAchievementCatalogSO`에 칸당 횟수 설정, `UIAchievementCardView`에 구분선 연결, 신규 `UIAchievementProgressDividers`에 경계 메시 표시 책임을 분리했다. 저장·보상·실제 전투 집계는 변경하지 않았다.
+- 설정/디자인 변경: `AchievementCatalog.asset`의 칸당 횟수, `AchievementCard.prefab`의 구분선 연결, `Canvas_Achievements.prefab`의 상단 배지, 신규 `Sprites/CompletedTrophy.asset`. 부모 Overlay와 Scene은 Git 변경이 없다.
+- 사용자가 편집한 카드 위치·크기·글자 설정을 보존했다. 카드의 기존 컴포넌트 57개와 상단 배지 이외 화면 컴포넌트 103개의 직렬화 값이 작업 전후 동일함을 확인했다.
+- 신규 Editor 검증 메뉴: `Tools/OZGL2/Lobby/Validate Achievement Progress`. 임시 Preview Scene과 카탈로그 복사본만 사용하며 원본 변경이 없어 Undo 대상이 없다. `LobbyAchievementProgressValidation.RunLive()`는 열린 업적 화면을 읽기만 검사한다.
+- Unity 검증: 계산/메시/크기 변경/예외 입력 113개, 실제 업적 카드 105개, 기존 도감·업적·공유 해금 회귀 검사 226개 통과. 실제 CanvasRenderer 메시의 정점 수와 구분선 수, 진행 갱신 시 달성 2→3 및 Back 좌표의 최상위 Raycast/포인터 클릭 닫힘을 별도 확인했다.
+- 초기 Play 검증에서 새 구분선의 CanvasRenderer 누락을 발견해 필수 컴포넌트 선언과 프리팹 연결을 보완한 뒤 다시 검증했다. 최종 Unity 컴파일 및 Console 오류/경고 0개, 기존 회귀 검사의 Missing Script/누락 참조/TMP 폰트 검사 통과.
+- 종료 상태: Edit Mode, 대상 Scene dirty=false, 부모 인스턴스 override 159개 유지. Scene 저장본은 이전 파일과 동일하다. `.meta`는 Unity가 생성했고 다른 Scene·메뉴·특성·스킬·원본 PNG·ProjectSettings·Packages는 수정하지 않았다. 커밋/푸시하지 않았다.
+- Inspector에서 업적마다 Target / Progress Per Segment를 확인하고, 사용자 환경의 화면비·물리 마우스 입력은 추가 확인한다. Layer/Tag/Collider/Rigidbody/Animator/Input System 변경은 없다. 충돌 위험은 두 업적 프리팹과 카탈로그이며 기존 카드 수동 편집분이 Git Diff에 함께 포함된다.
+- Game View 캡처: Git 제외 `Temp/AchievementProgress/achievement-progress-final.png`.
+
+### 트로피 품질 수정 — 2026-09-22
+
+- 이전 Sprite 영역 재사용은 배경 제거가 아니었고 픽셀 품질 검수가 부족했다. 내장 이미지 생성으로 독립 트로피를 재생성한 뒤 PNG의 실제 알파와 Game View를 확인해 교체했다.
+- 생성 원본의 알파를 그대로 보존했다. 1254×1254 PNG의 완전 투명 픽셀 934,336개, 바깥 모서리와 양쪽 손잡이 구멍의 알파 0을 확인했다. 본체 대표 픽셀은 254/255의 알파다.
+- 원본 프리팹의 Trophy Image와 48×48 크기만 변경하고 다른 컴포넌트 111개의 직렬화 값을 보존했다. 사용자의 미저장 Scene 변경, 수정된 프레임·위치는 저장/덮어쓰기하지 않았다.
+- Play Mode에서 새 Sprite 참조, Point, 무압축, Mipmap Off, 종횡비 유지, 입력 비차단 확인. 업적 Live 검사 105개 통과, Console 오류/경고 0개. 현재 검수 캡처는 `Temp/AchievementProgress/trophy-v2-in-game.png`이며 이전 캡처를 대체한다.
+- 생성 프롬프트/파일/임포트 기록: `Tools/Art/achievement_trophy_v2_prompt.md`. 이번 품질 수정에서는 Runtime 코드·카탈로그·다른 화면 변경 및 커밋을 하지 않았다.
 
 ### 분리·검증 기록 — 2026-09-22
 

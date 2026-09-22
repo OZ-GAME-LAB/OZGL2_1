@@ -16,12 +16,16 @@ namespace OZGL2.UIFlow
             [SerializeField, TextArea(2, 6)] private string _description = string.Empty;
             [SerializeField] private Sprite _icon;
             [SerializeField, Min(1)] private int _target = 1;
+            [SerializeField, Min(1), Tooltip("진행 막대 한 칸에 해당하는 횟수입니다. 목표를 나누고 남은 마지막 칸은 나머지 횟수만큼 표시합니다.")]
+            private int _progressPerSegment = 1;
 
             public string Id => _id;
             public string DisplayName => _displayName ?? string.Empty;
             public string Description => _description ?? string.Empty;
             public Sprite Icon => _icon;
             public int Target => Mathf.Max(1, _target);
+            public int ProgressPerSegment => Mathf.Max(1, _progressPerSegment);
+            public int SegmentCount => 1 + (Target - 1) / ProgressPerSegment;
         }
 
         [SerializeField] private Entry[] _entries = Array.Empty<Entry>();
