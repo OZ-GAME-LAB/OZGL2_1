@@ -15,6 +15,7 @@ namespace OZGL2.Grid.UI
         private readonly Dictionary<string, int> _stars = new Dictionary<string, int>();
         private readonly List<SpriteRenderer> _ghost = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _frontier = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _invalid = new List<SpriteRenderer>();
         private readonly Sprite _solid;
         private readonly float _cellSize;
         private GameObject _dragActor;
@@ -66,6 +67,10 @@ namespace OZGL2.Grid.UI
             RenderSquares(_ghost, cells, _grid.GetPreviewFailure() == ePlacementFailure.NONE ? GridBoardView.VALID_COLOR : GridBoardView.INVALID_COLOR, 200, 0.94f);
             var frontier = _grid.RequiresExpansionPlacement ? _grid.GetExpansionFrontier() : Array.Empty<Vector2Int>();
             RenderSquares(_frontier, frontier, new Color(0.4f, 0.8f, 0.6f, 0.22f), -90, 0.86f);
+            // 합성으로 발판이 커져서 자리가 부족한 유닛이 있으면 그 칸을 빨갛게 표시한다.
+            // 합성 자체는 막지 않고(GridManager.CanFuseUnits), 이 칸이 남아있는 동안 CanBeginBattle이
+            // false가 되어 정리하기 전까진 웨이브를 시작할 수 없다.
+            RenderSquares(_invalid, _grid.GetInvalidCells(), new Color(0.95f, 0.15f, 0.15f, 0.45f), 210, 0.98f);
             string selected = _grid.DragKind == eGridDragKind.UNIT ? _grid.SelectedId : null;
             int selectedStar = selected == null ? 0 : _grid.FindUnit(selected).StarLevel;
             if (_dragId != selected || _dragStar != selectedStar)

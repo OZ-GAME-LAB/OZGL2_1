@@ -3283,7 +3283,7 @@ GameObject:
   - component: {fileID: 4898787280618810883}
   - component: {fileID: -4391461560221949090}
   m_Layer: 5
-  m_Name: H_Rogue
+  m_Name: Rogue_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
