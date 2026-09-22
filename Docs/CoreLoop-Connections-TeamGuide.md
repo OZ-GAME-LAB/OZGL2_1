@@ -8,7 +8,7 @@ SO 직업, 전투 배율/회복 계산, 스킬 피해 계산은 각 담당 시�
 |---|---|
 | 배치/회수/합성 → 시너지 집계 | `InGameSynergyConnection`에서 기존 `RealSynergySync.SetCount` 호출 |
 | 증강 초기화 | 실행 시작 시 `RealSynergySync.BeginRun`, 종료 시 `Augments.ResetRun` 호출. 라운드 사이에는 유지 |
-| 실제 증강 선택 | Bootstrap의 Augment Provider가 비어 있으면 기존 더미. 실제 선택 UI는 미연결 |
+| 실제 증강 선택 | Builds/InGame에 InGameAugmentRewards 연결. 연결된 효과만 더미 선택창으로 제공하며 실제 UI는 교체 가능. CoreLoop-Augment-TeamGuide.md 참고 |
 | 스킬 사용 차단/효과 정리/마왕 위치 | `InGameSkillConnection`을 Bootstrap이 자동 등록. `RealSynergySync`의 공개 API로 연결 |
 | 투사체 정리 | 씬의 `ProjectileCombatParticipant`가 Combat Participants에 등록되어 있어야 함 |
 | 동시 전멸 | 패배 반환 후 기존 저장/정산/로비 흐름 사용. 진단 Outcome은 SIMULTANEOUS 유지 |

@@ -67,6 +67,43 @@ namespace OZGL2.Augment
             return 3;
         }
 
+        /// <summary>등급 가중치로 최대 세 후보를 뽑는다. 소진된 등급은 남은 등급에 재분배한다.</summary>
+        public List<AugmentData> Draw3(int silver, int gold, int platinum, Predicate<AugmentData> canOffer)
+        {
+            if (silver < 0 || gold < 0 || platinum < 0 || (long)silver + gold + platinum == 0)
+                throw new ArgumentException("Positive tier weights are required.");
+            var groups = new List<AugmentData>[] { new List<AugmentData>(), new List<AugmentData>(), new List<AugmentData>() };
+            var ids = new HashSet<string>();
+            foreach (var data in _pool)
+            {
+                if (data == null || data.tier < 1 || data.tier > 3 || string.IsNullOrWhiteSpace(data.augmentId))
+                    throw new InvalidOperationException("Invalid augment catalog entry.");
+                if (!ids.Add(data.augmentId)) throw new InvalidOperationException("Duplicate augment ID: " + data.augmentId);
+                if (!IsMaxed(data) && (canOffer == null || canOffer(data))) groups[data.tier - 1].Add(data);
+            }
+            var weights = new[] { silver, gold, platinum };
+            var result = new List<AugmentData>();
+            for (int pick = 0; pick < 3; pick++)
+            {
+                long total = 0;
+                for (int i = 0; i < 3; i++) if (groups[i].Count > 0) total += weights[i];
+                if (total == 0) break;
+                double roll = UnityEngine.Random.value * total;
+                int tier = -1;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (groups[i].Count == 0 || weights[i] == 0) continue;
+                    tier = i;
+                    roll -= weights[i];
+                    if (roll < 0) break;
+                }
+                var chosen = WeightedPick(groups[tier]);
+                result.Add(chosen);
+                groups[tier].Remove(chosen);
+            }
+            return result;
+        }
+
         private static AugmentData WeightedPick(List<AugmentData> list)
         {
             float total = 0f;

@@ -480,6 +480,10 @@ PrefabInstance:
       value: InGamePrototype
       objectReference: {fileID: 0}
     - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      propertyPath: _augmentProvider
+      value: 
+      objectReference: {fileID: 8701223948942012792}
+    - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _phasePresentation
       value: 
       objectReference: {fileID: 8701223948942012783}
@@ -511,6 +515,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8701223948942012783}
+    - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8701223948942012792}
+    - targetCorrespondingSourceObject: {fileID: 7125375726272334703, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8701223948942012791}
   m_SourcePrefab: {fileID: 100100000, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
 --- !u!1 &8701223948942012779 stripped
 GameObject:
@@ -587,6 +597,30 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6931151815657655447, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
   m_PrefabInstance: {fileID: 8701223948942012778}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8701223948942012791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701223948942012779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92b6eb361d553a4f958444f698d3d5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameAugmentDummyView
+--- !u!114 &8701223948942012792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701223948942012779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a5a20e012ed3594380b80b90b36806a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameAugmentRewards
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
