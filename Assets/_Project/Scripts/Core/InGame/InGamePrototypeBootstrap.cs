@@ -107,6 +107,7 @@ namespace OZGL2.InGame
                 _combatConnection.DisableCombat();
                 Dummy = new ManualStageServices();
                 IStageRewards augment = Dummy;
+                if (_augmentProvider is InGameAugmentRewards realAugments) realAugments.Bind(_runSynergy);
                 if (_augmentProvider != null)
                     augment = _augmentProvider as IStageRewards ?? throw new InvalidOperationException("Augment provider must implement IStageRewards.");
                 Rewards = new StageGridRewards(_session, new GridPrototypeRewards(_config.Catalog), augment);
@@ -259,6 +260,7 @@ namespace OZGL2.InGame
         private async Task ReleaseCoreAsync()
         {
             var errors = new List<Exception>();
+            if (_augmentProvider is InGameAugmentRewards realAugments) realAugments.CancelSelection();
             // 종료를 기다리는 동안에도 새 입력과 지연 피해가 발생하지 않게 먼저 닫는다.
             try
             {
