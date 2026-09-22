@@ -4,7 +4,7 @@
 
 스킬 아이콘의 실루엣은 흰색으로 읽히게 유지하고, 외곽선과 옅은 슬롯 배경만으로 딜/버프/디버프를 구분한다. 저채도 다크판타지의 고풍스러운 금속 장식과 픽셀 느낌을 유지한다.
 
-현재 적용 대상은 `UI_Lobby_MutedPreview`에서 사용하는 `Canvas_SkillSettings.prefab`의 보유 목록, 장착 슬롯 3개, 상세 아이콘이다. 특성/메뉴/다른 Scene에는 자동 적용하지 않는다. 실제 전투 스킬 효과·수치·해금·게임 저장과는 별도의 UI 표시 규칙이다.
+현재 적용 대상은 `UI_Lobby_MutedPreview`에서 사용하는 부모 `Canvas_LobbyOverlays.prefab`의 일반 자식 `Canvas_SkillSettings`에 있는 보유 목록, 장착 슬롯 3개, 상세 아이콘이다. 현재 스킬 화면은 중첩 Prefab 인스턴스가 아니며 `Skills_v1/Prefabs/Canvas_SkillSettings.prefab`은 이전 시안의 참고용으로 보존한다. 특성/메뉴/다른 Scene에는 자동 적용하지 않는다. 실제 전투 스킬 효과·수치·해금·게임 저장과는 별도의 UI 표시 규칙이다. 현재 19종의 표시 데이터는 [SkillRoster_v2.md](SkillRoster_v2.md)를 따른다.
 
 ## 공통 아트 규칙
 
@@ -19,6 +19,7 @@
 | 빈 장착 슬롯 프레임 | 기존 형태를 유지한 무채색 회색, 내부 분류색 없음 |
 | 목록 미선택 호버 프레임 | 기존 주황/황동색 상태 유지 |
 | 목록 선택 프레임 | 기존 안쪽으로 두꺼운 금색 상태 유지 |
+| 궁극기 추가 장식 | DAMAGE 분류를 유지하고 별도 적색·고금색 장식 Image 사용 |
 
 - 분류색은 기존 `Equip_Red.png`, `Card_Selected_Gold.png`, `Equip_Purple.png`에서 채취했다.
 - 아이콘 본체 전체를 분류색으로 칠하지 않는다. 텍스트나 배경 풍경도 분류색으로 물들이지 않는다.
@@ -44,10 +45,10 @@
 
 ## 새 스킬 적용 절차
 
-1. 현재 미리보기에서는 `SkillPreviewCatalog.asset`의 해당 Entry에 `Category`와 투명 아이콘 Sprite를 설정한다.
+1. 현재 미리보기는 `Assets/06.UI/LobbyMutedPreview/Skills_v2/SkillRosterCatalog.asset`의 19개 Entry를 사용한다. 표시 데이터 원본은 `Tools/Art/SkillRoster_v2.json`이며 아이콘은 `Skills_v2/Sprites`에 있다.
 2. `UISkillLoadoutPreview`는 목록·상세 선택·장착 갱신 시 `UISkillCategoryStyleSO`의 동일 분류 Material/슬롯 색을 적용한다. Material을 런타임에 복제하거나 공용 Material 값을 변경하지 않는다.
-3. 새 UI 카드 오브젝트를 늘리는 경우 `_cards`, `_cardIcons`, `_cardSlotTints`와 클릭 인덱스도 연결해야 한다. 카탈로그 항목 추가만으로 카드가 자동 생성되는 구조는 아니다.
-4. 기존 카드 연결 후 `Tools/OZGL2/Lobby/Apply Skill Category Visual Style`로 슬롯 색 레이어와 표시 참조를 연결한다. 대상 Prefab Mode에서 Undo를 지원한다. 새 Material/SO 에셋 생성 자체는 Undo 삭제 대상이 아니다.
+3. 새 UI 카드 오브젝트를 늘리는 경우 `_cards`, `_cardIcons`, `_cardSlotTints`, 잠금/궁극기 장식 배열과 클릭 인덱스도 연결해야 한다. 카탈로그 항목 추가만으로 카드가 런타임에 자동 생성되는 구조는 아니다. v2 Builder는 19개 카드를 3열 세로 스크롤 안에 배치하고 해당 참조를 연결한다.
+4. v2 갱신은 `Tools/OZGL2/Lobby/Build Skill Roster V2 (19 Skills)`를 사용한다. 부모 `Canvas_LobbyOverlays`의 Prefab Mode에서 Undo를 지원하며 결과 확인 후 Prefab을 수동 저장한다. 새 카탈로그/폴더 생성 자체는 Undo 삭제 대상이 아니다. 기존 12종 시안용 생성/스타일 메뉴를 v2 화면 재생성에 사용하지 않는다.
 5. 기존 화면의 분류색 농도만 바꾸려면 Play Mode를 종료하고 `SkillCategoryStyle.asset` 또는 해당 Material을 수정한다. 적용 메뉴 재실행은 이미 존재하는 공유 설정을 덮어쓰지 않는다.
 6. 다른 스킬 화면에서는 같은 설정 SO의 `GetIconMaterial(category)`, `GetSlotColor(category)`, `SlotTintMaterial`, `GetEquippedFrame(category)`를 각 Image에 연결한다. 미해금/선택/장착/저장 데이터는 이 SO에 넣지 않는다.
 
@@ -67,11 +68,18 @@
 - `IsArcane` 필드는 기존 카탈로그 호환을 위해 남아 있지만 프레임 표시에는 사용하지 않는다.
 - 생성 원본/실제 프롬프트/후처리 기록: `Tools/Art/Sources/SkillEquippedFrames_v4/GENERATION.md`.
 
+### 궁극기 장식과 v2 아이콘
+
+- 유성우·절대 영도·심판은 사용자 지정에 따라 모두 `DAMAGE`이며 딜의 흰색 본체/적색 외곽선/옅은 적색 내부를 공유한다. 시간 정지는 `DEBUFF`를 유지한다.
+- `Skills_v2/Sprites/Ultimate_Card_Ornament.png`를 목록과 상세에, `Ultimate_Equipped_Ornament.png`를 장착 프레임에 별도 Image로 사용한다. 장식은 `IsUltimate`와 해금 상태로 표시하며 기존 선택 Gold 및 호버 Amber 상태와 구분한다.
+- 장식 Image의 Raycast Target은 끄고 아이콘·문구를 장식에 합치지 않는다. 잠금 상태에서는 궁극기 장식을 숨기고 공통 실루엣/자물쇠 정책을 따른다.
+- v2의 아이콘 19개는 새 생성 9개와 기존 아트 파생 복사 10개이다. 이전 원본을 유지하고 `Tools/Art/PrepareSkillRosterArt.ps1`로 알파 여백과 크기를 정렬한다. 생성 프롬프트/원본은 `Tools/Art/Sources/SkillRoster_v2/generation.json`, 정렬 기록은 같은 폴더의 `normalization.json`을 참고한다.
+
 ### 실제 스킬 시스템 연동 시
 
-- 현재 카탈로그는 12개 아트 미리보기용이다. 이번 작업은 첨부 표의 기존 6개 스킬 구성이나 수치를 대체/적용하지 않는다.
+- 현재 카탈로그는 최신 첨부 표를 표시하는 19종 UI 미리보기용이다. 티어/발동/해금 SP와 효과 수치는 UI에 표시하지만 실제 전투 스킬 구성·수치·SP 차감·저장을 바꾸지 않는다. 모든 항목은 미리보기에서 기본 해금 상태이다.
 - 실제 `SkillData`의 분류를 UI 분류 `DAMAGE/BUFF/DEBUFF`로 명시적으로 매핑한다. 서로 다른 enum을 숫자로 단순 캐스팅하지 않는다.
-- `Ultimate`나 복합 효과 스킬은 임의로 색을 추정하지 않는다. 대표 분류를 기획에서 정한 뒤 매핑한다.
+- 현재 궁극기 3종은 명시적으로 `DAMAGE`에 매핑하고 `IsUltimate`로 장식만 추가한다. 이후 복합 효과 스킬의 분류도 임의로 추정하지 않는다.
 - 실제 저장/전투 장착 데이터와의 연결은 별도 구현 사항이다.
 
 ## 새 아이콘 원본 규격
@@ -85,14 +93,15 @@
 ## 확인 항목
 
 - 전체/딜/버프/디버프 전환, 각 분류의 상세 아이콘과 슬롯 색 일치
+- 19개 카드의 3열 스크롤, 마지막 행 선택, 궁극기 3종의 목록/상세/장착 장식과 잠금 시 숨김
 - 장착·해제·빈 슬롯·다른 분류 장착 시 이전 색 잔류 없음
 - 호버 주황, 클릭 선택 금색, 재클릭/마우스 이탈 시 선택 유지
 - 기존 검은 배경과 그라데이션 유지, UI 입력 가로채기 없음
-- 원본 Sprite/카탈로그 수치/실제 게임 저장 불변
+- 이전 원본 Sprite와 실제 전투 SO/게임 저장 불변, v2 카탈로그는 최신 표/JSON과 일치
 - Unity Console 및 Shader 컴파일 오류 없음
 - 비 16:9, UI 마스크 내부, 다른 그래픽 API와 플레이어 빌드는 별도 검증 필요
 
-검증 메뉴: `Tools/OZGL2/Lobby/Validate Skill Settings Preview`, `Tools/OZGL2/Lobby/Validate Skill Category Visual Style`.
+19종 검증 메뉴: `Tools/OZGL2/Lobby/Validate Skill Roster V2`, `Tools/OZGL2/Lobby/Validate Skill Roster V2 Text Layout`. 아래 2026-09-21의 12종 검사 기록은 당시 시안 결과이며, 현재 19종의 검사 결과로 간주하지 않는다.
 
 ### 적용 검증 기록 — 2026-09-21
 

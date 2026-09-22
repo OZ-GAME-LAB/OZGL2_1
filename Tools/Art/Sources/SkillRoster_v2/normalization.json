@@ -1,0 +1,233 @@
+[
+  {
+    "Name": "Icon_IceSpike",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_IceSpike_Original.png",
+    "Size": 192,
+    "Bounds": [
+      240,
+      60,
+      954,
+      1146
+    ]
+  },
+  {
+    "Name": "Icon_ChainLightning",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_ChainLightning_Original.png",
+    "Size": 192,
+    "Bounds": [
+      97,
+      216,
+      1083,
+      822
+    ]
+  },
+  {
+    "Name": "Icon_Knockback",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_Knockback_Original.png",
+    "Size": 192,
+    "Bounds": [
+      38,
+      191,
+      1178,
+      872
+    ]
+  },
+  {
+    "Name": "Icon_Wave",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_Wave_Original.png",
+    "Size": 192,
+    "Bounds": [
+      74,
+      164,
+      1112,
+      986
+    ]
+  },
+  {
+    "Name": "Icon_LightningTornado",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_LightningTornado_Original.png",
+    "Size": 192,
+    "Bounds": [
+      163,
+      84,
+      929,
+      1098
+    ]
+  },
+  {
+    "Name": "Icon_Lifesteal",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_Lifesteal_Original.png",
+    "Size": 192,
+    "Bounds": [
+      153,
+      91,
+      948,
+      1081
+    ]
+  },
+  {
+    "Name": "Icon_Resurrection",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_Resurrection_Original.png",
+    "Size": 192,
+    "Bounds": [
+      198,
+      46,
+      868,
+      1161
+    ]
+  },
+  {
+    "Name": "Icon_MeteorShower",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_MeteorShower_Original.png",
+    "Size": 192,
+    "Bounds": [
+      196,
+      74,
+      963,
+      1116
+    ]
+  },
+  {
+    "Name": "Icon_AbsoluteZero",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Icon_AbsoluteZero_Original.png",
+    "Size": 192,
+    "Bounds": [
+      88,
+      33,
+      1078,
+      1179
+    ]
+  },
+  {
+    "Name": "Ultimate_Card_Ornament",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Ultimate_Card_Ornament_Original.png",
+    "Size": 256,
+    "Bounds": [
+      27,
+      35,
+      1200,
+      1173
+    ]
+  },
+  {
+    "Name": "Ultimate_Equipped_Ornament",
+    "Source": "D:\\GitHub\\OZGL2_1\\Tools\\Art\\Sources\\SkillRoster_v2\\Ultimate_Equipped_Ornament_Original.png",
+    "Size": 256,
+    "Bounds": [
+      95,
+      33,
+      1121,
+      1129
+    ]
+  },
+  {
+    "Name": "Icon_Fire",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Fire.png",
+    "Size": 192,
+    "Bounds": [
+      24,
+      4,
+      144,
+      184
+    ]
+  },
+  {
+    "Name": "Icon_FireTornado",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Vortex.png",
+    "Size": 192,
+    "Bounds": [
+      8,
+      4,
+      176,
+      184
+    ]
+  },
+  {
+    "Name": "Icon_Meteor",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Strike.png",
+    "Size": 192,
+    "Bounds": [
+      4,
+      4,
+      184,
+      183
+    ]
+  },
+  {
+    "Name": "Icon_VoidCollapse",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Abyss.png",
+    "Size": 192,
+    "Bounds": [
+      10,
+      4,
+      172,
+      184
+    ]
+  },
+  {
+    "Name": "Icon_SlowSwamp",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Portal.png",
+    "Size": 192,
+    "Bounds": [
+      9,
+      4,
+      173,
+      184
+    ]
+  },
+  {
+    "Name": "Icon_CurseMark",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Curse.png",
+    "Size": 192,
+    "Bounds": [
+      9,
+      4,
+      173,
+      184
+    ]
+  },
+  {
+    "Name": "Icon_TimeStop",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Overlays\\TreeArt_v1\\Sprites\\Icons\\Spells\\Icon_Spells_Acceleration.png",
+    "Size": 192,
+    "Bounds": [
+      85,
+      72,
+      86,
+      112
+    ]
+  },
+  {
+    "Name": "Icon_Berserk",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Overlays\\TreeArt_v1\\Sprites\\Icons\\Legion\\Icon_Legion_RepeatedStrikes.png",
+    "Size": 192,
+    "Bounds": [
+      72,
+      74,
+      112,
+      107
+    ]
+  },
+  {
+    "Name": "Icon_IronSkin",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Overlays\\TreeArt_v1\\Sprites\\Icons\\Legion\\Icon_Legion_IronArmor.png",
+    "Size": 192,
+    "Bounds": [
+      86,
+      72,
+      84,
+      112
+    ]
+  },
+  {
+    "Name": "Icon_Judgment",
+    "Source": "D:\\GitHub\\OZGL2_1\\Assets\\06.UI\\LobbyMutedPreview\\Skills_v1\\Sprites\\Icon_Trident.png",
+    "Size": 192,
+    "Bounds": [
+      33,
+      4,
+      126,
+      184
+    ]
+  }
+]

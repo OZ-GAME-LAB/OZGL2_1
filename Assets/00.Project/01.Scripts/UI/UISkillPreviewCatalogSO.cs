@@ -18,6 +18,11 @@ namespace OZGL2.UIFlow
             [SerializeField, TextArea(3, 8)] private string _description = string.Empty;
             [SerializeField] private eSkillPreviewCategory _category;
             [SerializeField] private Sprite _icon;
+            [SerializeField] private bool _defaultUnlocked = true;
+            [SerializeField] private bool _isUltimate;
+            [SerializeField, Min(1)] private int _tier = 1;
+            [SerializeField, Min(0)] private int _unlockSp = 1;
+            [SerializeField] private string _activation = string.Empty;
             [SerializeField] private bool _isArcane;
             [SerializeField] private string _effectLabel = "피해";
             [SerializeField] private string _effectValue = "120";
@@ -27,6 +32,11 @@ namespace OZGL2.UIFlow
             public string Description => _description ?? string.Empty;
             public eSkillPreviewCategory Category => _category;
             public Sprite Icon => _icon;
+            public bool DefaultUnlocked => _defaultUnlocked;
+            public bool IsUltimate => _isUltimate;
+            public int Tier => Mathf.Max(1, _tier);
+            public int UnlockSp => Mathf.Max(0, _unlockSp);
+            public string Activation => _activation ?? string.Empty;
             public bool IsArcane => _isArcane;
             public string EffectLabel => _effectLabel;
             public string EffectValue => _effectValue;

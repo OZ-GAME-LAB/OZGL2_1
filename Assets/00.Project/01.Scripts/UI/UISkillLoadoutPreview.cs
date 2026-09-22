@@ -12,11 +12,19 @@ namespace OZGL2.UIFlow
     {
         private const int SLOT_COUNT = 3;
         [SerializeField] private UISkillPreviewCatalogSO _catalog;
+        [SerializeField] private UILobbyCollectionState _unlockState;
+        [SerializeField] private Material _lockedIconMaterial;
+        [SerializeField] private Color _lockedIconColor = new Color(0.22f, 0.22f, 0.22f, 1);
+        [SerializeField] private Image[] _cardLockIcons;
+        [SerializeField] private Image _detailLockIcon;
         [SerializeField] private UISkillArtButton[] _categoryButtons;
         [SerializeField] private UISkillArtButton[] _cards;
         [SerializeField] private Image[] _cardIcons;
+        [SerializeField] private Image[] _cardUltimateFrames;
+        [SerializeField] private ScrollRect _ownedScrollRect;
         [SerializeField] private Image[] _equippedIcons;
         [SerializeField] private Image[] _equippedFrames;
+        [SerializeField] private Image[] _equippedUltimateFrames;
         [SerializeField] private RectTransform[] _equippedSlotRects;
         [SerializeField] private UISkillCategoryStyleSO _categoryStyle;
         [SerializeField] private Image[] _cardSlotTints;
@@ -25,7 +33,9 @@ namespace OZGL2.UIFlow
         [SerializeField] private Sprite _redFrame;
         [SerializeField] private TMP_Text _detailName;
         [SerializeField] private TMP_Text _detailDescription;
+        [SerializeField] private TMP_Text _detailMetadata;
         [SerializeField] private Image _detailIcon;
+        [SerializeField] private Image _detailUltimateFrame;
         [SerializeField] private TMP_Text _effectLabel;
         [SerializeField] private TMP_Text _effectValue;
         [SerializeField] private TMP_Text _cooldown;
@@ -43,9 +53,10 @@ namespace OZGL2.UIFlow
         private int _selected = -1;
         private int _category;
         private UIPopupPanel _panel;
+        private UILobbyCollectionState _subscribedUnlockState;
 
         public int CategoryIndex => _category;
-        public int EquippedCount { get { int count = 0; foreach (int i in _draft) if (IsValid(i)) count++; return count; } }
+        public int EquippedCount { get { int count = 0; foreach (int i in _draft) if (IsSkillUnlocked(i)) count++; return count; } }
         public string SelectedSkillId => IsValid(_selected) ? _catalog.Entries[_selected].Id : string.Empty;
         public bool HasChanges { get { for (int i = 0; i < SLOT_COUNT; i++) if (_draft[i] != _committed[i]) return true; return false; } }
         public bool IsExitConfirmationOpen => _exitConfirmation != null && _exitConfirmation.gameObject.activeInHierarchy;
@@ -56,16 +67,19 @@ namespace OZGL2.UIFlow
         {
             if (TryGetComponent(out _panel)) _panel.SetDismissGuard(TryDismiss);
             InitializeIfNeeded();
+            RemoveLockedSkills();
             Array.Copy(_committed, _draft, SLOT_COUNT);
             _category = 0;
             _selected = IsValid(_initialSelected) ? _initialSelected : FindFirstVisible();
             SetStatus(string.Empty);
             Refresh();
+            ResetScrollToTop();
         }
 
         private void OnDisable()
         {
             if (_panel != null) _panel.SetDismissGuard(null);
+            UnsubscribeUnlockState();
         }
 
         private bool TryDismiss()
@@ -101,6 +115,7 @@ namespace OZGL2.UIFlow
             if (!IsVisible(_selected)) _selected = FindFirstVisible();
             SetStatus(string.Empty);
             Refresh();
+            ResetScrollToTop();
         }
 
         public void SelectSkill(int index)
@@ -113,7 +128,7 @@ namespace OZGL2.UIFlow
 
         public void SelectEquippedSlot(int slot)
         {
-            if (slot < 0 || slot >= SLOT_COUNT || !IsValid(_draft[slot])) return;
+            if (slot < 0 || slot >= SLOT_COUNT || !IsSkillUnlocked(_draft[slot])) return;
             _category = 0;
             _selected = _draft[slot];
             SetStatus(string.Empty);
@@ -123,7 +138,8 @@ namespace OZGL2.UIFlow
         public void EquipSelected()
         {
             if (IsExitConfirmationOpen) return;
-            if (!IsValid(_selected) || Array.IndexOf(_draft, _selected) >= 0) return;
+            RemoveLockedSkills();
+            if (!IsSkillUnlocked(_selected) || Array.IndexOf(_draft, _selected) >= 0) return;
             int slot = Array.IndexOf(_draft, -1);
             if (slot < 0) return;
             _draft[slot] = _selected;
@@ -144,10 +160,12 @@ namespace OZGL2.UIFlow
 
         public void SavePreview()
         {
-            if (_catalog == null || !HasChanges || IsExitConfirmationOpen) return;
+            if (_catalog == null || IsExitConfirmationOpen) return;
+            RemoveLockedSkills();
+            if (!HasChanges) { Refresh(); return; }
             Array.Copy(_draft, _committed, SLOT_COUNT);
             var ids = new List<string>();
-            foreach (int index in _committed) if (IsValid(index)) ids.Add(_catalog.Entries[index].Id);
+            foreach (int index in _committed) if (IsSkillUnlocked(index)) ids.Add(_catalog.Entries[index].Id);
             SaveRequested?.Invoke(ids.AsReadOnly());
             SetStatus("미리보기 저장됨");
             Refresh();
@@ -156,8 +174,16 @@ namespace OZGL2.UIFlow
         public string[] GetEquippedIds()
         {
             var ids = new List<string>();
-            foreach (int index in _draft) if (IsValid(index)) ids.Add(_catalog.Entries[index].Id);
+            foreach (int index in _draft) if (IsSkillUnlocked(index)) ids.Add(_catalog.Entries[index].Id);
             return ids.ToArray();
+        }
+
+        public bool IsSkillUnlocked(int index)
+        {
+            if (!IsValid(index)) return false;
+            UISkillPreviewCatalogSO.Entry entry = _catalog.Entries[index];
+            if (string.IsNullOrWhiteSpace(entry.Id)) return false;
+            return _unlockState != null ? _unlockState.IsUnlocked(entry.Id, entry.DefaultUnlocked) : entry.DefaultUnlocked;
         }
 
         private void InitializeIfNeeded()
@@ -167,7 +193,7 @@ namespace OZGL2.UIFlow
             for (int i = 0; i < SLOT_COUNT; i++)
             {
                 int candidate = _initialEquipped != null && i < _initialEquipped.Length ? _initialEquipped[i] : -1;
-                _committed[i] = IsValid(candidate) && Array.IndexOf(_committed, candidate) < 0 ? candidate : -1;
+                _committed[i] = IsSkillUnlocked(candidate) && Array.IndexOf(_committed, candidate) < 0 ? candidate : -1;
             }
         }
 
@@ -182,6 +208,8 @@ namespace OZGL2.UIFlow
 
         private void Refresh()
         {
+            SubscribeUnlockState();
+            RemoveLockedSkills();
             if (_categoryButtons != null) for (int i = 0; i < _categoryButtons.Length; i++) if (_categoryButtons[i] != null) _categoryButtons[i].SetChosen(i == _category);
             if (_cards != null) for (int i = 0; i < _cards.Length; i++)
             {
@@ -194,10 +222,12 @@ namespace OZGL2.UIFlow
                     _cardIcons[i].enabled = _cardIcons[i].sprite != null;
                     ApplyCategoryStyle(_cardIcons[i], GetImage(_cardSlotTints, i), IsValid(i) ? _catalog.Entries[i] : null);
                 }
+                ApplyLockedStyle(GetImage(_cardIcons, i), GetImage(_cardSlotTints, i), GetImage(_cardLockIcons, i), IsValid(i) && !IsSkillUnlocked(i));
+                ApplyUltimateFrame(GetImage(_cardUltimateFrames, i), IsSkillUnlocked(i) && _catalog.Entries[i].IsUltimate);
             }
             for (int i = 0; i < SLOT_COUNT; i++)
             {
-                bool hasSkill = IsValid(_draft[i]);
+                bool hasSkill = IsSkillUnlocked(_draft[i]);
                 if (_equippedIcons != null && i < _equippedIcons.Length && _equippedIcons[i] != null)
                 {
                     _equippedIcons[i].sprite = hasSkill ? _catalog.Entries[_draft[i]].Icon : null;
@@ -217,19 +247,79 @@ namespace OZGL2.UIFlow
                         _equippedFrames[i].rectTransform.anchoredPosition = new Vector2(size.x * layout.z, size.y * layout.w);
                     }
                 }
+                ApplyUltimateFrame(GetImage(_equippedUltimateFrames, i), hasSkill && _catalog.Entries[_draft[i]].IsUltimate);
             }
             bool valid = IsValid(_selected);
-            if (_detailName != null) _detailName.text = valid ? _catalog.Entries[_selected].DisplayName : "스킬 선택";
-            if (_detailDescription != null) _detailDescription.text = valid ? _catalog.Entries[_selected].Description : string.Empty;
+            bool isUnlocked = IsSkillUnlocked(_selected);
+            if (_detailName != null) _detailName.text = !valid ? "스킬 선택" : isUnlocked ? _catalog.Entries[_selected].DisplayName : "미발견";
+            if (_detailDescription != null) _detailDescription.text = !valid ? string.Empty : isUnlocked ? _catalog.Entries[_selected].Description : "해금 후 정보 확인 가능";
+            if (_detailMetadata != null)
+            {
+                UISkillPreviewCatalogSO.Entry entry = isUnlocked ? _catalog.Entries[_selected] : null;
+                _detailMetadata.text = entry != null ? $"T{entry.Tier} · {entry.Activation} · 해금 {entry.UnlockSp} SP" : string.Empty;
+            }
             if (_detailIcon != null) { _detailIcon.sprite = valid ? _catalog.Entries[_selected].Icon : null; _detailIcon.enabled = valid && _detailIcon.sprite != null; }
             ApplyCategoryStyle(_detailIcon, _detailSlotTint, valid ? _catalog.Entries[_selected] : null);
-            if (_effectLabel != null) _effectLabel.text = valid ? _catalog.Entries[_selected].EffectLabel : "효과";
-            if (_effectValue != null) _effectValue.text = valid ? _catalog.Entries[_selected].EffectValue : "—";
-            if (_cooldown != null) _cooldown.text = valid ? _catalog.Entries[_selected].Cooldown : "—";
-            bool isEquipped = valid && Array.IndexOf(_draft, _selected) >= 0;
-            if (_equipButton != null) _equipButton.interactable = valid && !isEquipped && EquippedCount < SLOT_COUNT;
+            ApplyLockedStyle(_detailIcon, _detailSlotTint, _detailLockIcon, valid && !isUnlocked);
+            ApplyUltimateFrame(_detailUltimateFrame, isUnlocked && _catalog.Entries[_selected].IsUltimate);
+            if (_effectLabel != null) _effectLabel.text = isUnlocked ? _catalog.Entries[_selected].EffectLabel : "효과";
+            if (_effectValue != null) _effectValue.text = isUnlocked ? _catalog.Entries[_selected].EffectValue : "—";
+            if (_cooldown != null) _cooldown.text = isUnlocked ? _catalog.Entries[_selected].Cooldown : "—";
+            bool isEquipped = isUnlocked && Array.IndexOf(_draft, _selected) >= 0;
+            if (_equipButton != null) _equipButton.interactable = isUnlocked && !isEquipped && EquippedCount < SLOT_COUNT;
             if (_unequipButton != null) _unequipButton.interactable = isEquipped;
             if (_saveButton != null) _saveButton.interactable = _catalog != null && HasChanges;
+        }
+
+        private void SubscribeUnlockState()
+        {
+            if (!isActiveAndEnabled || _subscribedUnlockState == _unlockState) return;
+            UnsubscribeUnlockState();
+            if (_unlockState == null) return;
+            _subscribedUnlockState = _unlockState;
+            _subscribedUnlockState.Changed += Refresh;
+        }
+
+        private void UnsubscribeUnlockState()
+        {
+            if (_subscribedUnlockState != null) _subscribedUnlockState.Changed -= Refresh;
+            _subscribedUnlockState = null;
+        }
+
+        private void RemoveLockedSkills()
+        {
+            // 강제 재잠금은 저장 구성과 편집 구성을 함께 정리하여, 나머지 사용자의 미저장 편집만 유지한다.
+            for (int index = 0; index < SLOT_COUNT; index++)
+            {
+                // 카탈로그가 잠시 없거나 비어 있는 경우는 재잠금과 다르다. 표시만 숨기고 저장 구성은 보존한다.
+                if (IsValid(_committed[index]) && !IsSkillUnlocked(_committed[index])) _committed[index] = -1;
+                if (IsValid(_draft[index]) && !IsSkillUnlocked(_draft[index])) _draft[index] = -1;
+            }
+        }
+
+        private void ApplyLockedStyle(Image icon, Image slotTint, Image lockIcon, bool isLocked)
+        {
+            if (icon != null)
+            {
+                if (isLocked)
+                {
+                    // 분류 표시를 적용한 뒤 덮어써 흰색 본체나 분류색이 잠금 실루엣에 남지 않게 한다.
+                    icon.material = _lockedIconMaterial;
+                    icon.color = _lockedIconColor;
+                    icon.enabled = icon.sprite != null && _lockedIconMaterial != null;
+                }
+                else if (_categoryStyle == null)
+                {
+                    icon.material = null;
+                    icon.color = Color.white;
+                }
+            }
+            if (isLocked && slotTint != null) slotTint.enabled = false;
+            if (lockIcon != null)
+            {
+                lockIcon.enabled = isLocked && lockIcon.sprite != null;
+                lockIcon.raycastTarget = false;
+            }
         }
 
         private void ApplyCategoryStyle(Image icon, Image slotTint, UISkillPreviewCatalogSO.Entry entry)
@@ -244,6 +334,34 @@ namespace OZGL2.UIFlow
             slotTint.enabled = entry != null && icon != null && icon.enabled;
             slotTint.material = _categoryStyle.SlotTintMaterial;
             slotTint.color = entry != null ? _categoryStyle.GetSlotColor(entry.Category) : Color.clear;
+        }
+
+        private static void ApplyUltimateFrame(Image frame, bool isVisible)
+        {
+            if (frame == null) return;
+            // 궁극기 장식은 별도 이미지로 표시하여 기존 분류색과 호버/선택 프레임을 보존한다.
+            frame.raycastTarget = false;
+            frame.enabled = isVisible && frame.sprite != null;
+        }
+
+        private void ResetScrollToTop()
+        {
+            if (_ownedScrollRect == null || _ownedScrollRect.content == null || !_ownedScrollRect.isActiveAndEnabled) return;
+            // 분류 변경으로 비활성화된 카드의 배치를 반영한 뒤 상단으로 이동한다. 일반 Refresh는 위치를 보존한다.
+            RectTransform content = _ownedScrollRect.content;
+            RectTransform viewport = _ownedScrollRect.viewport != null ? _ownedScrollRect.viewport : _ownedScrollRect.transform as RectTransform;
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            _ownedScrollRect.StopMovement();
+            if (content.parent == viewport && Mathf.Approximately(content.anchorMin.y, 1f) &&
+                Mathf.Approximately(content.anchorMax.y, 1f) && Mathf.Approximately(content.pivot.y, 1f))
+            {
+                // 상단 고정 Content는 로컬 위치로 맞춰 화면 활성화 중 아직 확정되지 않은 월드 Bounds에 의존하지 않는다.
+                Vector2 position = content.anchoredPosition;
+                position.y = 0f;
+                content.anchoredPosition = position;
+            }
+            else _ownedScrollRect.verticalNormalizedPosition = 1f;
         }
 
         private static Image GetImage(Image[] images, int index) => images != null && index >= 0 && index < images.Length ? images[index] : null;
