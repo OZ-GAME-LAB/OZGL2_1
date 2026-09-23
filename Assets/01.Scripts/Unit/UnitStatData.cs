@@ -31,6 +31,11 @@ public class UnitStatData : ScriptableObject
     public float moveSpeed = 2f;       // 유닛/초. 마왕군은 배치형이라 보통 미사용, 용사만 실사용
     public float healAmount = 0f;      // 힐러 전용 1회 힐량 (힐/초 = healAmount x attackSpeed)
 
+    // SPUM의 ATTACK 상태엔 클립이 여러 개(인덱스순) 등록될 수 있다. 유닛 스폰 후 Play 모드에서
+    // 해당 SPUM_Prefabs 컴포넌트의 Attack List를 보고, 원거리/마법 전용 클립이 있으면 그 인덱스를
+    // 여기 넣는다. 리스트 범위를 벗어나면 자동으로 0번으로 보정됨.
+    public int attackAnimationIndex = 0;
+
     [Header("원거리 공격 (비워두면 근접/즉시 판정, 채우면 발사체 발사)")]
     public GameObject projectilePrefab;  // 관통 없음 · 단일 대상 유도. 용사/마왕군 공용 프리팹(Arrow, Fireball 등) 할당
     public float projectileSpeed = 8f;   // 유닛/초

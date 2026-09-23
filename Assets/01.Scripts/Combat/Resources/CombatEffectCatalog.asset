@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f16e6fc205fa4bedb7128931355d7826, type: 3}
+  m_Name: CombatEffectCatalog
+  m_EditorClassIdentifier:
+  hitEffect: {fileID: 1234408198412076641, guid: 5fb8df51ceab24677a6ee56c61000117, type: 3}
+  healEffect: {fileID: 1196391180713042852, guid: 70c3a06a6c50d45d69c130d77e992a74, type: 3}
+  magicCastEffect: {fileID: 387943096926155358, guid: 4aac3658d8a414cbebe93c402c13cf5d, type: 3}
+  saintCastEffect: {fileID: 2109265670193391445, guid: 576198ea9dedc445fa23b00f1a129ab2, type: 3}
+  slowEffect: {fileID: 627165214748452005, guid: 72059c37aa41d4fb3a5424520a156393, type: 3}
+  effectScale: 0.5

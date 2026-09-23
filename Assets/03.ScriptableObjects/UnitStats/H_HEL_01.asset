@@ -23,6 +23,7 @@ MonoBehaviour:
   attackRange: 2.5
   moveSpeed: 0.9
   healAmount: 6
+  attackAnimationIndex: 4
   cost: 0
   killExpReward: 4
   starLevel: 1

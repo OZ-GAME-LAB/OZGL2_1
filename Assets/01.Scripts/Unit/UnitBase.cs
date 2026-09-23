@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using OZGL2.Contracts;
 using OZGL2.Stage;
+using OZGL2.Synergy;
 
 /// <summary>
 /// 용사/마왕군 공통 유닛 베이스.
@@ -76,7 +77,16 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     // IStatusReceiver (OZGL2.Contracts) — CC 스킬(정지·둔화·넉백·취약) 전용 진입점.
     void IStatusReceiver.ApplyStun(float seconds) => _stunExpire = Mathf.Max(_stunExpire, Time.time + seconds);
-    void IStatusReceiver.ApplySlow(float multiplier, float seconds) { _slowMult = multiplier; _slowExpire = Time.time + seconds; }
+    void IStatusReceiver.ApplySlow(float multiplier, float seconds)
+    {
+        _slowMult = multiplier;
+        _slowExpire = Time.time + seconds;
+        // 지속 이펙트라 만료될 때까지 붙여두고, 이미 걸려있으면(갱신) 새로 만들지 않고 유지한다.
+        if (_slowEffectInstance == null)
+        {
+            _slowEffectInstance = CombatEffects.StartPersistent(CombatEffects.SlowEffectPrefab, transform);
+        }
+    }
     void IStatusReceiver.ApplyKnockback(Vector3 dir, float force) => transform.position += dir.normalized * force;
     void IStatusReceiver.ApplyVulnerable(float multiplier, float seconds) { _vulnerableMult = multiplier; _vulnerableExpire = Time.time + seconds; }
 
@@ -139,6 +149,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     // CC/버프 런타임 상태 — 시간 기반이라 값 자체는 만료 후에도 남아있지만 아래 Effective* 계산 시 항상 만료 여부를 같이 체크한다.
     private float _stunExpire;
     private float _slowMult = 1f, _slowExpire;
+    private GameObject _slowEffectInstance; // 둔화 지속 이펙트 — 만료 시 Update()에서 정리
     private float _vulnerableMult = 1f, _vulnerableExpire;
     private float _buffAttackMult = 1f, _buffAttackExpire;
     private float _buffAttackSpeedMult = 1f, _buffAttackSpeedExpire;
@@ -277,7 +288,13 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
-        spumPrefabs.PlayAnimation(ToSpumState(state), 0);
+        // SPUM은 상태 하나에 클립을 여러 개(인덱스순) 등록할 수 있다 — 예를 들어 ATTACK에 근접 스윙(0),
+        // 원거리/마법 시전(1+)이 같이 들어있는 유닛도 있음. 지금까진 항상 0번만 재생해서 사거리 유닛도
+        // 근접 애니메이션으로 나갔을 수 있다. Attack만 UnitStatData.attackAnimationIndex로 골라 쓴다.
+        int index = state == UnitState.Attack && statData != null
+            ? Mathf.Clamp(statData.attackAnimationIndex, 0, clips.Count - 1)
+            : 0;
+        spumPrefabs.PlayAnimation(ToSpumState(state), index);
     }
 
     protected static PlayerState ToSpumState(UnitState state)
@@ -294,6 +311,13 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     protected virtual void Update()
     {
+        // 둔화 지속 이펙트 정리: 만료됐는데 아직 안 지워졌으면 여기서 제거.
+        if (_slowEffectInstance != null && Time.time >= _slowExpire)
+        {
+            CombatEffects.StopPersistent(_slowEffectInstance);
+            _slowEffectInstance = null;
+        }
+
         if (Time.time < _stunExpire)
         {
             return; // 스턴 중엔 상태 틱 자체를 건너뛴다 (행동 불가)
@@ -519,12 +543,49 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         attackCooldownTimer -= Time.deltaTime;
         if (attackCooldownTimer <= 0f)
         {
-            PerformAttack(currentTarget);
             // 같은 Attack 상태를 유지한 채 반복되는 스윙 — 상태 전이가 없어서 SetState는 다시 안 불리므로
             // 스윙마다(쿨다운 완료 시점마다) 직접 트리거를 다시 넣어준다.
             PlaySpumAnimation(UnitState.Attack);
+            // 모션 시작과 동시에 데미지/이펙트가 나가면 어색해서, 실제 적용은 스윙 애니메이션 길이만큼 늦춘다.
+            StartCoroutine(DelayedAttack(currentTarget, GetAttackAnimationDuration()));
             attackCooldownTimer = GetAttackInterval();
         }
+    }
+
+    /// <summary>스윙 애니메이션이 끝날 때쯤 실제 피해/힐/이펙트를 적용한다.</summary>
+    private IEnumerator DelayedAttack(UnitBase target, float delaySeconds)
+    {
+        if (delaySeconds > 0f)
+        {
+            yield return new WaitForSeconds(delaySeconds);
+        }
+
+        // 대기하는 동안 이 유닛이나 타겟이 죽었으면 적용하지 않는다.
+        if (currentState == UnitState.Dead || target == null || target.currentState == UnitState.Dead)
+        {
+            yield break;
+        }
+
+        PerformAttack(target);
+    }
+
+    /// <summary>
+    /// SPUM ATTACK 클립(attackAnimationIndex로 고른 것) 길이. 클립을 못 찾으면 0(기존처럼 즉시 적용).
+    /// </summary>
+    protected virtual float GetAttackAnimationDuration()
+    {
+        if (spumPrefabs != null &&
+            spumPrefabs.StateAnimationPairs.TryGetValue(PlayerState.ATTACK.ToString(), out var clips) &&
+            clips.Count > 0)
+        {
+            int index = statData != null ? Mathf.Clamp(statData.attackAnimationIndex, 0, clips.Count - 1) : 0;
+            if (clips[index] != null)
+            {
+                return clips[index].length;
+            }
+        }
+
+        return 0f;
     }
 
     /// <summary>
@@ -567,6 +628,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         if (statData.healAmount > 0f)
         {
+            CombatEffects.PlaySaintCast(transform.position);
             float healMult = CombatModifierHub.GetHealMult(statData.job, statData.side);
             target.Heal(Mathf.RoundToInt(statData.healAmount * healMult));
             return;
@@ -643,6 +705,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
+        // 발사체는 궁수도 쓰기 때문에(Arrow), 마법 시전 이펙트는 마법사 직업일 때만 재생한다.
+        if (statData.job == SynergyJob.Mage)
+        {
+            CombatEffects.PlayMagicCast(transform.position);
+        }
+
         Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
         GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
         Projectile projectile = projectileObj.AddComponent<Projectile>();
@@ -668,6 +736,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         currentHealth = Mathf.Min(currentHealth + amount, statData.maxHealth);
+        CombatEffects.PlayHeal(transform.position);
     }
 
     public virtual void SetMoveTarget(Vector3 targetPosition)
@@ -701,6 +770,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         currentHealth -= Mathf.RoundToInt(amount * EffectiveVulnerableMult);
+        CombatEffects.PlayHit(transform.position);
         if (currentHealth <= 0)
         {
             Die();
