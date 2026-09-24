@@ -44,6 +44,8 @@ namespace OZGL2.Synergy
         // ── 증강 실전투 상태 (전부 라운드/런 단위로 초기화)
         private AugmentModifiers _aug = AugmentModifiers.Neutral;
         private float _huntUntil;
+        private float _ironUntil;    // 철벽 진형 만료 시각
+        private float _chainBonus;   // 연타 본능 누적 공격속도 보너스
         private bool _wasCombat;
         private readonly HashSet<UnitBase> _lowHpHealed = new HashSet<UnitBase>();
         private readonly Dictionary<UnitBase, bool> _monsterDead = new Dictionary<UnitBase, bool>();
@@ -82,6 +84,7 @@ namespace OZGL2.Synergy
             _augments.Changed += Sync;
             _augments.Picked += OnAugmentPicked;
             UnitBase.OnHeroKilled += OnHeroKilled;
+            CombatModifierHub.AttackPerformed += OnAttackPerformed;
 
             SetupSkills();
             Sync();
@@ -91,6 +94,7 @@ namespace OZGL2.Synergy
         {
             StopCombat();
             UnitBase.OnHeroKilled -= OnHeroKilled;
+            CombatModifierHub.AttackPerformed -= OnAttackPerformed;
             if (_synergy != null) _synergy.Changed -= Sync;
             if (_traits != null) _traits.Changed -= Sync;
             if (_augments != null)
@@ -337,16 +341,28 @@ namespace OZGL2.Synergy
             }
         }
 
+        /// <summary>연타 본능 — 몬스터가 공격할 때마다 공격속도 보너스를 쌓는다 (상한 도달 후에는 Sync 안 함).</summary>
+        private void OnAttackPerformed(UnitSide side)
+        {
+            if (side != UnitSide.DemonArmy || _aug.ChainStrikeStep <= 0f) return;
+            float next = Mathf.Min(AugmentTuning.ChainStrikeCap, _chainBonus + _aug.ChainStrikeStep);
+            if (next <= _chainBonus) return;
+            _chainBonus = next;
+            Sync();
+        }
+
         /// <summary>전투 시작 때 라운드 단위 증강 상태를 비운다.</summary>
         private void ResetRoundAugmentState()
         {
             _lowHpHealed.Clear();
             _monsterDead.Clear();
-            if (_huntUntil != 0f)
-            {
-                _huntUntil = 0f;
-                if (_synergy != null) Sync();
-            }
+            CombatModifierHub.ResetShields(); // 수호의 방패 — 라운드마다 보호막을 다시 두른다
+
+            bool dirty = _huntUntil != 0f || _ironUntil != 0f || _chainBonus != 0f;
+            _huntUntil = 0f;
+            _ironUntil = 0f;
+            _chainBonus = 0f;
+            if (dirty && _synergy != null) Sync();
         }
 
         /// <summary>
@@ -357,11 +373,10 @@ namespace OZGL2.Synergy
         /// </summary>
         private void TickAugments()
         {
-            if (_huntUntil > 0f && Time.time >= _huntUntil)
-            {
-                _huntUntil = 0f;
-                Sync();
-            }
+            bool expired = false;
+            if (_huntUntil > 0f && Time.time >= _huntUntil) { _huntUntil = 0f; expired = true; }
+            if (_ironUntil > 0f && Time.time >= _ironUntil) { _ironUntil = 0f; expired = true; }
+            if (expired) Sync();
 
             bool inCombat = _skillManager != null && _skillManager.IsCastingEnabled;
             if (!inCombat)
@@ -378,6 +393,13 @@ namespace OZGL2.Synergy
                 ResetRoundAugmentState();
                 for (int i = 0; i < monsters.Count; i++)
                     if (monsters[i] != null) _monsterDead[monsters[i]] = monsters[i].currentState == UnitState.Dead;
+
+                // 철벽 진형 — 전투 시작 시점부터 8초간 몬스터가 받는 피해 감소
+                if (_aug.IronFormationReduction > 0f)
+                {
+                    _ironUntil = Time.time + AugmentTuning.IronFormationSeconds;
+                    Sync();
+                }
             }
 
             if (_aug.MonsterReviveChance <= 0f && _aug.LowHpHealFraction <= 0f) return;
@@ -419,13 +441,23 @@ namespace OZGL2.Synergy
             _aug = aug;
 
             float huntMult = Time.time < _huntUntil ? 1f + aug.HuntAttackBonus : 1f; // 사냥 개시
+            float chainMult = 1f + _chainBonus;                                       // 연타 본능
+
+            // 철벽 진형(전투 시작 후 일정 시간 받는 피해 감소) · 수호의 방패(첫 피격 무효) — 마왕군 대상
+            bool ironActive = _ironUntil > 0f && Time.time < _ironUntil;
+            CombatModifierHub.SetDamageTakenMult(UnitSide.DemonArmy, ironActive ? Mathf.Max(0.1f, 1f - aug.IronFormationReduction) : 1f);
+            CombatModifierHub.SetFirstHitShield(UnitSide.DemonArmy, aug.MonsterShieldActive);
+
+            // 냉기 침식 — 용사 이동속도·방어력 동시 감소
+            CombatModifierHub.SetMoveSpeedMult(UnitSide.Hero, Mathf.Max(0.3f, aug.HeroMoveSpeedMult));
+            CombatModifierHub.SetDefenseAdd(UnitSide.Hero, aug.HeroDefenseAdd);
 
             foreach (var job in AllJobs)
             {
                 // 마왕군(아군) — 특성·증강의 "몬스터" 배율 + 시너지 직업 배율
                 float synHp = job == SynergyJob.Shield ? syn.ShieldHpMult : 1f;
                 CombatModifierHub.SetAttackMult(job, UnitSide.DemonArmy, Combine(trait.MonsterAttackMult, aug.MonsterAttackMult, JobAttackComponent(job, syn)) * huntMult);
-                CombatModifierHub.SetAttackSpeedMult(job, UnitSide.DemonArmy, Combine(trait.MonsterAttackSpeedMult, aug.MonsterAttackSpeedMult, JobSpeedComponent(job, syn)));
+                CombatModifierHub.SetAttackSpeedMult(job, UnitSide.DemonArmy, Combine(trait.MonsterAttackSpeedMult, aug.MonsterAttackSpeedMult, JobSpeedComponent(job, syn)) * chainMult);
                 CombatModifierHub.SetHpMult(job, UnitSide.DemonArmy, Combine(trait.MonsterHpMult, aug.MonsterHpMult, synHp));
 
                 // 용사(적) — 특성·증강의 "용사 약화" 배율만(시너지는 아군 배치 전용이라 관여 안 함).
