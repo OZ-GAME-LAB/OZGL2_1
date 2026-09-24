@@ -13,13 +13,12 @@ MonoBehaviour:
   m_Name: SO_Augment_predator_g
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: predator_g
-  displayName: "\uD3EC\uC2DD\uC790\uC758 \uBCF8\uB2A5"
-  description: "\uBAAC\uC2A4\uD130 \uACF5\uACA9\uB825 +6%, \uACF5\uACA9\uC18D\uB3C4
-    +6% \uB3D9\uC2DC \uC0C1\uC2B9"
+  displayName: "\uC0AC\uB0E5 \uAC1C\uC2DC"
+  description: "\uC6A9\uC0AC \uCC98\uCE58 \uC2DC 5\uCD08\uAC04 \uBAAC\uC2A4\uD130 \uACF5\uACA9\uB825 +10%"
   tier: 2
   weight: 8
-  effect: 27
-  value: 0.06
+  effect: 32
+  value: 0.1
   maxStack: 1
   isInstant: 0
-  connStatus: "\uC2A4\uD141"
+  connStatus: "\uC2E4\uC81C"

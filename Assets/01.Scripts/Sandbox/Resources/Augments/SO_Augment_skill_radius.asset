@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_Augment_skill_radius
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: skill_radius
-  displayName: "\uD655\uC7A5 \uC88C\uD45C"
+  displayName: "\uBC94\uC704 \uD655\uC7A5"
   description: "\uC2A4\uD0AC \uBC18\uACBD +10%"
   tier: 2
   weight: 9

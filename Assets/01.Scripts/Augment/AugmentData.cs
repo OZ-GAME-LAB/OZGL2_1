@@ -24,6 +24,11 @@ namespace OZGL2.Augment
         XpPerAliveMonster, // 용사 처치 XP에 "생존 몬스터 수" 만큼 보너스 추가
         PredatorInstinct,  // 콤보: 몬스터 공격력 + 공격속도 동시 상승
         FrostLance,        // 콤보: 용사 이동속도 + 방어력 동시 감소
+        // 실전투에서 눈에 보이도록 새로 넣은 효과 — 기존 값의 직렬화 순서를 안 깨려고 반드시 끝에 추가한다.
+        LowHpHeal,         // 몬스터 체력이 30% 이하가 되면 1회 최대 체력의 value 만큼 회복 (위기의 치유)
+        IronFormation,     // 전투 시작 후 8초간 몬스터가 받는 피해 value 만큼 감소 (철벽 진형)
+        ChainStrikes,      // 몬스터가 공격할 때마다 공격속도 +value 중첩, 최대 +20% (연타 본능)
+        HuntStart,         // 용사 처치 시 5초간 몬스터 공격력 +value (사냥 개시)
     }
 
     /// <summary>
