@@ -71,7 +71,8 @@ namespace OZGL2.Sandbox
         private void Start()
         {
             _skillMods = new SkillModifiers();
-            _mawang = new MawangLevel(); // 레벨·XP·LP 전부 계정 영구
+            _mawang = new MawangLevel(); // LP 는 계정 영구, 레벨·XP 는 씬 진입 = 새 런이라 리셋
+            _mawang.ResetForNewRun();
             _providers = new SandboxProviders();
             _skillManager = new SkillManager(_providers, _skillMods);
 
@@ -432,6 +433,7 @@ namespace OZGL2.Sandbox
             if (GUILayout.Button("XP +200")) _mawang.AddXp(200);
             if (GUILayout.Button("XP +1000")) _mawang.AddXp(1000);
             GUILayout.EndHorizontal();
+            if (GUILayout.Button("새 런 (레벨·XP 리셋, LP 유지)")) _mawang.ResetForNewRun();
             if (GUILayout.Button("마왕 레벨·LP 저장 초기화")) _mawang.ClearSaved();
 
             GUILayout.Label($"용사 수 {_heroCount}");
