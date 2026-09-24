@@ -26,6 +26,7 @@ namespace OZGL2.Augment
 
         public int StackOf(AugmentData d) => _stacks.TryGetValue(d.augmentId, out var n) ? n : 0;
         public bool IsMaxed(AugmentData d) => StackOf(d) >= Mathf.Max(1, d.maxStack);
+        public IReadOnlyList<AugmentData> Pool => _pool;
         public int PickedCount => _stacks.Count;
         public int TotalCount => _pool.Count;
 
@@ -185,6 +186,10 @@ namespace OZGL2.Augment
                 case AugmentEffect.XpPerAliveMonster: m.XpPerAliveMonster += t; break;
                 case AugmentEffect.PredatorInstinct: m.MonsterAttackMult += t; m.MonsterAttackSpeedMult += t; break;
                 case AugmentEffect.FrostLance: m.HeroMoveSpeedMult -= t; m.HeroDefenseAdd -= t; break;
+                case AugmentEffect.LowHpHeal: m.LowHpHealFraction += t; break;
+                case AugmentEffect.IronFormation: m.IronFormationReduction = Mathf.Min(0.9f, m.IronFormationReduction + t); break;
+                case AugmentEffect.ChainStrikes: m.ChainStrikeStep += t; break;
+                case AugmentEffect.HuntStart: m.HuntAttackBonus += t; break;
             }
         }
     }

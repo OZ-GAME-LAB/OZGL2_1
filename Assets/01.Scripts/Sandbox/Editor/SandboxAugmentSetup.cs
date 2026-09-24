@@ -27,23 +27,23 @@ namespace OZGL2.Sandbox.EditorTools
             n += A("skill_damage", "화력 강화", "스킬 피해 +8%", 1, 12f, AugmentEffect.SkillDamage, 0.08f, "실제");
             n += A("skill_cooldown", "냉각 코일", "스킬 쿨타임 −5%", 1, 12f, AugmentEffect.SkillCooldown, 0.05f, "실제");
             n += A("shield_s", "수호의 방패", "모든 몬스터가 첫 피격 1회를 무효화하는 보호막을 두르고 시작", 1, 9f, AugmentEffect.MonsterShield, 1f, "샌드박스");
-            n += A("mon_hp", "불굴의 대열", "몬스터 체력 +8%", 1, 10f, AugmentEffect.MonHp, 0.08f, "샌드박스");
-            n += A("mon_speed", "재빠른 발놀림", "몬스터 공격속도 +6%", 1, 9f, AugmentEffect.MonAttackSpeed, 0.06f, "스텁");
-            n += A("onhit_s", "언 화살촉", "광역 스킬에 맞은 용사 이동속도 30% 감소(2초)", 1, 9f, AugmentEffect.OnHitSlow, 0.70f, "실제");
+            n += A("mon_hp", "철벽 진형", "전투 시작 후 8초간 몬스터가 받는 피해 −25%", 1, 10f, AugmentEffect.IronFormation, 0.25f, "스텁");
+            n += A("mon_speed", "연타 본능", "몬스터가 공격할 때마다 공격속도 +2% 중첩 (최대 +20%)", 1, 9f, AugmentEffect.ChainStrikes, 0.02f, "스텁");
+            n += A("onhit_s", "냉기 잔류", "광역 스킬에 맞은 용사 이동속도 30% 감소(2초)", 1, 9f, AugmentEffect.OnHitSlow, 0.70f, "실제");
             n += A("crit_s", "치명의 감각", "스킬 시전 시 12% 확률로 피해 ×1.5", 1, 9f, AugmentEffect.CritChance, 0.12f, "실제");
-            n += A("eco_xp_s", "여신의 축복", "XP 획득 +10%", 1, 10f, AugmentEffect.XpGain, 0.10f, "실제");
-            n += A("util_heal", "응급 처치", "즉시 몬스터 전체 체력 20% 회복", 1, 9f, AugmentEffect.InstantHealMonsters, 0.20f, "샌드박스", instant: true);
-            n += A("util_xp_s", "즉각 강타", "즉시 XP +150", 1, 8f, AugmentEffect.InstantXp, 150f, "실제", instant: true);
+            n += A("eco_xp_s", "작은 깨달음", "XP 획득 +10%", 1, 10f, AugmentEffect.XpGain, 0.10f, "실제");
+            n += A("util_heal", "위기의 치유", "몬스터 체력이 30% 이하가 되면 1회 최대 체력의 25% 회복", 1, 9f, AugmentEffect.LowHpHeal, 0.25f, "실제");
+            n += A("util_xp_s", "즉석 수련", "즉시 XP +150", 1, 8f, AugmentEffect.InstantXp, 150f, "실제", instant: true);
 
             // ═══ 골드(2) — R30·R40 전용. 확실히 강함 ═══
-            n += A("skill_radius", "확장 좌표", "스킬 반경 +10%", 2, 9f, AugmentEffect.SkillRadius, 0.10f, "실제");
-            n += A("skill_buffdur", "이중 시전", "아군 버프·오라 지속 +15%", 2, 8f, AugmentEffect.SkillBuffDuration, 0.15f, "실제");
+            n += A("skill_radius", "범위 확장", "스킬 반경 +10%", 2, 9f, AugmentEffect.SkillRadius, 0.10f, "실제");
+            n += A("skill_buffdur", "오래가는 가호", "아군 버프·오라 지속 +15%", 2, 8f, AugmentEffect.SkillBuffDuration, 0.15f, "실제");
             n += A("skill_cooldown_g", "가속 마법진", "스킬 쿨타임 −8%", 2, 8f, AugmentEffect.SkillCooldown, 0.08f, "실제");
             n += A("echo_g", "메아리 주문", "스킬 시전 시 15% 확률로 쿨탐 없이 즉시 재시전", 2, 8f, AugmentEffect.EchoRecast, 0.15f, "실제");
-            n += A("predator_g", "포식자의 본능", "몬스터 공격력 +6%, 공격속도 +6% 동시 상승", 2, 8f, AugmentEffect.PredatorInstinct, 0.06f, "스텁");
-            n += A("frost_g", "빙결의 창", "용사 이동속도 −4%, 방어력 −4%p 동시 감소", 2, 8f, AugmentEffect.FrostLance, 0.04f, "스텁");
+            n += A("predator_g", "사냥 개시", "용사 처치 시 5초간 몬스터 공격력 +10%", 2, 8f, AugmentEffect.HuntStart, 0.10f, "실제");
+            n += A("frost_g", "냉기 침식", "용사 이동속도 −4%, 방어력 −4%p 동시 감소", 2, 8f, AugmentEffect.FrostLance, 0.04f, "스텁");
             n += A("hero_vuln", "절망 낙인", "용사가 받는 스킬 피해 +9%", 2, 8f, AugmentEffect.HeroVulnerable, 0.09f, "샌드박스");
-            n += A("cdkill_g", "처형자의 축복", "용사 처치 시 모든 스킬 쿨탐 −1초", 2, 8f, AugmentEffect.CooldownOnKill, 1f, "실제");
+            n += A("cdkill_g", "처형 재충전", "용사 처치 시 모든 스킬 쿨탐 −1초", 2, 8f, AugmentEffect.CooldownOnKill, 1f, "실제");
             n += A("eco_sp", "전리품 확대", "즉시 SP +2", 2, 7f, AugmentEffect.InstantSp, 2f, "실제", instant: true);
             n += A("util_reset", "재정비", "즉시 모든 스킬 쿨타임 초기화", 2, 6f, AugmentEffect.InstantResetCooldowns, 0f, "실제", instant: true);
 
@@ -53,11 +53,11 @@ namespace OZGL2.Sandbox.EditorTools
             n += A("crit_p", "치명의 폭풍", "스킬 시전 시 25% 확률로 피해 ×1.5", 3, 7f, AugmentEffect.CritChance, 0.25f, "실제");
             n += A("echo_p", "심판의 메아리", "스킬 시전 시 30% 확률로 쿨탐 없이 즉시 재시전", 3, 7f, AugmentEffect.EchoRecast, 0.30f, "실제");
             n += A("revive_p", "불사의 진영", "몬스터가 죽으면 30% 확률로 즉시 부활", 3, 6f, AugmentEffect.MonsterReviveChance, 0.30f, "실제");
-            n += A("cdkill_p", "처형자의 진노", "용사 처치 시 모든 스킬 쿨탐 −2.5초", 3, 7f, AugmentEffect.CooldownOnKill, 2.5f, "실제");
+            n += A("cdkill_p", "학살 재충전", "용사 처치 시 모든 스킬 쿨탐 −2.5초", 3, 7f, AugmentEffect.CooldownOnKill, 2.5f, "실제");
             n += A("xpalive_p", "백성의 성원", "용사 처치 XP + 생존 몬스터 수 × 5", 3, 6f, AugmentEffect.XpPerAliveMonster, 5f, "실제");
-            n += A("eco_xp_p", "풍요의 축복", "XP 획득 +18%", 3, 6f, AugmentEffect.XpGain, 0.18f, "실제");
+            n += A("eco_xp_p", "위대한 깨달음", "XP 획득 +18%", 3, 6f, AugmentEffect.XpGain, 0.18f, "실제");
             n += A("explode_p", "연쇄 폭발", "용사가 죽으면 그 자리에서 주변 용사에게 40 피해", 3, 6f, AugmentEffect.ExplodeOnDeath, 40f, "실제");
-            n += A("util_xp_p", "각성의 순간", "즉시 XP +400", 3, 6f, AugmentEffect.InstantXp, 400f, "실제", instant: true);
+            n += A("util_xp_p", "단숨에 성장", "즉시 XP +400", 3, 6f, AugmentEffect.InstantXp, 400f, "실제", instant: true);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

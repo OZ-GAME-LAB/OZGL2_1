@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: SO_Augment_mon_speed
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: mon_speed
-  displayName: "\uC7AC\uBE60\uB978 \uBC1C\uB180\uB9BC"
-  description: "\uBAAC\uC2A4\uD130 \uACF5\uACA9\uC18D\uB3C4 +6%"
+  displayName: "\uC5F0\uD0C0 \uBCF8\uB2A5"
+  description: "\uBAAC\uC2A4\uD130\uAC00 \uACF5\uACA9\uD560 \uB54C\uB9C8\uB2E4 \uACF5\uACA9\uC18D\uB3C4 +2% \uC911\uCCA9 (\uCD5C\uB300 +20%)"
   tier: 1
   weight: 9
-  effect: 8
-  value: 0.06
+  effect: 31
+  value: 0.02
   maxStack: 1
   isInstant: 0
   connStatus: "\uC2A4\uD141"

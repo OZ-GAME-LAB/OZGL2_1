@@ -364,7 +364,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         Vector3 direction = toTarget.normalized;
-        transform.position += direction * statData.moveSpeed * EffectiveSlowMult * Time.deltaTime;
+        transform.position += direction * statData.moveSpeed * EffectiveSlowMult * CombatModifierHub.GetMoveSpeedMult(Side) * Time.deltaTime; // 증강(냉기 침식), 기본 1
         FaceDirection(direction);
     }
 
@@ -572,7 +572,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
-        float targetDefense = (target.statData != null ? target.statData.defensePercent : 0f) * target.EffectiveBuffDefenseMult;
+        CombatModifierHub.NotifyAttack(Side); // 증강(연타 본능) — "공격할 때마다" 효과용 알림
+        float targetDefense = (target.statData != null ? target.statData.defensePercent : 0f) * target.EffectiveBuffDefenseMult
+                              + CombatModifierHub.GetDefenseAdd(target.Side); // 증강(냉기 침식) 방어율 가감, 기본 0
         float attackMult = CombatModifierHub.GetAttackMult(statData.job, statData.side);
         int damage = CalculateDamage(statData.attackPower * attackMult * EffectiveBuffAttackMult, targetDefense);
 
@@ -700,6 +702,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
+        // 증강(철벽 진형·수호의 방패) 보정 — 값이 없으면 amount 그대로 반환하므로 기존 동작은 변하지 않는다.
+        amount = CombatModifierHub.FilterIncomingDamage(GetInstanceID(), Side, amount);
         currentHealth -= Mathf.RoundToInt(amount * EffectiveVulnerableMult);
         if (currentHealth <= 0)
         {
