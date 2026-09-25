@@ -16,6 +16,10 @@ namespace OZGL2.InGame
         public StageCatalogSO StageCatalog => _stageCatalog;
         public bool AllowEditorDirectStart => _allowEditorDirectStart;
         [SerializeField] private GridPrototypeCatalogSO _catalog;
+        [SerializeField] private GeneralRewardPoolSO _generalRewardPool;
+        public GeneralRewardSource CreateRewardSource(IUnitRewardUnlocks unlocks = null)
+            => _generalRewardPool != null ? _generalRewardPool.CreateSource(unlocks)
+                : throw new InvalidOperationException("General reward pool is required.");
         [SerializeField] private Vector2Int _initialAnchor;
         [SerializeField] private string _lobbyScenePath;
         [SerializeField] private HeroPoolCatalogSO _heroPoolCatalog;
@@ -78,7 +82,17 @@ namespace OZGL2.InGame
             var block = _catalog.CreateInitialBlock();
             if (unit.Footprint.Cells.Count != 1 || block.Cells.Count != 1 || unit.RewardBlockId != block.Id)
                 throw new InvalidOperationException("The first battle requires one basic unit and its single-cell block.");
-            new GridPrototypeRewards(_catalog);
+            CreateRewardSource();
+            var catalogUnits = new System.Collections.Generic.Dictionary<string, UnitDefinition>();
+            foreach (var candidate in _catalog.CreateUnits()) catalogUnits.Add(candidate.Id, candidate);
+            foreach (var entry in _generalRewardPool.CreateEntries())
+            {
+                var candidate = entry.Option.Unit;
+                if (!catalogUnits.TryGetValue(candidate.Id, out var catalogUnit) ||
+                    catalogUnit.RewardBlockId != candidate.RewardBlockId ||
+                    catalogUnit.Footprint.Id != candidate.Footprint.Id)
+                    throw new InvalidOperationException("Reward unit differs from grid catalog: " + candidate.Id);
+            }
             // 실제 시작과 동일한 배치 경로로 검증하여 잘못된 SO는 실행 전에 거부한다.
             using (var session = new GridRunSession("configuration_check", _catalog.CreateDefinition()))
                 StageGridPreparation.PlaceInitial(session, unit, block, _initialAnchor);

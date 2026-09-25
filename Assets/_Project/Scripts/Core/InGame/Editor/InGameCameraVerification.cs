@@ -67,7 +67,7 @@ namespace OZGL2.InGame.Editor
             _session = new InGameGridSession(config.Catalog.CreateDefinition(), new DummyRewardLedger());
             Set(bootstrap, "_session", _session);
             var dummy = new ManualStageServices();
-            var rewards = new StageGridRewards(_session, new GridPrototypeRewards(config.Catalog), dummy);
+            var rewards = new StageGridRewards(_session, config.CreateRewardSource(), dummy);
             var prep = new StageGridPreparation(_session, config.Catalog.CreateInitialUnit(), config.Catalog.CreateInitialBlock(), config.InitialAnchor);
             var stage = new StageManager(dummy, rewards, prep, _session, new MemoryStageProgressStore(), new Lobby());
             typeof(InGamePrototypeBootstrap).GetProperty("Stage").SetValue(bootstrap, stage);

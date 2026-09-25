@@ -44,7 +44,7 @@ namespace OZGL2.InGame.Editor
             var basic = config.Catalog.CreateInitialUnit();
             var shape = config.Catalog.CreateInitialBlock();
             var origin = grid.Definition.InitialOrigin;
-            grid.AddBlock("platform", "platform", new FootprintDefinition("wide", "Wide", new[] { Vector2Int.zero, Vector2Int.right, Vector2Int.up, Vector2Int.one }));
+            grid.AddBlock("platform", "platform", GridFusionVerification.CreateTestFloor(grid.Definition.InitialSize));
             for (int i = 0; i < 4; i++) grid.AddUnit("unit" + i, basic);
             _session.TryAllowPreparation(_session.RunId, 1, false);
             grid.BeginBlockDrag("platform"); grid.MovePreview(origin); Check(grid.CommitPreview(), "Initial block");
@@ -84,6 +84,7 @@ namespace OZGL2.InGame.Editor
             sourceCard = panel.Q<VisualElement>("card-unit3"); Down(sourceCard, sourceCard.worldBound.center); await Frame();
             Up(panel, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
             Check(grid.FindUnit("unit1").StarLevel == 3 && grid.FindUnit("unit3") == null, "Pointer tray-to-board fusion");
+            Check(grid.GetInvalidCells().Count > 0 && !grid.CanBeginBattle && !grid.CanSkipPreparation, "Invalid three-star layout blocks battle and skip");
             Check(_root.GetComponentsInChildren<TextMesh>().Single().text == "★3", "World star label updates after fusion and removes consumed labels");
             CheckPreviewModel(config.DemonArmyCatalog.FindPrefab(basic.Id, 3), "unit1");
             Down(Runner.Board.Element, Runner.Board.CellToPanel(origin + Vector2Int.right)); await Frame();
@@ -91,7 +92,9 @@ namespace OZGL2.InGame.Editor
             Check(grid.GetPreviewFailure() != ePlacementFailure.NONE, "Outside is invalid");
             Up(panel, Runner.Board.CellToPanel(new Vector2Int(-1, 0))); await Frame();
             Check(grid.FindUnit("unit1").Anchor == origin + Vector2Int.right, "Invalid drop retains placement");
-            GridFusionVerification.Place(grid, "unit1", origin + Vector2Int.up);
+            var validAnchor = origin + Vector2Int.one;
+            GridFusionVerification.Place(grid, "unit1", validAnchor);
+            Check(grid.GetInvalidCells().Count == 0, "Reposition clears three-star layout error");
             var asset = config.DemonArmyCatalog.FindPrefab(basic.Id).statData;
             int originalStar = asset.starLevel;
             int originalHp = asset.maxHealth;
@@ -100,7 +103,7 @@ namespace OZGL2.InGame.Editor
             var actual = _root.GetComponentsInChildren<UnitBase>().Single();
             Check(_defenders.AliveCount == 1 && actual.statData.starLevel == 3, "Consumed defender removed; star applied");
             Check(actual.name == config.DemonArmyCatalog.FindPrefab(basic.Id, 3).name + "(Clone)", "Three-star combat prefab selected");
-            Check(Vector3.Distance(actual.transform.position, mapping.GetWorldPosition(origin + Vector2Int.up)) < 0.001f, "Existing defender moved");
+            Check(Vector3.Distance(actual.transform.position, mapping.GetWorldPosition(validAnchor)) < 0.001f, "Existing defender moved");
             Check(asset.starLevel == originalStar && asset.maxHealth == originalHp && actual.statData != asset, "Shared SO untouched");
             Check(_root.GetComponentsInChildren<SpriteRenderer>().Count(r => r.name.StartsWith("Cell_")) == 40, "Forty real asset cells");
             int fullHealth = actual.currentHealth;
