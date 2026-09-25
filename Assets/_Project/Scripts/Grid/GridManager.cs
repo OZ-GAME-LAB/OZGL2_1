@@ -9,6 +9,8 @@ namespace OZGL2.Grid
     public sealed class GridManager : IGridReadModel
     {
         private readonly HashSet<Vector2Int> _floor = new HashSet<Vector2Int>();
+        private readonly List<ExpansionPlacement> _expansions = new List<ExpansionPlacement>();
+        private readonly ReadOnlyCollection<ExpansionPlacement> _expansionView;
         private readonly List<BlockPlacement> _blocks = new List<BlockPlacement>();
         private readonly ReadOnlyCollection<BlockPlacement> _blockView;
         private readonly List<UnitPlacement> _units = new List<UnitPlacement>();
@@ -18,6 +20,7 @@ namespace OZGL2.Grid
         public eGridDragKind DragKind { get; private set; }
         private Vector2Int _previewAnchor;
         private int _previewRotation;
+        private bool _previewIsMirrored;
         private bool _canSkipPreparation;
         private bool _isNotifying;
         private readonly Func<UnitPlacement, UnitPlacement, bool> _canFuse;
@@ -34,12 +37,15 @@ namespace OZGL2.Grid
         public IReadOnlyList<BlockPlacement> Blocks => _blockView;
         public IReadOnlyList<UnitPlacement> Units => _unitView;
         public IReadOnlyCollection<Vector2Int> FloorCells => _floorView;
+        public IReadOnlyList<ExpansionPlacement> Expansions => _expansionView;
+        public string HoveredExpansionId { get; private set; }
         public bool RequiresExpansionPlacement { get; private set; }
         public bool HasSelection => DragKind != eGridDragKind.NONE;
         public bool IsExpansionDrag => DragKind == eGridDragKind.EXPANSION;
         public string SelectedId => _selectedId;
         public Vector2Int PreviewAnchor => _previewAnchor;
         public int PreviewRotation => _previewRotation;
+        public bool PreviewIsMirrored => _previewIsMirrored;
         public bool CanBeginBattle => Phase == eGridPhase.PREPARATION && !RequiresExpansionPlacement && !HasSelection &&
             !HasPendingStorage && PlacedCount > 0 && GetInvalidCells().Count == 0;
         public bool CanSkipPreparation => _canSkipPreparation && CanBeginBattle;
@@ -50,6 +56,7 @@ namespace OZGL2.Grid
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             _blockView = _blocks.AsReadOnly();
             _unitView = _units.AsReadOnly();
+            _expansionView = _expansions.AsReadOnly();
             for (int y = 0; y < definition.InitialSize.y; y++)
                 for (int x = 0; x < definition.InitialSize.x; x++) _floor.Add(definition.InitialOrigin + new Vector2Int(x, y));
             UpdateFloorView();
@@ -98,15 +105,22 @@ namespace OZGL2.Grid
         /// 합성으로 발판이 커져서(성급 상승) 지금 자리에 다 못 들어가는 유닛들이 차지하려는 칸 전체.
         /// 비어있지 않으면 화면에서 빨갛게 표시하고, CanBeginBattle이 false가 되어 웨이브 시작을 막는다.
         /// </summary>
-        public IReadOnlyCollection<Vector2Int> GetInvalidCells()
+        public IReadOnlyCollection<Vector2Int> GetInvalidCells(string excludedUnitId = null)
         {
             var result = new HashSet<Vector2Int>();
             foreach (var unit in _units)
             {
-                if (!unit.IsPlaced) continue;
+                if (!unit.IsPlaced || unit.InstanceId == excludedUnitId) continue;
                 if (GridPlacementRules.ValidateUnit(Definition, _blocks, _units, unit.InstanceId, unit.GetCells()) != ePlacementFailure.NONE)
                     result.UnionWith(unit.GetCells());
             }
+            return result;
+        }
+        public IReadOnlyCollection<Vector2Int> GetOccupiedCells(string excludedUnitId = null)
+        {
+            var result = new HashSet<Vector2Int>();
+            foreach (var unit in _units)
+                if (unit.IsPlaced && unit.InstanceId != excludedUnitId) result.UnionWith(unit.GetCells());
             return result;
         }
         public bool CanFusePreview => DragKind == eGridDragKind.UNIT &&
@@ -122,7 +136,7 @@ namespace OZGL2.Grid
             var result = new List<UnitPlacement>();
             var block = FindBlock(blockId);
             if (block == null || !block.IsPlaced) return result.AsReadOnly();
-            var cells = new HashSet<Vector2Int>(block.Footprint.GetCells(block.Anchor, block.Rotation));
+            var cells = new HashSet<Vector2Int>(block.GetCells());
             foreach (var unit in _units)
                 if (unit.IsPlaced && cells.Overlaps(unit.GetCells())) result.Add(unit);
             return result.AsReadOnly();
@@ -131,10 +145,40 @@ namespace OZGL2.Grid
         {
             foreach (var unit in _blocks)
                 if (unit.IsPlaced)
-                    foreach (var occupied in unit.Footprint.GetCells(unit.Anchor, unit.Rotation)) if (occupied == cell) return unit;
+                    foreach (var occupied in unit.GetCells()) if (occupied == cell) return unit;
             return null;
         }
         public bool HasFloor(Vector2Int cell) => _floor.Contains(cell);
+        public ExpansionPlacement FindExpansion(string id) => _expansions.Find(item => item.InstanceId == id);
+        public ExpansionPlacement GetExpansionAt(Vector2Int cell)
+        {
+            foreach (var expansion in _expansions)
+                if (Array.IndexOf(expansion.GetCells(), cell) >= 0) return expansion;
+            return null;
+        }
+        public void SetHoveredCell(Vector2Int? cell)
+        {
+            if (_isNotifying) return;
+            string id = Phase == eGridPhase.PREPARATION && !HasSelection && !HasPendingStorage && cell.HasValue &&
+                GetUnitAt(cell.Value) == null && GetBlockAt(cell.Value) == null ? GetExpansionAt(cell.Value)?.InstanceId : null;
+            if (HoveredExpansionId == id) return;
+            HoveredExpansionId = id; Notify();
+        }
+        public ePlacementFailure GetExpansionMoveFailure(string id)
+        {
+            var expansion = FindExpansion(id);
+            if (expansion == null) return ePlacementFailure.NO_SELECTION;
+            foreach (var cell in expansion.GetCells())
+                if (GetBlockAt(cell) != null || GetUnitAt(cell) != null) return ePlacementFailure.EXPANSION_OCCUPIED;
+            return ePlacementFailure.NONE;
+        }
+        private HashSet<Vector2Int> GetRemainingFloor()
+        {
+            var result = new HashSet<Vector2Int>(_floor);
+            var moving = IsExpansionDrag ? FindExpansion(_selectedId) : null;
+            if (moving != null) result.ExceptWith(moving.GetCells());
+            return result;
+        }
         public bool CanExpand
         {
             get
@@ -150,12 +194,16 @@ namespace OZGL2.Grid
         public IReadOnlyCollection<Vector2Int> GetExpansionFrontier()
         {
             var result = new HashSet<Vector2Int>();
+            var remaining = GetRemainingFloor();
+            bool moving = IsExpansionDrag && _selectedId != null;
             for (int y = 0; y < Definition.MaximumSize.y; y++)
                 for (int x = 0; x < Definition.MaximumSize.x; x++)
                     for (int rotation = 0; rotation < 4; rotation++)
                     {
                         var cells = Definition.Expansion.GetCells(new Vector2Int(x, y), rotation);
-                        if (GridPlacementRules.ValidateExpansion(Definition, _floor, cells) == ePlacementFailure.NONE)
+                        var failure = moving ? GridPlacementRules.ValidateExpansionMove(Definition, remaining, cells) :
+                            GridPlacementRules.ValidateExpansion(Definition, remaining, cells);
+                        if (failure == ePlacementFailure.NONE)
                             foreach (var cell in cells) result.Add(cell);
                     }
             return new List<Vector2Int>(result).AsReadOnly();
@@ -202,6 +250,7 @@ namespace OZGL2.Grid
             var unit = FindBlock(id);
             if (Phase != eGridPhase.PREPARATION || HasSelection || HasPendingStorage || _isNotifying || unit == null) return false;
             _selectedId = id; DragKind = eGridDragKind.BLOCK; _previewAnchor = unit.Anchor; _previewRotation = unit.Rotation;
+            _previewIsMirrored = unit.IsMirrored; HoveredExpansionId = null;
             LastDropFailure = ePlacementFailure.NONE;
             Notify(); return true;
         }
@@ -210,6 +259,7 @@ namespace OZGL2.Grid
             var unit = FindUnit(id);
             if (Phase != eGridPhase.PREPARATION || HasSelection || HasPendingStorage || _isNotifying || unit == null) return false;
             _selectedId = id; DragKind = eGridDragKind.UNIT; _previewRotation = unit.Rotation;
+            _previewIsMirrored = unit.IsMirrored; HoveredExpansionId = null;
             LastDropFailure = ePlacementFailure.NONE;
             _previewAnchor = unit.IsPlaced ? unit.Anchor : new Vector2Int(-1, -1);
             Notify(); return true;
@@ -218,18 +268,37 @@ namespace OZGL2.Grid
         {
             if (Phase != eGridPhase.PREPARATION || !RequiresExpansionPlacement || HasSelection || HasPendingStorage || _isNotifying) return false;
             DragKind = eGridDragKind.EXPANSION; _selectedId = null; _previewRotation = 0; _previewAnchor = new Vector2Int(-1, -1);
+            _previewIsMirrored = false; HoveredExpansionId = null;
             LastDropFailure = ePlacementFailure.NONE;
+            Notify(); return true;
+        }
+        public bool BeginExpansionDrag(string id)
+        {
+            if (Phase != eGridPhase.PREPARATION || HasSelection || HasPendingStorage || _isNotifying) return false;
+            LastDropFailure = GetExpansionMoveFailure(id);
+            if (LastDropFailure != ePlacementFailure.NONE) { Notify(); return false; }
+            var expansion = FindExpansion(id);
+            DragKind = eGridDragKind.EXPANSION; _selectedId = id;
+            _previewAnchor = expansion.Anchor; _previewRotation = expansion.Rotation;
+            _previewIsMirrored = false; HoveredExpansionId = null;
             Notify(); return true;
         }
         public void MovePreview(Vector2Int anchor) { if (!HasSelection || _isNotifying) return; _previewAnchor = anchor; Notify(); }
         public void RotatePreview() { if (!HasSelection || _isNotifying) return; _previewRotation = (_previewRotation + 1) % 4; Notify(); }
+        public void MirrorPreview()
+        {
+            if (!HasSelection || IsExpansionDrag || _isNotifying) return;
+            _previewRotation = (4 - _previewRotation) % 4;
+            _previewIsMirrored = !_previewIsMirrored;
+            Notify();
+        }
         public Vector2Int[] GetPreviewCells()
         {
             if (!HasSelection) return Array.Empty<Vector2Int>();
             var draggedUnit = DragKind == eGridDragKind.UNIT ? FindUnit(_selectedId) : null;
             var shape = draggedUnit != null ? draggedUnit.Definition.GetFootprint(draggedUnit.StarLevel) :
                 IsExpansionDrag ? Definition.Expansion : FindBlock(_selectedId).Footprint;
-            return shape.GetCells(_previewAnchor, _previewRotation);
+            return shape.GetCells(_previewAnchor, _previewRotation, _previewIsMirrored);
         }
         public ePlacementFailure GetPreviewFailure()
         {
@@ -241,8 +310,11 @@ namespace OZGL2.Grid
                 if (CanFusePreview) return ePlacementFailure.NONE;
                 return GridPlacementRules.ValidateUnit(Definition, _blocks, _units, _selectedId, GetPreviewCells());
             }
-            return IsExpansionDrag ? GridPlacementRules.ValidateExpansion(Definition, _floor, GetPreviewCells()) :
-                GridPlacementRules.ValidateBlock(Definition, _floor, _blocks, _selectedId, GetPreviewCells());
+            if (!IsExpansionDrag) return GridPlacementRules.ValidateBlock(Definition, _floor, _blocks, _selectedId, GetPreviewCells());
+            if (_selectedId == null) return GridPlacementRules.ValidateExpansion(Definition, _floor, GetPreviewCells());
+            var failure = GetExpansionMoveFailure(_selectedId);
+            return failure != ePlacementFailure.NONE ? failure :
+                GridPlacementRules.ValidateExpansionMove(Definition, GetRemainingFloor(), GetPreviewCells());
         }
         public bool CommitPreview()
         {
@@ -252,8 +324,19 @@ namespace OZGL2.Grid
             if (CanFusePreview) return TryFuseUnits(SelectedId, GetUnitAt(_previewAnchor).InstanceId);
             if (IsExpansionDrag)
             {
+                var moving = FindExpansion(_selectedId);
+                if (moving != null)
+                {
+                    _floor.ExceptWith(moving.GetCells());
+                    _expansions[_expansions.IndexOf(moving)] = moving.WithPlacement(_previewAnchor, _previewRotation);
+                }
+                else
+                {
+                    _expansions.Add(new ExpansionPlacement(Guid.NewGuid().ToString("N"), Definition.Expansion, _previewAnchor, _previewRotation));
+                    RequiresExpansionPlacement = false;
+                }
                 foreach (var cell in GetPreviewCells()) _floor.Add(cell);
-                UpdateFloorView(); RequiresExpansionPlacement = false;
+                UpdateFloorView();
                 ClearSelection(); Notify(true); return true;
             }
             var blocks = new List<BlockPlacement>(_blocks);
@@ -261,22 +344,26 @@ namespace OZGL2.Grid
             if (DragKind == eGridDragKind.UNIT)
             {
                 int index = units.FindIndex(unit => unit.InstanceId == _selectedId);
-                units[index] = units[index].WithPlacement(true, _previewAnchor, _previewRotation);
+                units[index] = units[index].WithPlacement(true, _previewAnchor, _previewRotation, _previewIsMirrored);
             }
             else
             {
                 int index = blocks.FindIndex(block => block.InstanceId == _selectedId);
                 var block = blocks[index];
-                if (block.IsPlaced && new HashSet<Vector2Int>(block.Footprint.GetCells(block.Anchor, block.Rotation)).SetEquals(GetPreviewCells()))
-                { ClearSelection(); Notify(); return true; }
+                if (block.IsPlaced && new HashSet<Vector2Int>(block.GetCells()).SetEquals(GetPreviewCells()))
+                {
+                    // 점유가 같아도 반전·회전 상태는 다음 드래그를 위해 보존한다. 유닛 반환과 레이아웃 알림은 불필요하다.
+                    _blocks[index] = block.WithPlacement(true, _previewAnchor, _previewRotation, _previewIsMirrored);
+                    ClearSelection(); Notify(); return true;
+                }
                 ReturnUnitsFromBlock(units, _selectedId);
-                blocks[index] = block.WithPlacement(true, _previewAnchor, _previewRotation);
+                blocks[index] = block.WithPlacement(true, _previewAnchor, _previewRotation, _previewIsMirrored);
             }
             return ApplyOrRequest(blocks, units, eGridStorageOperation.LAYOUT, null);
         }
         public bool DropToTray()
         {
-            if (_isNotifying || HasPendingStorage || Phase != eGridPhase.PREPARATION || _selectedId == null) return false;
+            if (_isNotifying || HasPendingStorage || Phase != eGridPhase.PREPARATION || !HasSelection) return false;
             LastDropFailure = GetTrayDropFailure();
             if (LastDropFailure != ePlacementFailure.NONE) return false;
             var blocks = new List<BlockPlacement>(_blocks);
@@ -284,13 +371,13 @@ namespace OZGL2.Grid
             if (DragKind == eGridDragKind.UNIT)
             {
                 int index = units.FindIndex(unit => unit.InstanceId == _selectedId);
-                units[index] = units[index].WithPlacement(false, units[index].Anchor, units[index].Rotation);
+                units[index] = units[index].WithPlacement(false, units[index].Anchor, _previewRotation, _previewIsMirrored);
             }
             else
             {
                 int index = blocks.FindIndex(block => block.InstanceId == _selectedId);
                 ReturnUnitsFromBlock(units, _selectedId);
-                blocks[index] = blocks[index].WithPlacement(false, blocks[index].Anchor, blocks[index].Rotation);
+                blocks[index] = blocks[index].WithPlacement(false, blocks[index].Anchor, _previewRotation, _previewIsMirrored);
             }
             return ApplyOrRequest(blocks, units, eGridStorageOperation.LAYOUT, null);
         }
@@ -298,6 +385,7 @@ namespace OZGL2.Grid
         {
             if (Phase != eGridPhase.PREPARATION) return ePlacementFailure.NOT_PREPARING;
             if (HasPendingStorage) return ePlacementFailure.STORAGE_PENDING;
+            if (IsExpansionDrag) return ePlacementFailure.CANNOT_STORE_EXPANSION;
             if (_selectedId == null) return ePlacementFailure.NO_SELECTION;
             return DragKind == eGridDragKind.BLOCK ?
                 GridPlacementRules.ValidateBlockRemoval(_blocks, _selectedId) : ePlacementFailure.NONE;
@@ -362,7 +450,7 @@ namespace OZGL2.Grid
             _blocks.Clear(); _blocks.AddRange(blocks); _units.Clear(); _units.AddRange(units);
             onCommitted?.Invoke(); Notify(true);
         }
-        private void ClearSelection() { _selectedId = null; DragKind = eGridDragKind.NONE; }
+        private void ClearSelection() { _selectedId = null; DragKind = eGridDragKind.NONE; _previewIsMirrored = false; HoveredExpansionId = null; }
         private void UpdateFloorView() => _floorView = new List<Vector2Int>(_floor).AsReadOnly();
         private void Notify(bool hasLayoutChanged = false)
         {

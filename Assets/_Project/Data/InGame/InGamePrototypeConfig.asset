@@ -19,6 +19,7 @@ MonoBehaviour:
   _generalRewardPool: {fileID: 11400000, guid: 95701e7dbcc1a5d4dad13d0fbbb1f1e1, type: 2}
   _initialAnchor: {x: 3, y: 0}
   _lobbyScenePath: Assets/00.Scenes/Builds/Lobby.unity
+  _stageSelectionScenePath: Assets/00.Scenes/Builds/StageChoice.unity
   _heroPoolCatalog: {fileID: 11400000, guid: 7f9aa8f1c8b248a3bfbaa4e496f5f55a, type: 2}
   _heroSpawnPosition: {x: 0, y: 4, z: 0}
   _demonArmyCatalog: {fileID: 11400000, guid: 3b939de62a4742fcb02fddfbb200c868, type: 2}

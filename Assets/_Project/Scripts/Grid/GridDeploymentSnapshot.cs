@@ -29,6 +29,7 @@ namespace OZGL2.Grid
         public string ShapeId { get; }
         public Vector2Int Anchor { get; }
         public int Rotation { get; }
+        public bool IsMirrored { get; }
         public IReadOnlyList<Vector2Int> Cells { get; }
         internal GridDeployedUnit(UnitPlacement unit)
         {
@@ -36,6 +37,7 @@ namespace OZGL2.Grid
             InstanceId = unit.InstanceId; ContentId = unit.Definition.Id;
             ShapeId = unit.Definition.GetFootprint(unit.StarLevel).Id;
             Anchor = unit.Anchor; Rotation = unit.Rotation;
+            IsMirrored = unit.IsMirrored;
             Cells = Array.AsReadOnly(unit.GetCells());
         }
     }

@@ -22,6 +22,8 @@ namespace OZGL2.InGame
                 : throw new InvalidOperationException("General reward pool is required.");
         [SerializeField] private Vector2Int _initialAnchor;
         [SerializeField] private string _lobbyScenePath;
+        [SerializeField] private string _stageSelectionScenePath;
+        public string StageSelectionScenePath => _stageSelectionScenePath;
         [SerializeField] private HeroPoolCatalogSO _heroPoolCatalog;
         [SerializeField] private Vector3 _heroSpawnPosition;
         [SerializeField] private DemonArmyCatalog _demonArmyCatalog;
