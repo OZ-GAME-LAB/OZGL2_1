@@ -8,7 +8,7 @@ Builds/InGame의 일반 보상은 `GeneralRewardPool.asset`을 사용한다. 기
 
 - 설정: `Assets/_Project/Data/InGame/GeneralRewardPool.asset`. InGamePrototypeConfig의 General Reward Pool에 연결한다.
 - 항목별 Unit, Block, Weight, Is Initially Unlocked를 설정한다. 현재 기존 실제 유닛 6종을 기본 해금, 가중치 1로 명시했다. 밸런스 확정 수치는 아니다.
-- 모두 1성 유닛과 해당 발판을 함께 지급한다. 현재 데이터는 유닛/발판 모두 1×1이며 확장은 1×2다.
+- 모두 1성 유닛과 해당 발판을 함께 지급한다. 현재 1성 점유/지급 발판은 1×1이며 확장은 1×2다. 최신 dev_2의 2·3성 점유 모양도 UnitDefinition에 그대로 보존하므로 이후 합성 시 성급별 점유가 적용된다.
 - 음수/NaN/무한 가중치, 중복 ID, 누락 참조, 유닛과 보상 발판 ID 불일치는 설정 오류다. 가중치 0은 추첨 제외다.
 - 현재 계정 유닛 해금 저장소가 없어 `DefaultUnitRewardUnlocks`가 명시적 기본 해금 목록을 사용한다. 계정 조회는 `IUnitRewardUnlocks.IsUnlocked(unitId)`로 연결하고 조립 시 `config.CreateRewardSource(accountUnlocks)`를 호출한다. 기본 해금과 계정 해금의 합집합은 계정 어댑터에서 반환한다. 해금 저장·최초 클리어 해금 지급은 이 작업의 구현 범위가 아니다.
 - 런 시작 시 SO를 불변 데이터로 복사하며 원본 SO를 런타임에 변경하지 않는다. 보상 요청마다 해금 조회를 수행하고, 이미 제시한 후보는 다시 계산하지 않는다.

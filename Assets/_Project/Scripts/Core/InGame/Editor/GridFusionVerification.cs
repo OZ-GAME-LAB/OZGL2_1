@@ -13,7 +13,7 @@ namespace OZGL2.InGame.Editor
         [MenuItem("OZGL2/InGame/Verify Grid Fusion Rules")]
         public static void Run()
         {
-            try { Verify(); Result = "PASS: fusion atomicity, star persistence, tray capacity, snapshot, reentrancy, phase gates, floor preservation."; }
+            try { Verify(); Result = "PASS: fusion atomicity, star footprints, invalid placement battle gate and recovery, tray capacity, snapshot, reentrancy, floor preservation."; }
             catch (Exception exception) { Result = "FAIL: " + exception; }
         }
         private static void Verify()
@@ -25,7 +25,7 @@ namespace OZGL2.InGame.Editor
                 var grid = session.Grid;
                 var basic = config.Catalog.CreateInitialUnit();
                 var single = config.Catalog.CreateInitialBlock();
-                grid.AddBlock("floor", "floor", new FootprintDefinition("wide", "Wide", new[] {Vector2Int.zero, Vector2Int.right, Vector2Int.up, Vector2Int.one}));
+                grid.AddBlock("floor", "floor", CreateTestFloor(grid.Definition.InitialSize));
                 for (int i = 0; i < 4; i++) grid.AddUnit("unit" + i, basic);
                 Require(!grid.TryFuseUnits("unit0", "unit1"), "Waiting rejects fusion");
                 session.TryAllowPreparation(session.RunId, 1, false);
@@ -44,18 +44,27 @@ namespace OZGL2.InGame.Editor
                 var before = new GridDeploymentSnapshot(grid);
                 Require(grid.TryFuseUnits("unit2", "unit3") && grid.StoredCount == 1, "Tray fusion frees capacity");
                 Require(grid.TryFuseUnits("unit3", "unit1") && grid.FindUnit("unit1").StarLevel == 3, "Tray-to-board fusion");
+                Require(grid.GetInvalidCells().Count > 0 && !grid.CanBeginBattle && !grid.CanSkipPreparation,
+                    "Expanded star footprint outside floor blocks combat without rejecting fusion");
+                Require(!session.TryBeginBattle(session.RunId, 1), "Invalid placement cannot bypass battle gate");
                 Require(before.Units.Single().StarLevel == 2, "Earlier snapshot is immutable");
                 Require(!FusionRules.CanFuse(basic.Id, 3, basic.Id, 3), "Maximum three stars");
                 Require(!grid.TryFuseUnits("unit1", "unit1"), "Cannot fuse self");
                 grid.AddUnit("other", new UnitDefinition("other", "Other", single));
                 Require(!grid.TryFuseUnits("other", "unit1"), "Reject different kind/star");
-                Place(grid, "unit1", origin);
+                var validAnchor = origin + Vector2Int.one;
+                Place(grid, "unit1", validAnchor);
+                Require(grid.GetInvalidCells().Count == 0, "Reposition clears invalid footprint");
+                grid.BeginUnitDrag("unit1"); grid.RotatePreview();
+                Require(grid.GetPreviewCells().SequenceEqual(basic.GetFootprint(3).GetCells(validAnchor, 1)), "Rotated ghost uses three-star footprint");
+                grid.CancelDrag();
                 Require(grid.FindUnit("unit1").StarLevel == 3, "Move preserves star");
                 grid.BeginUnitDrag("unit1"); Require(grid.DropToTray(), "Return to storage");
                 Require(grid.FindUnit("unit1").StarLevel == 3, "Storage preserves star");
-                Place(grid, "unit1", origin);
+                Place(grid, "unit1", validAnchor);
                 Require(session.TryBeginBattle(session.RunId, 1), "Capture deployment");
                 Require(session.Deployment.Units.Single().StarLevel == 3, "Battle receives star");
+                Require(session.Deployment.Units.Single().ShapeId == basic.GetFootprint(3).Id, "Battle receives star footprint");
                 Require(!grid.TryFuseUnits("other", "unit1"), "Combat rejects fusion");
             }
             using (var session = new GridRunSession("full_tray", config.Catalog.CreateDefinition(), GridFusionPolicy.CanFuse))
@@ -65,6 +74,13 @@ namespace OZGL2.InGame.Editor
                 session.TryAllowPreparation(session.RunId, 1, false);
                 Require(grid.TryFuseUnits("u0", "u1") && grid.StoredCount == 9 && !grid.HasPendingStorage, "Full tray can fuse without discard");
             }
+        }
+        public static FootprintDefinition CreateTestFloor(Vector2Int size)
+        {
+            var cells = new System.Collections.Generic.List<Vector2Int>();
+            for (int y = 0; y < size.y; y++)
+                for (int x = 0; x < size.x; x++) cells.Add(new Vector2Int(x, y));
+            return new FootprintDefinition("verification_floor", "Verification floor", cells);
         }
         public static void Place(GridManager grid, string id, Vector2Int cell)
         { Require(grid.BeginUnitDrag(id), "Select " + id); grid.MovePreview(cell); Require(grid.CommitPreview(), "Place " + id); }
