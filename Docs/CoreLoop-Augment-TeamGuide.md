@@ -26,11 +26,11 @@ Bootstrap은 BeginRun 뒤에 현재 RealSynergySync를 명시적으로 바인딩
 
 ## 실제 효과 연결 범위
 
-SO의 connStatus 문구 대신 실제 효과 소비 코드를 기준으로 `InGameAugmentAvailability`에서 후보를 제한한다. 현재 30개 중 17개가 대상이다. 스킬 피해/쿨다운/범위/버프 지속/치명타/메아리/피격 감속, 몬스터 체력/공격/공속, 용사 공격 약화, XP 배율 등 연결된 효과를 사용한다.
+SO의 connStatus 문구 대신 실제 효과 소비 코드를 기준으로 `InGameAugmentAvailability`에서 후보를 제한한다. 2026-09-24 증강 연결 작업(성민) 이후 30개 전부가 대상이다(이전에는 17개). 스킬 피해/쿨다운/범위/버프 지속/치명타/메아리/피격 감속, 몬스터 체력/공격/공속, 용사 공격 약화, XP 배율 등 연결된 효과를 사용한다.
 
-미연결 후보 13개: cdkill_g, cdkill_p, eco_sp, explode_p, frost_g, hero_vuln, revive_p, shield_s, util_heal, util_reset, util_xp_p, util_xp_s, xpalive_p.
+이전 미연결 13개(cdkill_g, cdkill_p, eco_sp, explode_p, frost_g, hero_vuln, revive_p, shield_s, util_heal, util_reset, util_xp_p, util_xp_s, xpalive_p)는 `RealSynergySync`에 연결되어 후보에 포함된다. 그중 mon_hp(철벽 진형)·mon_speed(연타 본능)·util_heal(위기의 치유)·predator_g(사냥 개시)는 체감이 약해 새 효과로 교체했다.
 
-즉시 효과, 그리드 확장, 사망/처치 특수 효과 등은 이 브랜치에서 새로 구현하지 않는다. 담당자가 실제 실행 경로를 연결한 뒤 해당 effect의 허용 여부와 회귀 테스트를 함께 갱신한다. 기존 SO/효과 계산과 샌드박스 후보 목록에는 영향이 없다.
+즉시 효과(SP·XP·쿨타임 초기화)는 고르는 순간 `RealSynergySync.OnAugmentPicked`가 1회 실행하고, 처치·사망·체력 효과는 `UnitBase.OnHeroKilled`와 전투 중 감시로 처리한다. 철벽 진형·수호의 방패·연타 본능·냉기 침식은 `CombatModifierHub`의 신규 값을 `UnitBase`가 읽어서 적용하며, 값이 없으면 기존 동작과 같다. 그리드 확장(Grid)과 몬스터 방어(MonDefense)는 아직 연결 전이라 후보에서 제외한다. 기존 SO/효과 계산과 샌드박스 후보 목록에는 영향이 없다.
 
 유닛 점유 블록, 최종 UI, 계정 정산 및 밸런스 조정은 범위 밖이다.
 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_Augment_util_xp_s
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: util_xp_s
-  displayName: "\uC989\uAC01 \uAC15\uD0C0"
+  displayName: "\uC989\uC11D \uC218\uB828"
   description: "\uC989\uC2DC XP +150"
   tier: 1
   weight: 8

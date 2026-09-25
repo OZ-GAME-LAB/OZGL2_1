@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: SO_Augment_util_heal
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: util_heal
-  displayName: "\uC751\uAE09 \uCC98\uCE58"
-  description: "\uC989\uC2DC \uBAAC\uC2A4\uD130 \uC804\uCCB4 \uCCB4\uB825 20% \uD68C\uBCF5"
+  displayName: "\uC704\uAE30\uC758 \uCE58\uC720"
+  description: "\uBAAC\uC2A4\uD130 \uCCB4\uB825\uC774 30% \uC774\uD558\uAC00 \uB418\uBA74 1\uD68C \uCD5C\uB300 \uCCB4\uB825\uC758 25% \uD68C\uBCF5"
   tier: 1
   weight: 9
-  effect: 16
-  value: 0.2
+  effect: 29
+  value: 0.25
   maxStack: 1
-  isInstant: 1
-  connStatus: "\uC0CC\uB4DC\uBC15\uC2A4"
+  isInstant: 0
+  connStatus: "\uC2E4\uC81C"

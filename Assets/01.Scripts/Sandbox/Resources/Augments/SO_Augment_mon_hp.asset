@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: SO_Augment_mon_hp
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: mon_hp
-  displayName: "\uBD88\uAD74\uC758 \uB300\uC5F4"
-  description: "\uBAAC\uC2A4\uD130 \uCCB4\uB825 +8%"
+  displayName: "\uCCA0\uBCBD \uC9C4\uD615"
+  description: "\uC804\uD22C \uC2DC\uC791 \uD6C4 8\uCD08\uAC04 \uBAAC\uC2A4\uD130\uAC00 \uBC1B\uB294 \uD53C\uD574 -25%"
   tier: 1
   weight: 10
-  effect: 6
-  value: 0.08
+  effect: 30
+  value: 0.25
   maxStack: 1
   isInstant: 0
-  connStatus: "\uC0CC\uB4DC\uBC15\uC2A4"
+  connStatus: "\uC2A4\uD141"

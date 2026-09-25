@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_Augment_skill_buffdur
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: skill_buffdur
-  displayName: "\uC774\uC911 \uC2DC\uC804"
+  displayName: "\uC624\uB798\uAC00\uB294 \uAC00\uD638"
   description: "\uC544\uAD70 \uBC84\uD504\xB7\uC624\uB77C \uC9C0\uC18D +15%"
   tier: 2
   weight: 8

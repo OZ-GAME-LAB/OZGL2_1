@@ -16,3 +16,5 @@ MonoBehaviour:
   _displayName: 도적(고속)
   _requiredBlockId: single
   _footprint: {fileID: 11400000, guid: c2a1f39e28f917046a7b8bceda80b9a6, type: 2}
+  _footprintStar2: {fileID: 11400000, guid: 4401698e10be41444a28de5863e33c3a, type: 2}
+  _footprintStar3: {fileID: 11400000, guid: b1b83c998325432db3e18c919fb58bea, type: 2}

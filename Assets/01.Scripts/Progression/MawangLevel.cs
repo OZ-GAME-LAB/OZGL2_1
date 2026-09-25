@@ -11,7 +11,7 @@ namespace OZGL2.Progression
     ///
     ///  - 다음 레벨 필요 XP: 60 + 40·(L-1) + 8·(L-1)²   (특성 "속성 성장" 으로 XpNeedMult 감소)
     ///  - 레벨업 = LP +1, 레벨 5·10·15·20 도달 시 보너스 +1 (특성 "가르침" 으로 보너스 추가)
-    ///  - 레벨·XP·LP 전부 계정 영구(PlayerPrefs). 런 리셋 없음 — 레벨은 계속 누적된다.
+    ///  - 레벨·XP는 런마다 Lv1로 리셋(ResetForNewRun), LP는 계정 영구(PlayerPrefs)로 이월.
     ///  - 한 번에 XP 가 많이 들어오면 여러 레벨 연속 처리.
     /// </summary>
     public class MawangLevel
@@ -94,6 +94,15 @@ namespace OZGL2.Progression
                 if (SurgeXpOnMilestone > 0) Xp += SurgeXpOnMilestone; // while 루프가 다시 검사
             }
             Points += lp;
+        }
+
+        /// <summary>새 런 시작 — 레벨/XP만 Lv1로 초기화, LP(Points)는 유지.</summary>
+        public void ResetForNewRun()
+        {
+            Level = 1;
+            Xp = 0;
+            Save();
+            XpChanged?.Invoke();
         }
 
         // ─────────── LP 소비 (특성 트리)

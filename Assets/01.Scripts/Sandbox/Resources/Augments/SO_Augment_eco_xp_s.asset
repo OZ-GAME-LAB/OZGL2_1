@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SO_Augment_eco_xp_s
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: eco_xp_s
-  displayName: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+  displayName: "\uC791\uC740 \uAE68\uB2EC\uC74C"
   description: "XP \uD68D\uB4DD +10%"
   tier: 1
   weight: 10

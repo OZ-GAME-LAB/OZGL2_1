@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: SO_Augment_cdkill_g
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: cdkill_g
-  displayName: "\uCC98\uD615\uC790\uC758 \uCD95\uBCF5"
-  description: "\uC6A9\uC0AC \uCC98\uCE58 \uC2DC \uBAA8\uB4E0 \uC2A4\uD0AC \uCFE8\uD0D0
-    \u22121\uCD08"
+  displayName: "\uCC98\uD615 \uC7AC\uCDA9\uC804"
+  description: "\uC6A9\uC0AC \uCC98\uCE58 \uC2DC \uBAA8\uB4E0 \uC2A4\uD0AC \uCFE8\uD0D0 \u22121\uCD08"
   tier: 2
   weight: 8
   effect: 21

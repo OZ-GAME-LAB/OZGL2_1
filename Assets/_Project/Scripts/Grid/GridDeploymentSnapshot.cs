@@ -34,7 +34,7 @@ namespace OZGL2.Grid
         {
             StarLevel = unit.StarLevel;
             InstanceId = unit.InstanceId; ContentId = unit.Definition.Id;
-            ShapeId = unit.Definition.Footprint.Id;
+            ShapeId = unit.Definition.GetFootprint(unit.StarLevel).Id;
             Anchor = unit.Anchor; Rotation = unit.Rotation;
             Cells = Array.AsReadOnly(unit.GetCells());
         }

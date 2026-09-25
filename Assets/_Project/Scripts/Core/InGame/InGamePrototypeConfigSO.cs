@@ -62,9 +62,12 @@ namespace OZGL2.InGame
             var heroIds = new System.Collections.Generic.HashSet<string>();
             foreach (var entry in _heroPoolCatalog.CreateSnapshot())
             {
-                if (string.IsNullOrWhiteSpace(entry.HeroId) || !heroIds.Add(entry.HeroId) || entry.Prefab == null ||
+                // 같은 heroId에 모델링 변형을 여러 개 등록하는 게 정상 구성이라(HeroPool이 Rent 시 랜덤
+                // 선택), heroId 중복 자체는 더 이상 오류가 아니다 — 항목 하나하나의 유효성만 검사한다.
+                if (string.IsNullOrWhiteSpace(entry.HeroId) || entry.Prefab == null ||
                     entry.InitialCapacity < 0 || entry.GrowthCount <= 0 || entry.Experience < 0)
-                    throw new InvalidOperationException("Invalid or duplicate hero pool entry.");
+                    throw new InvalidOperationException("Invalid hero pool entry.");
+                heroIds.Add(entry.HeroId);
             }
             foreach (var round in stage.Rounds)
                 foreach (var spawn in round.Spawns)
