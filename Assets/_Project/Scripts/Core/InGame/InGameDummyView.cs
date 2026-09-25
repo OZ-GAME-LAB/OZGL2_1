@@ -43,6 +43,7 @@ namespace OZGL2.InGame
         }
         private void OnGUI()
         {
+            if (_bootstrap != null && _bootstrap.Result != null) { DrawResult(); return; }
             if (_bootstrap == null || _battlePage == null || !_battlePage.activeSelf) return;
 
             var stageCheck = _bootstrap.Stage;
@@ -108,6 +109,27 @@ namespace OZGL2.InGame
                 if (GUILayout.Button("Retry from round 1", GUILayout.Height(44))) _bootstrap.StartPrototype();
             }
             GUILayout.EndScrollView(); GUILayout.EndArea();
+        }
+
+        private void DrawResult()
+        {
+            var result = _bootstrap.Result;
+            float width = Mathf.Min(440, Screen.width - 24);
+            GUILayout.BeginArea(new Rect((Screen.width - width) / 2, 40, width, Mathf.Min(440, Screen.height - 48)), GUI.skin.box);
+            GUILayout.Label(result.Progress.IsCleared ? "STAGE CLEARED" : "DEFEAT");
+            GUILayout.Label("Stage: " + result.Progress.StageId);
+            GUILayout.Label("Reached round: " + result.Progress.CurrentRoundNumber + " / " + result.TotalRounds);
+            GUILayout.Label("Cleared rounds: " + result.Progress.ClearedRoundCount);
+            GUILayout.Label("Final level: " + result.Level + " / Current level XP: " + result.CurrentLevelXp);
+            GUILayout.Label("Retry starts at level 1, XP 0. LP is retained.");
+            bool enabled = GUI.enabled;
+            GUI.enabled = enabled && _bootstrap.CanChooseResult;
+            if (GUILayout.Button("Retry", GUILayout.Height(44))) _bootstrap.TryRetryResult(result.RunId);
+            if (GUILayout.Button("Stage selection", GUILayout.Height(44))) _bootstrap.TryReturnToStageSelection(result.RunId);
+            if (GUILayout.Button("Lobby", GUILayout.Height(44))) _bootstrap.TryReturnToLobby(result.RunId);
+            GUI.enabled = enabled;
+            if (!string.IsNullOrEmpty(_bootstrap.ResultActionError)) GUILayout.Label(_bootstrap.ResultActionError);
+            GUILayout.EndArea();
         }
     }
 }

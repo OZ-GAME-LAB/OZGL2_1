@@ -16,6 +16,9 @@ namespace OZGL2.Grid.UI
         private readonly List<SpriteRenderer> _ghost = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _frontier = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _invalid = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _occupied = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _hover = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _invalidBorders = new List<SpriteRenderer>();
         private readonly Sprite _solid;
         private readonly float _cellSize;
         private GameObject _dragActor;
@@ -63,15 +66,22 @@ namespace OZGL2.Grid.UI
             }
             foreach (var id in new List<string>(_units.Keys))
                 if (!retained.Contains(id)) { _units[id].SetActive(false); UnityEngine.Object.Destroy(_units[id]); _units.Remove(id); _stars.Remove(id); }
-            var cells = _grid.HasSelection ? _grid.GetPreviewCells() : Array.Empty<Vector2Int>();
-            RenderSquares(_ghost, cells, _grid.GetPreviewFailure() == ePlacementFailure.NONE ? GridBoardView.VALID_COLOR : GridBoardView.INVALID_COLOR, 200, 0.94f);
-            var frontier = _grid.RequiresExpansionPlacement ? _grid.GetExpansionFrontier() : Array.Empty<Vector2Int>();
+            bool preparing = _grid.Phase == eGridPhase.PREPARATION;
+            string selected = _grid.DragKind == eGridDragKind.UNIT ? _grid.SelectedId : null;
+            var cells = preparing && _grid.HasSelection ? _grid.GetPreviewCells() : Array.Empty<Vector2Int>();
+            RenderSquares(_ghost, cells, _grid.GetPreviewFailure() == ePlacementFailure.NONE ? GridBoardView.VALID_COLOR : GridBoardView.INVALID_COLOR, -60, 0.94f);
+            var frontier = preparing && (_grid.RequiresExpansionPlacement || _grid.IsExpansionDrag) ? _grid.GetExpansionFrontier() : Array.Empty<Vector2Int>();
             RenderSquares(_frontier, frontier, new Color(0.4f, 0.8f, 0.6f, 0.22f), -90, 0.86f);
             // 합성으로 발판이 커져서 자리가 부족한 유닛이 있으면 그 칸을 빨갛게 표시한다.
             // 합성 자체는 막지 않고(GridManager.CanFuseUnits), 이 칸이 남아있는 동안 CanBeginBattle이
             // false가 되어 정리하기 전까진 웨이브를 시작할 수 없다.
-            RenderSquares(_invalid, _grid.GetInvalidCells(), new Color(0.95f, 0.15f, 0.15f, 0.45f), 210, 0.98f);
-            string selected = _grid.DragKind == eGridDragKind.UNIT ? _grid.SelectedId : null;
+            var invalid = preparing ? _grid.GetInvalidCells(selected) : Array.Empty<Vector2Int>();
+            RenderSquares(_occupied, preparing ? _grid.GetOccupiedCells(selected) : Array.Empty<Vector2Int>(), GridBoardView.OCCUPIED_COLOR, -80, 0.94f);
+            RenderSquares(_invalid, invalid, GridBoardView.INVALID_PLACEMENT_COLOR, -70, 0.98f);
+            RenderInvalidBorders(invalid);
+            var hovered = preparing ? _grid.FindExpansion(_grid.HoveredExpansionId) : null;
+            RenderSquares(_hover, hovered != null ? hovered.GetCells() : Array.Empty<Vector2Int>(),
+                hovered == null || _grid.GetExpansionMoveFailure(hovered.InstanceId) == ePlacementFailure.NONE ? GridBoardView.EXPANSION_HOVER_COLOR : GridBoardView.INVALID_COLOR, -65, 0.94f);
             int selectedStar = selected == null ? 0 : _grid.FindUnit(selected).StarLevel;
             if (_dragId != selected || _dragStar != selectedStar)
             {
@@ -190,6 +200,20 @@ namespace OZGL2.Grid.UI
                 renderer.transform.localScale = Vector3.one * _cellSize * scale;
             }
             for (; index < renderers.Count; index++) renderers[index].gameObject.SetActive(false);
+        }
+        private void RenderInvalidBorders(IEnumerable<Vector2Int> cells)
+        {
+            int index = 0;
+            foreach (var cell in cells)
+                for (int side = 0; side < 4; side++)
+                {
+                    if (index == _invalidBorders.Count) _invalidBorders.Add(Square("InvalidPlacementBorder", _root.transform, -69, Color.red));
+                    var renderer = _invalidBorders[index++]; renderer.gameObject.SetActive(true);
+                    var offset = side == 0 ? Vector2.left : side == 1 ? Vector2.right : side == 2 ? Vector2.up : Vector2.down;
+                    renderer.transform.position = _mapping.GetWorldPosition((Vector2)cell + offset * 0.47f);
+                    renderer.transform.localScale = new Vector3(side < 2 ? 0.035f : 0.975f, side < 2 ? 0.975f : 0.035f, 1) * _cellSize;
+                }
+            for (; index < _invalidBorders.Count; index++) _invalidBorders[index].gameObject.SetActive(false);
         }
         public void Dispose()
         {

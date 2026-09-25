@@ -6,7 +6,7 @@ namespace OZGL2.Grid
 {
     public enum eGridPhase { PREPARATION, BATTLE, REWARD, WAITING, ENDED }
     public enum eGridDragKind { NONE, BLOCK, UNIT, EXPANSION }
-    public enum ePlacementFailure { NONE, NOT_PREPARING, NO_SELECTION, OUTSIDE_BOUNDS, NO_FLOOR, OCCUPIED, FLOOR_EXISTS, DISCONNECTED, NO_BLOCK, STORAGE_PENDING }
+    public enum ePlacementFailure { NONE, NOT_PREPARING, NO_SELECTION, OUTSIDE_BOUNDS, NO_FLOOR, OCCUPIED, FLOOR_EXISTS, DISCONNECTED, NO_BLOCK, STORAGE_PENDING, EXPANSION_OCCUPIED, CANNOT_STORE_EXPANSION }
 
     public interface IGridPreparation
     {
@@ -37,15 +37,18 @@ namespace OZGL2.Grid
         public bool IsPlaced { get; }
         public Vector2Int Anchor { get; }
         public int Rotation { get; }
+        public bool IsMirrored { get; }
         public BlockPlacement(string instanceId, string contentId, FootprintDefinition footprint,
-            bool isPlaced = false, Vector2Int anchor = default, int rotation = 0)
+            bool isPlaced = false, Vector2Int anchor = default, int rotation = 0, bool isMirrored = false)
         {
             if (string.IsNullOrWhiteSpace(instanceId) || string.IsNullOrWhiteSpace(contentId)) throw new ArgumentException("Unit IDs required.");
             InstanceId = instanceId; ContentId = contentId; Footprint = footprint ?? throw new ArgumentNullException(nameof(footprint));
             IsPlaced = isPlaced; Anchor = anchor; Rotation = ((rotation % 4) + 4) % 4;
+            IsMirrored = isMirrored;
         }
-        public BlockPlacement WithPlacement(bool isPlaced, Vector2Int anchor, int rotation)
-            => new BlockPlacement(InstanceId, ContentId, Footprint, isPlaced, anchor, rotation);
+        public BlockPlacement WithPlacement(bool isPlaced, Vector2Int anchor, int rotation, bool? isMirrored = null)
+            => new BlockPlacement(InstanceId, ContentId, Footprint, isPlaced, anchor, rotation, isMirrored ?? IsMirrored);
+        public Vector2Int[] GetCells() => Footprint.GetCells(Anchor, Rotation, IsMirrored);
     }
     public sealed class UnitPlacement
     {
@@ -55,19 +58,21 @@ namespace OZGL2.Grid
         public bool IsPlaced { get; }
         public Vector2Int Anchor { get; }
         public int Rotation { get; }
-        public UnitPlacement(string instanceId, UnitDefinition definition, bool isPlaced = false, Vector2Int anchor = default, int rotation = 0, int starLevel = 1)
+        public bool IsMirrored { get; }
+        public UnitPlacement(string instanceId, UnitDefinition definition, bool isPlaced = false, Vector2Int anchor = default, int rotation = 0, int starLevel = 1, bool isMirrored = false)
         {
             if (starLevel < 1) throw new ArgumentOutOfRangeException(nameof(starLevel));
             StarLevel = starLevel;
             if (string.IsNullOrWhiteSpace(instanceId)) throw new ArgumentException("Unit instance ID required.");
             InstanceId = instanceId; Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             IsPlaced = isPlaced; Anchor = anchor; Rotation = ((rotation % 4) + 4) % 4;
+            IsMirrored = isMirrored;
         }
-        public UnitPlacement WithPlacement(bool isPlaced, Vector2Int anchor, int rotation)
-            => new UnitPlacement(InstanceId, Definition, isPlaced, anchor, rotation, StarLevel);
+        public UnitPlacement WithPlacement(bool isPlaced, Vector2Int anchor, int rotation, bool? isMirrored = null)
+            => new UnitPlacement(InstanceId, Definition, isPlaced, anchor, rotation, StarLevel, isMirrored ?? IsMirrored);
         public UnitPlacement WithStarLevel(int starLevel)
-            => new UnitPlacement(InstanceId, Definition, IsPlaced, Anchor, Rotation, starLevel);
-        public Vector2Int[] GetCells() => Definition.GetFootprint(StarLevel).GetCells(Anchor, Rotation);
+            => new UnitPlacement(InstanceId, Definition, IsPlaced, Anchor, Rotation, starLevel, IsMirrored);
+        public Vector2Int[] GetCells() => Definition.GetFootprint(StarLevel).GetCells(Anchor, Rotation, IsMirrored);
     }
     public sealed class UnitDefinition
     {

@@ -11,7 +11,7 @@ namespace OZGL2.Grid
         {
             var supported = new HashSet<Vector2Int>();
             foreach (var block in blocks)
-                if (block.IsPlaced) supported.UnionWith(block.Footprint.GetCells(block.Anchor, block.Rotation));
+                if (block.IsPlaced) supported.UnionWith(block.GetCells());
             var occupied = new HashSet<Vector2Int>();
             foreach (var unit in units)
                 if (unit.IsPlaced && unit.InstanceId != movingId) occupied.UnionWith(unit.GetCells());
@@ -38,7 +38,7 @@ namespace OZGL2.Grid
             // 같은 자리에 놓기는 연결 다리를 실제로 회수하는 작업이 아니다.
             foreach (var block in blocks)
                 if (block.IsPlaced && block.InstanceId == movingId &&
-                    new HashSet<Vector2Int>(block.Footprint.GetCells(block.Anchor, block.Rotation)).SetEquals(cells))
+                    new HashSet<Vector2Int>(block.GetCells()).SetEquals(cells))
                     return ePlacementFailure.NONE;
             if (!IsConnected(remaining)) return ePlacementFailure.DISCONNECTED;
             remaining.UnionWith(cells);
@@ -52,7 +52,7 @@ namespace OZGL2.Grid
             var result = new HashSet<Vector2Int>();
             foreach (var block in blocks)
                 if (block.IsPlaced && block.InstanceId != excludedId)
-                    result.UnionWith(block.Footprint.GetCells(block.Anchor, block.Rotation));
+                    result.UnionWith(block.GetCells());
             return result;
         }
         private static bool IsConnected(HashSet<Vector2Int> cells)
@@ -79,6 +79,18 @@ namespace OZGL2.Grid
                 foreach (var direction in Directions) if (floor.Contains(cell + direction)) hasNeighbor = true;
             }
             return hasNeighbor ? ePlacementFailure.NONE : ePlacementFailure.DISCONNECTED;
+        }
+        public static ePlacementFailure ValidateExpansionMove(GridDefinition definition, HashSet<Vector2Int> remainingFloor, Vector2Int[] cells)
+        {
+            foreach (var cell in cells)
+            {
+                if (!definition.Contains(cell)) return ePlacementFailure.OUTSIDE_BOUNDS;
+                if (remainingFloor.Contains(cell)) return ePlacementFailure.FLOOR_EXISTS;
+            }
+            // 드래그 중 실제 바닥은 유지한다. 이동이 확정될 때의 전체 연결성을 검사한다.
+            var candidate = new HashSet<Vector2Int>(remainingFloor);
+            candidate.UnionWith(cells);
+            return IsConnected(candidate) ? ePlacementFailure.NONE : ePlacementFailure.DISCONNECTED;
         }
     }
 }

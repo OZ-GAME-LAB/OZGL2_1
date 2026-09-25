@@ -9,6 +9,7 @@ using OZGL2.Stage;
 using OZGL2.Stage.Prototype;
 using OZGL2.UIFlow;
 using OZGL2.Synergy;
+using OZGL2.Progression;
 using UnityEngine;
 
 namespace OZGL2.InGame
@@ -43,6 +44,10 @@ namespace OZGL2.InGame
         private bool _isDestroyed;
         private bool _hasCleanupFailure;
         private bool _isReturningToLobby;
+        private readonly InGameResultSelection _resultSelection = new InGameResultSelection();
+        public InGameRunResult Result => _resultSelection.Result;
+        public bool CanChooseResult => Result != null && !_resultSelection.IsBusy && CanRetry;
+        public string ResultActionError { get; private set; }
         public StageManager Stage { get; private set; }
         public GridRunSession GridSession => _session?.Session;
         public InGamePrototypeConfigSO Config => _config;
@@ -69,7 +74,7 @@ namespace OZGL2.InGame
 
         public void StartPrototype()
         {
-            if (!CanRetry) return;
+            if (!CanRetry || Result != null) return;
             Completion = RunAsync();
         }
         private async Task RunAsync()
@@ -82,13 +87,13 @@ namespace OZGL2.InGame
             {
                 await ReleaseAsync();
                 if (_isDestroyed) return;
-                _runSynergy = RealCombatBootstrap.EnsureInitialized();
-                _runSynergy.BeginRun();
-                _skillConnection = new InGameSkillConnection(_runSynergy);
                 if (_config == null || _navigator == null) throw new InvalidOperationException("InGame configuration and navigator are required.");
                 ResolveSelection();
                 _config.Validate(_selectedSource.CreateSnapshot());
                 _phasePresentation?.ValidateSetup();
+                _runSynergy = RealCombatBootstrap.EnsureInitialized();
+                _runSynergy.BeginRun();
+                _skillConnection = new InGameSkillConnection(_runSynergy);
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
                     new DummyRewardLedger(Path.Combine(directory, "settlements.json")));
@@ -134,20 +139,13 @@ namespace OZGL2.InGame
                 if (_isDestroyed) return;
                 Error = _presentationError ?? _host.Error;
                 bool canReturn = lobby.Result != null && lobby.Result.IsSettled && Error == null;
+                var result = canReturn ? new InGameRunResult(lobby.Result, Stage.TotalRounds,
+                    MawangXpBridge.Mawang?.Level ?? 1, MawangXpBridge.Mawang?.Xp ?? 0) : null;
                 await ReleaseAsync();
                 if (_isDestroyed) return;
+                // Host 종료가 완료된 뒤 표시한다. 결과 UI를 기다리는 동안 실행 자원을 보유하지 않는다.
+                if (result != null) _resultSelection.Present(result);
                 Notify();
-                // 자기 실행 안에서 Host 종료를 기다리지 않고, 실행이 끝난 뒤 팀 UI의 이동 규격을 사용한다.
-                if (canReturn)
-                {
-                    BeginLobbyReturn();
-                    if (!_navigator.TryLoadScene(_config.LobbyScenePath, out var navigationError))
-                    {
-                        _isReturningToLobby = false;
-                        throw new InvalidOperationException(navigationError);
-                    }
-                    _selectedSource = null;
-                }
             }
             catch (Exception exception)
             {
@@ -164,8 +162,39 @@ namespace OZGL2.InGame
         public bool TryBeginBattle(bool skip = false) => _phasePresentation != null ? _phasePresentation.RequestBattle(skip) : CommitBattleStart(skip);
         public bool TryRetryStage()
         {
+            if (Result != null) return TryRetryResult(Result.RunId);
             if (!CanRetry || _selectedSource == null) return false;
             StartPrototype();
+            return true;
+        }
+
+        public bool TryRetryResult(string runId)
+        {
+            if (!CanChooseResult || _selectedSource == null || !_resultSelection.TryBegin(runId)) return false;
+            ResultActionError = null;
+            _resultSelection.Clear();
+            StartPrototype();
+            return true;
+        }
+
+        public bool TryReturnToStageSelection(string runId) => TryLeaveResult(runId, _config?.StageSelectionScenePath);
+        public bool TryReturnToLobby(string runId) => TryLeaveResult(runId, _config?.LobbyScenePath);
+
+        private bool TryLeaveResult(string runId, string scenePath)
+        {
+            if (!CanChooseResult || !_resultSelection.TryBegin(runId)) return false;
+            ResultActionError = null;
+            BeginLobbyReturn();
+            if (!_navigator.TryLoadScene(scenePath, out var error))
+            {
+                _isReturningToLobby = false;
+                _resultSelection.Restore(runId);
+                ResultActionError = error;
+                Notify();
+                return false;
+            }
+            _resultSelection.Clear();
+            _selectedSource = null;
             return true;
         }
 

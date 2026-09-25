@@ -10,6 +10,9 @@ namespace OZGL2.Grid.UI
         public const float CELL_SIZE = 64;
         public static readonly Color VALID_COLOR = new Color(0.2f, 0.95f, 0.48f, 0.62f);
         public static readonly Color INVALID_COLOR = new Color(1, 0.18f, 0.25f, 0.62f);
+        public static readonly Color OCCUPIED_COLOR = new Color(1, 0.12f, 0.18f, 0.22f);
+        public static readonly Color INVALID_PLACEMENT_COLOR = new Color(0.95f, 0.08f, 0.12f, 0.48f);
+        public static readonly Color EXPANSION_HOVER_COLOR = new Color(0.25f, 0.8f, 1, 0.3f);
         private readonly GridManager _manager;
         private readonly GridBoardThemeSO _theme;
         private readonly VisualElement _floorLayer;
@@ -54,7 +57,8 @@ namespace OZGL2.Grid.UI
         public void Render()
         {
             _floorLayer.Clear(); _blocksLayer.Clear(); _ghostLayer.Clear();
-            var frontier = _manager.RequiresExpansionPlacement ? new HashSet<Vector2Int>(_manager.GetExpansionFrontier()) : null;
+            bool preparing = _manager.Phase == eGridPhase.PREPARATION;
+            var frontier = preparing && (_manager.RequiresExpansionPlacement || _manager.IsExpansionDrag) ? new HashSet<Vector2Int>(_manager.GetExpansionFrontier()) : null;
             for (int y = 0; y < _manager.Definition.MaximumSize.y; y++)
                 for (int x = 0; x < _manager.Definition.MaximumSize.x; x++)
                 {
@@ -66,12 +70,25 @@ namespace OZGL2.Grid.UI
                     _floorLayer.Add(tile);
                     if (frontier != null && frontier.Contains(cell)) AddDashes(tile);
                 }
+            string selected = _manager.DragKind == eGridDragKind.UNIT ? _manager.SelectedId : null;
+            if (preparing)
+            {
+                foreach (var cell in _manager.GetOccupiedCells(selected)) AddCell(_blocksLayer, cell, OCCUPIED_COLOR, "occupied-cell");
+                foreach (var cell in _manager.GetInvalidCells(selected))
+                {
+                    var tile = AddCell(_blocksLayer, cell, INVALID_PLACEMENT_COLOR, "invalid-placement-cell");
+                    tile.style.borderLeftWidth = tile.style.borderRightWidth = tile.style.borderTopWidth = tile.style.borderBottomWidth = 2;
+                    tile.style.borderLeftColor = tile.style.borderRightColor = tile.style.borderTopColor = tile.style.borderBottomColor = Color.red;
+                }
+                var hovered = _manager.FindExpansion(_manager.HoveredExpansionId);
+                if (hovered != null)
+                    foreach (var cell in hovered.GetCells()) AddCell(_blocksLayer, cell,
+                        _manager.GetExpansionMoveFailure(hovered.InstanceId) == ePlacementFailure.NONE ? EXPANSION_HOVER_COLOR : INVALID_COLOR, "expansion-hover");
+            }
             foreach (var unit in _manager.Units)
             {
                 if (!unit.IsPlaced ||
                     (_manager.DragKind == eGridDragKind.UNIT && unit.InstanceId == _manager.SelectedId)) continue;
-                foreach (var cell in unit.GetCells())
-                    AddCell(_blocksLayer, cell, new Color(0.85f, 0.65f, 0.25f, 0.55f), "unit-cell");
                 AddActor(_blocksLayer, unit.Anchor, unit.Definition.DisplayName + " " + unit.StarLevel + "★", Color.white);
             }
             if (_manager.HasSelection)
@@ -116,10 +133,11 @@ namespace OZGL2.Grid.UI
                 edge.style.backgroundColor = color; tile.Add(edge);
             }
         }
-        private void AddCell(VisualElement parent, Vector2Int cell, Color color, string name)
+        private VisualElement AddCell(VisualElement parent, Vector2Int cell, Color color, string name)
         {
             var tile = new VisualElement { name = name, pickingMode = PickingMode.Ignore };
             Place(tile, cell, CELL_SIZE - 8); tile.style.backgroundColor = color; parent.Add(tile);
+            return tile;
         }
         private void AddActor(VisualElement parent, Vector2Int cell, string label, Color color)
         {

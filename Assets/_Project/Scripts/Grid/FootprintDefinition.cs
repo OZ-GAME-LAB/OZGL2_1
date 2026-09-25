@@ -29,13 +29,15 @@ namespace OZGL2.Grid
             if (visited.Count != copy.Count) throw new ArgumentException("Footprint must be edge-connected.");
             Id = id; DisplayName = displayName; Cells = copy.AsReadOnly();
         }
-        public Vector2Int[] GetCells(Vector2Int anchor, int rotation)
+        public Vector2Int[] GetCells(Vector2Int anchor, int rotation, bool isMirrored = false)
         {
             var result = new Vector2Int[Cells.Count];
             int turns = ((rotation % 4) + 4) % 4;
             for (int i = 0; i < Cells.Count; i++)
             {
                 var cell = Cells[i];
+                // 저장 규격은 원본 좌우 반전 후 회전이다. 화면 기준 반전 명령은 회전도 역전한다.
+                if (isMirrored) cell.x = -cell.x;
                 for (int turn = 0; turn < turns; turn++) cell = new Vector2Int(cell.y, -cell.x);
                 result[i] = anchor + cell;
             }

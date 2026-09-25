@@ -13,12 +13,14 @@ namespace OZGL2.Grid.UI
         private readonly VisualElement _tray;
         private int _pointerId = -1;
         private Vector2Int _grabOffset;
+        private Vector2 _pointerPosition;
         public GridDragInput(GridManager manager, IGridBoardSurface board, VisualElement root, VisualElement tray, Func<bool> canInteract = null)
         {
             _canInteract = canInteract ?? (() => true);
             _manager = manager; _board = board; _root = root; _tray = tray;
             root.focusable = true;
             board.Element.RegisterCallback<PointerDownEvent>(OnBoardDown);
+            board.Element.RegisterCallback<PointerLeaveEvent>(OnBoardLeave);
             root.RegisterCallback<PointerMoveEvent>(OnMove);
             root.RegisterCallback<PointerUpEvent>(OnUp);
             root.RegisterCallback<PointerCancelEvent>(OnCancel);
@@ -46,17 +48,22 @@ namespace OZGL2.Grid.UI
             if (!_canInteract() || evt.button != 0) return;
             var cell = _board.PanelToCell(evt.position);
             var block = _manager.GetBlockAt(cell);
-            if (block == null) return;
             var unit = _manager.GetUnitAt(cell);
             if (unit != null)
             {
                 if (!_manager.BeginUnitDrag(unit.InstanceId)) return;
                 _grabOffset = cell - unit.Anchor;
             }
-            else
+            else if (block != null)
             {
                 if (!_manager.BeginBlockDrag(block.InstanceId)) return;
                 _grabOffset = cell - block.Anchor;
+            }
+            else
+            {
+                var expansion = _manager.GetExpansionAt(cell);
+                if (expansion == null || !_manager.BeginExpansionDrag(expansion.InstanceId)) return;
+                _grabOffset = cell - expansion.Anchor;
             }
             Capture(evt); Update(evt.position);
         }
@@ -64,8 +71,16 @@ namespace OZGL2.Grid.UI
         {
             _pointerId = evt.pointerId; _root.CapturePointer(_pointerId); _root.Focus(); evt.StopPropagation();
         }
-        private void Update(Vector2 point) => _manager.MovePreview(_board.PanelToCell(point) - _grabOffset);
-        private void OnMove(PointerMoveEvent evt) { if (_pointerId == evt.pointerId && _manager.HasSelection) Update(evt.position); }
+        private void Update(Vector2 point)
+        { _pointerPosition = point; _manager.MovePreview(_board.PanelToCell(point) - _grabOffset); }
+        private void OnMove(PointerMoveEvent evt)
+        {
+            if (!_canInteract()) { Cancel(); return; }
+            if (_pointerId == evt.pointerId && _manager.HasSelection) Update(evt.position);
+            else if (!_manager.HasSelection)
+                _manager.SetHoveredCell(_board.Element.worldBound.Contains(evt.position) ? _board.PanelToCell(evt.position) : (Vector2Int?)null);
+        }
+        private void OnBoardLeave(PointerLeaveEvent evt) => _manager.SetHoveredCell(null);
         private void OnUp(PointerUpEvent evt)
         {
             if (_pointerId != evt.pointerId || evt.button != 0) return;
@@ -84,7 +99,7 @@ namespace OZGL2.Grid.UI
                 }
                 else if (!_manager.DropToTray()) _manager.CancelDrag();
             }
-            else if (_manager.DragKind == eGridDragKind.BLOCK && _tray.worldBound.Contains(evt.position))
+            else if (_tray.worldBound.Contains(evt.position))
             { if (!_manager.DropToTray()) _manager.CancelDrag(); }
             else if (!_manager.CommitPreview()) _manager.CancelDrag();
             Release(); evt.StopPropagation();
@@ -96,6 +111,13 @@ namespace OZGL2.Grid.UI
             {
                 _manager.RotatePreview();
                 _grabOffset = new Vector2Int(_grabOffset.y, -_grabOffset.x);
+                Update(_pointerPosition);
+            }
+            else if (evt.keyCode == KeyCode.F && !_manager.IsExpansionDrag)
+            {
+                _manager.MirrorPreview();
+                _grabOffset = new Vector2Int(-_grabOffset.x, _grabOffset.y);
+                Update(_pointerPosition);
             }
             else if (evt.keyCode == KeyCode.Escape) Cancel();
             else return;
@@ -104,7 +126,7 @@ namespace OZGL2.Grid.UI
         private void OnCancel(PointerCancelEvent evt) { if (evt.pointerId == _pointerId) Cancel(); }
         private void OnCaptureOut(PointerCaptureOutEvent evt) { if (evt.pointerId == _pointerId) Cancel(); }
         private void OnFocusOut(FocusOutEvent evt) { if (evt.target == _root && _manager.HasSelection) Cancel(); }
-        public void Cancel() { _manager.CancelDrag(); Release(); }
+        public void Cancel() { _manager.CancelDrag(); _manager.SetHoveredCell(null); Release(); }
         private void Release()
         {
             int pointer = _pointerId; _pointerId = -1;
@@ -114,6 +136,7 @@ namespace OZGL2.Grid.UI
         {
             Cancel();
             _board.Element.UnregisterCallback<PointerDownEvent>(OnBoardDown);
+            _board.Element.UnregisterCallback<PointerLeaveEvent>(OnBoardLeave);
             _root.UnregisterCallback<PointerMoveEvent>(OnMove); _root.UnregisterCallback<PointerUpEvent>(OnUp);
             _root.UnregisterCallback<PointerCancelEvent>(OnCancel); _root.UnregisterCallback<PointerCaptureOutEvent>(OnCaptureOut);
             _root.UnregisterCallback<KeyDownEvent>(OnKey); _root.UnregisterCallback<FocusOutEvent>(OnFocusOut);

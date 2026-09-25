@@ -99,7 +99,7 @@ namespace OZGL2.Grid.Prototype
                 surface.Element.style.flexGrow = 1; surface.Element.style.width = Length.Percent(100);
                 surface.Element.style.minHeight = 0;
             }
-            _root.Add(new Label("STORAGE / Units first · R: rotate · Esc: cancel · Drag here to return"));
+            _root.Add(new Label("STORAGE / Units first · R: rotate · F: mirror · Esc: cancel · Expansions cannot be stored"));
             _tray = CreateTray("storage-tray", 116); _root.Add(_tray);
             _input = new GridDragInput(Manager, surface, _root, _tray, _canInteract);
             _expansionCard = new Label("FLOOR +2  —  Drag this required reward onto the dotted area") { name = "expansion-card" };
@@ -152,7 +152,10 @@ namespace OZGL2.Grid.Prototype
             _status.text = Manager.Phase + "  |  FLOOR " + Manager.FloorCells.Count + "/" +
                 (Manager.Definition.MaximumSize.x * Manager.Definition.MaximumSize.y) + "  |  DEPLOYED " + Manager.PlacedCount + "  |  STORAGE " + Manager.StoredCount + "/" + Manager.Definition.StorageCapacity;
             _message.text = Manager.HasSelection ? (Manager.CanFusePreview ? "Fuse: same unit + same star" : Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
-                Manager.LastDropFailure == ePlacementFailure.DISCONNECTED ? "Keep platforms connected by an edge. Moving or returning this block must not split them." :
+                Manager.LastDropFailure == ePlacementFailure.DISCONNECTED ? "Keep the floor and platforms connected by an edge." :
+                Manager.LastDropFailure == ePlacementFailure.EXPANSION_OCCUPIED ? "Clear units and platforms from this expansion before moving it." :
+                Manager.LastDropFailure == ePlacementFailure.CANNOT_STORE_EXPANSION ? "Expansion tiles cannot be stored. Place them on the board." :
+                Manager.HoveredExpansionId != null ? (Manager.GetExpansionMoveFailure(Manager.HoveredExpansionId) == ePlacementFailure.NONE ? "Drag to move this expansion. R: rotate. Cannot store." : "Clear units and platforms from this expansion before moving it.") :
                 Manager.Phase == eGridPhase.WAITING || (Manager.Phase == eGridPhase.REWARD && Session.PendingRewardId == null) ? "Waiting for preparation permission." :
                 Manager.RequiresExpansionPlacement ? "Place the floor reward before starting or skipping." :
                 Manager.Phase == eGridPhase.REWARD ? "Round clear: choose a reward to enter the next preparation." :
@@ -166,7 +169,9 @@ namespace OZGL2.Grid.Prototype
                 {
                     var storedUnit = item.Kind == eGridDragKind.UNIT ? Manager.FindUnit(item.InstanceId) : null;
                     var shape = storedUnit != null ? storedUnit.Definition.GetFootprint(storedUnit.StarLevel) : Manager.FindBlock(item.InstanceId).Footprint;
-                    var card = CreateStorageCard(item, shape);
+                    var storedBlock = storedUnit == null ? Manager.FindBlock(item.InstanceId) : null;
+                    var card = CreateStorageCard(item, shape.GetCells(Vector2Int.zero, storedUnit?.Rotation ?? storedBlock.Rotation,
+                        storedUnit?.IsMirrored ?? storedBlock.IsMirrored));
                     if (item.Kind == eGridDragKind.UNIT)
                     {
                         card.userData = item.InstanceId;
@@ -200,7 +205,7 @@ namespace OZGL2.Grid.Prototype
             var status = _worldStatus?.Invoke();
             if (!string.IsNullOrEmpty(status)) _message.text = status;
         }
-        private static VisualElement CreateStorageCard(GridStoredItem item, FootprintDefinition shape)
+        private static VisualElement CreateStorageCard(GridStoredItem item, Vector2Int[] cells)
         {
             var card = new VisualElement { name = (item.Kind == eGridDragKind.UNIT ? "card-" : "block-card-") + item.InstanceId };
             card.style.width = 170; card.style.flexShrink = 0; card.style.height = 86; card.style.marginTop = 6; card.style.marginLeft = 6;
@@ -208,11 +213,14 @@ namespace OZGL2.Grid.Prototype
             card.style.backgroundColor = item.Kind == eGridDragKind.UNIT ? new Color(0.28f, 0.22f, 0.14f) : new Color(0.16f, 0.22f, 0.32f);
             var label = new Label(item.Kind + " / " + item.DisplayName) { pickingMode = PickingMode.Ignore }; label.style.fontSize = 13; card.Add(label);
             var icon = new VisualElement { pickingMode = PickingMode.Ignore }; icon.style.width = 80; icon.style.height = 50; card.Add(icon);
-            foreach (var cell in shape.Cells)
+            var min = cells[0]; var max = cells[0];
+            foreach (var cell in cells) { min = Vector2Int.Min(min, cell); max = Vector2Int.Max(max, cell); }
+            var center = (Vector2)(min + max) * 0.5f;
+            foreach (var cell in cells)
             {
                 var square = new VisualElement { pickingMode = PickingMode.Ignore };
                 square.style.position = Position.Absolute; square.style.width = 9; square.style.height = 9;
-                square.style.left = 32 + cell.x * 10; square.style.top = 20 - cell.y * 10;
+                square.style.left = 35 + (cell.x - center.x) * 10; square.style.top = 20 - (cell.y - center.y) * 10;
                 square.style.backgroundColor = cell == Vector2Int.zero ? new Color(1, 0.8f, 0.35f) : new Color(0.4f, 0.7f, 1); icon.Add(square);
             }
             return card;
