@@ -110,7 +110,7 @@ namespace OZGL2.InGame
                 if (_augmentProvider is InGameAugmentRewards realAugments) realAugments.Bind(_runSynergy);
                 if (_augmentProvider != null)
                     augment = _augmentProvider as IStageRewards ?? throw new InvalidOperationException("Augment provider must implement IStageRewards.");
-                Rewards = new StageGridRewards(_session, new GridPrototypeRewards(_config.Catalog), augment);
+                Rewards = new StageGridRewards(_session, _config.CreateRewardSource(), augment);
                 var preparation = new StageGridPreparation(_session, _config.Catalog.CreateInitialUnit(),
                     _config.Catalog.CreateInitialBlock(), _config.InitialAnchor);
                 var lobby = new CompletedLobby();

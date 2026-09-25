@@ -34,7 +34,7 @@ namespace OZGL2.InGame.Editor
             var session = new InGameGridSession(config.Catalog.CreateDefinition(), new DummyRewardLedger());
             var preparation = new StageGridPreparation(session, config.Catalog.CreateInitialUnit(), config.Catalog.CreateInitialBlock(), config.InitialAnchor);
             var dummy = new ManualStageServices();
-            var rewards = new StageGridRewards(session, new GridPrototypeRewards(config.Catalog), dummy);
+            var rewards = new StageGridRewards(session, config.CreateRewardSource(), dummy);
             var store = new MemoryStageProgressStore();
             var lobby = new TestLobby();
             var stage = new StageManager(dummy, rewards, preparation, session, store, lobby);
@@ -92,7 +92,7 @@ namespace OZGL2.InGame.Editor
             var session = new InGameGridSession(config.Catalog.CreateDefinition(), new DummyRewardLedger());
             var preparation = new StageGridPreparation(session, config.Catalog.CreateInitialUnit(), config.Catalog.CreateInitialBlock(), config.InitialAnchor);
             var dummy = new ManualStageServices();
-            var rewards = new StageGridRewards(session, new GridPrototypeRewards(config.Catalog), dummy);
+            var rewards = new StageGridRewards(session, config.CreateRewardSource(), dummy);
             var stage = new StageManager(dummy, rewards, preparation, session, new MemoryStageProgressStore(), new TestLobby());
             using (var token = new CancellationTokenSource(TimeSpan.FromSeconds(15)))
             {

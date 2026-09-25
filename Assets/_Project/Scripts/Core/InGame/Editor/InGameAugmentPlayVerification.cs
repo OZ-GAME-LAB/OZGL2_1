@@ -36,7 +36,7 @@ namespace OZGL2.InGame.Editor
                     session = new InGameGridSession(config.Catalog.CreateDefinition(), new DummyRewardLedger());
                     var prep = new StageGridPreparation(session, config.Catalog.CreateInitialUnit(), config.Catalog.CreateInitialBlock(), config.InitialAnchor);
                     var dummy = new ManualStageServices();
-                    var rewards = new StageGridRewards(session, new GridPrototypeRewards(config.Catalog), provider);
+                    var rewards = new StageGridRewards(session, config.CreateRewardSource(), provider);
                     var store = new MemoryStageProgressStore();
                     var stage = new StageManager(dummy, rewards, prep, session, store, new Lobby());
                     var spawns = new[] { new HeroSpawnDefinition("H_WAR_01", 1, 0f) };

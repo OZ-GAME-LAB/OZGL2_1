@@ -16,6 +16,7 @@ MonoBehaviour:
   _stageCatalog: {fileID: 11400000, guid: 7643036bc4940764d8ef2187809b0ea2, type: 2}
   _allowEditorDirectStart: 1
   _catalog: {fileID: 11400000, guid: 9078badd44fe4c55a417d7718dd0f447, type: 2}
+  _generalRewardPool: {fileID: 11400000, guid: 95701e7dbcc1a5d4dad13d0fbbb1f1e1, type: 2}
   _initialAnchor: {x: 3, y: 0}
   _lobbyScenePath: Assets/00.Scenes/Builds/Lobby.unity
   _heroPoolCatalog: {fileID: 11400000, guid: 7f9aa8f1c8b248a3bfbaa4e496f5f55a, type: 2}

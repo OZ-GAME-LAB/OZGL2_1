@@ -87,11 +87,14 @@ namespace OZGL2.InGame
             if (rewards?.Pending != null)
             {
                 string id = rewards.Pending.RequestId;
-                for (int i = 0; i < 2; i++)
-                    if (GUILayout.Button(rewards.GetCandidateName(i) + " + matching block", GUILayout.Height(44))) rewards.TryChooseUnit(id, i);
-                GUI.enabled = _bootstrap.GridSession != null && _bootstrap.GridSession.Grid.CanExpand;
-                if (GUILayout.Button("Floor expansion +2 (place in next preparation)", GUILayout.Height(44))) rewards.TryChooseExpansion(id);
-                GUI.enabled = true;
+                for (int i = 0; i < rewards.Candidates.Count; i++)
+                {
+                    var candidate = rewards.Candidates[i];
+                    string label = candidate.Kind == eGeneralRewardKind.UNIT
+                        ? candidate.Unit.DisplayName + " (1 star) + " + candidate.Block.DisplayName
+                        : "Floor expansion +2 (place in next preparation)";
+                    if (GUILayout.Button(label, GUILayout.Height(44))) rewards.TrySelect(id, i);
+                }
             }
             if (dummy != null && dummy.PendingRequest == eDummyRequest.AUGMENT)
             {
