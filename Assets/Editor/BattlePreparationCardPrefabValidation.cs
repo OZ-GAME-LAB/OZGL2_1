@@ -40,7 +40,8 @@ public static class BattlePreparationCardPrefabValidation
                 var view = root.GetComponent<UIBattlePreparationCardView>();
                 Need(view != null, name + ": View");
                 var bindings = new SerializedObject(view);
-                foreach (string field in new[] { "_categoryText", "_titleText", "_rankText", "_typeIcon" })
+                Need(root.transform.Find("CategoryText") == null, name + ": 미사용 종류 문구 제거");
+                foreach (string field in new[] { "_titleText", "_rankText", "_typeIcon" })
                     Need(bindings.FindProperty(field).objectReferenceValue != null, name + ":" + field);
                 bool land = name.EndsWith("LandSlot");
                 foreach (string field in land
@@ -61,7 +62,6 @@ public static class BattlePreparationCardPrefabValidation
                 }
 
                 view.SetTitle("검증용 제목");
-                view.SetCategory("검증");
                 view.SetRank(3);
                 view.SetTrait("특성", "교체한 특성 설명");
                 view.SetSkill("보유 스킬", "교체한 스킬 설명");

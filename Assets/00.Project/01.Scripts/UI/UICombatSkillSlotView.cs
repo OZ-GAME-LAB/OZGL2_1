@@ -18,6 +18,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private UISkillCategoryStyleSO _categoryStyle;
         [SerializeField] private Image _icon;
         [SerializeField] private Image _slotTint;
+        [SerializeField, Range(0f, 1f)] private float _slotTintStrength = 1f;
         [SerializeField] private Image _frame;
         [SerializeField] private Sprite _damageFrame;
         [SerializeField] private Sprite _buffFrame;
@@ -26,6 +27,7 @@ namespace OZGL2.UIFlow
         [Header("쿨다운 표시 연결")]
         [SerializeField] private Image _cooldownTrack;
         [SerializeField] private Image _cooldownFill;
+        [SerializeField] private Image[] _cooldownTicks = Array.Empty<Image>();
         [SerializeField] private TMP_Text _remainingText;
         [SerializeField, Range(0f, 1f)] private float _cooldownTrackOpacity = 0.22f;
         [SerializeField, Range(0f, 1f)] private float _cooldownFillOpacity = 0.85f;
@@ -122,8 +124,10 @@ namespace OZGL2.UIFlow
             {
                 _slotTint.raycastTarget = false;
                 _slotTint.material = _categoryStyle != null ? _categoryStyle.SlotTintMaterial : null;
-                _slotTint.color = hasSkill && _categoryStyle != null
+                Color slotColor = hasSkill && _categoryStyle != null
                     ? _categoryStyle.GetSlotColor(entry.Category) : Color.clear;
+                slotColor.a *= Mathf.Clamp01(NonNegativeFinite(_slotTintStrength));
+                _slotTint.color = slotColor;
                 _slotTint.enabled = hasSkill && _slotTint.color.a > 0f;
             }
 
@@ -167,6 +171,19 @@ namespace OZGL2.UIFlow
                 _cooldownTrack.raycastTarget = false;
                 _cooldownTrack.color = WithOpacity(categoryColor, _cooldownTrackOpacity);
                 _cooldownTrack.enabled = hasSkill && _cooldownTrack.sprite != null;
+            }
+
+            // 눈금은 Sprite 없는 Image도 사용하며, 빈 슬롯에서는 함께 숨긴다.
+            if (_cooldownTicks != null)
+            {
+                Color tickColor = WithOpacity(categoryColor, _cooldownTrackOpacity);
+                foreach (Image tick in _cooldownTicks)
+                {
+                    if (tick == null) continue;
+                    tick.raycastTarget = false;
+                    tick.color = tickColor;
+                    tick.enabled = hasSkill;
+                }
             }
 
             if (_cooldownFill != null)

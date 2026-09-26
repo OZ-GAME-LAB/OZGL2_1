@@ -124,7 +124,7 @@ public static class BattlePreparationCardPrefabBuilder
 
     private static GameObject BuildUnit(BuildContext context)
     {
-        RectTransform root = BeginCard(context, CARD_NAMES[0], "CardShell_Unit", "유닛", "그림자 검사", UNIT_COLOR,
+        RectTransform root = BeginCard(context, CARD_NAMES[0], "CardShell_Unit", "그림자 검사", UNIT_COLOR,
             context.Sprites["Icon_Type_Unit_Diamond_v2"], out SerializedObject bindings);
         Image[] cells = BuildGrid(context, root, 72, 272, UNIT_COLOR);
         Image artwork = Picture(context, root, "Artwork", context.Sprites["Artwork_ShadowSwordsman"], 174, 309, 252, 300);
@@ -143,7 +143,7 @@ public static class BattlePreparationCardPrefabBuilder
 
     private static GameObject BuildLand(BuildContext context)
     {
-        RectTransform root = BeginCard(context, CARD_NAMES[1], "CardShell_LandSlot", "땅 슬롯", "가시 지대", LAND_COLOR,
+        RectTransform root = BeginCard(context, CARD_NAMES[1], "CardShell_LandSlot", "가시 지대", LAND_COLOR,
             context.Sprites["Icon_Type_Land_Diamond_v2"], out SerializedObject bindings);
         Image[] cells = BuildGrid(context, root, 72, 310, LAND_COLOR);
         Bind(bindings, "_areaTitleText", Label(context, root, "AreaTitleText", "추가 배치 영역", 60, 782, 480, 70, 42, true, TextAnchor.MiddleCenter));
@@ -154,7 +154,7 @@ public static class BattlePreparationCardPrefabBuilder
 
     private static GameObject BuildRelic(BuildContext context)
     {
-        RectTransform root = BeginCard(context, CARD_NAMES[2], "CardShell_Relic", "기물", "마력 증폭기", RELIC_COLOR,
+        RectTransform root = BeginCard(context, CARD_NAMES[2], "CardShell_Relic", "마력 증폭기", RELIC_COLOR,
             context.Sprites["Icon_Type_Relic_Diamond_v2"], out SerializedObject bindings);
         Image[] cells = BuildGrid(context, root, 72, 272, RELIC_COLOR);
         Bind(bindings, "_artwork", Picture(context, root, "Artwork", context.Sprites["Artwork_ManaAmplifier"], 106, 277, 390, 378));
@@ -166,7 +166,7 @@ public static class BattlePreparationCardPrefabBuilder
         return root.gameObject;
     }
 
-    private static RectTransform BeginCard(BuildContext context, string name, string shell, string category, string title,
+    private static RectTransform BeginCard(BuildContext context, string name, string shell, string title,
         Color tint, Sprite typeIcon, out SerializedObject bindings)
     {
         RectTransform root = Group(context, null, name, 0, 0, 600, 1100);
@@ -174,7 +174,6 @@ public static class BattlePreparationCardPrefabBuilder
         root.anchoredPosition = Vector2.zero;
         Picture(context, root, "Shell", context.Sprites[shell], 0, 100, 600, 1000, false);
         bindings = new SerializedObject(root.gameObject.AddComponent<UIBattlePreparationCardView>());
-        Bind(bindings, "_categoryText", Label(context, root, "CategoryText", category, 150, 0, 300, 76, 52, true, TextAnchor.MiddleCenter));
         RectTransform badge = Group(context, root, "TypeBadge", 0, 65, 160, 160);
         Image body = Solid(context, badge, "BlackDiamond", 80, 80, 102, 102, new Color32(13, 13, 17, 255));
         body.rectTransform.pivot = new Vector2(0.5f, 0.5f);

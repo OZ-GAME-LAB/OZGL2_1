@@ -24,7 +24,6 @@ Project 창에서 해당 Prefab을 열어 아래 자식의 컴포넌트를 편�
 
 | 편집 항목 | Prefab 내부 경로 | View 참조 필드 | 적용 카드 |
 | --- | --- | --- | --- |
-| 종류 문구 | `CategoryText` | `_categoryText` | 공통 |
 | 카드 이름 | `TitleText` | `_titleText` | 공통 |
 | 성급 숫자 | `RankText` | `_rankText` | 공통 |
 | 특성 제목 / 설명 | `TraitTitleText`, `TraitDescriptionText` | `_traitTitleText`, `_traitDescriptionText` | 유닛·기물 |
@@ -64,7 +63,6 @@ Project 창에서 해당 Prefab을 열어 아래 자식의 컴포넌트를 편�
 
 | 메서드 | 동작 |
 | --- | --- |
-| `SetCategory(string)` | 종류 문구 교체 |
 | `SetTitle(string)` | 카드 이름 교체 |
 | `SetRank(int)` | 입력 정수를 그대로 성급 Text에 표시; 성급 제한이나 능력치 계산 없음 |
 | `SetTrait(string title, string description)` | 특성 제목·설명 교체 |
@@ -136,6 +134,9 @@ Text는 `Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.
 임시 PreviewScene의 복제본으로 3종 카드를 렌더하고 `Tools/Art/Previews/BattlePreparationCards_v1.png`에 저장한다. 같은 경로의 미리보기 PNG는 다시 생성된다. 실제 Scene과 원본 Prefab을 저장하지 않으며, 임시 UI 메시·머티리얼·렌더 자원은 종료 시 정리한다. 이 결과는 독립 카드의 시각 검토용이며 실제 전투 화면이나 Play Mode 검증 결과가 아니다.
 
 ## 검증 및 후속 확인
+
+- 2026-09-26: 실사용하지 않는 상단 `CategoryText`를 카드 3종에서 제거했다. `_categoryText`와 검증 코드에서만 사용하던 `SetCategory`도 제거했으며 생성 도구에서 다시 만들지 않는다. 카드 이름·분류 아이콘·성급·설명·능력치와 나머지 배치는 유지한다.
+- 제거 후 Editor 검사: 카드 3종의 참조/API/null/점유 칸 검사 통과, 연결된 Scene 카드 3개에서도 해당 문구 없음. 다른 자식 컴포넌트와 루트 배치 불변 확인. 컴파일·Console 오류/경고 0, Scene 파일 SHA256 불변, Play Mode는 이번 단순 표시 제거에서는 미실행. 원본 Prefab은 Git 이력과 로컬 `Temp/BattleCardCategoryRemoval` 백업으로 복구할 수 있다.
 
 - 2026-09-23 Editor 확인: 스크립트 컴파일 후 Console Error/Warning 0건, 독립 Prefab 3종의 참조·표시 API·null·점유 칸 검사 통과. 샘플 Text 높이와 독립 렌더를 확인했다.
 - 작업 전후 `UI_Battle_MutedPreview` 씬 파일 SHA-256 동일, 기존 UI 213개 오브젝트의 RectTransform/Image/Button/활성 상태 동일. 임시 생성 객체는 제거했고 실제 Scene은 저장하지 않았다.

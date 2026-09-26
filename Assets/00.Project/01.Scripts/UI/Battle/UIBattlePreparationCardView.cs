@@ -10,7 +10,6 @@ namespace OZGL2.UIFlow
     public sealed class UIBattlePreparationCardView : MonoBehaviour
     {
         [Header("공통 문구")]
-        [SerializeField] private Text _categoryText;
         [SerializeField] private Text _titleText;
         [SerializeField] private Text _rankText;
 
@@ -41,8 +40,6 @@ namespace OZGL2.UIFlow
         [SerializeField] private Image[] _footprintCells;
 
         public void SetTitle(string title) => SetText(_titleText, title);
-
-        public void SetCategory(string category) => SetText(_categoryText, category);
 
         public void SetRank(int rank) => SetText(_rankText, rank.ToString(CultureInfo.InvariantCulture));
 
