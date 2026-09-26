@@ -1,5 +1,9 @@
 # Battle Muted Preview UI
 
+## 전투 스킬 하단 HUD (2026-09-26)
+
+`Canvas_Combat`의 01 Noble Diamond 공통 슬롯·분류 프레임·쿨다운 링·벨벳 배경을 적용했다. 편집 위치, 표시 API, 미리보기/실제 전투 연동 범위, 검증 기록은 [CombatSkillHud.md](CombatSkillHud.md)를 따른다. 준비 화면의 기존 하단 패널은 변경하지 않았다.
+
 ## 현재 하단 패널: 단일 이미지·45도 정렬 (2026-09-23)
 
 - `UI_BattleScreens/Canvas_Preparation/BottomNobleBackground` 자체에 Image 1개를 배치한다. 이전 Body/Frame 자식 2개는 Undo를 지원하는 Editor 도구로 제거했으며, 이전 PNG 원본은 보존했다.
