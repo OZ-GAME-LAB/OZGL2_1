@@ -1,0 +1,6 @@
+﻿Silver|canvas=600x1100|panelBounds=95,232,410,745|opaque=268290|transparent=391710|sourcePixelDifferences=0|canvasBorderOpaque=0|outsideProbeFailures=0|centerAlpha=255|tmpSafeRect=120,275,360,510|tmpNonOpaque=0
+Silver|originalSHA256=CA3FFAC15DE135FCCD9181EAD48B94B3BD2A30727872FB3573B326661EB66526|originalHashUnchanged=True
+Gold|canvas=600x1100|panelBounds=106,229,388,718|opaque=248015|transparent=411985|sourcePixelDifferences=0|canvasBorderOpaque=0|outsideProbeFailures=0|centerAlpha=255|tmpSafeRect=130,270,340,505|tmpNonOpaque=0
+Gold|originalSHA256=8D8A9CA37ACC2AA49DA8E5C765A82B61EA7F1D47B89A472D761F060A7063AAE9|originalHashUnchanged=True
+Platinum|canvas=600x1100|panelBounds=120,169,359,789|opaque=254168|transparent=405832|sourcePixelDifferences=0|canvasBorderOpaque=0|outsideProbeFailures=0|centerAlpha=255|tmpSafeRect=145,205,310,580|tmpNonOpaque=0
+Platinum|originalSHA256=05579DBC1AFB314E3E6F5D4EE2B3CD2DBF629800D05C056BDFED7B5021C255FD|originalHashUnchanged=True

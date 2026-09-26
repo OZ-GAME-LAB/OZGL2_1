@@ -1,0 +1,6 @@
+﻿Crest_Silver.png | canvas=512x512 | scale=0.378072 | visible={X=96,Y=46,Width=320,Height=364} | hole={X=156,Y=127,Width=200,Height=186} | clear=216310 opaque=45834 partial=0 centerAlpha=0 borderOpaque=0 holeConnectsOutside=False alphaMirrorMismatch=428
+Crest_Silver.png | plaqueApproxBounds={X=101,Y=334,Width=309,Height=76} | plaqueCenter=(255.5,372) | textSafeRect={X=176,Y=362,Width=160,Height=32} textSafeMinAlpha=255
+Crest_Gold.png | canvas=512x512 | scale=0.369686 | visible={X=65,Y=52,Width=382,Height=371} | hole={X=156,Y=125,Width=200,Height=189} | clear=199297 opaque=62847 partial=0 centerAlpha=0 borderOpaque=0 holeConnectsOutside=False alphaMirrorMismatch=778
+Crest_Gold.png | plaqueApproxBounds={X=103,Y=347,Width=307,Height=76} | plaqueCenter=(256.5,385) | textSafeRect={X=176,Y=368,Width=160,Height=32} textSafeMinAlpha=255
+Crest_Platinum.png | canvas=512x512 | scale=0.370370 | visible={X=65,Y=14,Width=382,Height=388} | hole={X=156,Y=129,Width=200,Height=182} | clear=199639 opaque=62505 partial=0 centerAlpha=0 borderOpaque=0 holeConnectsOutside=False alphaMirrorMismatch=370
+Crest_Platinum.png | plaqueApproxBounds={X=123,Y=331,Width=266,Height=71} | plaqueCenter=(256,366.5) | textSafeRect={X=176,Y=350,Width=160,Height=32} textSafeMinAlpha=255

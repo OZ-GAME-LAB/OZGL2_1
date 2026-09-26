@@ -1,0 +1,8 @@
+Result_RecordPanel | 1200x400 | visible=20,55,1160,290 | clear=217995 | centerAlpha=255 | opaqueEdge=0 | sourceCrop={X=2,Y=113,Width=2082,Height=521}
+Result_CrestFrame | 512x512 | visible=24,24,464,464 | clear=243379 | centerAlpha=0 | opaqueEdge=0 | sourceCrop={X=10,Y=8,Width=1233,Height=1233}
+Result_RuneRing | 512x512 | visible=24,24,463,464 | clear=246338 | centerAlpha=0 | opaqueEdge=0 | sourceCrop={X=18,Y=13,Width=1219,Height=1222}
+Result_Crown_Victory | 512x512 | visible=40,100,432,312 | clear=202666 | centerAlpha=255 | opaqueEdge=0 | sourceCrop={X=148,Y=265,Width=959,Height=693}
+Result_Crown_Defeat | 512x512 | visible=40,98,432,315 | clear=201259 | centerAlpha=255 | opaqueEdge=0 | sourceCrop={X=89,Y=215,Width=1077,Height=786}
+Result_Banner_Victory | 384x768 | visible=27,24,330,719 | clear=216261 | centerAlpha=255 | opaqueEdge=0 | sourceCrop={X=68,Y=48,Width=752,Height=1642}
+Result_Banner_Defeat | 384x768 | visible=27,24,330,720 | clear=217720 | centerAlpha=255 | opaqueEdge=0 | sourceCrop={X=68,Y=48,Width=751,Height=1643}
+Result_TitleAccent | 768x256 | visible=24,49,720,158 | clear=180081 | centerAlpha=0 | opaqueEdge=0 | sourceCrop={X=131,Y=204,Width=1914,Height=421}

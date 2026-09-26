@@ -176,6 +176,33 @@ Editor 도구: `Assets/Editor/BattleMutedReferenceLayout.cs`
 
 교체된 기존 자식은 삭제하지 않고 비활성 `Legacy_` 자식으로 보관한다. 튜토리얼, 기존 증강 상세 자리표시자, 기존 하단 회색 배경은 복제 씬에서만 숨겼다.
 
+## 공통 시너지 행 프리팹 (2026-09-26)
+
+- 원본: `Assets/06.UI/BattleMutedPreview/Prefabs/SynergyTracker.prefab`
+- 씬의 `UI_BattleScreens/Canvas_GetReady/SynergyTrackers/Synergy_0..3`은 모두 이 원본의 인스턴스다. 독립적인 프리팹 복사본 4개가 아니다.
+- `Synergy_0`의 기존 디자인을 기준으로 만들었으며, 내부 RectTransform 배치에는 개별 Override를 두지 않았다. 공통 내부 레이아웃과 테두리 Sprite는 원본에서 수정한다.
+- 각 행의 루트 위치, 클릭 대상, 분류별 테두리 색상·아이콘·이름은 씬에서 유지한다. 루트 RectTransform은 Unity의 기본 인스턴스 Override 대상이므로 행 전체의 위치·크기와 행 간격은 씬에서 확인한다.
+
+| 편집 목적 | 편집 위치 |
+| --- | --- |
+| 공통 마름모 테두리 이미지 | 프리팹의 `Frame > Image > Source Image` |
+| 공통 아이콘 위치·크기 | 프리팹의 `Icon > RectTransform` |
+| 개별 시너지 아이콘 | 씬의 각 `Synergy_n/Icon > Image > Source Image` |
+| 개별 테두리 색상 | 씬의 각 `Synergy_n/Frame > Image > Color` |
+| 이름 판 배경 | 프리팹의 `Nameplate/Body` |
+| 이름 판의 현재 외곽선 | 프리팹의 `Nameplate/ReferenceTop`, `ReferenceBottom`, `ReferenceLeft`, `ReferenceRight` |
+| 이름·수치 글꼴과 배치 | 프리팹의 `Name`, `Thresholds` |
+
+`Nameplate/Border`는 이전 디자인의 비활성 이미지다. 현재 외곽선은 위의 `Reference*` 네 개로 표시된다. 새 테두리 이미지로 바꾸려면 프리팹에서 기존 선을 숨기고 `Border`를 활성화해 교체할 수 있다.
+
+이름·기준 수치 내용은 기존 `UIBattleMutedPreviewView`가 갱신한다. 문구를 바꿀 때는 `UI_BattleScreens`의 해당 미리보기 값 또는 `SetSynergy`를 사용한다. Text만 직접 바꾸면 다음 갱신에서 데이터 값으로 돌아간다.
+
+프리팹 에셋의 Button에는 씬 객체를 저장하지 않는다. 씬 인스턴스의 `On Click`에 기존 `UIPopupController.OpenPopup(Popup_Synergy)` 연결을 유지했고, View의 이름·수치 참조 8곳을 새 인스턴스로 교체했다. 다른 씬에 새로 배치할 때는 이 연결을 별도로 지정해야 한다. 개별 아이콘·색상을 공통 원본에 `Apply All` 하지 않는다.
+
+교체는 Unity MCP로 수행했으며 Runtime 코드·전투 규칙은 변경하지 않았다. 기존 미저장 씬 변경을 먼저 저장하고 `Temp/SynergyTracker_BeforePrefab_20260926.unity`에 작업 전 사본을 보관했다. 이전 행은 새 인스턴스로 대체했으며 씬 교체는 Unity Undo로 되돌릴 수 있다. 새 프리팹 에셋 생성 자체는 씬 Undo의 삭제 대상이 아니다.
+
+검증: 4개 인스턴스의 공통 원본 연결, 내부 레이아웃 Override 없음, 표시 참조 8곳 및 누락된 참조 0개를 확인했다. Play Mode에서 각 행의 `SetSynergy` 표시 갱신과 클릭 이벤트를 통한 팝업 열기·닫기를 한 번씩 확인했으며 Console 오류·경고는 0개였다. 실제 마우스 입력·다른 화면비 검사는 이번 구조 변경에서 별도로 수행하지 않았다.
+
 ## 표시 코드와 데이터 연결
 
 `Assets/00.Project/01.Scripts/UI/Battle/UIBattleMutedPreviewView.cs`
