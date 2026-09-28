@@ -23,6 +23,7 @@ MonoBehaviour:
   attackRange: 3
   moveSpeed: 0.8
   healAmount: 0
+  attackAnimationIndex: 4
   projectilePrefab: {fileID: 3930159081165078694, guid: 28caf29c89fd9dd489eb927a24059dc9, type: 3}
   projectileSpeed: 5
   projectileDefaultFacing: {x: 1, y: 0}

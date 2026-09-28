@@ -31,6 +31,11 @@ public class UnitStatData : ScriptableObject
     public float moveSpeed = 2f;       // 유닛/초. 마왕군은 배치형이라 보통 미사용, 용사만 실사용
     public float healAmount = 0f;      // 힐러 전용 1회 힐량 (힐/초 = healAmount x attackSpeed)
 
+    // SPUM의 ATTACK 상태엔 클립이 여러 개(인덱스순) 등록될 수 있다. 유닛 스폰 후 Play 모드에서
+    // 해당 SPUM_Prefabs 컴포넌트의 Attack List를 보고, 원거리/마법 전용 클립이 있으면 그 인덱스를
+    // 여기 넣는다. 리스트 범위를 벗어나면 자동으로 0번으로 보정됨.
+    public int attackAnimationIndex = 0;
+
     [Header("원거리 공격 (비워두면 근접/즉시 판정, 채우면 발사체 발사)")]
     public GameObject projectilePrefab;  // 관통 없음 · 단일 대상 유도. 용사/마왕군 공용 프리팹(Arrow, Fireball 등) 할당
     public float projectileSpeed = 8f;   // 유닛/초
@@ -44,6 +49,10 @@ public class UnitStatData : ScriptableObject
     [Range(0f, 1f)]
     public float splashSecondaryDamagePercent = 1f; // 주 타겟 외 간접 피격 대상에게 적용할 피해 비율(1=전액, 0.5=절반)
     public int splashMaxTargets = 0;     // 간접 피격 최대 인원수(주 타겟 제외). 0 이하면 무제한
+
+    [Header("CC 저항 (0=그대로 적용, 1=완전 면역 — 보스 등 특수 유닛용)")]
+    [Range(0f, 1f)]
+    public float ccResistance = 0f;    // 둔화 강도·기절 지속시간을 이 비율만큼 줄여서 적용
 
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
