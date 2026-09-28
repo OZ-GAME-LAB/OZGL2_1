@@ -125,6 +125,43 @@ namespace OZGL2.Grid
         }
         public bool CanFusePreview => DragKind == eGridDragKind.UNIT &&
             CanFuseUnits(SelectedId, GetUnitAt(_previewAnchor)?.InstanceId);
+        public bool CanSwapPreview => TryCreateSwap(out _, out _);
+        public Vector2Int[] GetSwapReturnCells() => TryCreateSwap(out _, out var target) ? target.GetCells() : Array.Empty<Vector2Int>();
+        private bool TryCreateSwap(out UnitPlacement movedSource, out UnitPlacement movedTarget)
+        {
+            movedSource = null; movedTarget = null;
+            if (Phase != eGridPhase.PREPARATION || HasPendingStorage || DragKind != eGridDragKind.UNIT || CanFusePreview) return false;
+            var source = FindUnit(SelectedId);
+            if (source == null || !source.IsPlaced) return false;
+            var preview = GetPreviewCells();
+            var cells = new HashSet<Vector2Int>(preview);
+            UnitPlacement target = null;
+            foreach (var unit in _units)
+                if (unit.IsPlaced && unit.InstanceId != source.InstanceId && cells.SetEquals(unit.GetCells())) { target = unit; break; }
+            if (target == null) return false;
+            var sourceShape = new HashSet<Vector2Int>();
+            foreach (var cell in source.GetCells()) sourceShape.Add(cell - source.Anchor);
+            var targetShape = new HashSet<Vector2Int>();
+            foreach (var cell in target.GetCells()) targetShape.Add(cell - target.Anchor);
+            if (!sourceShape.SetEquals(targetShape)) return false;
+            // 교환은 원래 방향을 보존한다. 미리보기만 회전해 다른 모양을 교환하는 경우는 허용하지 않는다.
+            movedSource = source.WithPlacement(true, target.Anchor, source.Rotation);
+            movedTarget = target.WithPlacement(true, source.Anchor, target.Rotation);
+            if (!cells.SetEquals(movedSource.GetCells())) return false;
+            var candidates = new List<UnitPlacement>(_units);
+            candidates[candidates.IndexOf(source)] = movedSource;
+            candidates[candidates.IndexOf(target)] = movedTarget;
+            return GridPlacementRules.ValidateUnit(Definition, _blocks, candidates, source.InstanceId, movedSource.GetCells()) == ePlacementFailure.NONE &&
+                GridPlacementRules.ValidateUnit(Definition, _blocks, candidates, target.InstanceId, movedTarget.GetCells()) == ePlacementFailure.NONE;
+        }
+        public bool TryReturnUnitToTray(string id)
+        {
+            var unit = FindUnit(id);
+            if (unit == null || !unit.IsPlaced || !BeginUnitDrag(id)) return false;
+            bool returned = DropToTray();
+            if (!returned && !HasPendingStorage) CancelDrag();
+            return returned;
+        }
         public UnitPlacement GetUnitAt(Vector2Int cell)
         {
             foreach (var unit in _units)
@@ -307,7 +344,7 @@ namespace OZGL2.Grid
             if (!HasSelection) return ePlacementFailure.NO_SELECTION;
             if (DragKind == eGridDragKind.UNIT)
             {
-                if (CanFusePreview) return ePlacementFailure.NONE;
+                if (CanFusePreview || CanSwapPreview) return ePlacementFailure.NONE;
                 return GridPlacementRules.ValidateUnit(Definition, _blocks, _units, _selectedId, GetPreviewCells());
             }
             if (!IsExpansionDrag) return GridPlacementRules.ValidateBlock(Definition, _floor, _blocks, _selectedId, GetPreviewCells());
@@ -322,6 +359,15 @@ namespace OZGL2.Grid
             LastDropFailure = GetPreviewFailure();
             if (LastDropFailure != ePlacementFailure.NONE) return false;
             if (CanFusePreview) return TryFuseUnits(SelectedId, GetUnitAt(_previewAnchor).InstanceId);
+            if (TryCreateSwap(out var swappedSource, out var swappedTarget))
+            {
+                var swapped = new List<UnitPlacement>(_units);
+                swapped[swapped.FindIndex(unit => unit.InstanceId == swappedSource.InstanceId)] = swappedSource;
+                swapped[swapped.FindIndex(unit => unit.InstanceId == swappedTarget.InstanceId)] = swappedTarget;
+                ClearSelection();
+                ApplyState(new List<BlockPlacement>(_blocks), swapped, null);
+                return true;
+            }
             if (IsExpansionDrag)
             {
                 var moving = FindExpansion(_selectedId);

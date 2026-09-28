@@ -43,9 +43,10 @@ namespace OZGL2.InGame.Editor
                 var task = stage.RunAsync(config.Stage, token.Token);
                 try
                 {
-                    await Until(() => dummy.PendingRequest == eDummyRequest.BATTLE, token.Token);
-                    Check(session.Session.Grid.PlacedCount == 1 && session.Session.Grid.StoredCount == 0 && session.Session.Deployment != null, "First battle automatic deployment");
-                    Check(!session.Session.CanSkipPreparation, "First preparation must not remain open");
+                    await Until(() => session.Session != null && session.Session.CanBeginBattle, token.Token);
+                    Check(session.Session.Grid.PlacedCount == 1 && session.Session.Grid.StoredCount == 0 && session.Session.Deployment == null, "Initial placement waits for confirmation");
+                    Check(dummy.PendingRequest != eDummyRequest.BATTLE && !session.Session.CanSkipPreparation, "No battle before first preparation confirmation");
+                    Check(session.Session.TryBeginBattle(session.Session.RunId, 1), "Confirm first preparation");
                     int total = stage.TotalRounds;
                     int expectedAugments = config.Stage.CreateSnapshot().Rounds.Take(total - 1).Count(round => round.IsBossRound);
                     for (int round = 1; round <= (defeat ? 1 : total); round++)
@@ -99,6 +100,8 @@ namespace OZGL2.InGame.Editor
                 var task = stage.RunAsync(config.Stage, token.Token);
                 try
                 {
+                    await Until(() => session.Session != null && session.Session.CanBeginBattle, token.Token);
+                    Check(session.Session.TryBeginBattle(session.Session.RunId, 1), "Confirm first preparation before reward test");
                     await Until(() => dummy.PendingRequest == eDummyRequest.BATTLE, token.Token);
                     dummy.CompleteBattle(dummy.RequestId, eBattleResult.VICTORY);
                     await Until(() => rewards.Pending != null, token.Token);

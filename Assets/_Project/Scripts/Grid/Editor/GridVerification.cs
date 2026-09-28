@@ -54,7 +54,7 @@ namespace OZGL2.Grid.Editor
             PlaceUnit(grid, "u1", new Vector2Int(2, 0)); PlaceUnit(grid, "u2", new Vector2Int(3, 0));
             Require(grid.GetUnitsOnBlock("wide").Count == 2 && grid.StoredCount == 0, "Two singles on one block");
             grid.BeginUnitDrag("u1"); grid.MovePreview(new Vector2Int(3, 0));
-            Require(grid.GetPreviewFailure() == ePlacementFailure.OCCUPIED && !grid.CommitPreview(), "Other unit overlap denied");
+            Require(grid.CanSwapPreview && grid.GetPreviewFailure() == ePlacementFailure.NONE, "Matching placed units offer swap");
             grid.CancelDrag(); Require(grid.GetUnitAt(new Vector2Int(2, 0)).InstanceId == "u1", "Cancel preserves cells");
             grid.BeginBlockDrag("wide"); for (int i = 0; i < 4; i++) grid.RotatePreview();
             Require(grid.CommitPreview() && grid.PlacedCount == 2, "No-op preserves multiple occupants");

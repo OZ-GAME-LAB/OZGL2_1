@@ -38,7 +38,7 @@ namespace OZGL2.InGame
                 if (session != null && !session.IsEnded) _gridView.Bind(session);
             }
             bool showGrid = session != null && !session.IsEnded &&
-                ((session.Grid.Phase == eGridPhase.PREPARATION && session.NextRound > 1) || session.Grid.HasPendingStorage);
+                (session.Grid.Phase == eGridPhase.PREPARATION || session.Grid.HasPendingStorage);
             _pages.ShowPage(showGrid ? _gridView.gameObject : _battlePage);
         }
         private void OnGUI()
@@ -74,7 +74,7 @@ namespace OZGL2.InGame
                     GUILayout.Label("Round " + stage.CurrentRoundNumber + " / " + stage.TotalRounds + " — " + stage.State);
                     GUILayout.Label("Cleared: " + stage.ClearedRoundCount);
                     if (_bootstrap.GridSession?.Deployment != null)
-                        GUILayout.Label("Deployment captured. First battle starts with the basic unit automatically.");
+                        GUILayout.Label("Deployment captured from preparation.");
                 }
                 GUILayout.Space(16);
             }

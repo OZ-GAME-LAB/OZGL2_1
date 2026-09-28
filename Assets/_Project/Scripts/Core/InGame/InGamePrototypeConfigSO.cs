@@ -25,7 +25,10 @@ namespace OZGL2.InGame
         [SerializeField] private string _stageSelectionScenePath;
         public string StageSelectionScenePath => _stageSelectionScenePath;
         [SerializeField] private HeroPoolCatalogSO _heroPoolCatalog;
-        [SerializeField] private Vector3 _heroSpawnPosition;
+        [SerializeField, Min(0.1f), Tooltip("최대 그리드 상단에서 스폰 중심까지의 여백(칸 단위).")]
+        private float _heroSpawnTopMargin = 2f;
+        [SerializeField, Min(0f), Tooltip("좌우 가장자리 셀 중심에서 안쪽으로 들어오는 거리(칸 단위).")]
+        private float _heroSpawnHorizontalInset = 0.5f;
         [SerializeField] private DemonArmyCatalog _demonArmyCatalog;
         [SerializeField] private Vector3 _gridWorldOrigin;
         [SerializeField, Tooltip("그리드 1칸 = 몇 월드 유닛인지. ⚠ 준기·김건과 협의 전 임시값(기본 1).")]
@@ -37,7 +40,21 @@ namespace OZGL2.InGame
         public Vector2Int InitialAnchor => _initialAnchor;
         public string LobbyScenePath => _lobbyScenePath;
         public HeroPoolCatalogSO HeroPoolCatalog => _heroPoolCatalog;
-        public Vector3 HeroSpawnPosition => _heroSpawnPosition;
+        public Vector3 HeroSpawnPosition => CreateHeroSpawnPositions()[1];
+        public Vector3[] CreateHeroSpawnPositions()
+        {
+            var size = _catalog.CreateDefinition().MaximumSize;
+            if (!float.IsFinite(_heroSpawnTopMargin) || _heroSpawnTopMargin <= 0 ||
+                !float.IsFinite(_heroSpawnHorizontalInset) || _heroSpawnHorizontalInset < 0 ||
+                _heroSpawnHorizontalInset >= (size.x - 1) * 0.5f)
+                throw new InvalidOperationException("Hero spawn margin/inset must leave three distinct positions above the grid.");
+            float y = size.y - 0.5f + _heroSpawnTopMargin;
+            return new[] {
+                _gridWorldOrigin + new Vector3(_heroSpawnHorizontalInset, y, 0) * _cellWorldSize,
+                _gridWorldOrigin + new Vector3((size.x - 1) * 0.5f, y, 0) * _cellWorldSize,
+                _gridWorldOrigin + new Vector3(size.x - 1 - _heroSpawnHorizontalInset, y, 0) * _cellWorldSize
+            };
+        }
         public DemonArmyCatalog DemonArmyCatalog => _demonArmyCatalog;
         public Vector3 GridWorldOrigin => _gridWorldOrigin;
         public float CellWorldSize => _cellWorldSize;
@@ -57,10 +74,10 @@ namespace OZGL2.InGame
             if (_demonArmyCatalog == null)
                 throw new InvalidOperationException("InGame demon army catalog is required.");
             if (!float.IsFinite(_cellWorldSize) || _cellWorldSize <= 0 ||
-                !float.IsFinite(_externalOperationTimeoutSeconds) || _externalOperationTimeoutSeconds < 1 || _externalOperationTimeoutSeconds > 3600 ||
-                !float.IsFinite(_heroSpawnPosition.x) || !float.IsFinite(_heroSpawnPosition.y) || !float.IsFinite(_heroSpawnPosition.z))
+                !float.IsFinite(_externalOperationTimeoutSeconds) || _externalOperationTimeoutSeconds < 1 || _externalOperationTimeoutSeconds > 3600)
                 throw new InvalidOperationException("Invalid grid coordinates or external operation timeout (1–3600 seconds).");
             _ = new GridWorldMapping(_gridWorldOrigin, Vector3.right * _cellWorldSize, Vector3.up * _cellWorldSize);
+            CreateHeroSpawnPositions();
             var heroIds = new System.Collections.Generic.HashSet<string>();
             foreach (var entry in _heroPoolCatalog.CreateSnapshot())
             {

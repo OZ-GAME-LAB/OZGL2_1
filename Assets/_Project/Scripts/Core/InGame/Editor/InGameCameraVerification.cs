@@ -81,7 +81,12 @@ namespace OZGL2.InGame.Editor
             _cancel.Token.Register(_host.CancelRun);
             Check(_host.StartRun(stage, config.Stage), "Test host starts");
             _run = _host.CurrentRun;
+            await Until(() => presentation.CanInteract && _session.Session.CanBeginBattle);
+            Check(dummy.PendingRequest != eDummyRequest.BATTLE, "First preparation waits for player");
+            Check(presentation.RequestBattle(false), "First preparation starts through camera transition");
             await Until(() => dummy.PendingRequest == eDummyRequest.BATTLE);
+            // ManualStageServices does not dispatch the real battle lifecycle notification.
+            presentation.SetCombatEnabled(true);
             if (injectResizeFailure)
             {
                 camera.farClipPlane = 2;
@@ -94,7 +99,7 @@ namespace OZGL2.InGame.Editor
                 return;
             }
             var grid = _session.Session.Grid;
-            Check(!presentation.IsTransitioning && !presentation.CanInteract, "Round one directly in battle framing");
+            Check(!presentation.IsTransitioning && !presentation.CanInteract, "Round one enters battle after confirmation");
             Check(Root.GetComponentsInChildren<UnitBase>(true).Length == 0, "No live units instantiated by preview");
             var point = config.GridWorldOrigin + new Vector3(config.InitialAnchor.x, config.InitialAnchor.y, 0) * config.CellWorldSize;
             Check(presentation.Surface.ScreenToCell(camera.WorldToScreenPoint(point)) == config.InitialAnchor, "Battle camera picking");
