@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Frame_Damage",
+    "size": [
+      336,
+      336
+    ],
+    "alpha_bbox": [
+      11,
+      11,
+      325,
+      325
+    ],
+    "transparent_pixels": 97874,
+    "horizontal_alpha_symmetry": true
+  },
+  {
+    "name": "Frame_Buff",
+    "size": [
+      336,
+      336
+    ],
+    "alpha_bbox": [
+      11,
+      11,
+      325,
+      325
+    ],
+    "transparent_pixels": 99012,
+    "horizontal_alpha_symmetry": true
+  },
+  {
+    "name": "Frame_Debuff",
+    "size": [
+      336,
+      336
+    ],
+    "alpha_bbox": [
+      11,
+      11,
+      325,
+      325
+    ],
+    "transparent_pixels": 98784,
+    "horizontal_alpha_symmetry": true
+  },
+  {
+    "name": "Ring_Track",
+    "size": [
+      200,
+      200
+    ],
+    "alpha_bbox": [
+      8,
+      8,
+      192,
+      192
+    ],
+    "transparent_pixels": 37968,
+    "horizontal_alpha_symmetry": true
+  },
+  {
+    "name": "Ring_Fill",
+    "size": [
+      200,
+      200
+    ],
+    "alpha_bbox": [
+      8,
+      8,
+      192,
+      192
+    ],
+    "transparent_pixels": 34660,
+    "horizontal_alpha_symmetry": true
+  },
+  {
+    "name": "Bottom_Velvet",
+    "size": [
+      1920,
+      256
+    ],
+    "alpha_bbox": [
+      18,
+      8,
+      1902,
+      248
+    ],
+    "transparent_pixels": 130702,
+    "horizontal_alpha_symmetry": true
+  }
+]

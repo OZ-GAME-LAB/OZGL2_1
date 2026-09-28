@@ -1,0 +1,311 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67d4eab0210b914429e7fc8fac7ce9c4, type: 3}
+  m_Name: SkillRosterCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UISkillPreviewCatalogSO
+  _entries:
+  - _id: ui_preview_fire
+    _displayName: "\uD654\uC5FC\uAD6C"
+    _description: "\uC9C0\uC815 \uC704\uCE58\uC5D0 \uD654\uC5FC\uAD6C\uB97C \uB358\uC838
+      \uBC18\uACBD 1.5 \uC548\uC5D0 \uC788\uB294 \uC801\uC5D0\uAC8C 120\uC758 \uD53C\uD574\uB97C
+      \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: 33c41948b9f2ca54e94d260ea91b8ae3, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 1
+    _unlockSp: 1
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uD53C\uD574"
+    _effectValue: 120
+    _cooldown: "12\uCD08"
+  - _id: ui_preview_ice_spike
+    _displayName: "\uC5BC\uC74C \uAC00\uC2DC"
+    _description: "\uC5BC\uC74C \uAC00\uC2DC\uAC00 \uC801\uC744 \uC9C1\uC120\uC73C\uB85C
+      \uAD00\uD1B5\uD574 90\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uC801\uC758
+      \uC774\uB3D9 \uC18D\uB3C4\uB97C 2\uCD08\uAC04 0.6\uBC30\uB85C \uB0AE\uCDA5\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: 6996a19599632a14b8d6cf1435ec0917, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 1
+    _unlockSp: 1
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uD53C\uD574"
+    _effectValue: 90
+    _cooldown: "10\uCD08"
+  - _id: ui_preview_strike
+    _displayName: "\uC5F0\uC1C4 \uBC88\uAC1C"
+    _description: "\uBC18\uACBD 3\uC5D0\uC11C \uAC00\uAE4C\uC6B4 \uC801\uBD80\uD130
+      \uCD5C\uB300 5\uCCB4\uC5D0 \uBC88\uAC1C\uAC00 \uC5F0\uC1C4\uB418\uC5B4, \uB300\uC0C1\uB9C8\uB2E4
+      80\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: 33fed867c3c9c2549ab7c41ff840ec81, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 2
+    _unlockSp: 2
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uC5F0\uC1C4 \uD53C\uD574"
+    _effectValue: "80 \xB7 5\uCCB4"
+    _cooldown: "15\uCD08"
+  - _id: ui_preview_fire_tornado
+    _displayName: "\uD654\uC5FC \uD68C\uC624\uB9AC"
+    _description: "\uBC18\uACBD 1.6\uC758 \uD654\uC5FC \uD68C\uC624\uB9AC\uAC00 4\uCD08\uAC04
+      \uC774\uB3D9\uD569\uB2C8\uB2E4. \uBC94\uC704 \uC548\uC758 \uC801\uC5D0\uAC8C
+      0.2\uCD08\uB9C8\uB2E4 24\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: e8ddd38a3f05e1e4b8b1a672390909fa, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 2
+    _unlockSp: 2
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uC9C0\uC18D \uD53C\uD574"
+    _effectValue: "24 / 0.2\uCD08"
+    _cooldown: "22\uCD08"
+  - _id: ui_preview_meteor
+    _displayName: "\uC6B4\uC11D \uB099\uD558"
+    _description: "\uC9C0\uC815\uD55C \uC704\uCE58\uC5D0 0.8\uCD08 \uB4A4 \uC6B4\uC11D\uC774
+      \uB5A8\uC5B4\uC838, \uBC18\uACBD 4 \uC548\uC5D0 \uC788\uB294 \uC801\uC5D0\uAC8C
+      400\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: fd4d2b67a083d224dab466ed11228603, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 3
+    _unlockSp: 3
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uD53C\uD574"
+    _effectValue: 400
+    _cooldown: "30\uCD08"
+  - _id: ui_preview_abyss
+    _displayName: "\uACF5\uD5C8 \uBD95\uAD34"
+    _description: "\uC801\uC744 \uB04C\uC5B4\uB2F9\uACA8 150\uC758 \uD53C\uD574\uB97C
+      \uC90D\uB2C8\uB2E4. 3\uCD08\uAC04 0.5\uCD08\uB9C8\uB2E4 10\uC758 \uCD94\uAC00
+      \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: 1b43eb40b89d1ac418314384744c9008, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 3
+    _unlockSp: 3
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uD53C\uD574"
+    _effectValue: 150
+    _cooldown: "28\uCD08"
+  - _id: ui_preview_knockback_wave
+    _displayName: "\uB109\uBC31 \uD30C\uB3D9"
+    _description: "\uC9C0\uC815 \uC704\uCE58\uC5D0 \uD30C\uB3D9\uC744 \uC77C\uC73C\uCF1C
+      \uBC18\uACBD 2.5 \uC548\uC5D0 \uC788\uB294 \uC801\uC744 \uD798 8\uB85C \uBC00\uC5B4\uB0C5\uB2C8\uB2E4."
+    _category: 2
+    _icon: {fileID: 21300000, guid: 047d64e161b07a7438f786e33e269bc4, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 1
+    _unlockSp: 1
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uBC00\uC5B4\uB0B4\uAE30"
+    _effectValue: "\uD798 8"
+    _cooldown: "10\uCD08"
+  - _id: ui_preview_moon
+    _displayName: "\uAC10\uC18D \uB2AA"
+    _description: "5\uCD08\uAC04 \uC801\uC758 \uC774\uB3D9 \uC18D\uB3C4\uB97C 0.5\uBC30\uB85C
+      \uB0AE\uCD94\uB294 \uB2AA\uC744 \uB9CC\uB4ED\uB2C8\uB2E4. \uBC94\uC704 \uC548\uC758
+      \uC801\uC5D0\uAC8C 0.5\uCD08\uB9C8\uB2E4 8\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 2
+    _icon: {fileID: 21300000, guid: 1f0a4408da4fea340ac487399addf874, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 1
+    _unlockSp: 1
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uC774\uB3D9 \uC18D\uB3C4"
+    _effectValue: "\xD70.5"
+    _cooldown: "14\uCD08"
+  - _id: ui_preview_curse
+    _displayName: "\uC800\uC8FC \uB099\uC778"
+    _description: "4\uCD08\uAC04 \uBC94\uC704 \uC548\uC758 \uC801\uC774 \uBC1B\uB294
+      \uD53C\uD574\uB97C 1.3\uBC30\uB85C \uB192\uC785\uB2C8\uB2E4. 0.5\uCD08\uB9C8\uB2E4
+      6\uC758 \uCD94\uAC00 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 2
+    _icon: {fileID: 21300000, guid: 6b162323bf13ce847a5a6b9fb81532d2, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 2
+    _unlockSp: 2
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uBC1B\uB294 \uD53C\uD574"
+    _effectValue: "\xD71.3"
+    _cooldown: "16\uCD08"
+  - _id: ui_preview_wave
+    _displayName: "\uD30C\uB3C4"
+    _description: "3\uCD08\uAC04 \uC774\uB3D9\uD558\uB294 \uD30C\uB3C4\uAC00 \uBC94\uC704
+      \uC548\uC758 \uC801\uC744 \uD798 3\uC73C\uB85C \uBC00\uC5B4\uB0B4\uACE0, \uC774\uB3D9
+      \uC18D\uB3C4\uB97C 0.5\uBC30\uB85C \uB0AE\uCDA5\uB2C8\uB2E4."
+    _category: 2
+    _icon: {fileID: 21300000, guid: b3a68f227edc7284d8747f8f763b99b2, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 2
+    _unlockSp: 2
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uC774\uB3D9 \uC18D\uB3C4"
+    _effectValue: "\xD70.5"
+    _cooldown: "16\uCD08"
+  - _id: ui_preview_lightning_tornado
+    _displayName: "\uBC88\uAC1C \uD68C\uC624\uB9AC"
+    _description: "\uBC18\uACBD 1.4\uC758 \uBC88\uAC1C \uD68C\uC624\uB9AC\uAC00 3.5\uCD08\uAC04
+      \uC774\uB3D9\uD558\uBA70, \uD68C\uC624\uB9AC\uC5D0 \uB2FF\uB294 \uC801\uC744
+      \uC815\uC9C0\uC2DC\uD0B5\uB2C8\uB2E4."
+    _category: 2
+    _icon: {fileID: 21300000, guid: 1fdae92df396e564aac270f21ba982ae, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 3
+    _unlockSp: 3
+    _activation: "\uC9C0\uC815"
+    _isArcane: 0
+    _effectLabel: "\uC815\uC9C0 \uC7A5\uD310"
+    _effectValue: "3.5\uCD08"
+    _cooldown: "22\uCD08"
+  - _id: ui_preview_time_stop
+    _displayName: "\uC2DC\uAC04 \uC815\uC9C0"
+    _description: "\uC2DC\uAC04\uC744 \uBA48\uCDB0 \uD654\uBA74 \uC548\uC758 \uBAA8\uB4E0
+      \uC801\uC744 1.5\uCD08\uAC04 \uC815\uC9C0\uC2DC\uD0B5\uB2C8\uB2E4."
+    _category: 2
+    _icon: {fileID: 21300000, guid: 9018c1e8de64b9b458cb7e3de7f8f7ef, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 3
+    _unlockSp: 3
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uC815\uC9C0"
+    _effectValue: "1.5\uCD08"
+    _cooldown: "40\uCD08"
+  - _id: ui_preview_berserk
+    _displayName: "\uAD11\uD3ED\uD654"
+    _description: "\uBAA8\uB4E0 \uC544\uAD70\uC744 \uAD11\uD3ED\uD654\uC2DC\uCF1C
+      8\uCD08\uAC04 \uACF5\uACA9 \uC18D\uB3C4\uB97C 1.35\uBC30\uB85C \uB192\uC785\uB2C8\uB2E4."
+    _category: 1
+    _icon: {fileID: 21300000, guid: f88740970139ce24bab0fc72cb197a2d, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 2
+    _unlockSp: 2
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uACF5\uACA9 \uC18D\uB3C4"
+    _effectValue: "\xD71.35"
+    _cooldown: "25\uCD08"
+  - _id: ui_preview_iron_skin
+    _displayName: "\uAC15\uCCA0 \uD53C\uBD80"
+    _description: "\uBAA8\uB4E0 \uC544\uAD70\uC758 \uD53C\uBD80\uB97C \uAC15\uD654\uD574
+      8\uCD08\uAC04 \uBC29\uC5B4\uB97C 1.3\uBC30\uB85C \uB192\uC785\uB2C8\uB2E4."
+    _category: 1
+    _icon: {fileID: 21300000, guid: a94c6beb1cf8f7544ac0748689458cdc, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 2
+    _unlockSp: 2
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uBC29\uC5B4"
+    _effectValue: "\xD71.3"
+    _cooldown: "25\uCD08"
+  - _id: ui_preview_vampiric_rite
+    _displayName: "\uD761\uD608 \uC758\uC2DD"
+    _description: "\uD761\uD608 \uC758\uC2DD\uC73C\uB85C \uBAA8\uB4E0 \uC544\uAD70\uC758
+      \uCCB4\uB825\uC744 \uAC01\uC790\uC758 \uCD5C\uB300 \uCCB4\uB825\uC758 40%\uB9CC\uD07C
+      \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+    _category: 1
+    _icon: {fileID: 21300000, guid: afc95542cb5dca345a4895cdf24ebc95, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 3
+    _unlockSp: 3
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uCCB4\uB825 \uD68C\uBCF5"
+    _effectValue: "\uCD5C\uB300 \uCCB4\uB825 40%"
+    _cooldown: "25\uCD08"
+  - _id: ui_preview_raise_dead
+    _displayName: "\uB9DD\uC790 \uBD80\uD65C"
+    _description: "\uC8FD\uC740 \uC544\uAD70 3\uAE30\uB97C \uBD80\uD65C\uC2DC\uCF1C
+      \uB2E4\uC2DC \uC804\uD22C\uC5D0 \uCC38\uC5EC\uD558\uAC8C \uD569\uB2C8\uB2E4."
+    _category: 1
+    _icon: {fileID: 21300000, guid: 92e1a3c3f9d30de4f8cae94d8e46f90c, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 0
+    _tier: 3
+    _unlockSp: 3
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uBD80\uD65C"
+    _effectValue: "3\uAE30"
+    _cooldown: "35\uCD08"
+  - _id: ui_preview_meteor_shower
+    _displayName: "\uC720\uC131\uC6B0"
+    _description: "\uD654\uBA74 \uC804\uCCB4\uC5D0 \uC720\uC131\uC744 20\uD68C \uC5F0\uC18D\uC73C\uB85C
+      \uB5A8\uC5B4\uB728\uB824, \uBC1C\uB2F9 150\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: 2dd9e227f3e61c2498d5d1a15e341645, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 1
+    _tier: 4
+    _unlockSp: 5
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uC5F0\uC18D \uD53C\uD574"
+    _effectValue: "150 \xD7 20\uD68C"
+    _cooldown: "60\uCD08"
+  - _id: ui_preview_absolute_zero
+    _displayName: "\uC808\uB300 \uC601\uB3C4"
+    _description: "\uADF9\uD55C\uC758 \uB0C9\uAE30\uB85C \uD654\uBA74 \uC548\uC758
+      \uBAA8\uB4E0 \uC801\uC744 4\uCD08\uAC04 \uC815\uC9C0\uC2DC\uD0B5\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: 4d07b5d5e8e24ac4c89024c8ca3d45cf, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 1
+    _tier: 4
+    _unlockSp: 5
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uC815\uC9C0"
+    _effectValue: "4\uCD08"
+    _cooldown: "90\uCD08"
+  - _id: ui_preview_judgment
+    _displayName: "\uC2EC\uD310"
+    _description: "\uC2EC\uD310\uC744 \uB0B4\uB824 \uD654\uBA74 \uC548\uC758 \uBAA8\uB4E0
+      \uC801\uC5D0\uAC8C 600\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _category: 0
+    _icon: {fileID: 21300000, guid: b747578f825376c4194ca7e33d8d7fb0, type: 3}
+    _defaultUnlocked: 1
+    _isUltimate: 1
+    _tier: 4
+    _unlockSp: 5
+    _activation: "\uC989\uC2DC"
+    _isArcane: 0
+    _effectLabel: "\uD53C\uD574"
+    _effectValue: 600
+    _cooldown: "90\uCD08"

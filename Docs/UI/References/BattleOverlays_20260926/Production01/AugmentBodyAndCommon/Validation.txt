@@ -1,0 +1,8 @@
+﻿Augment_Body_Silver.png|600x1100|nativeAlpha=False|sourceBounds=142,78,839,1253|targetBounds=30,30,540,1040|clear=222510|centerAlpha=255
+Augment_Body_Gold.png|600x1100|nativeAlpha=False|sourceBounds=144,100,834,1205|targetBounds=30,30,540,1040|clear=217244|centerAlpha=255
+Augment_Body_Platinum.png|600x1100|nativeAlpha=False|sourceBounds=130,49,863,1284|targetBounds=30,30,540,1040|clear=218283|centerAlpha=255
+Augment_TitlePlate.png|1024x320|nativeAlpha=False|sourceBounds=35,116,1875,489|targetBounds=16,31,992,258|clear=166377|centerAlpha=255
+Augment_EffectPlate.png|512x144|nativeAlpha=False|sourceBounds=231,236,1521,323|targetBounds=12,20,488,104|clear=23607|centerAlpha=255
+Result_LobbyButton.png|640x240|nativeAlpha=False|sourceBounds=53,67,1878,639|targetBounds=12,15,616,210|clear=93711|centerAlpha=255
+Result_ExperienceFrame.png|768x128|nativeAlpha=True|sourceBounds=85,262,2002,200|targetBounds=12,27,744,74|clear=81446|centerAlpha=0
+Icon_Deployment.png|256x256|nativeAlpha=True|sourceBounds=404,295,445,714|targetBounds=61,20,134,216|clear=49210|centerAlpha=254
