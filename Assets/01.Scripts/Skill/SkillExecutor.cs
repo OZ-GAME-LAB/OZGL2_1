@@ -153,9 +153,11 @@ namespace OZGL2.Skill
         private IEnumerator ProjectileThenImpact(SkillData d, float power, float radius, Vector3 point)
         {
             Vector3 from = CasterPos;
+            // 화염구 전용 경로 — 팩 안의 FireBall 프리팹은 가느다란 불꽃 소용돌이라 "날아가는 불덩이"로는 안 보여서,
+            // 운석 낙하 본체와 같은 방식(겹친 원 여러 개)으로 코드로 직접 그린다.
             GameObject proj = d.projectileVfx != null
                 ? SpawnVfx(d.projectileVfx, from, Face(point - from), d.vfxIsUi)
-                : Code(Disc(), new Color(1f, 0.62f, 0.16f), from, 0.4f, 22);
+                : CodeFireball(from);
             if (d.projectileVfx != null) CenterOnVisible(proj);
             yield return Move(proj.transform, from, point, _projectileTravelTime);
             KillVfx(proj);
@@ -254,6 +256,11 @@ namespace OZGL2.Skill
             }
         }
 
+        /// <summary>visualOffsetX/Y(이펙트 모양 때문에 눈으로 봤을 때 살짝 어긋나는 걸 손으로 미세 조정하는 값,
+        /// 판정 위치는 그대로)를 적용한 스폰 위치. 예전엔 Impact(AreaDamage)에만 적용돼 있었음 — Knockback·
+        /// Vacuum·Zone(PersistentZone 등)도 castVfx를 point에 그대로 스폰해서 같은 손보정을 못 받고 있었다.</summary>
+        private static Vector3 VfxPoint(SkillData d, Vector3 point) => point + new Vector3(d.visualOffsetX, d.visualOffsetY, 0f);
+
         private void Impact(SkillData d, float power, Vector3 point, float radiusOverride = -1f)
         {
             float r = radiusOverride > 0f ? radiusOverride : d.radius;
@@ -268,8 +275,7 @@ namespace OZGL2.Skill
 
             if (d.castVfx != null)
             {
-                // visualOffsetX/Y: 이펙트 모양 때문에 눈으로 봤을 때 살짝 어긋나는 걸 손으로 미세 조정하는 값(판정 위치는 그대로).
-                var fx = SpawnVfx(d.castVfx, point + new Vector3(d.visualOffsetX, d.visualOffsetY, 0f), Quaternion.identity, d.vfxIsUi);
+                var fx = SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi);
                 ScaleAreaVfx(fx, r);
                 AutoDestroy(fx);
             }
@@ -322,13 +328,19 @@ namespace OZGL2.Skill
             Vector3 to = from + dir * d.lineLength;
             float hitR = Mathf.Max(radius, 0.4f);
 
+            // 얼음 가시 이펙트 원본은 가로로 그려져 있어서(기본 방향 +X), 회전 없이 그대로 두면 위/아래로
+            // 쏴도 항상 가로로 누운 모양으로 날아간다 — Face(dir)로 조준 방향에 맞게 돌려야 세로로 쏘면
+            // 세로로(그림이 회전해서) 보인다.
             GameObject proj = d.castVfx != null
                 ? SpawnVfx(d.castVfx, from, Face(dir), d.vfxIsUi)
                 : Code(Disc(), new Color(0.6f, 0.85f, 1f), from, 0.45f, 22);
             if (proj != null && d.castVfx != null)
             {
                 proj.transform.localScale *= Mathf.Max(d.vfxScale, 0.1f); // 날아가는 이펙트 크기 배율
-                CenterOnVisible(proj);
+                // CenterOnVisible의 무게중심 보정은 "고정된 지점에 놓인" 이펙트 기준(가로는 그대로 두고 세로만
+                // 보정)이라, 이 프로젝타일처럼 Face(dir)로 회전까지 시키면 그 세로 보정값이 회전을 따라 같이
+                // 돌아버려서 조준 각도에 따라 화살표 경로 옆으로 비껴 보인다 — 그래서 여기선 자동보정을 빼고
+                // visualOffsetX/Y(스킬 데이터, 판정엔 영향 없음)로 손으로 맞추게 한다.
             }
 
             var hit = new HashSet<IDamageable>();
@@ -339,7 +351,7 @@ namespace OZGL2.Skill
             {
                 t += Time.deltaTime;
                 Vector3 cur = Vector3.Lerp(from, to, t / dur);
-                if (proj != null) proj.transform.position = cur;
+                if (proj != null) proj.transform.position = VfxPoint(d, cur); // 판정(아래 cur)은 그대로, 눈에 보이는 위치만 손보정
                 foreach (var e in _enemies.All)
                 {
                     if (e.IsDead || hit.Contains(e)) continue;
@@ -418,7 +430,7 @@ namespace OZGL2.Skill
                 if (power > 0f) e.TakeDamage(power);
             }
 
-            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
+            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
             else StartCoroutine(ExpandFade(point, radius, new Color(0.7f, 0.9f, 0.7f), 0.3f, true));
         }
 
@@ -427,14 +439,14 @@ namespace OZGL2.Skill
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf) (e as IStatusReceiver)?.ApplyStun(d.duration);
-            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
+            if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
             else if (!(IsMapWide(radius) && HasFlourish(d)))
                 StartCoroutine(ExpandFade(point, Mathf.Min(radius, 14f), new Color(0.4f, 0.8f, 1f), 0.5f, true));
         }
 
         private IEnumerator Vacuum(SkillData d, float power, float radius, Vector3 point)
         {
-            var fx = d.castVfx != null ? SpawnVfx(d.castVfx, point, Quaternion.identity, d.vfxIsUi) : null;
+            var fx = d.castVfx != null ? SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi) : null;
             ScaleAreaVfx(fx, radius);
             float t = 0f;
             const float pullTime = 0.7f;
@@ -455,7 +467,7 @@ namespace OZGL2.Skill
             foreach (var e in _enemyBuf) { e.TakeDamage(power); ApplySkillHitSlow(d, e); }
 
             if (fx != null) AutoDestroy(fx);
-            if (d.finishVfx != null) AutoDestroy(SpawnVfx(d.finishVfx, point, Quaternion.identity, d.vfxIsUi));
+            if (d.finishVfx != null) AutoDestroy(SpawnVfx(d.finishVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi));
             else StartCoroutine(ExpandFade(point, radius * 1.4f, new Color(0.6f, 0.3f, 0.85f), 0.35f, false));
         }
 
@@ -507,7 +519,7 @@ namespace OZGL2.Skill
             }
 
             GameObject visual = d.castVfx != null
-                ? SpawnVfx(d.castVfx, origin, Quaternion.identity, d.vfxIsUi)
+                ? SpawnVfx(d.castVfx, VfxPoint(d, origin), Quaternion.identity, d.vfxIsUi)
                 : Code(Disc(), ZoneColor(d.zoneEffect), origin, radius * 2f, 6);
             if (visual != null)
             {
@@ -871,6 +883,19 @@ namespace OZGL2.Skill
                 yield return null;
             }
             if (sr != null) Destroy(sr.gameObject);
+        }
+
+        /// <summary>운석 낙하 본체와 같은 방식(바깥→중심 순으로 원 3겹) — 날아가는 불덩이처럼 보이는 코드 이펙트.
+        /// 화염구 전용 폴백(외부 FireBall VFX가 불꽃 소용돌이 모양이라 발사체로는 안 어울려서 대체).</summary>
+        private GameObject CodeFireball(Vector3 pos)
+        {
+            var root = new GameObject("CodeFireball");
+            root.transform.SetParent(transform);
+            root.transform.position = pos;
+            Code(Disc(), new Color(1f, 0.35f, 0.05f, 0.55f), pos, 0.62f, 20).transform.SetParent(root.transform, true);
+            Code(Disc(), new Color(1f, 0.55f, 0.1f, 0.9f), pos, 0.46f, 21).transform.SetParent(root.transform, true);
+            Code(Disc(), new Color(1f, 0.92f, 0.55f, 1f), pos, 0.24f, 22).transform.SetParent(root.transform, true);
+            return root;
         }
 
         private GameObject Code(Sprite s, Color col, Vector3 pos, float scale, int order)

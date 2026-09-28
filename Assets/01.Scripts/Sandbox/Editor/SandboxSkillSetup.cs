@@ -68,7 +68,9 @@ namespace OZGL2.Sandbox.EditorTools
 
             // ── 딜
             n += B("Damage_01_Fireball", d => { Base(d, "화염구", SkillCategory.Damage, 1, SkillCastMode.Targeted, SkillEffectType.AreaDamage, 12f);
-                d.skillPower = 120f; d.radius = 1.5f; d.projectileVfx = V(FireBall); d.castVfx = V(FireExplosion01); });
+                // projectileVfx는 일부러 비워둔다 — 팩의 FireBall.prefab은 가느다란 불꽃 소용돌이라 발사체로 안
+                // 어울려서, SkillExecutor.ProjectileThenImpact가 대신 CodeFireball(원 3겹 코드 이펙트)을 쓴다.
+                d.skillPower = 120f; d.radius = 1.5f; d.castVfx = V(FireExplosion01); });
 
             // 얼음 가시: 마왕에서 조준 방향으로 날아가며 경로의 적을 관통, 맞으면 감속(화살표 조준).
             n += B("Damage_02_IceShard", d => { Base(d, "얼음 가시", SkillCategory.Damage, 1, SkillCastMode.Targeted, SkillEffectType.LineDamage, 10f);
@@ -89,11 +91,12 @@ namespace OZGL2.Sandbox.EditorTools
 
             n += B("Damage_08_VoidCollapse", d => { Base(d, "공허 붕괴", SkillCategory.Damage, 3, SkillCastMode.Targeted, SkillEffectType.Vacuum, 28f);
                 d.skillPower = 150f; d.radius = 2.5f; d.force = 7f; d.castVfx = V(VoidBlackHole); d.finishVfx = V(VoidExplosion01);
-                d.onHitDotDamage = 10f; d.onHitDotSeconds = 3f; d.onHitDotTick = 0.5f; }); // 붕괴에 휘말린 적은 3초간 도트
+                d.onHitDotDamage = 10f; d.onHitDotSeconds = 3f; d.onHitDotTick = 0.5f; d.visualOffsetX = -0.2f; }); // 붕괴에 휘말린 적은 3초간 도트. VoidBlackHole 무게중심이 살짝 오른쪽이라 보정
 
             // ── 디버프 (시간 정지만 즉시, 나머지 조준형)
             n += B("Debuff_01_KnockbackWave", d => { Base(d, "넉백 파동", SkillCategory.Debuff, 1, SkillCastMode.Targeted, SkillEffectType.Knockback, 10f);
-                d.skillPower = 0f; d.radius = 2.5f; d.force = 8f; d.castVfx = V(WindExplosion); d.scaleCastVfxToRadius = true; });
+                d.skillPower = 0f; d.radius = 2.5f; d.force = 8f; d.castVfx = V(WindExplosion); d.scaleCastVfxToRadius = true;
+                d.visualOffsetX = -0.49f; }); // WindExplosion 프레임 알파 무게중심이 오른쪽으로 치우쳐 있어(약 +5px) 사거리 원 가운데로 보정
 
             // 방향형 신규 2종 — 화염 회오리처럼 화살표 방향으로 날아가는 이동 장판(화면 밖으로 나가면 사라짐)
             n += B("Debuff_06_ElectricTornado", d => { Base(d, "번개 회오리", SkillCategory.Debuff, 3, SkillCastMode.Targeted, SkillEffectType.MovingZone, 22f);
