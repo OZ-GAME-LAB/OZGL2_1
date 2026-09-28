@@ -19,6 +19,11 @@ public static class BattlePreparationCardPrefabBuilder
     private const string DIAMOND_PATH = "Assets/06.UI/BattleMutedPreview/Reference_v2/Frame_DiamondSynergy.png";
     private const string SHIELD_PATH = "Assets/06.UI/BattleMutedPreview/Sprites/Icon_BoneShield.png";
     private const string HEART_PATH = "Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Legion/Icon_Legion_UndyingFlesh.png";
+    private const int GRID_WIDTH = 5;
+    private const int GRID_HEIGHT = 5;
+    private const float GRID_CELL_SIZE = 76f;
+    private const float GRID_LINE_THICKNESS = 4f;
+    private const float GRID_X = 110f;
     private static readonly Color IVORY = new Color32(246, 240, 226, 255);
     private static readonly Color UNIT_COLOR = new Color32(159, 61, 62, 255);
     private static readonly Color LAND_COLOR = new Color32(190, 153, 78, 255);
@@ -126,7 +131,7 @@ public static class BattlePreparationCardPrefabBuilder
     {
         RectTransform root = BeginCard(context, CARD_NAMES[0], "CardShell_Unit", "그림자 검사", UNIT_COLOR,
             context.Sprites["Icon_Type_Unit_Diamond_v2"], out SerializedObject bindings);
-        Image[] cells = BuildGrid(context, root, 72, 272, UNIT_COLOR);
+        Image[] cells = BuildGrid(context, root, GRID_X, 272, UNIT_COLOR);
         Image artwork = Picture(context, root, "Artwork", context.Sprites["Artwork_ShadowSwordsman"], 174, 309, 252, 300);
         Bind(bindings, "_artwork", artwork);
         Bind(bindings, "_traitTitleText", Label(context, root, "TraitTitleText", "특성", 64, 670, 118, 50, 30, true, TextAnchor.MiddleCenter));
@@ -145,7 +150,7 @@ public static class BattlePreparationCardPrefabBuilder
     {
         RectTransform root = BeginCard(context, CARD_NAMES[1], "CardShell_LandSlot", "가시 지대", LAND_COLOR,
             context.Sprites["Icon_Type_Land_Diamond_v2"], out SerializedObject bindings);
-        Image[] cells = BuildGrid(context, root, 72, 310, LAND_COLOR);
+        Image[] cells = BuildGrid(context, root, GRID_X, 310, LAND_COLOR);
         Bind(bindings, "_areaTitleText", Label(context, root, "AreaTitleText", "추가 배치 영역", 60, 782, 480, 70, 42, true, TextAnchor.MiddleCenter));
         Bind(bindings, "_areaDescriptionText", Label(context, root, "AreaDescriptionText", "배치 가능 영역 +4칸", 60, 955, 480, 65, 40, false, TextAnchor.MiddleCenter));
         FinishCard(bindings, cells, new[] { new Vector2Int(2, 1), new Vector2Int(3, 1), new Vector2Int(2, 2), new Vector2Int(2, 3) });
@@ -156,7 +161,7 @@ public static class BattlePreparationCardPrefabBuilder
     {
         RectTransform root = BeginCard(context, CARD_NAMES[2], "CardShell_Relic", "마력 증폭기", RELIC_COLOR,
             context.Sprites["Icon_Type_Relic_Diamond_v2"], out SerializedObject bindings);
-        Image[] cells = BuildGrid(context, root, 72, 272, RELIC_COLOR);
+        Image[] cells = BuildGrid(context, root, GRID_X, 272, RELIC_COLOR);
         Bind(bindings, "_artwork", Picture(context, root, "Artwork", context.Sprites["Artwork_ManaAmplifier"], 106, 277, 390, 378));
         Bind(bindings, "_traitTitleText", Label(context, root, "TraitTitleText", "특성", 64, 670, 118, 50, 30, true, TextAnchor.MiddleCenter));
         Bind(bindings, "_traitDescriptionText", Label(context, root, "TraitDescriptionText", "3성 달성 시\n재사용 시간 감소", 62, 716, 480, 96, 30));
@@ -199,33 +204,45 @@ public static class BattlePreparationCardPrefabBuilder
 
     private static Image[] BuildGrid(BuildContext context, RectTransform parent, float x, float y, Color tint)
     {
-        const int WIDTH = 6;
-        const int HEIGHT = 5;
-        const float CELL_SIZE = 76;
-        RectTransform grid = Group(context, parent, "FootprintGrid", x, y, WIDTH * CELL_SIZE, HEIGHT * CELL_SIZE);
+        RectTransform grid = Group(context, parent, "FootprintGrid", x, y,
+            GRID_WIDTH * GRID_CELL_SIZE, GRID_HEIGHT * GRID_CELL_SIZE);
         Color gridColor = new Color32(185, 180, 165, 68);
-        for (int column = 0; column <= WIDTH; column++)
-            Solid(context, grid, "ColumnLine_" + column, column * CELL_SIZE - 0.5f, 0, 1, HEIGHT * CELL_SIZE, gridColor);
-        for (int row = 0; row <= HEIGHT; row++)
-            Solid(context, grid, "RowLine_" + row, 0, row * CELL_SIZE - 0.5f, WIDTH * CELL_SIZE, 1, gridColor);
+        for (int column = 0; column <= GRID_WIDTH; column++)
+            Solid(context, grid, "ColumnLine_" + column,
+                column * GRID_CELL_SIZE - GRID_LINE_THICKNESS * 0.5f,
+                0,
+                GRID_LINE_THICKNESS,
+                GRID_HEIGHT * GRID_CELL_SIZE,
+                gridColor);
+        for (int row = 0; row <= GRID_HEIGHT; row++)
+            Solid(context, grid, "RowLine_" + row,
+                0,
+                row * GRID_CELL_SIZE - GRID_LINE_THICKNESS * 0.5f,
+                GRID_WIDTH * GRID_CELL_SIZE,
+                GRID_LINE_THICKNESS,
+                gridColor);
 
-        var cells = new Image[WIDTH * HEIGHT];
+        var cells = new Image[GRID_WIDTH * GRID_HEIGHT];
         Color fill = tint;
         fill.a = 0.20f;
         Color border = tint;
         border.a = 0.85f;
-        for (int row = 0; row < HEIGHT; row++)
+        for (int row = 0; row < GRID_HEIGHT; row++)
         {
-            for (int column = 0; column < WIDTH; column++)
+            for (int column = 0; column < GRID_WIDTH; column++)
             {
                 // Runtime 배열과 동일하게 좌상단부터 행 우선(y * width + x)으로 연결한다.
                 Image cell = Solid(context, grid, "Cell_" + column + "_" + row,
-                    column * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE, fill);
-                Solid(context, cell.rectTransform, "TopBorder", 0, 0, CELL_SIZE, 2, border);
-                Solid(context, cell.rectTransform, "BottomBorder", 0, CELL_SIZE - 2, CELL_SIZE, 2, border);
-                Solid(context, cell.rectTransform, "LeftBorder", 0, 2, 2, CELL_SIZE - 4, border);
-                Solid(context, cell.rectTransform, "RightBorder", CELL_SIZE - 2, 2, 2, CELL_SIZE - 4, border);
-                cells[row * WIDTH + column] = cell;
+                    column * GRID_CELL_SIZE,
+                    row * GRID_CELL_SIZE,
+                    GRID_CELL_SIZE,
+                    GRID_CELL_SIZE,
+                    fill);
+                Solid(context, cell.rectTransform, "TopBorder", 0, 0, GRID_CELL_SIZE, 2, border);
+                Solid(context, cell.rectTransform, "BottomBorder", 0, GRID_CELL_SIZE - 2, GRID_CELL_SIZE, 2, border);
+                Solid(context, cell.rectTransform, "LeftBorder", 0, 2, 2, GRID_CELL_SIZE - 4, border);
+                Solid(context, cell.rectTransform, "RightBorder", GRID_CELL_SIZE - 2, 2, 2, GRID_CELL_SIZE - 4, border);
+                cells[row * GRID_WIDTH + column] = cell;
             }
         }
         return cells;
@@ -245,13 +262,17 @@ public static class BattlePreparationCardPrefabBuilder
 
     private static void FinishCard(SerializedObject bindings, Image[] cells, Vector2Int[] footprint)
     {
+        var view = (UIBattlePreparationCardView)bindings.targetObject;
+        Bind(bindings, "_footprintGridRoot", view.transform.Find("FootprintGrid") as RectTransform);
         SerializedProperty gridSize = RequireProperty(bindings, "_footprintGridSize");
-        gridSize.vector2IntValue = new Vector2Int(6, 5);
+        gridSize.vector2IntValue = new Vector2Int(GRID_WIDTH, GRID_HEIGHT);
+        RequireProperty(bindings, "_footprintCellSize").floatValue = GRID_CELL_SIZE;
+        RequireProperty(bindings, "_footprintGridLineThickness").floatValue = GRID_LINE_THICKNESS;
         SerializedProperty targets = RequireProperty(bindings, "_footprintCells");
         targets.arraySize = cells.Length;
         for (int index = 0; index < cells.Length; index++) targets.GetArrayElementAtIndex(index).objectReferenceValue = cells[index];
         bindings.ApplyModifiedPropertiesWithoutUndo();
-        ((UIBattlePreparationCardView)bindings.targetObject).SetFootprint(footprint);
+        view.SetFootprint(footprint);
     }
 
     private static RectTransform Group(BuildContext context, RectTransform parent, string name, float x, float y, float width, float height)

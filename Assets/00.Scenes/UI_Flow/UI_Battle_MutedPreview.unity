@@ -7902,6 +7902,148 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 738986825}
   m_CullTransparentMesh: 1
+--- !u!1001 &748001725
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 437975468835349490, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 437975468835349490, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5428048039921235569, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7146446760838317801, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_Name
+      value: BattleCardHand_Preview
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7424351996649528628, guid: b993da83171809940badca08930f36b4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7146446760838317801, guid: b993da83171809940badca08930f36b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 748001728}
+  m_SourcePrefab: {fileID: 100100000, guid: b993da83171809940badca08930f36b4, type: 3}
+--- !u!1 &748001726 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7146446760838317801, guid: b993da83171809940badca08930f36b4, type: 3}
+  m_PrefabInstance: {fileID: 748001725}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &748001727 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2357450837467894354, guid: b993da83171809940badca08930f36b4, type: 3}
+  m_PrefabInstance: {fileID: 748001725}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748001726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2cc9d1e131cd3b4ab69bdabd187c56e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIBattleCardHandView
+--- !u!114 &748001728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 748001726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 084f2dd697a941b498d2f340f0d5dbc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIBattleCardHandPreviewPresenter
+  _handView: {fileID: 748001727}
+  _showPreview: 1
 --- !u!1 &756462538
 GameObject:
   m_ObjectHideFlags: 0
@@ -23429,6 +23571,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4694292741081448987, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 1.199997
+      objectReference: {fileID: 0}
     - target: {fileID: 5179539372805748738, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -23445,6 +23591,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
       objectReference: {fileID: 847869101}
+    - target: {fileID: 7170040384383181048, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7786352390341020899, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -23685,3 +23835,4 @@ SceneRoots:
   - {fileID: 391686958}
   - {fileID: 7257313}
   - {fileID: 949934015}
+  - {fileID: 748001725}
