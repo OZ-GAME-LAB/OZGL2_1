@@ -41,7 +41,8 @@ public static class BattleMutedReferenceLayout
         Sprite wave = Load<Sprite>(ART_DIRECTORY + "Frame_Wave.png");
         Sprite action = Load<Sprite>(ART_DIRECTORY + "Frame_DiamondAction.png");
         Sprite synergy = Load<Sprite>(ART_DIRECTORY + "Frame_DiamondSynergy.png");
-        foreach (string path in new[] { "Background", "BattleHUD", "SettingsButton", "WavePreview", "SynergyTrackers" }) Need(ready, path);
+        foreach (string path in new[] { "Background", "BattleHUD", "SettingsButton", "SynergyTrackers" }) Need(ready, path);
+        NeedWavePreview(ready);
         foreach (string path in new[] { "Deployment", "ChoiceCards", "Currency", "StartCombatButton", "Reroll_Placeholder", "RerollPrice", "RerollCost", "SynergyButton", "ProbabilitiesButton" }) Need(prep, path);
         Sprite white = EnsureWhiteDataSprite();
 
@@ -90,7 +91,12 @@ public static class BattleMutedReferenceLayout
         Place(Need(hud, "Body/Border"), 0, 0, 1815, 79);
         ImageAt(hud, "Body/Border").color = PAPER;
         Place(Need(hud, "WaveIcon"), 44, 18, 48, 46);
-        StyleText(hud, "WaveText", font, 42, 136, 10, 360, 60, TextAnchor.MiddleLeft);
+        Transform waveToggle = hud.Find("WaveToggleButton");
+        bool hasWaveToggle = waveToggle != null && waveToggle.GetComponent<Button>() != null;
+        // 펼침 버튼이 있으면 클릭 영역을 겹치지 않게 유지하고 문구 클릭도 보존한다.
+        Text waveLabel = StyleText(hud, "WaveText", font, 42, 136, 10,
+            hasWaveToggle ? 288 : 360, 60, TextAnchor.MiddleLeft);
+        waveLabel.raycastTarget = hasWaveToggle;
         Place(Need(hud, "Divider_Wave"), 493, 20, 5, 40);
         StyleText(hud, "LevelText", font, 40, 588, 10, 170, 60, TextAnchor.MiddleLeft);
 
@@ -132,8 +138,15 @@ public static class BattleMutedReferenceLayout
 
     private static void ApplyEnemies(Transform ready, Sprite frame, Font korean, Font numbers)
     {
-        Transform wave = Need(ready, "WavePreview");
-        Place(wave, 46, 122, 635, 183);
+        Transform wave = NeedWavePreview(ready);
+        Transform viewport = ready.Find("WavePreviewViewport");
+        // 펼침 구조에서는 화면 위치를 마스크에 적용하고 패널은 마스크 내부 원점에 둔다.
+        if (viewport != null)
+        {
+            Place(viewport, 46, 122, 635, 183);
+            Place(wave, 0, 0, 635, 183);
+        }
+        else Place(wave, 46, 122, 635, 183);
         Place(Need(wave, "Frame"), 0, 0, 635, 183);
         Place(Need(wave, "Frame/Body"), 14, 12, 607, 157);
         Image border = ImageAt(wave, "Frame/Border");
@@ -352,6 +365,12 @@ public static class BattleMutedReferenceLayout
         RectTransform result = Need(owner, path) as RectTransform;
         if (result == null) throw new InvalidOperationException(path + "에 RectTransform이 없습니다.");
         return result;
+    }
+
+    private static Transform NeedWavePreview(Transform ready)
+    {
+        Transform viewport = ready.Find("WavePreviewViewport");
+        return viewport != null ? Need(viewport, "WavePreview") : Need(ready, "WavePreview");
     }
 
     private static Transform Need(Transform owner, string path)

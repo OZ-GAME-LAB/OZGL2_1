@@ -1,5 +1,7 @@
 # 전투 결과·증강 선택 프리팹
 
+> 2026-09-28 승리·패배 디자인 갱신: 결과 화면은 전용 HS봄바람체/KMU Sungkok Serif SDF와 따뜻한 금속색을 사용한다. 공통 배치·수정 위치·폰트 공유 주의사항은 [BattleResultReferenceRefinement.md](BattleResultReferenceRefinement.md)를 우선 확인한다. 아래 최초 구성의 DOSMyungjo 설명은 증강 화면에만 계속 적용된다.
+
 ## 적용 범위
 
 - 적용 씬: `Assets/00.Scenes/UI_Flow/UI_Battle_MutedPreview.unity`
@@ -25,7 +27,7 @@
 
 승리·패배는 별도 복사본이 아니라 `Canvas_BattleResultBase`의 **Prefab Variant**다. 공통 위치·프레임·글자 배치는 Base에서 수정하고, 상태에 따른 차이는 Variant의 `UIBattleResultView`에서 관리한다. 원치 않는 인스턴스 Override가 있으면 Base 수정이 해당 항목에 반영되지 않을 수 있으므로 Inspector의 Overrides를 함께 확인한다.
 
-각 팝업의 `BackgroundShade > Image > Color`에서 검은 배경의 불투명도를 바꿀 수 있다. 기본값은 78%이며 별도 배경 그림 대신 기존 전투 화면 위를 어둡게 덮는다.
+각 팝업의 `BackgroundShade > Image > Color`에서 배경의 불투명도를 바꿀 수 있다. 승리·패배 결과창은 2026-09-28 정렬 작업에서 따뜻한 어두운 색조와 Alpha 0.94로 변경했다. 별도 전투 배경 그림 대신 현재 전투 화면 위를 어둡게 덮는다. 증강 화면의 배경 값은 해당 프리팹에서 따로 관리한다.
 
 ## 승리·패배 표시
 

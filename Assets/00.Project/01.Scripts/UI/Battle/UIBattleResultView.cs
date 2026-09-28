@@ -73,6 +73,8 @@ namespace OZGL2.UIFlow
         [SerializeField] private Image _crown;
         [SerializeField] private Image _bannerLeft;
         [SerializeField] private Image _bannerRight;
+        [SerializeField] private Image _bannerTailLeft;
+        [SerializeField] private Image _bannerTailRight;
         [SerializeField] private Image _rune;
         [SerializeField] private Image _titleAccent;
 
@@ -81,8 +83,12 @@ namespace OZGL2.UIFlow
         [SerializeField] private Sprite _defeatCrown;
         [SerializeField] private Sprite _victoryBanner;
         [SerializeField] private Sprite _defeatBanner;
+        [SerializeField] private Sprite _victoryBannerTail;
+        [SerializeField] private Sprite _defeatBannerTail;
         [SerializeField] private Color _victoryAccent = new Color32(200, 167, 104, 255);
         [SerializeField] private Color _defeatAccent = new Color32(153, 111, 117, 255);
+        [SerializeField] private Color _titleColor = new Color32(230, 217, 194, 255);
+        [SerializeField] private Color _difficultyAccent = new Color32(183, 55, 47, 255);
 
         [Header("로비 이동 연결")]
         [SerializeField] private Button _lobbyButton;
@@ -131,11 +137,19 @@ namespace OZGL2.UIFlow
             Color accent = isVictory ? _victoryAccent : _defeatAccent;
             SetText(_resultTitleText, isVictory ? "승리" : "패배");
             SetText(_timeLabelText, isVictory ? "클리어 시간" : "플레이 시간");
-            if (_resultTitleText != null) _resultTitleText.color = accent;
+            if (_resultTitleText != null) _resultTitleText.color = _titleColor;
+            if (_difficultyText != null)
+            {
+                _difficultyText.color = _titleColor;
+                _difficultyText.richText = true;
+            }
             SetSprite(_crown, isVictory ? _victoryCrown : _defeatCrown);
             Sprite banner = isVictory ? _victoryBanner : _defeatBanner;
             SetSprite(_bannerLeft, banner);
             SetSprite(_bannerRight, banner);
+            Sprite bannerTail = isVictory ? _victoryBannerTail : _defeatBannerTail;
+            SetSprite(_bannerTailLeft, bannerTail);
+            SetSprite(_bannerTailRight, bannerTail);
             SetColor(_rune, accent);
             SetColor(_titleAccent, accent);
 
@@ -144,9 +158,9 @@ namespace OZGL2.UIFlow
             SetText(_timeText, FormatTime(data != null ? data.Seconds : 0f));
             SetText(_killsText, FormatNumber(data != null ? data.Kills : 0) + "명");
             SetText(_deploymentsText, FormatNumber(data != null ? data.Deployments : 0) + "개");
-            SetText(_rewardText, "+ " + FormatNumber(data != null ? data.EarnedXp : 0) + " EXP");
-            SetText(_levelText, "LV. " + FormatNumber(data != null ? data.Level : 1));
-            SetText(_levelUpText, data != null && data.DidLevelUp ? "레벨 업!" : string.Empty);
+            SetText(_rewardText, FormatNumber(data != null ? data.EarnedXp : 0, true) + " exp");
+            SetText(_levelText, "LV." + FormatNumber(data != null ? data.Level : 1));
+            SetText(_levelUpText, data != null && data.DidLevelUp ? "LV UP!" : string.Empty);
 
             if (_experience != null)
             {
@@ -202,13 +216,20 @@ namespace OZGL2.UIFlow
             if (_needsRefresh) RefreshView();
         }
 
-        private static string FormatNumber(int value) => value.ToString(CultureInfo.InvariantCulture);
+        private static string FormatNumber(int value, bool useThousandsSeparator = false) =>
+            value.ToString(useThousandsSeparator ? "N0" : "0", CultureInfo.InvariantCulture);
 
-        private static string FormatDifficulty(string difficulty)
+        private string FormatDifficulty(string difficulty)
         {
             if (string.IsNullOrWhiteSpace(difficulty)) return string.Empty;
             string text = difficulty.Trim();
-            return text.EndsWith("난이도", StringComparison.Ordinal) ? text : text + " 난이도";
+            if (text.EndsWith("난이도", StringComparison.Ordinal))
+                text = text.Substring(0, text.Length - "난이도".Length).TrimEnd();
+            if (text.Length == 0) return "난이도";
+
+            // 난이도 명칭만 강조하고 접미사는 공통 아이보리색을 유지한다.
+            return "<color=#" + ColorUtility.ToHtmlStringRGB(_difficultyAccent) + ">" +
+                text + "</color> 난이도";
         }
 
         private static string FormatTime(float seconds)
@@ -216,8 +237,8 @@ namespace OZGL2.UIFlow
             // 매우 큰 입력의 int 변환과 NaN/Infinity를 안전하게 처리한다.
             double safeSeconds = float.IsNaN(seconds) || float.IsInfinity(seconds) ? 0d : Math.Max(0d, seconds);
             int totalSeconds = (int)Math.Min(int.MaxValue, Math.Floor(safeSeconds));
-            return (totalSeconds / 60).ToString("00", CultureInfo.InvariantCulture) + ":" +
-                (totalSeconds % 60).ToString("00", CultureInfo.InvariantCulture);
+            return (totalSeconds / 60).ToString("00", CultureInfo.InvariantCulture) + "분 " +
+                (totalSeconds % 60).ToString("00", CultureInfo.InvariantCulture) + "초";
         }
 
         private static void SetText(TMP_Text target, string value)

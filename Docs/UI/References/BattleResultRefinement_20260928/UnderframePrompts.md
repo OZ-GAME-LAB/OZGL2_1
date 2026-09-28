@@ -1,0 +1,22 @@
+# 결과 화면 하단 장식 생성 기록
+
+- 생성 방식: built-in `image_gen` (투명 배경).
+- 원본은 `Raw/Underframe_Victory.png`, `Raw/Underframe_Defeat.png`에 보존.
+- Unity용 파일은 `Assets/06.UI/BattleMutedPreview/ResultRefinement_v2/Sprites/Underframe_Victory.png`, `Underframe_Defeat.png`.
+- 후처리: 알파값 8 초과 픽셀의 두 이미지 공통 경계와 8px 여백으로 크롭. 색상, 디자인, 알파 자체를 수정하지 않음. 스크립트 `PrepareUnderframeArt.ps1` 참조.
+- 원본 크기: 두 이미지 모두 1121×1403. 최종 크기: 두 이미지 모두 758×791. 두 결과의 마운트 위치를 동일 좌표로 유지함.
+- 승리: 정상 벨벳 깃발. 패배: 어두운 찢어진 벨벳 깃발. 좌측 금속 받침/상단 거치봉은 공통 구조.
+- 알파 확인: 승리 완전 투명 1,268,909픽셀, 패배 완전 투명 1,263,085픽셀. 검은 직사각형이나 체크무늬 배경 없음.
+- 사용 권장: 통계 패널보다 뒤에서 양쪽에 배치하고, 상단 거치봉이 패널 아래 테두리에 가려지게 맞춤. 우측 복제본은 X축 반전하여 구성의 대칭을 유지.
+
+## 승리 최초 생성
+
+Use case: stylized-concept. Asset type: one isolated Unity gothic pixel-art UI ornament sprite, for the small underframe hanging decoration below the battle victory statistics panel. Image 1 is composition/style reference ONLY: notice the tiny intact red banner and little metal support dangling below the left side of the victory panel, near the centered return button. Image 2 is color/material reference ONLY, not the desired long-banner shape. Generate a single compact ornament cluster, front-on orthographic, intended display size about 130x155 pixels: a narrow antique bronze-and-warm-ivory gothic metal column/bracket on the LEFT and one short intact deep-crimson velvet hanging flag on its RIGHT. The flag has a modest V-point lower tip and a subdued small gold heraldic cross, fine gold hem, restrained folds. A short horizontal metal mounting edge at the very top will be hidden beneath the larger UI panel. Column ends in a small pointed carved pendant, no broad base. Overall cluster width-to-height about 0.8:1. Keep the crest minimal and match the muted refined medieval tone, reddish brown shadow, old brass highlights, crisp deliberately pixelated edges and clustered pixels so it is readable at 130x155. The cluster must fill the canvas while leaving 5 percent transparent padding. True transparent RGBA background around and between objects, no painted black or checkerboard background, no ground shadow. No full panel, no text, no crown, no rune ring, no candles, no chains, no additional flags or broad wings. Only the compact small underframe ornament, perfectly upright, no perspective.
+
+## 승리 비율 보정 (최종 원본)
+
+Use case: precise-object-edit. Edit target: the provided transparent crimson banner ornament. Change ONLY the ornament proportions: make this a SHORT COMPACT under-panel bracket, not a long banner pole. Keep exactly the same pixel-art style, antique metal, deep-crimson velvet, gold V hem, single subdued cross, relative side arrangement and genuine transparent background. Shorten the long plain vertical pole shaft by HALF, shorten velvet flag from top to V-tip by one THIRD, and entirely remove the long spear point sticking above the horizontal top mounting bar. Remove the tiny lowest dangling jewel, leaving a short tapered column foot roughly aligned with the bottom tip of the flag. Target content bounding box ratio is width:height about 0.8:1, suitable at a small actual UI size of 130x155 pixels, so simplify tiny noise while keeping crisp pixel edge clusters. Do NOT squeeze pixels or distort diamonds. Redraw structural proportions. No panel, no text, no candles, no ground shadow, no extra objects, no black background, no checkerboard. Preserve alpha transparency.
+
+## 패배
+
+Use case: precise-object-edit. Asset type: isolated Unity gothic pixel-art UI underframe ornament DEFEAT variant. Image 1 is the edit target; Image 2 is only reference for torn crimson fabric. Preserve Image 1 exactly in its compact front-facing structure, placement, size, metal column on left, horizontal mounting bar, right hanging flag, alpha background, pixel-art style and jewel shape. Change ONLY the intact red flag to an aged DARK crimson flag, with a tattered V-shaped lower edge with three thin jagged fabric tails and two modest holes near the hem; make the small cross and hem muted tarnished bronze. Existing metal becomes slightly tarnished warm ivory/aged bronze, NOT blue or cold steel. Keep metal structure geometry and crisp pixels unchanged. It must remain the same compact short wide ornament as Image 1, NOT the tall banner shown in Image 2. No additional objects, no text, no ground, no shadows outside the object, no black rectangle and no checkerboard. Genuinely transparent RGBA background around and between objects.

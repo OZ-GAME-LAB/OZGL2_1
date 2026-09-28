@@ -372,7 +372,11 @@ public static class BattleMutedPreviewBuilder
         Image fill = ready.Find("BattleHUD/ExperienceFill").GetComponent<Image>();
         fill.sprite = Sprite("Experience_Fill");
         fill.preserveAspect = false;
-        Rect(ready.Find("WavePreview/Title") as RectTransform, 175, 22, 265, 34);
+        // 원본의 직접 자식 구조와 펼침 마스크 아래의 중첩 구조를 모두 지원한다.
+        Transform wave = ready.Find("WavePreviewViewport/WavePreview") ?? ready.Find("WavePreview");
+        if (wave == null || wave.Find("Title") == null)
+            throw new InvalidOperationException("WavePreview의 Title 연결을 확인해 주세요.");
+        Rect(wave.Find("Title") as RectTransform, 175, 22, 265, 34);
         foreach (Transform row in ready.Find("SynergyTrackers"))
         {
             Text title = row.Find("Name").GetComponent<Text>();

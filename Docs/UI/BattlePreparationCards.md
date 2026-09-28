@@ -2,7 +2,7 @@
 
 ## 범위와 파일
 
-유닛·땅 슬롯·기물 카드를 각각 독립 Prefab으로 관리한다. 이번 산출물은 표시용이며 `UI_Battle_MutedPreview`의 기존 `ChoiceCards`를 교체하거나 Scene에 배치하지 않는다. 실제 전투 데이터, 카드 선택, 구매, 비용 차감, 리롤, 배치 판정, 성급 합성은 연결하지 않는다.
+유닛·땅 슬롯·기물 카드를 각각 독립 Prefab으로 관리한다. 최초 제작은 프리팹만 준비했으나, 이후 `UI_Battle_MutedPreview > UI_BattleScreens/Canvas_Preparation/ChoiceCards/CardPrefabInstances`에 3종을 배치했다. 기존 `Card_1~3`은 비활성 보존한다. 실제 전투 데이터, 카드 선택, 구매, 비용 차감, 리롤, 배치 판정, 성급 합성은 연결하지 않는다. 현재 적용 구조와 실행 방법은 [BattleUITeamGuide.md](BattleUITeamGuide.md)를 확인한다.
 
 | 종류 | 색상 | Prefab 경로 |
 | --- | --- | --- |
