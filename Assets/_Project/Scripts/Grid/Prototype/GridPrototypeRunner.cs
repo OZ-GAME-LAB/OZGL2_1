@@ -99,7 +99,7 @@ namespace OZGL2.Grid.Prototype
                 surface.Element.style.flexGrow = 1; surface.Element.style.width = Length.Percent(100);
                 surface.Element.style.minHeight = 0;
             }
-            _root.Add(new Label("STORAGE / Units first · R: rotate · F: mirror · Esc: cancel · Expansions cannot be stored"));
+            _root.Add(new Label("STORAGE / Right-click unit: store · R: rotate · F: mirror · Esc: cancel · Expansions cannot be stored"));
             _tray = CreateTray("storage-tray", 116); _root.Add(_tray);
             _input = new GridDragInput(Manager, surface, _root, _tray, _canInteract);
             _expansionCard = new Label("FLOOR +2  —  Drag this required reward onto the dotted area") { name = "expansion-card" };
@@ -151,7 +151,7 @@ namespace OZGL2.Grid.Prototype
             (_worldSurface ?? Board).Render();
             _status.text = Manager.Phase + "  |  FLOOR " + Manager.FloorCells.Count + "/" +
                 (Manager.Definition.MaximumSize.x * Manager.Definition.MaximumSize.y) + "  |  DEPLOYED " + Manager.PlacedCount + "  |  STORAGE " + Manager.StoredCount + "/" + Manager.Definition.StorageCapacity;
-            _message.text = Manager.HasSelection ? (Manager.CanFusePreview ? "Fuse: same unit + same star" : Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
+            _message.text = Manager.HasSelection ? (Manager.CanFusePreview ? "Fuse: same unit + same star" : Manager.CanSwapPreview ? "Swap positions: matching footprints" : Manager.GetPreviewFailure() == ePlacementFailure.NONE ? "Valid placement" : "Cannot place: " + Manager.GetPreviewFailure()) :
                 Manager.LastDropFailure == ePlacementFailure.DISCONNECTED ? "Keep the floor and platforms connected by an edge." :
                 Manager.LastDropFailure == ePlacementFailure.EXPANSION_OCCUPIED ? "Clear units and platforms from this expansion before moving it." :
                 Manager.LastDropFailure == ePlacementFailure.CANNOT_STORE_EXPANSION ? "Expansion tiles cannot be stored. Place them on the board." :

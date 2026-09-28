@@ -29,14 +29,14 @@ namespace OZGL2.InGame
         public bool CanRetryCamera => !_busy && Error != null && IsCurrentPreparation;
         public bool CanExitAfterCameraError => !_busy && Error != null && _session != null && !_session.IsEnded;
         private bool IsCurrentPreparation => _session != null && !_session.IsEnded &&
-            _session.NextRound > 1 && _session.Grid.Phase == eGridPhase.PREPARATION;
+            _session.Grid.Phase == eGridPhase.PREPARATION;
         public void ValidateSetup()
         {
             if (_bootstrap == null || _runner == null || _camera == null) throw new InvalidOperationException("Bootstrap, preparation UI and camera transition are required.");
             _camera.ValidateFraming(GetBounds(false), false);
         }
         public bool CanInteract => !_busy && Error == null && _session != null && !_session.IsEnded &&
-            _session.NextRound > 1 && _session.Grid.Phase == eGridPhase.PREPARATION;
+            _session.Grid.Phase == eGridPhase.PREPARATION;
         private void OnEnable()
         {
             if (_bootstrap == null) return;
@@ -80,7 +80,7 @@ namespace OZGL2.InGame
                 _resolution = new Vector2Int(Screen.width, Screen.height);
             }
             if (_session == null) return;
-            bool prepare = _session.NextRound > 1 && _session.Grid.Phase == eGridPhase.PREPARATION;
+            bool prepare = _session.Grid.Phase == eGridPhase.PREPARATION;
             if (prepare && !_preparing)
             {
                 _preparing = true; HideRenderers(); _preview.SetVisible(true);
@@ -95,7 +95,8 @@ namespace OZGL2.InGame
             var min = config.GridWorldOrigin + new Vector3(-0.5f, -1.5f, 0) * config.CellWorldSize;
             var max = config.GridWorldOrigin + new Vector3(size.x - 0.5f, size.y - 0.5f, 0) * config.CellWorldSize;
             var bounds = new Bounds((min + max) * 0.5f, max - min);
-            if (!preparation) bounds.Encapsulate(new Vector3(config.HeroSpawnPosition.x, config.HeroSpawnPosition.y, config.GridWorldOrigin.z));
+            if (!preparation)
+                foreach (var point in config.CreateHeroSpawnPositions()) bounds.Encapsulate(point);
             return bounds;
         }
         private async void EnterPreparationAsync()

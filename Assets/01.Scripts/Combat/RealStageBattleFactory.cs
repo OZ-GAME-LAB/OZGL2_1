@@ -23,7 +23,8 @@ public static class RealStageBattleFactory
         Transform demonArmySpawnRoot,
         Vector3 gridWorldOrigin,
         float cellWorldSize,
-        out HeroPool pool, Action<IDisposable> ownDefenders = null, IStageBattleLifecycle lifecycle = null)
+        out HeroPool pool, Action<IDisposable> ownDefenders = null, IStageBattleLifecycle lifecycle = null,
+        System.Collections.Generic.IReadOnlyList<Vector3> spawnPositions = null)
     {
         pool = null;
         if (heroCatalog == null || demonArmyCatalog == null || heroSpawnRoot == null || demonArmySpawnRoot == null || gridSessionProvider == null)
@@ -39,7 +40,7 @@ public static class RealStageBattleFactory
         {
             createdPool = new HeroPool(heroCatalog.CreateSnapshot(), heroSpawnRoot);
             defenders = new RealDefenders(gridSessionProvider, demonArmyCatalog, demonArmySpawnRoot, gridWorldOrigin, cellWorldSize);
-            var battle = new PooledStageBattle(createdPool, defenders, heroSpawnPosition, lifecycle);
+            var battle = new PooledStageBattle(createdPool, defenders, heroSpawnPosition, lifecycle, spawnPositions);
             ownDefenders?.Invoke(defenders);
             pool = createdPool;
             return battle;

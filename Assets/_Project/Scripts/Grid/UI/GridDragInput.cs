@@ -45,8 +45,18 @@ namespace OZGL2.Grid.UI
         }
         private void OnBoardDown(PointerDownEvent evt)
         {
-            if (!_canInteract() || evt.button != 0) return;
+            if (!_canInteract()) return;
             var cell = _board.PanelToCell(evt.position);
+            if (evt.button == 1)
+            {
+                if (_manager.HasSelection || _manager.HasPendingStorage) return;
+                var selected = _manager.GetUnitAt(cell);
+                if (selected == null) return;
+                _manager.TryReturnUnitToTray(selected.InstanceId);
+                evt.StopPropagation();
+                return;
+            }
+            if (evt.button != 0) return;
             var block = _manager.GetBlockAt(cell);
             var unit = _manager.GetUnitAt(cell);
             if (unit != null)

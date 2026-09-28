@@ -45,6 +45,8 @@ namespace OZGL2.InGame.Editor
                         new RoundDefinition("r1", spawns, true, "reward_1", weights),
                         new RoundDefinition("r2", spawns, true, "reward_2", weights) }));
                     task = stage.RunAsync(source, token.Token);
+                    await Until(() => session.Session != null && session.Session.CanBeginBattle, token.Token);
+                    Check(session.Session.TryBeginBattle(session.Session.RunId, 1), "Confirm first preparation");
                     await Until(() => dummy.PendingRequest == eDummyRequest.BATTLE, token.Token);
                     dummy.CompleteBattle(dummy.RequestId, eBattleResult.VICTORY);
                     await Until(() => rewards.Pending != null, token.Token);

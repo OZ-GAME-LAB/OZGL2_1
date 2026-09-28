@@ -21,17 +21,14 @@ namespace OZGL2.InGame
         {
             token.ThrowIfCancellationRequested();
             var session = _session.Require(request.RunId);
-            if (request.RoundNumber == 1)
-            {
-                PlaceInitial(session, _initialUnit, _initialBlock, _anchor);
-                return;
-            }
             var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             Action changed = () => { if (session.Grid.Phase == eGridPhase.BATTLE) completion.TrySetResult(true); };
             session.Grid.Changed += changed;
             try
             {
-                if (!session.TryAllowPreparation(request.RunId, request.RoundNumber, request.CanSkip))
+                if (request.RoundNumber == 1)
+                    PlaceInitial(session, _initialUnit, _initialBlock, _anchor);
+                else if (!session.TryAllowPreparation(request.RunId, request.RoundNumber, request.CanSkip))
                     throw new InvalidOperationException("Grid rejected the next preparation request.");
                 using (token.Register(() => completion.TrySetCanceled())) await completion.Task;
                 token.ThrowIfCancellationRequested();
@@ -55,7 +52,7 @@ namespace OZGL2.InGame
             if (!grid.CommitPreview() || !grid.BeginUnitDrag(unitId))
                 throw new InvalidOperationException("Initial block placement failed.");
             grid.MovePreview(anchor);
-            if (!grid.CommitPreview() || !session.TryBeginBattle(session.RunId, 1))
+            if (!grid.CommitPreview() || !session.CanBeginBattle)
                 throw new InvalidOperationException("Initial unit placement or battle validation failed.");
         }
         public void EndRun(string runId) => _session.EndRun(runId);

@@ -95,6 +95,7 @@ namespace OZGL2.Grid.UI
             {
                 bool isValid = _manager.GetPreviewFailure() == ePlacementFailure.NONE;
                 foreach (var cell in _manager.GetPreviewCells()) AddCell(_ghostLayer, cell, isValid ? VALID_COLOR : INVALID_COLOR, "ghost-cell");
+                foreach (var cell in _manager.GetSwapReturnCells()) AddCell(_ghostLayer, cell, VALID_COLOR, "swap-return-cell");
                 if (_manager.DragKind == eGridDragKind.UNIT)
                     AddActor(_ghostLayer, _manager.PreviewAnchor, _manager.FindUnit(_manager.SelectedId).Definition.DisplayName,
                         new Color(1, 1, 1, 0.8f));
