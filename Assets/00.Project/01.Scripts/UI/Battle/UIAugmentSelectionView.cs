@@ -34,7 +34,7 @@ namespace OZGL2.UIFlow
 
         public void SetChoices(IReadOnlyList<AugmentData> choices)
         {
-            if (!TryCopyChoices(choices)) return;
+            if (!TryCopyChoices(choices, true)) return;
             _hasInjectedChoices = true;
             BindCards();
         }
@@ -48,11 +48,12 @@ namespace OZGL2.UIFlow
         public void RefreshChoices()
         {
             // 비활성 상태에서 주입한 후보를 OnEnable의 미리보기 값으로 덮어쓰지 않는다.
-            if (!_hasInjectedChoices && !TryCopyChoices(_previewChoices)) return;
+            // Inspector 미리보기는 등급 아트 비교를 위해 실버/골드/플래티넘 혼합을 허용한다.
+            if (!_hasInjectedChoices && !TryCopyChoices(_previewChoices, false)) return;
             BindCards();
         }
 
-        private bool TryCopyChoices(IReadOnlyList<AugmentData> choices)
+        private bool TryCopyChoices(IReadOnlyList<AugmentData> choices, bool requireSameTier)
         {
             int tier = 0;
             int count = choices != null ? Mathf.Min(3, choices.Count) : 0;
@@ -61,7 +62,7 @@ namespace OZGL2.UIFlow
                 AugmentData choice = choices[i];
                 if (choice == null) continue;
                 if (tier == 0) tier = choice.tier;
-                else if (tier != choice.tier)
+                else if (requireSameTier && tier != choice.tier)
                 {
                     Debug.LogWarning("증강 선택 후보는 기존 추첨 규칙과 동일하게 같은 등급으로 전달해야 합니다.", this);
                     return false;
