@@ -517,6 +517,17 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
                 continue; // 이미 풀피면 치료 대상 아님
             }
 
+            // 사거리 밖의 다친 아군 때문에 사거리 안의 풀피 판정을 못 하고 헛돌지 않도록, 힐 대상도
+            // 사거리로 거른다 — 범위 안이 전부 풀피면 여기서 아무도 안 걸려서 null 반환(대기 상태로 복귀).
+            if (statData != null)
+            {
+                float distSqr = (unit.transform.position - transform.position).sqrMagnitude;
+                if (distSqr > statData.attackRange * statData.attackRange)
+                {
+                    continue;
+                }
+            }
+
             float ratio = (float)unit.currentHealth / unit.statData.maxHealth;
             if (ratio < lowestRatio)
             {
@@ -531,6 +542,16 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     protected virtual void TickAttack()
     {
         if (currentTarget == null || currentTarget.currentState == UnitState.Dead)
+        {
+            currentTarget = null;
+            SetState(GetPostCombatState());
+            return;
+        }
+
+        // 힐러가 힐 걸던 대상이 그 사이(자기 힐 포함) 풀피가 됐으면 계속 붙잡고 있지 말고 재탐색한다.
+        // (모두 풀피면 FindLowestHealthAlly가 null을 반환해서 그대로 대기 상태로 돌아감 — 낭비 힐 방지)
+        if (statData != null && statData.healAmount > 0f &&
+            currentTarget.statData != null && currentTarget.currentHealth >= currentTarget.statData.maxHealth)
         {
             currentTarget = null;
             SetState(GetPostCombatState());

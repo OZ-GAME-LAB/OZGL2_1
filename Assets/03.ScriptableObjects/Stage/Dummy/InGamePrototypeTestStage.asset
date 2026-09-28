@@ -56,10 +56,10 @@ MonoBehaviour:
     _platinumWeight: 0
   - _roundId: stage_ingame_prototype_test_round_05
     _spawns:
-    - _heroId: H_BOSS_01
-      _count: 1
-      _intervalSeconds: 0
-    _isBossRound: 1
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
     _goldWeight: 0
@@ -106,9 +106,12 @@ MonoBehaviour:
     _platinumWeight: 0
   - _roundId: stage_ingame_prototype_test_round_10
     _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
     - _heroId: H_BOSS_01
       _count: 1
-      _intervalSeconds: 0
+      _intervalSeconds: 1
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -156,10 +159,10 @@ MonoBehaviour:
     _platinumWeight: 0
   - _roundId: stage_ingame_prototype_test_round_15
     _spawns:
-    - _heroId: H_BOSS_01
-      _count: 1
-      _intervalSeconds: 0
-    _isBossRound: 1
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
     _goldWeight: 0
@@ -206,9 +209,12 @@ MonoBehaviour:
     _platinumWeight: 0
   - _roundId: stage_ingame_prototype_test_round_20
     _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
     - _heroId: H_BOSS_01
       _count: 1
-      _intervalSeconds: 0
+      _intervalSeconds: 1
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 0
@@ -256,10 +262,10 @@ MonoBehaviour:
     _platinumWeight: 0
   - _roundId: stage_ingame_prototype_test_round_25
     _spawns:
-    - _heroId: H_BOSS_01
-      _count: 1
-      _intervalSeconds: 0
-    _isBossRound: 1
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
+    _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 0
     _goldWeight: 100
@@ -306,9 +312,12 @@ MonoBehaviour:
     _platinumWeight: 0
   - _roundId: stage_ingame_prototype_test_round_30
     _spawns:
+    - _heroId: H_WAR_01
+      _count: 2
+      _intervalSeconds: 0.5
     - _heroId: H_BOSS_FINAL_01
       _count: 1
-      _intervalSeconds: 0
+      _intervalSeconds: 1
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 0
