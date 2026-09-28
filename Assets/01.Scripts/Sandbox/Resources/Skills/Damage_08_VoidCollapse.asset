@@ -29,6 +29,8 @@ MonoBehaviour:
   force: 7
   lineLength: 6
   zoneMoveSpeed: 4
+  onHitSlowMultiplier: 0
+  onHitSlowSeconds: 2
   onHitDotDamage: 10
   onHitDotSeconds: 3
   onHitDotTick: 0.5
@@ -46,5 +48,10 @@ MonoBehaviour:
   scaleCastVfxToRadius: 0
   vfxIsUi: 1
   fallFromSky: 0
+  visualOffsetY: -2.2
+  visualOffsetX: -0.1
+  vfxScale: 1
+  vfxTint: {r: 1, g: 1, b: 1, a: 1}
+  vfxRecolor: {r: 0, g: 0, b: 0, a: 0}
   flourishVfx: {fileID: 0}
   flourishCount: 0
