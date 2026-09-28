@@ -76,10 +76,18 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     }
 
     // IStatusReceiver (OZGL2.Contracts) — CC 스킬(정지·둔화·넉백·취약) 전용 진입점.
-    void IStatusReceiver.ApplyStun(float seconds) => _stunExpire = Mathf.Max(_stunExpire, Time.time + seconds);
+    // ccResistance(0~1, 보스 등)만큼 기절 지속시간과 둔화 강도를 줄여서 적용한다 — 면역은 아니고 "약하게" 걸림.
+    void IStatusReceiver.ApplyStun(float seconds)
+    {
+        float resistance = statData != null ? statData.ccResistance : 0f;
+        float resistedSeconds = seconds * (1f - resistance);
+        _stunExpire = Mathf.Max(_stunExpire, Time.time + resistedSeconds);
+    }
     void IStatusReceiver.ApplySlow(float multiplier, float seconds)
     {
-        _slowMult = multiplier;
+        float resistance = statData != null ? statData.ccResistance : 0f;
+        // multiplier가 1에 가까울수록 저항으로 상쇄 (예: 50% 감속 x 저항 60% = 20% 감속만 적용)
+        _slowMult = Mathf.Lerp(1f, multiplier, 1f - resistance);
         _slowExpire = Time.time + seconds;
         // 지속 이펙트라 만료될 때까지 붙여두고, 이미 걸려있으면(갱신) 새로 만들지 않고 유지한다.
         if (_slowEffectInstance == null)

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 340054d7b15f5294eb3991ed595a4dc6, type: 3}
+  m_Name: H_BOSS_01
+  m_EditorClassIdentifier:
+  unitId: H_BOSS_01
+  displayName: 중간보스
+  side: 0
+  job: 0
+  maxHealth: 900
+  attackPower: 36
+  attackSpeed: 0.8
+  defensePercent: 0.15
+  attackRange: 1
+  moveSpeed: 0.7
+  healAmount: 0
+  attackAnimationIndex: 0
+  splashRadius: 0
+  splashSecondaryDamagePercent: 1
+  splashMaxTargets: 0
+  ccResistance: 0.5
+  cost: 0
+  killExpReward: 30
+  starLevel: 1

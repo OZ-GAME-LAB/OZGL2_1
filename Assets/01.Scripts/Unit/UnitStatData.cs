@@ -50,6 +50,10 @@ public class UnitStatData : ScriptableObject
     public float splashSecondaryDamagePercent = 1f; // 주 타겟 외 간접 피격 대상에게 적용할 피해 비율(1=전액, 0.5=절반)
     public int splashMaxTargets = 0;     // 간접 피격 최대 인원수(주 타겟 제외). 0 이하면 무제한
 
+    [Header("CC 저항 (0=그대로 적용, 1=완전 면역 — 보스 등 특수 유닛용)")]
+    [Range(0f, 1f)]
+    public float ccResistance = 0f;    // 둔화 강도·기절 지속시간을 이 비율만큼 줄여서 적용
+
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
     public int killExpReward = 0;       // 용사 처치 시 지급 경험치 (성민 파트 연계)
