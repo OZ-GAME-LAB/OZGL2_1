@@ -15,9 +15,9 @@ public static class BattleBottomHudReferenceV3Validation
     {
         "Hud_Backplate",
         "Hud_GoldOrnament",
-        "Panel_CurrentAmount_Frame",
-        "Button_Reroll_Frame",
-        "Button_BattleStart_Frame"
+        "Panel_CurrentAmount",
+        "Button_Reroll",
+        "Button_BattleStart"
     };
     private static readonly string[] LAYER_PATHS =
     {
@@ -44,6 +44,7 @@ public static class BattleBottomHudReferenceV3Validation
         new Vector2(1985.2642f, 1090.811f)
     };
     private const float EPSILON = 0.51f;
+    private const float FLOAT_EPSILON = 0.001f;
 
     [MenuItem("Tools/OZGL2/Battle/Validate Bottom HUD Layered V4")]
     public static void Validate()
@@ -127,6 +128,12 @@ public static class BattleBottomHudReferenceV3Validation
         CheckFloat(serializedHand, "_cardScale", 0.258f);
         CheckFloat(serializedHand, "_bottomPadding", 93f);
         CheckFloat(serializedHand, "_comfortableSpacing", -36f);
+        CheckFloat(serializedHand, "_restingYOffset", -200f);
+        CheckFloat(serializedHand, "_fanArcHeight", 0f);
+        CheckFloat(serializedHand, "_maxFanAngle", 0f);
+        CheckFloat(serializedHand, "_hoverScale", 1.728f);
+        CheckFloat(serializedHand, "_hoverRise", 240f);
+        CheckFloat(serializedHand, "_transitionDuration", 0.15f);
 
         ScrollRect scrollRect = Require<ScrollRect>(hand);
         AssertNotPrefabOverride(scrollRect, "m_Horizontal");
@@ -173,13 +180,14 @@ public static class BattleBottomHudReferenceV3Validation
         Debug.Log(
             "Bottom HUD Layered V4 검증 완료: 검은 배경/금속 장식/기능 프레임 5종, " +
             "1920×1080 정렬, 기본 SDF, " +
-            "기존 버튼 클릭 영역, 동적 손패 튜닝, 계산형 Prefab override 정리가 정상입니다.");
+            "기존 버튼 클릭 영역, 직선형 축약 손패/호버 확장 튜닝, " +
+            "계산형 Prefab override 정리가 정상입니다.");
     }
 
     private static void CheckFloat(SerializedObject serializedObject, string propertyPath, float expected)
     {
         SerializedProperty property = serializedObject.FindProperty(propertyPath);
-        if (property == null || Mathf.Abs(property.floatValue - expected) > EPSILON)
+        if (property == null || Mathf.Abs(property.floatValue - expected) > FLOAT_EPSILON)
             throw new InvalidOperationException(propertyPath + " 값이 " + expected + "와 다릅니다.");
     }
 

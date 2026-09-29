@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace OZGL2.UIFlow
 {
     /// <summary>
-    /// 카드 목록의 논리 순서는 유지하면서 부채꼴 겹침 배치와 호버 비주얼만 관리한다.
+    /// 카드 목록의 논리 순서는 유지하면서 수평 겹침 배치와 선택적 부채꼴/호버 비주얼만 관리한다.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ScrollRect))]
@@ -30,8 +30,9 @@ namespace OZGL2.UIFlow
         [SerializeField] private float _comfortableSpacing = -60f;
         [SerializeField, Min(1f)] private float _minimumRevealWidth = 56f;
         [SerializeField, Min(0f)] private float _bottomPadding = 24f;
+        [SerializeField] private float _restingYOffset;
 
-        [Header("부채꼴 배치")]
+        [Header("선택적 부채꼴 배치")]
         [SerializeField, Min(0f)] private float _fanArcHeight = 32f;
         [SerializeField, Range(0f, 30f)] private float _maxFanAngle = 8f;
 
@@ -510,8 +511,12 @@ namespace OZGL2.UIFlow
 
                 _content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, contentWidth);
                 float viewportHeight = Mathf.Max(0f, _viewport.rect.height);
-                float requiredHeight = _bottomPadding * 2f + _hoverRise +
-                    _fanArcHeight + _cardSize.y * 0.5f * (1f + _hoverScale);
+                float cardHalfHeight = _cardSize.y * 0.5f;
+                float baseY = _bottomPadding + cardHalfHeight + _restingYOffset;
+                float highestSlotY = baseY + _fanArcHeight;
+                float requiredHeight = Mathf.Max(
+                    0f,
+                    highestSlotY + _hoverRise + cardHalfHeight * _hoverScale + _bottomPadding);
                 _content.SetSizeWithCurrentAnchors(
                     RectTransform.Axis.Vertical,
                     Mathf.Max(viewportHeight, requiredHeight));
@@ -524,7 +529,6 @@ namespace OZGL2.UIFlow
                         this);
                 }
 
-                float baseY = _bottomPadding + _cardSize.y * 0.5f;
                 bool animate = !immediate && Application.isPlaying && isActiveAndEnabled;
                 for (int i = 0; i < _slots.Count; i++)
                 {

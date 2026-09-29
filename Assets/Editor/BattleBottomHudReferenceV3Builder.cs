@@ -35,6 +35,12 @@ public static class BattleBottomHudReferenceV3Builder
     private const float CARD_SCALE = 0.258f;
     private const float CARD_BOTTOM_PADDING = 93f;
     private const float CARD_COMFORTABLE_SPACING = -36f;
+    private const float CARD_RESTING_Y_OFFSET = -200f;
+    private const float CARD_FAN_ARC_HEIGHT = 0f;
+    private const float CARD_MAX_FAN_ANGLE = 0f;
+    private const float CARD_HOVER_SCALE = 1.728f;
+    private const float CARD_HOVER_RISE = 240f;
+    private const float CARD_TRANSITION_DURATION = 0.15f;
 
     private static readonly Color TRANSPARENT = new Color(1f, 1f, 1f, 0f);
     private static readonly Color LABEL_COLOR = new Color32(247, 243, 232, 255);
@@ -159,13 +165,13 @@ public static class BattleBottomHudReferenceV3Builder
         Image backplateImage = ApplyFullScreenLayer(layers, "Hud_Backplate", hudBackplate, 0);
         Image ornamentImage = ApplyFullScreenLayer(layers, "Hud_GoldOrnament", hudOrnament, 1);
         Image currentFrameImage = ApplyFittedLayer(
-            layers, "Panel_CurrentAmount_Frame", currentAmountFrame, 2,
+            layers, "Panel_CurrentAmount", currentAmountFrame, 2,
             new Rect(17f, 35f, 271f, 321f), new Rect(48f, 71f, 254f, 279f));
         Image rerollFrameImage = ApplyFittedLayer(
-            layers, "Button_Reroll_Frame", rerollFrame, 3,
+            layers, "Button_Reroll", rerollFrame, 3,
             new Rect(207f, 68f, 278f, 285f), new Rect(238f, 73f, 228f, 234f));
         Image battleFrameImage = ApplyFittedLayer(
-            layers, "Button_BattleStart_Frame", battleStartFrame, 4,
+            layers, "Button_BattleStart", battleStartFrame, 4,
             new Rect(1201f, 45f, 443f, 201f), new Rect(1347f, 71f, 526f, 233f));
 
         Canvas canvas = Require<Canvas>(background);
@@ -336,6 +342,12 @@ public static class BattleBottomHudReferenceV3Builder
         SetFloat(serializedView, "_cardScale", CARD_SCALE);
         SetFloat(serializedView, "_bottomPadding", CARD_BOTTOM_PADDING);
         SetFloat(serializedView, "_comfortableSpacing", CARD_COMFORTABLE_SPACING);
+        SetFloat(serializedView, "_restingYOffset", CARD_RESTING_Y_OFFSET);
+        SetFloat(serializedView, "_fanArcHeight", CARD_FAN_ARC_HEIGHT);
+        SetFloat(serializedView, "_maxFanAngle", CARD_MAX_FAN_ANGLE);
+        SetFloat(serializedView, "_hoverScale", CARD_HOVER_SCALE);
+        SetFloat(serializedView, "_hoverRise", CARD_HOVER_RISE);
+        SetFloat(serializedView, "_transitionDuration", CARD_TRANSITION_DURATION);
         serializedView.ApplyModifiedProperties();
 
         RecordPrefabOverride(hand);
@@ -367,6 +379,12 @@ public static class BattleBottomHudReferenceV3Builder
         SetFloat(serializedView, "_cardScale", CARD_SCALE);
         SetFloat(serializedView, "_bottomPadding", CARD_BOTTOM_PADDING);
         SetFloat(serializedView, "_comfortableSpacing", CARD_COMFORTABLE_SPACING);
+        SetFloat(serializedView, "_restingYOffset", CARD_RESTING_Y_OFFSET);
+        SetFloat(serializedView, "_fanArcHeight", CARD_FAN_ARC_HEIGHT);
+        SetFloat(serializedView, "_maxFanAngle", CARD_MAX_FAN_ANGLE);
+        SetFloat(serializedView, "_hoverScale", CARD_HOVER_SCALE);
+        SetFloat(serializedView, "_hoverRise", CARD_HOVER_RISE);
+        SetFloat(serializedView, "_transitionDuration", CARD_TRANSITION_DURATION);
         serializedView.ApplyModifiedProperties();
         RecordPrefabOverride(handView);
     }
