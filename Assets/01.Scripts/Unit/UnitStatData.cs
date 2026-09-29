@@ -69,14 +69,15 @@ public class UnitStatData : ScriptableObject
     [Header("합성 (5.2절 — Day3에서 사용)")]
     [Range(1, 3)]
     public int starLevel = 1;
-    // 성급별 배율: 1성 x1.0 / 2성 x2.1 / 3성 x4.5 (기획서 5.2절 확정 수치)
+    // 성급별 배율: 1성 x1.0 / 2성 x1.7 / 3성 x3.2 — 밸런스 테스트에서 2성(x2.1)이 너무 세다는 피드백으로 하향(2026-09-29, 성민).
+    // 예전 기획서 5.2절 값은 2.1 / 4.5. 밸런스 시트 04.성급배율과 같이 맞춰 둘 것.
     public static float GetStarMultiplier(int star)
     {
         switch (star)
         {
             case 1: return 1.0f;
-            case 2: return 2.1f;
-            case 3: return 4.5f;
+            case 2: return 1.7f;
+            case 3: return 3.2f;
             default: return 1.0f;
         }
     }
