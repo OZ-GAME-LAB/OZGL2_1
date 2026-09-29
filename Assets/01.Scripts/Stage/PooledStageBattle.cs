@@ -134,6 +134,11 @@ namespace OZGL2.Stage
                     token.ThrowIfCancellationRequested();
                     var lease = _pool.Rent(entry.HeroId, _spawnPositions[spawnIndex], _deathHandler, _returnHandler, _faultHandler);
                     spawnIndex = (spawnIndex + 1) % _spawnPositions.Length;
+                    if (round.HpMultiplier != 1f || round.AttackMultiplier != 1f)
+                    {
+                        var unit = lease.Hero.GetComponent<UnitBase>();
+                        if (unit != null) unit.ApplyRoundDifficultyMultiplier(round.HpMultiplier, round.AttackMultiplier);
+                    }
                     _leased.Add(lease.LeaseId, lease);
                     _alive.Add(lease.LeaseId, lease);
                     _experience.Add(lease.LeaseId, _pool.GetExperience(entry.HeroId));

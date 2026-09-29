@@ -18,7 +18,7 @@ MonoBehaviour:
   job: 3
   maxHealth: 50
   attackPower: 20
-  attackSpeed: 0.5
+  attackSpeed: 0.35
   defensePercent: 0.03
   attackRange: 3
   moveSpeed: 0.8

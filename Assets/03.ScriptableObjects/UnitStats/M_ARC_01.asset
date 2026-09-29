@@ -21,6 +21,7 @@ MonoBehaviour:
   attackSpeed: 1.3
   defensePercent: 0.05
   attackRange: 3.5
+  rangeBonusPerStar: 1
   moveSpeed: 0
   healAmount: 0
   attackAnimationIndex: 2
@@ -29,3 +30,5 @@ MonoBehaviour:
   cost: 1
   killExpReward: 0
   starLevel: 1
+  targetLowestHealthEnemy: 1
+  executeDamageBonusPerMissingHealth: 0.5

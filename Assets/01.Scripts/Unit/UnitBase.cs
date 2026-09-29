@@ -33,6 +33,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     [Header("전투 (Day2)")]
     public UnitBase currentTarget;
     protected float attackCooldownTimer;
+    private int _attackCount; // 도적 콤보 스턴(N번째 공격마다) 판정용 — statData.comboStunAttackInterval
 
     // 원거리 유닛의 발사체가 몸 안쪽이 아니라 무기(활 등) 위치에서 나가도록 지정하는 자식 트랜스폼.
     // 프리팹마다(팩마다) 리그 구조가 달라서 자동 탐색 대신 인스펙터에서 직접 지정한다.
@@ -448,9 +449,74 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     {
         if (statData != null && statData.healAmount > 0f)
         {
+            // 적이 전멸하면(전투 종료) 더 이상 치료하지 않고 대기 상태로 돌아간다.
+            if (!HasLivingEnemies())
+            {
+                return null;
+            }
             return FindLowestHealthAlly();
         }
+        if (statData != null && statData.targetLowestHealthEnemy)
+        {
+            return FindLowestHealthEnemy();
+        }
         return FindNearestEnemy();
+    }
+
+    /// <summary>반대 진영에 살아있는 유닛이 하나라도 있는지(전투 종료 판정용).</summary>
+    protected bool HasLivingEnemies()
+    {
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var candidates = UnitRegistry.GetUnits(enemySide);
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit != null && unit.currentState != UnitState.Dead)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 궁수·도적 기믹: 최근접 대신 사거리 안에서 체력이 가장 낮은 적을 우선 타겟한다(마무리에 특화).
+    /// FindLowestHealthAlly와 마찬가지로 사거리 밖 후보는 걸러서, 범위 밖 저체력 적 때문에 범위 안
+    /// 다른 적을 못 때리는 일이 없게 한다.
+    /// </summary>
+    protected virtual UnitBase FindLowestHealthEnemy()
+    {
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var candidates = UnitRegistry.GetUnits(enemySide);
+
+        UnitBase lowest = null;
+        int lowestHealth = int.MaxValue;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            if (statData != null)
+            {
+                float distSqr = (unit.transform.position - transform.position).sqrMagnitude;
+                if (distSqr > statData.attackRange * statData.attackRange)
+                {
+                    continue;
+                }
+            }
+
+            if (unit.currentHealth < lowestHealth)
+            {
+                lowestHealth = unit.currentHealth;
+                lowest = unit;
+            }
+        }
+
+        return lowest;
     }
 
     /// <summary>
@@ -496,7 +562,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         return tauntPick != null ? tauntPick : nearest;
     }
 
-    /// <summary>같은 진영에서 체력 비율이 가장 낮은(그리고 풀피가 아닌) 아군을 찾는다.</summary>
+    /// <summary>같은 진영에서 체력 비율이 가장 낮은(그리고 풀피가 아닌) 아군을 찾는다. 자기 자신도 후보에 포함된다.</summary>
     protected virtual UnitBase FindLowestHealthAlly()
     {
         var candidates = UnitRegistry.GetUnits(Side);
@@ -507,7 +573,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         for (int i = 0; i < candidates.Count; i++)
         {
             UnitBase unit = candidates[i];
-            if (unit == null || unit == this || unit.currentState == UnitState.Dead || unit.statData == null)
+            if (unit == null || unit.currentState == UnitState.Dead || unit.statData == null)
             {
                 continue;
             }
@@ -548,10 +614,11 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
-        // 힐러가 힐 걸던 대상이 그 사이(자기 힐 포함) 풀피가 됐으면 계속 붙잡고 있지 말고 재탐색한다.
-        // (모두 풀피면 FindLowestHealthAlly가 null을 반환해서 그대로 대기 상태로 돌아감 — 낭비 힐 방지)
+        // 힐러가 힐 걸던 대상이 그 사이(자기 힐 포함) 풀피가 됐거나, 힐 도중 적이 전멸해 전투가
+        // 끝났으면 계속 붙잡고 있지 말고 대기 상태로 돌아간다(낭비 힐 방지).
         if (statData != null && statData.healAmount > 0f &&
-            currentTarget.statData != null && currentTarget.currentHealth >= currentTarget.statData.maxHealth)
+            ((currentTarget.statData != null && currentTarget.currentHealth >= currentTarget.statData.maxHealth)
+             || !HasLivingEnemies()))
         {
             currentTarget = null;
             SetState(GetPostCombatState());
@@ -667,7 +734,25 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         float targetDefense = (target.statData != null ? target.statData.defensePercent : 0f) * target.EffectiveBuffDefenseMult
                               + CombatModifierHub.GetDefenseAdd(target.Side); // 증강(냉기 침식) 방어율 가감, 기본 0
         float attackMult = CombatModifierHub.GetAttackMult(statData.job, statData.side);
-        int damage = CalculateDamage(statData.attackPower * attackMult * EffectiveBuffAttackMult, targetDefense);
+        float rawAttackPower = statData.attackPower * attackMult * EffectiveBuffAttackMult;
+
+        // 궁수 기믹(성급 2 이상): 대상이 잃은 체력 비율만큼 추가 피해 — 마무리 일격이 더 세진다.
+        if (statData.starLevel >= 2 && statData.executeDamageBonusPerMissingHealth > 0f &&
+            target.statData != null && target.statData.maxHealth > 0)
+        {
+            float missingRatio = 1f - (float)target.currentHealth / target.statData.maxHealth;
+            rawAttackPower *= 1f + statData.executeDamageBonusPerMissingHealth * Mathf.Clamp01(missingRatio);
+        }
+
+        int damage = CalculateDamage(rawAttackPower, targetDefense);
+
+        // 도적 기믹(성급 2 이상): N번째 공격마다 대상 기절.
+        _attackCount++;
+        if (statData.starLevel >= 2 && statData.comboStunAttackInterval > 0 &&
+            _attackCount % statData.comboStunAttackInterval == 0)
+        {
+            ((IStatusReceiver)target).ApplyStun(statData.comboStunDuration);
+        }
 
         if (statData.projectilePrefab != null)
         {
@@ -884,7 +969,35 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         statData.maxHealth = Mathf.RoundToInt(baseStatData.maxHealth * multiplier);
         statData.attackPower = baseStatData.attackPower * multiplier;
         statData.healAmount = baseStatData.healAmount * multiplier;
+        statData.attackRange = baseStatData.attackRange + baseStatData.rangeBonusPerStar * (newStar - 1);
 
         currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side)); // 합성 시 풀피로 시작
+    }
+
+    /// <summary>
+    /// 밸런스 시트(05.보통_라운드)의 라운드별 HP/공격력 배율(1.068^(R-1), 1.045^(R-1))을 적용한다.
+    /// PooledStageBattle이 용사(적) 스폰 직후 호출 — 마왕군(그리드 합성) 쪽은 ApplyStarLevel로 별도 관리되므로 대상이 아니다.
+    /// </summary>
+    public virtual void ApplyRoundDifficultyMultiplier(float hpMultiplier, float attackMultiplier)
+    {
+        if (statData == null)
+        {
+            return;
+        }
+
+        if (baseStatData == null)
+        {
+            baseStatData = statData; // 원본(1라운드 기준값) 기억, 최초 1회만
+        }
+
+        if (statData == baseStatData)
+        {
+            statData = Instantiate(baseStatData); // 이 유닛 전용 복제본으로 교체 — 원본 에셋은 보호됨
+        }
+
+        statData.maxHealth = Mathf.RoundToInt(baseStatData.maxHealth * hpMultiplier);
+        statData.attackPower = baseStatData.attackPower * attackMultiplier;
+
+        currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side)); // 스폰 시 풀피로 시작
     }
 }

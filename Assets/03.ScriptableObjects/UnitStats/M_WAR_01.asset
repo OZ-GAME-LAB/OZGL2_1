@@ -24,6 +24,7 @@ MonoBehaviour:
   moveSpeed: 0
   healAmount: 0
   splashRadius: 1.5
+  splashMaxTargets: 3
   cost: 1
   killExpReward: 0
   starLevel: 1

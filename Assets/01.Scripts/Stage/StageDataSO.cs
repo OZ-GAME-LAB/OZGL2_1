@@ -14,10 +14,11 @@ namespace OZGL2.Stage
         {
             if (_rounds == null) throw new InvalidOperationException("Round list is missing.");
             var rounds = new List<RoundDefinition>(_rounds.Count);
-            foreach (var round in _rounds)
+            for (int i = 0; i < _rounds.Count; i++)
             {
+                var round = _rounds[i];
                 if (round == null) throw new InvalidOperationException("Round entry is missing.");
-                rounds.Add(round.CreateSnapshot());
+                rounds.Add(round.CreateSnapshot(i + 1));
             }
             return new StageDefinition(_stageId, rounds);
         }
