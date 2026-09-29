@@ -65,6 +65,68 @@ namespace OZGL2.Sandbox
             return clicked;
         }
 
+        /// <summary>
+        /// 트리용 다이아몬드 노드. DrawDiamondNode와 달리 라벨을 노드 폭 안에 작게 그리고(뒤에 패널색 배경을 깔아
+        /// 지나가는 연결선이 글자를 가리지 않게), 좌클릭=1 · 우클릭=2 · 없음=0 을 돌려준다.
+        /// 잠김=어두운 색, 만렙(또는 강조)=금색 테두리. hover 는 마우스가 노드 위에 있는지.
+        /// clickableWhenLocked=true 면 잠긴 노드도 클릭을 돌려준다(스킬처럼 잠겨 있어도 눌러서 설명을 봐야 할 때).
+        /// </summary>
+        public static int DrawTreeNode(Rect rect, Color fill, bool locked, bool maxed, string title, string sub, out bool hover, bool clickableWhenLocked = false)
+        {
+            var e = Event.current;
+            hover = rect.Contains(e.mousePosition);
+
+            var prev = GUI.matrix;
+            GUIUtility.RotateAroundPivot(45f, rect.center);
+            var border = new Rect(rect.x - 3f, rect.y - 3f, rect.width + 6f, rect.height + 6f);
+            GUI.DrawTexture(border, SolidTex(maxed ? new Color(1f, 0.85f, 0.35f) : hover ? new Color(1f, 1f, 1f, 0.9f) : new Color(0.02f, 0.02f, 0.04f)));
+            GUI.DrawTexture(rect, SolidTex(locked ? new Color(0.14f, 0.09f, 0.09f) : fill));
+            GUI.matrix = prev;
+
+            int click = 0;
+            if ((!locked || clickableWhenLocked) && hover && e.type == EventType.MouseDown)
+            {
+                click = e.button == 1 ? 2 : 1;
+                e.Use();
+            }
+            // 잠긴 노드도 우클릭(환급)은 의미 없으니 무시하지만, 좌/우 어느 쪽이든 hover 는 상세 표시에 쓴다.
+
+            float labelW = 76f;
+            var titleRect = new Rect(rect.center.x - labelW / 2f, rect.center.y + 24f, labelW, 16f);
+            var subRect = new Rect(rect.center.x - labelW / 2f, rect.center.y + 39f, labelW, 14f);
+            var bg = SolidTex(new Color(0.08f, 0.09f, 0.14f, 1f));
+            GUI.DrawTexture(new Rect(titleRect.x, titleRect.y, labelW, 30f), bg);
+            GUI.Label(titleRect, title, TreeLabel);
+            if (!string.IsNullOrEmpty(sub)) GUI.Label(subRect, sub, DiamondSub);
+            return click;
+        }
+
+        private static GUIStyle _categoryLabel;
+        /// <summary>색 띠 위에 올리는 굵은 흰 글씨(카테고리 이름표용, 가운데 정렬).</summary>
+        public static GUIStyle CategoryLabel
+        {
+            get
+            {
+                if (_categoryLabel != null) return _categoryLabel;
+                _categoryLabel = BuildLabel(16, FontStyle.Bold, Color.white);
+                _categoryLabel.alignment = TextAnchor.MiddleCenter;
+                return _categoryLabel;
+            }
+        }
+
+        private static GUIStyle _treeLabel;
+        private static GUIStyle TreeLabel
+        {
+            get
+            {
+                if (_treeLabel != null) return _treeLabel;
+                _treeLabel = CenterLabel(11, FontStyle.Bold, Color.white);
+                _treeLabel.wordWrap = false;
+                _treeLabel.clipping = TextClipping.Clip;
+                return _treeLabel;
+            }
+        }
+
         /// <summary>두 점을 잇는 얇은 직선 — 트리 노드 사이 연결선용.</summary>
         public static void DrawLine(Vector2 a, Vector2 b, Color color, float thickness = 2f)
         {
