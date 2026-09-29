@@ -26,3 +26,6 @@ MonoBehaviour:
   cost: 1
   killExpReward: 0
   starLevel: 1
+  targetLowestHealthEnemy: 1
+  comboStunAttackInterval: 3
+  comboStunDuration: 1

@@ -10,23 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 340054d7b15f5294eb3991ed595a4dc6, type: 3}
-  m_Name: H_ARC_01
-  m_EditorClassIdentifier: 
-  unitId: H_ARC_01
-  displayName: 궁수
+  m_Name: H_BOSS_02
+  m_EditorClassIdentifier:
+  unitId: H_BOSS_02
+  displayName: 중간보스(20라운드)
   side: 0
-  job: 2
-  maxHealth: 45
-  attackPower: 14
-  attackSpeed: 1.2
-  defensePercent: 0.05
-  attackRange: 3
-  rangeBonusPerStar: 1
-  moveSpeed: 0.9
+  job: 0
+  maxHealth: 1400
+  attackPower: 44
+  attackSpeed: 0.85
+  defensePercent: 0.18
+  attackRange: 1
+  moveSpeed: 0.65
   healAmount: 0
-  attackAnimationIndex: 2
-  projectilePrefab: {fileID: 7992221689482300768, guid: ec7caf7d4af6ac345844392c2acddd38, type: 3}
-  projectileSpeed: 8
+  attackAnimationIndex: 0
+  splashRadius: 0
+  splashSecondaryDamagePercent: 1
+  splashMaxTargets: 0
+  ccResistance: 0.55
   cost: 0
-  killExpReward: 4
+  killExpReward: 45
   starLevel: 1

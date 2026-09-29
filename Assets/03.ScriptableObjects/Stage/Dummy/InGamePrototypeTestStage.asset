@@ -37,7 +37,7 @@ MonoBehaviour:
   - _roundId: stage_ingame_prototype_test_round_03
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 1
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -47,7 +47,7 @@ MonoBehaviour:
   - _roundId: stage_ingame_prototype_test_round_04
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 1
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -57,7 +57,7 @@ MonoBehaviour:
   - _roundId: stage_ingame_prototype_test_round_05
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 1
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -212,7 +212,7 @@ MonoBehaviour:
     - _heroId: H_WAR_01
       _count: 2
       _intervalSeconds: 0.5
-    - _heroId: H_BOSS_01
+    - _heroId: H_BOSS_02
       _count: 1
       _intervalSeconds: 1
     _isBossRound: 1
