@@ -69,6 +69,9 @@ namespace OZGL2.UIFlow
 
         private void OnEnable()
         {
+            // Edit Mode에서 레이아웃 계산값을 Scene/Prefab override로 굳히지 않는다.
+            if (!Application.isPlaying) return;
+
             EnsureInitialized();
             for (int i = 0; i < _slots.Count; i++)
                 if (_slots[i] != null) _slots[i].SetInteractable(_isInteractable);
@@ -77,6 +80,8 @@ namespace OZGL2.UIFlow
 
         private void OnDisable()
         {
+            if (!Application.isPlaying) return;
+
             _hoveredSlot = null;
             for (int i = 0; i < _slots.Count; i++)
             {
@@ -112,8 +117,8 @@ namespace OZGL2.UIFlow
 
         private void OnRectTransformDimensionsChange()
         {
-            if (!_isInitialized || _isApplyingLayout) return;
-            RefreshLayoutInternal(!Application.isPlaying || !isActiveAndEnabled);
+            if (!Application.isPlaying || !_isInitialized || _isApplyingLayout) return;
+            RefreshLayoutInternal(!isActiveAndEnabled);
         }
 
         public void SetItems(IReadOnlyList<BattleHandCardDisplayData> items)
