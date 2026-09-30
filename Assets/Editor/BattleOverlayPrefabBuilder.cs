@@ -6,6 +6,7 @@ using OZGL2.Augment;
 using OZGL2.UIFlow;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -55,7 +56,13 @@ public static class BattleOverlayPrefabBuilder
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(LOBBY_SCENE) == null)
             throw new InvalidOperationException("프리뷰 로비 이동 경로가 유효하지 않습니다: " + LOBBY_SCENE);
         Require<Font>(FONT_SOURCE);
-        var choices = new[] { LoadAugment("skill_damage"), LoadAugment("mon_hp"), LoadAugment("mon_speed") };
+        // 미리보기는 등급 아트를 한눈에 비교할 수 있도록 실버/골드/플래티넘 순서로 구성한다.
+        var choices = new[]
+        {
+            LoadAugment("skill_damage"),
+            LoadAugment("skill_cooldown_g"),
+            LoadAugment("skill_capstone")
+        };
 
         EnsureFolder(ROOT + "/Prefabs");
         EnsureFolder(ROOT + "/Fonts");
@@ -205,6 +212,9 @@ public static class BattleOverlayPrefabBuilder
         Image velvet = Picture(rect, "VelvetBackground", Art("Augment/Separated/VelvetBackground_Silver"), 0, 0, 600, 1100);
         Image panel = Picture(rect, "DescriptionPanel", Art("Augment/Separated/DescriptionPanel_Silver"), 0, 0, 600, 1100);
         Image crest = Picture(rect, "Crest", Art("Augment/Crest_Silver"), 0, 420, 512, 512);
+        Image iconBackground = Picture(crest.transform, "IconBackground", null, 0, 36, 128, 128,
+            new Color32(27, 4, 8, 238));
+        iconBackground.rectTransform.localEulerAngles = new Vector3(0, 0, 45);
         Image icon = Picture(crest.transform, "Icon", catalog.GetIcon(choice.augmentId), 0, 36, 140, 140);
         TMP_Text grade = Label(crest.transform, "Grade", "실버", 0, -122, 156, 36, 28);
         TMP_Text name = Label(rect, "Name", choice.displayName, 0, 170, 340, 78, 48);
@@ -223,10 +233,11 @@ public static class BattleOverlayPrefabBuilder
     private static GameObject BuildAugmentSelection(Scene scene, UIAugmentVisualCatalogSO catalog, AugmentData[] choices)
     {
         GameObject root = BeginCanvas(scene, "Canvas_AugmentSelection", out RectTransform content, out UIPopupPanel panel);
-        Image title = Picture(content, "TitlePlate", Art("Augment/Augment_TitlePlate"), 0, 385, 760, 237.5f);
+        GameObject backgroundShade = root.transform.Find("BackgroundShade").gameObject;
+        Image title = Picture(content, "TitlePlate", Art("Augment/Augment_TitlePlate"), 0, 421.25f, 760, 237.5f);
         Label(title.transform, "Text", "레 벨 업", 0, -8, 500, 100, 68);
-        Label(content, "Instruction", "증강 하나를 선택하세요", 0, 258, 800, 54, 32);
-        RectTransform row = Group(content, "Cards", 0, -174, 1380, 660);
+        Label(content, "Instruction", "증강 하나를 선택하세요", 0, 298, 800, 54, 32);
+        RectTransform row = Group(content, "Cards", 0, -119, 1380, 660);
         var cards = new UIAugmentCardView[3];
         for (int i = 0; i < cards.Length; i++)
         {
@@ -242,6 +253,30 @@ public static class BattleOverlayPrefabBuilder
                 if (c != null) PrefabUtility.RecordPrefabInstancePropertyModifications(c);
             PrefabUtility.RecordPrefabInstancePropertyModifications(go);
         }
+
+        Button viewBattlefieldButton = BuildAugmentViewToggleButton(content, "ViewBattlefieldButton", "전장 보기");
+        RectTransform battlefieldViewState = Group(root.transform, "BattlefieldViewState", 0, 0, 1920, 1080);
+        Stretch(battlefieldViewState);
+        Image inputBlocker = battlefieldViewState.gameObject.AddComponent<Image>();
+        inputBlocker.color = Color.clear;
+        inputBlocker.raycastTarget = true;
+        Button showSelectionButton = BuildAugmentViewToggleButton(battlefieldViewState, "ShowSelectionButton", "선택창 보기");
+        Navigation showSelectionNavigation = showSelectionButton.navigation;
+        showSelectionNavigation.mode = Navigation.Mode.None;
+        showSelectionButton.navigation = showSelectionNavigation;
+
+        // 전장 확인은 선택 완료와 무관한 표시 상태 전환이다. 호출 중인 버튼은 모든 이벤트가 끝난 뒤 숨긴다.
+        UnityEventTools.AddBoolPersistentListener(viewBattlefieldButton.onClick, battlefieldViewState.gameObject.SetActive, true);
+        UnityEventTools.AddPersistentListener(viewBattlefieldButton.onClick, showSelectionButton.Select);
+        UnityEventTools.AddBoolPersistentListener(viewBattlefieldButton.onClick, backgroundShade.SetActive, false);
+        UnityEventTools.AddBoolPersistentListener(viewBattlefieldButton.onClick, content.gameObject.SetActive, false);
+
+        UnityEventTools.AddBoolPersistentListener(showSelectionButton.onClick, backgroundShade.SetActive, true);
+        UnityEventTools.AddBoolPersistentListener(showSelectionButton.onClick, content.gameObject.SetActive, true);
+        UnityEventTools.AddPersistentListener(showSelectionButton.onClick, cards[0].Button.Select);
+        UnityEventTools.AddBoolPersistentListener(showSelectionButton.onClick, battlefieldViewState.gameObject.SetActive, false);
+        battlefieldViewState.gameObject.SetActive(false);
+
         var view = root.AddComponent<UIAugmentSelectionView>();
         view.Configure(panel, cards, catalog, choices);
         SetFirstSelected(panel, cards[0].Button);
@@ -270,12 +305,12 @@ public static class BattleOverlayPrefabBuilder
     {
         var catalog = ScriptableObject.CreateInstance<UIAugmentVisualCatalogSO>();
         var tiers = new UIAugmentVisualCatalogSO.TierVisual[3];
-        string[] names = { "Silver", "Gold", "Platinum" };
+        string[] artNames = { "Silver", "Gold", "Platinum_Blue" };
         Color[] colors = { IVORY, GOLD, new Color32(206, 233, 238, 255) };
         float[] labels = { -122, -128, -110 };
         for (int i = 0; i < 3; i++) tiers[i] = new UIAugmentVisualCatalogSO.TierVisual(i + 1,
-            Art("Augment/Separated/VelvetBackground_" + names[i]), Art("Augment/Separated/DescriptionPanel_" + names[i]),
-            Art("Augment/Crest_" + names[i]), colors[i], labels[i]);
+            Art("Augment/Separated/VelvetBackground_" + artNames[i]), Art("Augment/Separated/DescriptionPanel_" + artNames[i]),
+            Art("Augment/Crest_" + artNames[i]), colors[i], labels[i]);
         Sprite sword = Require<Sprite>("Assets/06.UI/BattleMutedPreview/Cards_v1/Sprites/Icon_Type_Unit_Diamond_v2.png");
         var icons = new[] { new UIAugmentVisualCatalogSO.IconEntry("mon_hp", Require<Sprite>(SPRITES + "Icon_BoneShield.png")) };
         catalog.Configure(tiers, icons, sword);
@@ -291,7 +326,7 @@ public static class BattleOverlayPrefabBuilder
             2048, 2048, AtlasPopulationMode.Dynamic, true);
         if (font == null) throw new InvalidOperationException("전용 TMP 폰트를 만들지 못했습니다.");
         font.name = "BattleOverlay Pixel";
-        string text = "승리패배전투보통난이도클리어생존플레이시간처치용사수유닛배개명얻은경험레벨업로비증강하나를선택하세요실버골드플래티넘런한정즉시효과LV.EXP0123456789 +%:-/!";
+        string text = "승리패배전투보통난이도클리어생존플레이시간처치용사수유닛배개명얻은경험레벨업로비증강하나를선택하세요실버골드플래티넘런한정즉시효과전장보기선택창보기LV.EXP0123456789 +%:-/!";
         foreach (string guid in AssetDatabase.FindAssets("t:AugmentData"))
         {
             var data = Require<AugmentData>(AssetDatabase.GUIDToAssetPath(guid));
@@ -300,7 +335,7 @@ public static class BattleOverlayPrefabBuilder
         text = new string(text.Where(c => !char.IsControl(c)).Distinct().ToArray());
         if (!font.TryAddCharacters(text, out string missing) && !string.IsNullOrEmpty(missing))
         {
-            // 명조 도트 원본에 없는 수학 기호만 전용 SDF 폰트로 보완한다.
+            // 명조 도트 원본에 없는 기호만 전용 SDF 폰트로 보완해 본문 글꼴이 섞이지 않게 한다.
             string fallbackPath = ROOT + "/Fonts/BattleOverlay Symbols SDF.asset";
             TMP_FontAsset fallback = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fallbackPath);
             bool isNewFallback = fallback == null;
@@ -411,6 +446,16 @@ public static class BattleOverlayPrefabBuilder
         ColorBlock colors = button.colors; colors.normalColor = Color.white;
         colors.highlightedColor = new Color(1.18f, 1.12f, 1.06f, 1); colors.selectedColor = colors.highlightedColor;
         colors.pressedColor = new Color(.72f, .67f, .63f, 1); colors.fadeDuration = .1f; button.colors = colors;
+    }
+    private static Button BuildAugmentViewToggleButton(Transform parent, string name, string text)
+    {
+        Image art = Picture(parent, name, Art("Augment/Augment_ViewToggleButton"), 0, -490, 280, 90);
+        Button button = art.gameObject.AddComponent<Button>();
+        SetButton(button, art);
+        TMP_Text label = Label(art.transform, "Text", text, 0, 0, 240, 44, 28);
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.overflowMode = TextOverflowModes.Overflow;
+        return button;
     }
     private static void SetFirstSelected(UIPopupPanel panel, Button button)
     {

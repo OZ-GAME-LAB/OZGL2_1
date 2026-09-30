@@ -70,10 +70,11 @@
 | --- | --- | --- | --- |
 | 1 | 실버 | Silver | -122 |
 | 2 | 골드 | Gold | -128 |
-| 3 | 플래티넘 | Platinum | -110 |
+| 3 | 플래티넘 | Platinum_Blue | -110 |
 
 - Tier 값으로 항목을 찾으므로 배열 인덱스 자체가 등급 판정 기준은 아니다.
 - 각 항목에서 `Velvet Background`, `Description Panel`, `Crest`, `Grade Color`, `Grade Label Y`를 편집한다.
+- 플래티넘은 `*_Platinum_Blue.png` 3종을 사용해 실버와 구분되는 짙은 남청·청록 금속과 시안 하이라이트를 유지한다.
 - `Icons`의 `Augment Id`는 `AugmentData.augmentId`와 정확하게 일치시킨다. 일치하는 유효 Sprite가 없으면 `Default Icon`을 사용한다.
 - 기본 아이콘은 기존 카드의 굵은 흰색 검 `Cards_v1/Sprites/Icon_Type_Unit_Diamond_v2.png`를 재사용한다.
 - `mon_hp`는 기존 `Sprites/Icon_BoneShield.png`에 별도 매핑했다. 아이콘 색상은 흰색을 유지한다.
@@ -86,6 +87,7 @@
 - `DescriptionPanel`: 검정 설명 배경과 내부 테두리
 - 두 Image는 동일한 600×1100 영역·중심에 겹쳐 놓는다. 결합 이미지 `Augment_Body_*`는 보존하지만 이 프리팹에서는 사용하지 않는다.
 - `Crest`: 별도 문장 프레임. 기준 원본은 512×512이며 아이콘과 등급 문구는 직접 자식이다.
+- `Crest/IconBackground`: 세 등급 공통의 128×128 어두운 와인색 배경. 문장 중심 Y +36에서 45° 회전하며 아이콘보다 먼저 렌더링하고 입력은 받지 않는다.
 - `Crest/Icon`: 원본 중심 기준 Y +36. 문장의 현재 높이에 비례하여 정렬한다.
 - `Crest/Grade`: 카탈로그의 등급별 `Grade Label Y`를 같은 방식으로 적용한다.
 - `Name`, `Description`, `Effect`: TMP. Bind는 이 세 오브젝트의 위치나 글꼴 크기를 강제로 바꾸지 않는다.
@@ -101,19 +103,27 @@
 - 미리보기로 복귀: `UsePreviewChoices()`
 - 표시 다시 적용: `RefreshChoices()`
 
-최대 3개 후보를 표시하며 같은 등급만 허용한다. 다른 등급이 섞인 입력은 경고 후 적용하지 않는다. 비활성 상태에서 `SetChoices`로 전달한 후보를 다시 열 때 미리보기 배열로 덮어쓰지 않는다. 카드를 선택하면 입력 중복을 막고 선택 이벤트를 전달한 다음, 자신이 최상위 팝업일 때만 확인 닫기를 수행한다. ESC로 선택을 건너뛰는 동작은 허용하지 않는다.
+최대 3개 후보를 표시한다. 실제 전투가 `SetChoices`로 전달하는 후보는 같은 등급만 허용하며, 다른 등급이 섞이면 경고 후 적용하지 않는다. Inspector의 Preview Choices만 등급 아트 비교를 위해 혼합 등급을 허용한다. 비활성 상태에서 `SetChoices`로 전달한 후보를 다시 열 때 미리보기 배열로 덮어쓰지 않는다. 카드를 선택하면 입력 중복을 막고 선택 이벤트를 전달한 다음, 자신이 최상위 팝업일 때만 확인 닫기를 수행한다. ESC로 선택을 건너뛰는 동작은 허용하지 않는다.
 
-초기 미리보기는 기존 실버 SO 3개다.
+초기 미리보기는 왼쪽부터 실버·골드·플래티넘 SO를 하나씩 배치한다. 세 항목은 같은 기본 검 아이콘을 사용해 등급별 카드 장식 차이가 먼저 보이도록 한다.
 
-| ID | 이름 | 기존 SO 설명 |
-| --- | --- | --- |
-| `skill_damage` | 화력 강화 | 스킬 피해 +8% |
-| `mon_hp` | 불굴의 대열 | 몬스터 체력 +8% |
-| `mon_speed` | 재빠른 발놀림 | 몬스터 공격속도 +6% |
+| 순서 | Tier | ID | 이름 | 기존 SO 설명 |
+| --- | --- | --- | --- | --- |
+| 왼쪽 | 실버 | `skill_damage` | 화력 강화 | 스킬 피해 +8% |
+| 가운데 | 골드 | `skill_cooldown_g` | 가속 마법진 | 스킬 쿨타임 −8% |
+| 오른쪽 | 플래티넘 | `skill_capstone` | 마왕의 진노 | 전 스킬 피해 +20%, 쿨타임 −12% |
 
 설명은 `AugmentData.description`을 그대로 사용한다. 별도 효과 라벨은 `isInstant`에 따라 `즉시 효과` 또는 `런 한정 증강`만 표시하며 수치를 재계산하지 않는다.
 
 이번 구현은 UI 범위다. `AugmentRun.Draw3`, `Pick`, 실제 보상 지급을 호출하지 않는다. 실제 전투 연결 시 기존 시스템이 후보를 공급하고 `AugmentSelected`를 받아 적용해야 한다. 기존 추첨 규칙인 마일스톤별 같은 등급 3개 제시는 바꾸지 않는다.
+
+### 전장 보기 / 선택창 보기
+
+- `Content/ViewBattlefieldButton`은 `BackgroundShade`와 선택 화면 `Content`만 숨기고, 팝업 루트와 `UIAugmentSelectionView`는 계속 활성 상태로 둔다. 따라서 제시된 후보·선택 데이터·팝업 스택은 취소되거나 다시 추첨되지 않는다.
+- 전장 보기 상태에서는 `BattlefieldViewState`가 활성화된다. 전체 화면 투명 `Image`가 EventSystem 기반 UI 입력과 숨겨진 카드 조작을 막고, 하단 `ShowSelectionButton`만 입력을 받는다.
+- `ShowSelectionButton`은 같은 `BackgroundShade`와 `Content`를 다시 활성화한 뒤 첫 카드로 포커스를 돌린다. 두 토글 버튼은 `UIAugmentSelectionView.HandleSelected`나 `AugmentSelected`를 호출하지 않아 실제 선택 완료 동작과 분리된다.
+- 두 버튼은 `Augment/Augment_ViewToggleButton.png` 한 장을 공유하고, 문구는 TMP로 각각 `전장 보기`, `선택창 보기`를 표시한다.
+- 현재 입력 차단은 Canvas/EventSystem 범위다. `Mouse.current`와 `Physics2D`를 직접 읽는 유닛 선택·배치·스킬 입력까지 완전히 막으려면 추후 공통 전투 입력 차단 상태를 Runtime 코드에 연결해야 한다.
 
 ## 준비 카드와 기존 오브젝트 보존
 
@@ -128,7 +138,7 @@
 ## 폰트와 아트 Import
 
 - 전용 프로젝트 폰트: `Overlays_v1/Fonts/BattleOverlay Pixel.asset`
-- 기존 DOSMyungjo 원본으로 생성한 TMP 도트 폰트이며 Atlas는 Point 필터를 사용한다. 공유 폰트나 기존 폰트 에셋을 덮어쓰지 않는다.
+- 기존 DOSMyungjo 원본으로 생성한 TMP 도트 폰트이며 Atlas는 Point 필터를 사용한다. 전체 `AugmentData.displayName`과 `description`, 선택창 고정 문구의 지원 글리프를 이 기본 폰트에 포함해 카드별 글꼴이 섞이지 않게 한다.
 - 원본에 없는 `−`, `×`, `·`는 NotoSansCJKkr 기반 프로젝트 전용 `Fonts/BattleOverlay Symbols SDF.asset`를 생성하여 보완했다. 두 폰트의 Atlas/Material도 에셋 내부에 보관한다.
 - 동적 Atlas이므로 앞으로 새 글자를 추가하거나 폰트를 재생성할 환경에는 기존 공유 원본 폰트가 필요하다. 원본 폰트 위치는 `Assets/98.ExternalAssets/00.LocalStaging/01.Font/`다.
 - 새 Sprite는 Single / FullRect / 중심 Pivot / Point / 무압축 / Mipmap 없음 / 원본 Alpha를 사용한다. Importer는 Unity에서 설정하고 `.meta`를 직접 수정하지 않는다.

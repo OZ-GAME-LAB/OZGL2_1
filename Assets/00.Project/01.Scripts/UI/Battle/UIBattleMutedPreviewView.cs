@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,8 @@ namespace OZGL2.UIFlow
         [SerializeField] private Text _timeText;
         [SerializeField] private Text _costText;
         [SerializeField] private Text _rerollCostText;
+        [SerializeField] private TMP_Text _costTextSdf;
+        [SerializeField] private TMP_Text _rerollCostTextSdf;
         [SerializeField] private Image _experienceFill;
 
         [Header("적 예고 / 시너지 연결")]
@@ -103,6 +106,14 @@ namespace OZGL2.UIFlow
             RefreshView();
         }
 
+        // 기존 Legacy Text 연결은 유지하고, 하단 HUD에서 사용할 SDF 표시만 선택적으로 덧붙인다.
+        public void ConfigureSdfCostTexts(TMP_Text costText, TMP_Text rerollCostText)
+        {
+            _costTextSdf = costText;
+            _rerollCostTextSdf = rerollCostText;
+            RefreshView();
+        }
+
         public void SetWave(int wave, int totalWaves)
         {
             _previewTotalWaves = Mathf.Max(1, totalWaves);
@@ -153,6 +164,8 @@ namespace OZGL2.UIFlow
             SetText(_timeText, FormatTime(_previewRemainingSeconds));
             SetText(_costText, FormatNumber(Mathf.Max(0, _previewCost)));
             SetText(_rerollCostText, FormatNumber(Mathf.Max(0, _previewRerollCost)));
+            SetText(_costTextSdf, FormatNumber(Mathf.Max(0, _previewCost)));
+            SetText(_rerollCostTextSdf, FormatNumber(Mathf.Max(0, _previewRerollCost)));
 
             if (_experienceFill != null)
             {
@@ -213,6 +226,11 @@ namespace OZGL2.UIFlow
         }
 
         private static void SetText(Text target, string value)
+        {
+            if (target != null && target.text != value) target.text = value;
+        }
+
+        private static void SetText(TMP_Text target, string value)
         {
             if (target != null && target.text != value) target.text = value;
         }

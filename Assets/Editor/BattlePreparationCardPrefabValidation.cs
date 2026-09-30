@@ -51,8 +51,33 @@ public static class BattlePreparationCardPrefabValidation
                 if (name.EndsWith("Unit"))
                     foreach (string field in new[] { "_attackLabelText", "_attackValueText", "_defenseLabelText", "_defenseValueText", "_healthLabelText", "_healthValueText" })
                         Need(bindings.FindProperty(field).objectReferenceValue != null, name + ":" + field);
+                RectTransform grid = root.transform.Find("FootprintGrid") as RectTransform;
+                Need(grid != null, name + ": FootprintGrid");
+                Need(bindings.FindProperty("_footprintGridRoot").objectReferenceValue == grid,
+                    name + ": grid root reference");
+                Need(bindings.FindProperty("_footprintGridSize").vector2IntValue == new Vector2Int(5, 5),
+                    name + ": 5x5 grid size");
+                Need(Mathf.Approximately(bindings.FindProperty("_footprintCellSize").floatValue, 76f),
+                    name + ": cell size");
+                Need(Mathf.Approximately(bindings.FindProperty("_footprintGridLineThickness").floatValue, 4f),
+                    name + ": line thickness");
+                Need(Vector2.Distance(grid.sizeDelta, new Vector2(380f, 380f)) < 0.01f,
+                    name + ": grid rect size");
+                Need(Mathf.Approximately(grid.anchoredPosition.x, 110f), name + ": grid centered x");
+                for (int column = 0; column <= 5; column++)
+                {
+                    RectTransform line = grid.Find("ColumnLine_" + column) as RectTransform;
+                    Need(line != null && line.gameObject.activeSelf, name + ": active column line " + column);
+                    Need(Mathf.Approximately(line.sizeDelta.x, 4f), name + ": column thickness " + column);
+                }
+                for (int row = 0; row <= 5; row++)
+                {
+                    RectTransform line = grid.Find("RowLine_" + row) as RectTransform;
+                    Need(line != null && line.gameObject.activeSelf, name + ": active row line " + row);
+                    Need(Mathf.Approximately(line.sizeDelta.y, 4f), name + ": row thickness " + row);
+                }
                 SerializedProperty cells = bindings.FindProperty("_footprintCells");
-                Need(cells.arraySize == 30, name + ": 6x5 grid");
+                Need(cells.arraySize == 25, name + ": 5x5 grid");
                 var images = new List<Image>();
                 for (int i = 0; i < cells.arraySize; i++)
                 {
@@ -69,7 +94,7 @@ public static class BattlePreparationCardPrefabValidation
                 view.SetAreaDescription("변경 영역", "+2칸");
                 Need(root.transform.Find("TitleText").GetComponent<Text>().text == "검증용 제목", name + ": SetTitle");
                 Need(root.transform.Find("RankText").GetComponent<Text>().text == "3", name + ": SetRank");
-                view.SetFootprint(new[] { new Vector2Int(1, 1), new Vector2Int(1, 1), new Vector2Int(5, 4), new Vector2Int(-1, 0), new Vector2Int(6, 1) });
+                view.SetFootprint(new[] { new Vector2Int(1, 1), new Vector2Int(1, 1), new Vector2Int(4, 4), new Vector2Int(-1, 0), new Vector2Int(5, 1) });
                 Need(images.FindAll(image => image.gameObject.activeSelf).Count == 2, name + ": footprint bounds/duplicates");
                 view.SetFootprint(null);
                 Need(images.FindAll(image => image.gameObject.activeSelf).Count == 0, name + ": clear footprint");
