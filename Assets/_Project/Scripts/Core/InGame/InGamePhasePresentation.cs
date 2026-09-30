@@ -21,6 +21,7 @@ namespace OZGL2.InGame
         private bool _preparing;
         private bool _startingBattle;
         private bool _busy;
+        private bool _isExternalInputBlocked;
         private int _generation;
         private Vector2Int _resolution;
         public GridWorldInputSurface Surface { get; private set; }
@@ -35,8 +36,16 @@ namespace OZGL2.InGame
             if (_bootstrap == null || _runner == null || _camera == null) throw new InvalidOperationException("Bootstrap, preparation UI and camera transition are required.");
             _camera.ValidateFraming(GetBounds(false), false);
         }
-        public bool CanInteract => !_busy && Error == null && _session != null && !_session.IsEnded &&
+        public bool CanInteract => !_isExternalInputBlocked && !_busy && Error == null && _session != null && !_session.IsEnded &&
             _session.Grid.Phase == eGridPhase.PREPARATION;
+        public void SetExternalInputBlocked(bool isBlocked)
+        {
+            if (_isExternalInputBlocked == isBlocked) return;
+            _isExternalInputBlocked = isBlocked;
+            if (isBlocked && _session?.Grid != null && _session.Grid.HasSelection)
+                _session.Grid.CancelDrag();
+            _runner?.RefreshControls();
+        }
         private void OnEnable()
         {
             if (_bootstrap == null) return;

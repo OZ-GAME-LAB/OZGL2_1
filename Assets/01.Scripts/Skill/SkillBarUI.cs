@@ -29,7 +29,10 @@ namespace OZGL2.Skill
 
         private RectTransform _barRoot;  // 탭 줄 + 아이콘 줄을 감싸는 바깥 컨테이너
         private RectTransform _barPanel; // 아이콘 줄만
-        private Icon _aiming;
+        private Icon _aimingIcon;
+        private SkillRuntime _aimingSkill;
+        private readonly List<RectTransform> _aimCancelAreas = new List<RectTransform>(5);
+        private bool _usesExternalSkin;
 
         // 스킬이 23종이라 한 줄에 다 넣으면 너무 길어져서, 카테고리 탭으로 나눠서 보여준다.
         // null = 전체(필터 없음).
@@ -89,6 +92,7 @@ namespace OZGL2.Skill
             BuildCanvas();
             BuildReticle();
             Rebuild();
+            RefreshInternalBarVisibility();
         }
 
         public void RefreshContext(Camera camera, Vector3 casterPosition)
@@ -97,6 +101,49 @@ namespace OZGL2.Skill
             _camera = camera;
             _casterPos = casterPosition;
         }
+
+        /// <summary>
+        /// 외부 HUD가 슬롯 외형을 담당할 때 기존 바만 숨긴다.
+        /// 조준 링·화살표·대상 하이라이트를 담당하는 이 컴포넌트는 계속 활성 상태로 둔다.
+        /// </summary>
+        public void SetExternalSkinActive(bool isActive)
+        {
+            if (_usesExternalSkin == isActive)
+            {
+                RefreshInternalBarVisibility();
+                return;
+            }
+
+            EndAim();
+            _usesExternalSkin = isActive;
+            RefreshInternalBarVisibility();
+        }
+
+        public void RefreshInternalBarVisibility()
+        {
+            if (_barRoot != null)
+                _barRoot.gameObject.SetActive(!_usesExternalSkin &&
+                    _manager != null && _manager.IsCastingEnabled);
+        }
+
+        /// <summary>
+        /// 외부 스킨 슬롯에서 팀 스킬 시스템의 기존 조준 흐름을 시작한다.
+        /// 즉시형은 기존과 동일하게 바로 발동하고, 조준형은 마우스를 놓을 때 실제 위치로 시전한다.
+        /// </summary>
+        public bool TryBeginExternalCast(SkillRuntime skill, IReadOnlyList<RectTransform> cancelAreas)
+        {
+            if (!_usesExternalSkin || _manager == null || !_manager.IsCastingEnabled ||
+                skill == null || !skill.IsReady(Time.time) || !IsEquipped(skill)) return false;
+
+            EndAim();
+            if (skill.Data.castMode == SkillCastMode.Instant)
+                return _manager.TryCastInstant(skill);
+
+            BeginExternalAim(skill, cancelAreas);
+            return true;
+        }
+
+        public void CancelExternalCast() => EndAim();
 
         private void OnDisable() => EndAim();
 
@@ -378,8 +425,9 @@ namespace OZGL2.Skill
 
             Vector2 mouse = Mouse.current.position.ReadValue();
 
-            if (_aiming == null)
+            if (_aimingSkill == null)
             {
+                if (_usesExternalSkin) return;
                 if (Mouse.current.leftButton.wasPressedThisFrame)
                 {
                     var tab = TabUnder(mouse);
@@ -403,10 +451,10 @@ namespace OZGL2.Skill
 
             if (ScreenToWorld(mouse, out Vector3 world))
             {
-                if (IsDirectional(_aiming.Skill.Data))
+                if (IsDirectional(_aimingSkill.Data))
                 {
                     Vector3 end = world;
-                    var ad = _aiming.Skill.Data;
+                    var ad = _aimingSkill.Data;
                     if (ad.effectType == SkillEffectType.LineDamage)
                     {
                         // 직선 관통은 사거리(lineLength)가 고정이라, 커서는 방향만 정하고 화살표는 그 길이만큼.
@@ -414,24 +462,24 @@ namespace OZGL2.Skill
                         Vector3 d = world - origin;
                         if (d.sqrMagnitude > 0.0001f) end = origin + d.normalized * ad.lineLength;
                     }
-                    UpdateArrow(end, _aiming.Skill.EffectiveRadius);
-                    PreviewAlongPath(end, _aiming.Skill.EffectiveRadius);
+                    UpdateArrow(end, _aimingSkill.EffectiveRadius);
+                    PreviewAlongPath(end, _aimingSkill.EffectiveRadius);
                 }
                 else
                 {
                     _reticle.position = world;
-                    float dia = Mathf.Min(_aiming.Skill.EffectiveRadius * 2f, 40f);
+                    float dia = Mathf.Min(_aimingSkill.EffectiveRadius * 2f, 40f);
                     _reticle.localScale = Vector3.one * dia;
-                    Preview(world, _aiming.Skill.EffectiveRadius);
+                    Preview(world, _aimingSkill.EffectiveRadius);
                 }
             }
 
             if (Mouse.current.leftButton.wasReleasedThisFrame)
             {
-                bool overBar = RectTransformUtility.RectangleContainsScreenPoint(_barRoot, mouse, null);
+                bool overBar = IsOverCancelArea(mouse);
                 if (!overBar && ScreenToWorld(mouse, out Vector3 cast))
                 {
-                    _manager.TryCastTargeted(_aiming.Skill, cast);
+                    _manager.TryCastTargeted(_aimingSkill, cast);
                 }
                 EndAim();
             }
@@ -439,29 +487,74 @@ namespace OZGL2.Skill
 
         private void BeginAim(Icon icon)
         {
-            _aiming = icon;
-            Color t = ReticleColor(icon.Skill.Data);
+            _aimCancelAreas.Clear();
+            if (_barRoot != null) _aimCancelAreas.Add(_barRoot);
+            BeginAimInternal(icon.Skill, icon);
+        }
+
+        private void BeginExternalAim(SkillRuntime skill, IReadOnlyList<RectTransform> cancelAreas)
+        {
+            _aimCancelAreas.Clear();
+            if (cancelAreas != null)
+            {
+                for (int i = 0; i < cancelAreas.Count; i++)
+                {
+                    RectTransform area = cancelAreas[i];
+                    if (area != null && !_aimCancelAreas.Contains(area)) _aimCancelAreas.Add(area);
+                }
+            }
+            BeginAimInternal(skill, null);
+        }
+
+        private void BeginAimInternal(SkillRuntime skill, Icon icon)
+        {
+            _aimingSkill = skill;
+            _aimingIcon = icon;
+            Color t = ReticleColor(skill.Data);
             _reticleFill.color = new Color(t.r, t.g, t.b, 0.22f);
             _reticleRing.color = new Color(t.r, t.g, t.b, 1f);
             _arrowShaft.color = new Color(t.r, t.g, t.b, 0.55f);
             _arrowHead.color = new Color(t.r, t.g, t.b, 0.9f);
-            icon.Border.effectColor = new Color(t.r, t.g, t.b, 1f);
-            icon.Border.effectDistance = new Vector2(4f, -4f);
-            _reticle.gameObject.SetActive(!IsDirectional(icon.Skill.Data));
+            if (icon != null && icon.Border != null)
+            {
+                icon.Border.effectColor = new Color(t.r, t.g, t.b, 1f);
+                icon.Border.effectDistance = new Vector2(4f, -4f);
+            }
+            _reticle.gameObject.SetActive(!IsDirectional(skill.Data));
             _arrow.gameObject.SetActive(false); // 첫 프레임에 커서 위치가 잡히면 UpdateArrow가 켠다
         }
 
         private void EndAim()
         {
-            if (_aiming != null && _aiming.Border != null)
+            if (_aimingIcon != null && _aimingIcon.Border != null)
             {
-                _aiming.Border.effectColor = new Color(1f, 1f, 1f, 0.9f);
-                _aiming.Border.effectDistance = new Vector2(2f, -2f);
+                _aimingIcon.Border.effectColor = new Color(1f, 1f, 1f, 0.9f);
+                _aimingIcon.Border.effectDistance = new Vector2(2f, -2f);
             }
-            _aiming = null;
+            _aimingIcon = null;
+            _aimingSkill = null;
+            _aimCancelAreas.Clear();
             if (_reticle != null) _reticle.gameObject.SetActive(false);
             if (_arrow != null) _arrow.gameObject.SetActive(false);
             ClearPreview();
+        }
+
+        private bool IsOverCancelArea(Vector2 screenPoint)
+        {
+            for (int i = 0; i < _aimCancelAreas.Count; i++)
+            {
+                RectTransform area = _aimCancelAreas[i];
+                if (area != null && RectTransformUtility.RectangleContainsScreenPoint(area, screenPoint, null))
+                    return true;
+            }
+            return false;
+        }
+
+        private bool IsEquipped(SkillRuntime skill)
+        {
+            foreach (SkillRuntime equipped in _manager.EquippedSkills)
+                if (ReferenceEquals(equipped, skill)) return true;
+            return false;
         }
 
         private Icon IconUnder(Vector2 pt)
