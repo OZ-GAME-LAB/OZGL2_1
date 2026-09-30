@@ -89,6 +89,13 @@ namespace OZGL2.InGame.Editor
                 syncObject.transform.SetParent(root.transform);
                 var sync = syncObject.AddComponent<RealSynergySync>();
                 sync.BeginRun();
+                sync.SetCombatEnabled(true);
+                SkillRuntime roundSkill = sync.SkillManager.EquippedSkills.First();
+                Check(sync.TryCastSkill(roundSkill), "Round skill cast accepted");
+                Check(roundSkill.RemainingCooldown(Time.time) > 0f, "Round skill entered cooldown");
+                sync.PrepareCombat(Vector3.zero);
+                Check(roundSkill.RemainingCooldown(Time.time) == 0f && !sync.SkillManager.IsCastingEnabled,
+                    "Next round preparation resets cooldown while keeping input blocked");
                 var previousManager = sync.SkillManager;
                 var oldConnection = new InGameSkillConnection(sync);
                 var oldSynergy = new InGameSynergyConnection(null, sync);
@@ -112,7 +119,7 @@ namespace OZGL2.InGame.Editor
                 var actualSync = Object.FindFirstObjectByType<RealSynergySync>();
                 Check(invalidBootstrap.Error != null && actualSync != null && !actualSync.SkillManager.IsCastingEnabled,
                     "Configuration failure keeps skills blocked");
-                Result = "PASS: instant/targeted gate, no blocked cooldown, delayed damage cancellation, repeat cleanup, next-round cast, zone cleanup, aim cancellation, stale run ownership, configuration failure";
+                Result = "PASS: instant/targeted gate, no blocked cooldown, delayed damage cancellation, repeat cleanup, next-round cooldown reset, zone cleanup, aim cancellation, stale run ownership, configuration failure";
             }
             catch (Exception exception) { Result = "FAIL: " + exception; }
             finally { Object.Destroy(root); Object.Destroy(data); }

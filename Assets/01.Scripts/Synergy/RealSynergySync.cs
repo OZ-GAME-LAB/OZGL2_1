@@ -152,6 +152,7 @@ namespace OZGL2.Synergy
         public void PrepareCombat(Vector3 casterPosition)
         {
             StopCombat();
+            _skillManager?.ResetCooldowns();
             _executor.SetCasterPosition(casterPosition);
             _skillBar.RefreshContext(Camera.main, casterPosition);
         }
@@ -379,8 +380,7 @@ namespace OZGL2.Synergy
                     MawangXpBridge.Mawang?.AddXp(Mathf.RoundToInt(d.value));
                     break;
                 case AugmentEffect.InstantResetCooldowns:
-                    if (_skillManager != null)
-                        foreach (var s in _skillManager.Skills) s.ResetCooldown();
+                    _skillManager?.ResetCooldowns();
                     break;
                 case AugmentEffect.InstantHealMonsters:
                     var allies = UnitRegistry.GetUnits(UnitSide.DemonArmy);

@@ -104,6 +104,12 @@ namespace OZGL2.Skill
             foreach (var s in _skills) s.ReduceCooldown(seconds);
         }
 
+        /// <summary>새 전투 라운드를 이전 라운드의 쿨다운 영향 없이 시작한다.</summary>
+        public void ResetCooldowns()
+        {
+            foreach (SkillRuntime skill in _skills) skill.ResetCooldown();
+        }
+
         public bool TryCastInstant(SkillRuntime skill)
         {
             float now = Time.time;
