@@ -14,6 +14,7 @@ namespace OZGL2.Grid.UI
         private readonly Dictionary<string, GameObject> _units = new Dictionary<string, GameObject>();
         private readonly Dictionary<string, int> _stars = new Dictionary<string, int>();
         private readonly List<SpriteRenderer> _ghost = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _swapGhost = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _frontier = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _invalid = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _occupied = new List<SpriteRenderer>();
@@ -70,6 +71,7 @@ namespace OZGL2.Grid.UI
             string selected = _grid.DragKind == eGridDragKind.UNIT ? _grid.SelectedId : null;
             var cells = preparing && _grid.HasSelection ? _grid.GetPreviewCells() : Array.Empty<Vector2Int>();
             RenderSquares(_ghost, cells, _grid.GetPreviewFailure() == ePlacementFailure.NONE ? GridBoardView.VALID_COLOR : GridBoardView.INVALID_COLOR, -60, 0.94f);
+            RenderSquares(_swapGhost, preparing ? _grid.GetSwapReturnCells() : Array.Empty<Vector2Int>(), GridBoardView.VALID_COLOR, -60, 0.94f);
             var frontier = preparing && (_grid.RequiresExpansionPlacement || _grid.IsExpansionDrag) ? _grid.GetExpansionFrontier() : Array.Empty<Vector2Int>();
             RenderSquares(_frontier, frontier, new Color(0.4f, 0.8f, 0.6f, 0.22f), -90, 0.86f);
             // 합성으로 발판이 커져서 자리가 부족한 유닛이 있으면 그 칸을 빨갛게 표시한다.

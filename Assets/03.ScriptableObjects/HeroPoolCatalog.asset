@@ -133,6 +133,11 @@ MonoBehaviour:
     _initialCapacity: 1
     _growthCount: 1
     _experience: 30
+  - _heroId: H_BOSS_02
+    _prefab: {fileID: -5820338468307478942, guid: 6e8f8e604b5e49baad01e73fcfd964b0, type: 3}
+    _initialCapacity: 1
+    _growthCount: 1
+    _experience: 45
   - _heroId: H_BOSS_FINAL_01
     _prefab: {fileID: -6526327328208007526, guid: 034a28d708f84db0a956e8b81681a993, type: 3}
     _initialCapacity: 1

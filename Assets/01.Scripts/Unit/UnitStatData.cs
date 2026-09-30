@@ -28,6 +28,7 @@ public class UnitStatData : ScriptableObject
     // ⚠ 칸(그리드 단위) → 월드 유닛 환산값이 아직 미확정 (밸런스시트 "사거리 1칸" 셀 #ERROR, 준기와 협의 필요).
     // 지금은 시트에 적힌 칸 수를 그대로 월드 유닛으로 취급 — 협의 끝나면 일괄 보정 예정.
     public float attackRange = 1f;
+    public float rangeBonusPerStar = 0f; // 성급 상승 시 사거리 증가량(성급-1 배). 힐러·궁수 전용, 그 외 0
     public float moveSpeed = 2f;       // 유닛/초. 마왕군은 배치형이라 보통 미사용, 용사만 실사용
     public float healAmount = 0f;      // 힐러 전용 1회 힐량 (힐/초 = healAmount x attackSpeed)
 
@@ -54,6 +55,13 @@ public class UnitStatData : ScriptableObject
     [Range(0f, 1f)]
     public float ccResistance = 0f;    // 둔화 강도·기절 지속시간을 이 비율만큼 줄여서 적용
 
+    [Header("단일 대상 직업 기믹 (궁수·도적 — 성급 2 이상에서만 발동)")]
+    public bool targetLowestHealthEnemy = false; // 최근접 대신 사거리 안 최저 체력 적 우선(마무리 특화)
+    public int comboStunAttackInterval = 0;      // N번째 공격마다 대상 기절(0=비활성). 도적 예: 3
+    public float comboStunDuration = 1f;         // 위 스턴 지속시간
+    [Range(0f, 3f)]
+    public float executeDamageBonusPerMissingHealth = 0f; // 대상이 잃은 체력 비율만큼 추가 피해 배율(0=비활성, 0.5=최대 +50%)
+
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
     public int killExpReward = 0;       // 용사 처치 시 지급 경험치 (성민 파트 연계)
@@ -61,14 +69,15 @@ public class UnitStatData : ScriptableObject
     [Header("합성 (5.2절 — Day3에서 사용)")]
     [Range(1, 3)]
     public int starLevel = 1;
-    // 성급별 배율: 1성 x1.0 / 2성 x2.1 / 3성 x4.5 (기획서 5.2절 확정 수치)
+    // 성급별 배율: 1성 x1.0 / 2성 x1.7 / 3성 x3.2 — 밸런스 테스트에서 2성(x2.1)이 너무 세다는 피드백으로 하향(2026-09-29, 성민).
+    // 예전 기획서 5.2절 값은 2.1 / 4.5. 밸런스 시트 04.성급배율과 같이 맞춰 둘 것.
     public static float GetStarMultiplier(int star)
     {
         switch (star)
         {
             case 1: return 1.0f;
-            case 2: return 2.1f;
-            case 3: return 4.5f;
+            case 2: return 1.7f;
+            case 3: return 3.2f;
             default: return 1.0f;
         }
     }

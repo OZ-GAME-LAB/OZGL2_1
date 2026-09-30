@@ -73,6 +73,7 @@ namespace OZGL2.InGame.Editor
                 string runId = Guid.NewGuid().ToString("N");
                 await session.BeginAsync(new StageRunContext(runId, "test"), token.Token);
                 StageGridPreparation.PlaceInitial(session.Session, initial.Option.Unit, initial.Option.Block, definition.InitialOrigin);
+                Check(session.Session.TryBeginBattle(runId, 1), "Explicit first battle start");
                 var grid = session.Session.Grid;
                 Check(grid.Phase == eGridPhase.BATTLE, "Initial battle");
                 var rewards = new StageGridRewards(session, Source(new[] { Entry("a", 1), Entry("b", 1), Entry("c", 1) }), new ManualStageServices());

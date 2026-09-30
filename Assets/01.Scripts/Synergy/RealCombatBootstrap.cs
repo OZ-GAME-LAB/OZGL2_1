@@ -19,6 +19,8 @@ namespace OZGL2.Synergy
         private static readonly string[] RelevantScenes =
         {
             "InGame", "JOB_SUNGMIN_Lobby", "JOB_SUNGMIN_StageChoice", "JOB_SUNGMIN_InGame",
+            // 밸런스 테스트 루프(실제 InGame 시스템 복사본) — 로비의 스킬·특성 세팅이 인게임까지 이어져야 한다.
+            "JOB_SUNGMIN_Balance_Lobby", "JOB_SUNGMIN_Balance_StageChoice", "JOB_SUNGMIN_Balance_InGame",
         };
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

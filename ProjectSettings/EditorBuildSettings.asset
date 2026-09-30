@@ -26,6 +26,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/00.Scenes/Builds/StageChoice.unity
     guid: eb959fb76810688418b95ec52e5e68a1
+  - enabled: 1
+    path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_Balance_Lobby.unity
+    guid: 16bd626258a45047a25e0bb96a298dd8
+  - enabled: 1
+    path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_Balance_StageChoice.unity
+    guid: ebd5a98f0e0c5b4e809a75325751b01c
+  - enabled: 1
+    path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_Balance_InGame.unity
+    guid: 5559730aae0e5130947373853d5e21e5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

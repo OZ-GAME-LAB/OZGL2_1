@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82082ba6d1b15454d93ebc1be8db6769, type: 3}
   m_Name: InGamePrototypeConfig
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGamePrototypeConfigSO
-  _stage: {fileID: 11400000, guid: da62b523b62549058375eed5948e2319, type: 2}
+  _stage: {fileID: 11400000, guid: 09a4a0f6a7a8e364ca1758e0e8d84603, type: 2}
   _stageCatalog: {fileID: 11400000, guid: 7643036bc4940764d8ef2187809b0ea2, type: 2}
   _allowEditorDirectStart: 1
   _catalog: {fileID: 11400000, guid: 9078badd44fe4c55a417d7718dd0f447, type: 2}
@@ -21,7 +21,8 @@ MonoBehaviour:
   _lobbyScenePath: Assets/00.Scenes/Builds/Lobby.unity
   _stageSelectionScenePath: Assets/00.Scenes/Builds/StageChoice.unity
   _heroPoolCatalog: {fileID: 11400000, guid: 7f9aa8f1c8b248a3bfbaa4e496f5f55a, type: 2}
-  _heroSpawnPosition: {x: 0, y: 4, z: 0}
+  _heroSpawnTopMargin: 2
+  _heroSpawnHorizontalInset: 0.5
   _demonArmyCatalog: {fileID: 11400000, guid: 3b939de62a4742fcb02fddfbb200c868, type: 2}
   _gridWorldOrigin: {x: 0, y: 0, z: 0}
   _cellWorldSize: 1

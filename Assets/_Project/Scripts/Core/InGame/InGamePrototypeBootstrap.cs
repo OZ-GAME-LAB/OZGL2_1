@@ -125,7 +125,7 @@ namespace OZGL2.InGame
                     _config.HeroPoolCatalog, transform, _config.HeroSpawnPosition,
                     () => _session?.Session, _config.DemonArmyCatalog, transform,
                     _config.GridWorldOrigin, _config.CellWorldSize,
-                    out _heroPool, resource => _defenders = resource, _combatConnection);
+                    out _heroPool, resource => _defenders = resource, _combatConnection, _config.CreateHeroSpawnPositions());
                 Stage = new StageManager(battle, Rewards, preparation, _session,
                     new FileStageProgressStore(Path.Combine(directory, "Runs")), lobby);
                 Stage.StateChanged += OnStateChanged;

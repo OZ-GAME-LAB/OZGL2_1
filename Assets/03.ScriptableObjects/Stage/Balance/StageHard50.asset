@@ -17,7 +17,7 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_01
     _spawns:
     - _heroId: H_WAR_01
-      _count: 1
+      _count: 12
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -27,7 +27,7 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_02
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 14
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -37,7 +37,7 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_03
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 15
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -47,7 +47,7 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_04
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 17
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -57,7 +57,7 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_05
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 19
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -67,10 +67,10 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_06
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 10
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 2
+      _count: 10
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -80,10 +80,10 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_07
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 2
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -93,10 +93,10 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_08
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 2
+      _count: 10
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -106,10 +106,10 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_09
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -119,10 +119,10 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_10
     _spawns:
     - _heroId: H_WAR_01
-      _count: 5
+      _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 5
       _intervalSeconds: 0.5
     _isBossRound: 1
     _rewardId: reward_dummy_general
@@ -132,13 +132,13 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_11
     _spawns:
     - _heroId: H_WAR_01
-      _count: 2
+      _count: 10
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 2
+      _count: 10
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 9
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -148,13 +148,13 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_12
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 2
+      _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 9
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -164,13 +164,13 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_13
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -180,13 +180,13 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_14
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -196,13 +196,13 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_15
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 9
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -212,16 +212,16 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_16
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 2
+      _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -231,16 +231,16 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_17
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -250,16 +250,16 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_18
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -269,16 +269,16 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_19
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -288,10 +288,10 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_20
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 5
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 5
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
       _count: 4
@@ -307,19 +307,19 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_21
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -329,19 +329,19 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_22
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -351,19 +351,19 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_23
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -373,19 +373,19 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_24
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -395,19 +395,19 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_25
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -417,22 +417,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_26
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -442,22 +442,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_27
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -467,22 +467,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_28
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -492,22 +492,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_29
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -517,7 +517,7 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_30
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 5
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
       _count: 4
@@ -542,22 +542,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_31
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -567,22 +567,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_32
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 2
+      _count: 8
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -592,22 +592,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_33
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -617,22 +617,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_34
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -642,22 +642,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_35
     _spawns:
     - _heroId: H_WAR_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -667,22 +667,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_36
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -692,22 +692,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_37
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -717,22 +717,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_38
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -742,22 +742,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_39
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -770,7 +770,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 6
+      _count: 5
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
       _count: 5
@@ -792,22 +792,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_41
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -817,22 +817,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_42
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -842,22 +842,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_43
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 3
+      _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -867,22 +867,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_44
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 3
+      _count: 11
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -892,22 +892,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_45
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -917,22 +917,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_46
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -942,22 +942,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_47
     _spawns:
     - _heroId: H_WAR_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -967,22 +967,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_48
     _spawns:
     - _heroId: H_WAR_01
-      _count: 5
+      _count: 18
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -992,22 +992,22 @@ MonoBehaviour:
   - _roundId: stage_hard_50_round_49
     _spawns:
     - _heroId: H_WAR_01
-      _count: 5
+      _count: 18
       _intervalSeconds: 0.5
     - _heroId: H_SHD_01
-      _count: 5
+      _count: 18
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
-      _count: 4
+      _count: 15
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
-      _count: 4
+      _count: 14
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1023,7 +1023,7 @@ MonoBehaviour:
       _count: 7
       _intervalSeconds: 0.5
     - _heroId: H_ROG_01
-      _count: 7
+      _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_ARC_01
       _count: 6

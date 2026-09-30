@@ -34,9 +34,13 @@ namespace OZGL2.Stage
         public bool IsBossRound { get; }
         public string RewardId { get; }
         public AugmentTierWeights AugmentWeights { get; }
+        // 라운드별 난이도 배율(밸런스 시트 05.보통_라운드: HP배율=1.068^(R-1), 공격배율=1.045^(R-1)). 기본값 1이면 배율 없음.
+        public float HpMultiplier { get; }
+        public float AttackMultiplier { get; }
 
         public RoundDefinition(string roundId, IEnumerable<HeroSpawnDefinition> spawns,
-            bool isBossRound, string rewardId, AugmentTierWeights augmentWeights)
+            bool isBossRound, string rewardId, AugmentTierWeights augmentWeights,
+            float hpMultiplier = 1f, float attackMultiplier = 1f)
         {
             StageDataValidation.ValidateId(roundId, nameof(roundId));
             StageDataValidation.ValidateId(rewardId, nameof(rewardId));
@@ -49,6 +53,8 @@ namespace OZGL2.Stage
             IsBossRound = isBossRound;
             RewardId = rewardId;
             AugmentWeights = augmentWeights ?? throw new ArgumentNullException(nameof(augmentWeights));
+            HpMultiplier = hpMultiplier;
+            AttackMultiplier = attackMultiplier;
         }
     }
 

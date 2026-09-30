@@ -106,9 +106,32 @@ namespace OZGL2.Synergy
 
         public void SetCount(SynergyJob job, int count) => _synergy.SetCount(job, count);
 
+        // 라운드별 용사 스탯 배율(밸런스 시트 05·06·07의 HP/공격/공속/힐량 배율) — 밸런스 테스트 루프 전용.
+        // 기본값 1이라 이 API를 아무도 안 부르는 일반 플레이에는 영향이 없다.
+        private float _roundHeroHp = 1f, _roundHeroAtk = 1f, _roundHeroSpd = 1f, _roundHeroHeal = 1f;
+
+        /// <summary>현재 라운드의 용사 HP·공격·공속·힐량 배율을 시트 값으로 지정한다. HP는 용사가 스폰될 때
+        /// (UnitBase 초기화) 읽히므로 준비 단계에서 미리 호출해야 하고, 나머지는 공격 시점에 읽힌다.</summary>
+        public void SetHeroRoundScaling(float hp, float atk, float attackSpeed, float heal)
+        {
+            _roundHeroHp = Mathf.Max(0.01f, hp);
+            _roundHeroAtk = Mathf.Max(0.01f, atk);
+            _roundHeroSpd = Mathf.Max(0.01f, attackSpeed);
+            _roundHeroHeal = Mathf.Max(0.01f, heal);
+            Sync();
+        }
+
+        /// <summary>true면 새 런을 시작해도 마왕 레벨·XP를 Lv1로 되돌리지 않는다 — 밸런스 테스트 루프 전용
+        /// (레벨이 계정에 그대로 저장·이어짐). 기본 false라 일반 플레이(런마다 Lv1)는 그대로다.</summary>
+        public static bool KeepMawangLevelOnRun;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => KeepMawangLevelOnRun = false;
+
         /// <summary>새 게임에서만 계정 장착 정보를 다시 읽는다. 라운드 전환에는 호출하지 않는다.</summary>
         public void BeginRun()
         {
+            _roundHeroHp = _roundHeroAtk = _roundHeroSpd = _roundHeroHeal = 1f;
             StopCombat();
             if (_executor != null)
             {
@@ -117,7 +140,7 @@ namespace OZGL2.Synergy
             }
             if (_skillBar != null) Destroy(_skillBar.gameObject);
             _augments.ResetRun();
-            MawangXpBridge.Mawang?.ResetForNewRun(); // 마왕 레벨·XP는 런마다 Lv1, LP는 이월
+            if (!KeepMawangLevelOnRun) MawangXpBridge.Mawang?.ResetForNewRun(); // 마왕 레벨·XP는 런마다 Lv1, LP는 이월
             ResetRoundAugmentState();
             SetupSkills();
             SetCombatEnabled(false);
@@ -143,6 +166,9 @@ namespace OZGL2.Synergy
             if (_executor != null) _executor.CancelActiveEffects();
         }
 
+        /// <summary>처음부터 해금돼 있고 자동 장착되는 기본 스킬(화염구) 여부 — 로비 UI도 같은 기준으로 표시한다.</summary>
+        public static bool IsStarterSkill(SkillData data) => data != null && data.displayName == "화염구";
+
         /// <summary>스킬 매니저·실행기를 만들고, 계정 영구 해금/장착 상태 그대로 실제 씬에 올린다.</summary>
         private void SetupSkills()
         {
@@ -162,7 +188,7 @@ namespace OZGL2.Synergy
             {
                 if (data == null) continue;
                 // 화염구는 계정 상태·초기화 여부와 무관하게 항상 기본 해금 + 자동 장착 — 신규 플레이어 최소 공격 수단.
-                bool starterFree = data.displayName == "화염구";
+                bool starterFree = IsStarterSkill(data);
                 bool unlocked = starterFree || _debugUnlockAllSkills || SkillTreeStore.IsUnlocked(data.skillId);
                 var runtime = _skillManager.Register(data, unlocked);
                 // 디버그 모드: 용량 찰 때까지 등록 순서대로 우선 채워 넣고, 나머지는 디버그 패널에서 직접 스왑.
@@ -462,11 +488,12 @@ namespace OZGL2.Synergy
 
                 // 용사(적) — 특성·증강의 "용사 약화" 배율만(시너지는 아군 배치 전용이라 관여 안 함).
                 // 별도 저장소를 진영으로 분리했기 때문에 마왕군 강화 배율이 적 용사한테는 안 넘어간다.
-                CombatModifierHub.SetAttackMult(job, UnitSide.Hero, Combine(trait.HeroAttackMult, aug.HeroAttackMult));
-                CombatModifierHub.SetAttackSpeedMult(job, UnitSide.Hero, trait.HeroAttackSpeedMult);
-                CombatModifierHub.SetHpMult(job, UnitSide.Hero, trait.HeroHpMult);
+                CombatModifierHub.SetAttackMult(job, UnitSide.Hero, Combine(trait.HeroAttackMult, aug.HeroAttackMult) * _roundHeroAtk);
+                CombatModifierHub.SetAttackSpeedMult(job, UnitSide.Hero, trait.HeroAttackSpeedMult * _roundHeroSpd);
+                CombatModifierHub.SetHpMult(job, UnitSide.Hero, trait.HeroHpMult * _roundHeroHp);
             }
             CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.DemonArmy, syn.HealerHealAmountMult);
+            CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.Hero, _roundHeroHeal);
 
             if (MawangXpBridge.Mawang != null)
                 MawangXpBridge.Mawang.XpGainMult = Combine(trait.XpGainMult, aug.XpGainMult);

@@ -17,7 +17,7 @@ namespace OZGL2.Stage
         private readonly HeroPool _pool;
         private readonly IStageDefenders _defenders;
         private readonly IStageBattleLifecycle _lifecycle;
-        private readonly Vector3 _spawnPosition;
+        private readonly Vector3[] _spawnPositions;
         private readonly Dictionary<long, HeroLease> _alive = new Dictionary<long, HeroLease>();
         private readonly Dictionary<long, HeroLease> _leased = new Dictionary<long, HeroLease>();
         private readonly Dictionary<long, int> _experience = new Dictionary<long, int>();
@@ -33,12 +33,21 @@ namespace OZGL2.Stage
         public long EarnedExperience => _earned;
         public bool IsSpawningComplete => _isSpawningComplete;
         public eRoundOutcome Outcome { get; private set; }
-        public PooledStageBattle(HeroPool pool, IStageDefenders defenders, Vector3 spawnPosition, IStageBattleLifecycle lifecycle = null)
+        public PooledStageBattle(HeroPool pool, IStageDefenders defenders, Vector3 spawnPosition, IStageBattleLifecycle lifecycle = null,
+            IReadOnlyList<Vector3> spawnPositions = null)
         {
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
             _defenders = defenders ?? throw new ArgumentNullException(nameof(defenders));
             _lifecycle = lifecycle;
-            _spawnPosition = spawnPosition;
+            if (spawnPositions != null && spawnPositions.Count == 0) throw new ArgumentException("Spawn positions cannot be empty.");
+            _spawnPositions = new Vector3[spawnPositions?.Count ?? 1];
+            for (int i = 0; i < _spawnPositions.Length; i++)
+            {
+                var point = spawnPositions == null ? spawnPosition : spawnPositions[i];
+                if (!float.IsFinite(point.x) || !float.IsFinite(point.y) || !float.IsFinite(point.z))
+                    throw new ArgumentException("Spawn positions must be finite.");
+                _spawnPositions[i] = point;
+            }
             _deathHandler = RecordDeath;
             _returnHandler = ReturnHero;
             _faultHandler = RecordHeroFault;
@@ -116,13 +125,20 @@ namespace OZGL2.Stage
         private async Task SpawnAsync(RoundDefinition round, CancellationToken token)
         {
             float previousInterval = 0;
+            int spawnIndex = 0;
             foreach (var entry in round.Spawns)
                 for (int index = 0; index < entry.Count; index++)
                 {
                     if (previousInterval > 0)
                         await Task.Delay(TimeSpan.FromSeconds(previousInterval), token);
                     token.ThrowIfCancellationRequested();
-                    var lease = _pool.Rent(entry.HeroId, _spawnPosition, _deathHandler, _returnHandler, _faultHandler);
+                    var lease = _pool.Rent(entry.HeroId, _spawnPositions[spawnIndex], _deathHandler, _returnHandler, _faultHandler);
+                    spawnIndex = (spawnIndex + 1) % _spawnPositions.Length;
+                    if (round.HpMultiplier != 1f || round.AttackMultiplier != 1f)
+                    {
+                        var unit = lease.Hero.GetComponent<UnitBase>();
+                        if (unit != null) unit.ApplyRoundDifficultyMultiplier(round.HpMultiplier, round.AttackMultiplier);
+                    }
                     _leased.Add(lease.LeaseId, lease);
                     _alive.Add(lease.LeaseId, lease);
                     _experience.Add(lease.LeaseId, _pool.GetExperience(entry.HeroId));

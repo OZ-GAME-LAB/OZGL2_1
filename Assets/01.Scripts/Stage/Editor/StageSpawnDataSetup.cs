@@ -14,6 +14,7 @@ namespace OZGL2.Stage.EditorTools
     public static class StageSpawnDataSetup
     {
         private const string Dir = "Assets/03.ScriptableObjects/Stage/Balance";
+        private const string SPAWN_COUNTS_PATH = "Assets/_Project/Data/InGame/StageSpawnCounts.csv";
 
         private enum AugTier { Silver, Gold, Platinum }
 
@@ -29,20 +30,15 @@ namespace OZGL2.Stage.EditorTools
         {
             Directory.CreateDirectory(Dir);
 
-            // 그리드는 R1을 항상 기본 유닛 1기로 시작시킨다(코어루프 고정 규칙) — 그래서 R1만 반드시
-            // 1기로 이길 수 있는 수준. R2부터는 물량을 크게 늘리고(우르르 몰려오는 느낌), 대신 스폰 시점에
-            // StageBalanceSandbox가 인원수만큼 1인당 스탯을 깎아서(_referenceAttackerCount 기준) 총 난이도는
-            // 비슷하게 맞춘다 — 물량↑ 개별 세기↓ 트레이드오프.
+            // v0.5 시트의 최종 물량을 읽는다. 보스 라운드 감소도 이미 포함된 수량이다.
             // 증강 3회(R10·20·30) — 실버/골드/플래티넘 순
             BuildStage("stage_normal_30", 30, JobOrderNormal, UnlockRoundNormal,
-                baseCount: 1, perRound: 1.2f,
                 bossRounds: new[] { 10, 20, 30 },
                 bossTier: new[] { AugTier.Silver, AugTier.Gold, AugTier.Platinum },
                 assetName: "StageNormal30");
 
             // 증강 5회(R10·20·30·40·50) — 실버·실버·골드·골드·플래티넘
             BuildStage("stage_hard_50", 50, JobOrderHard, UnlockRoundHard,
-                baseCount: 1, perRound: 1.5f,
                 bossRounds: new[] { 10, 20, 30, 40, 50 },
                 bossTier: new[] { AugTier.Silver, AugTier.Silver, AugTier.Gold, AugTier.Gold, AugTier.Platinum },
                 assetName: "StageHard50");
@@ -53,8 +49,16 @@ namespace OZGL2.Stage.EditorTools
         }
 
         private static void BuildStage(string stageId, int roundCount, string[] jobOrder, int[] unlockRound,
-            int baseCount, float perRound, int[] bossRounds, AugTier[] bossTier, string assetName)
+            int[] bossRounds, AugTier[] bossTier, string assetName)
         {
+            var counts = File.ReadAllLines(SPAWN_COUNTS_PATH).Skip(1)
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Select(line => line.Split(','))
+                .Where(cells => cells[0] == stageId)
+                .ToDictionary(cells => int.Parse(cells[1]), cells => int.Parse(cells[2]));
+            if (counts.Count != roundCount ||
+                Enumerable.Range(1, roundCount).Any(round => !counts.ContainsKey(round) || counts[round] <= 0))
+                throw new System.InvalidOperationException("Invalid spawn count table: " + stageId);
             // 기존 에셋이 있으면 그 자리에서 값만 갈아끼운다(GUID 유지) — 삭제 후 재생성하면 GUID가
             // 바뀌어서 이미 이 에셋을 참조해둔 InGameConfig_* 사본들의 연결이 끊어진다.
             string path = $"{Dir}/{assetName}.asset";
@@ -80,8 +84,7 @@ namespace OZGL2.Stage.EditorTools
                 var activeJobs = jobOrder.Take(unlockedCount).ToArray();
 
                 bool isBoss = bossRounds.Contains(r);
-                int totalCount = r == 1 ? 1 : Mathf.RoundToInt(baseCount + r * perRound); // R1은 반드시 기본 유닛 1기로 이길 수 있어야 함
-                if (isBoss) totalCount = Mathf.RoundToInt(totalCount * 1.5f);
+                int totalCount = counts[r];
 
                 var spawnsProp = roundEl.FindPropertyRelative("_spawns");
                 spawnsProp.ClearArray();
