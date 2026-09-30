@@ -11,6 +11,7 @@ namespace OZGL2.Skill
         public float CooldownMult = 1f;      // 신속한 주문 (곱, <1 이면 감소)
         public float RadiusMult = 1f;        // 넓은 지배
         public float BuffDurationMult = 1f;  // 군단의 함성
+        public float UltCooldownMult = 1f;   // 궁극기 전용 쿨타임 배율 (특성 "궁극의 재충전"류) — 궁극기 카테고리에만 곱해진다
         public int ReviveBonus = 0;          // 강령술 심화
 
         // 증강 전용 — 특성은 안 건드림 (치명타·에코는 특성 트리엔 없는 증강만의 재미)
