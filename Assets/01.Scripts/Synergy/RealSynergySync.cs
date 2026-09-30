@@ -108,6 +108,7 @@ namespace OZGL2.Synergy
 
         // 라운드별 용사 스탯 배율(밸런스 시트 05·06·07의 HP/공격/공속/힐량 배율) — 밸런스 테스트 루프 전용.
         // 기본값 1이라 이 API를 아무도 안 부르는 일반 플레이에는 영향이 없다.
+        private int _traitKillXp;
         private float _roundHeroHp = 1f, _roundHeroAtk = 1f, _roundHeroSpd = 1f, _roundHeroHeal = 1f;
 
         /// <summary>현재 라운드의 용사 HP·공격·공속·힐량 배율을 시트 값으로 지정한다. HP는 용사가 스폰될 때
@@ -348,6 +349,8 @@ namespace OZGL2.Synergy
         /// <summary>용사 처치 훅 — 처형 재충전·연쇄 폭발·백성의 성원·사냥 개시.</summary>
         private void OnHeroKilled(UnitBase hero, int expReward)
         {
+            if (_traitKillXp > 0 && MawangXpBridge.Mawang != null) MawangXpBridge.Mawang.AddXp(_traitKillXp); // 특성: 처치 XP 보너스
+
             if (_aug.CooldownOnKillSeconds > 0f && _skillManager != null)
                 _skillManager.ReduceCooldowns(_aug.CooldownOnKillSeconds);
 
@@ -475,8 +478,10 @@ namespace OZGL2.Synergy
             CombatModifierHub.SetFirstHitShield(UnitSide.DemonArmy, aug.MonsterShieldActive);
 
             // 냉기 침식 — 용사 이동속도·방어력 동시 감소
-            CombatModifierHub.SetMoveSpeedMult(UnitSide.Hero, Mathf.Max(0.3f, aug.HeroMoveSpeedMult));
-            CombatModifierHub.SetDefenseAdd(UnitSide.Hero, aug.HeroDefenseAdd);
+            // 특성(용사 이동속도·방어 약화)과 증강을 합산. 마왕군 방어(특성)는 마왕군 쪽에 더한다.
+            CombatModifierHub.SetMoveSpeedMult(UnitSide.Hero, Mathf.Max(0.3f, Combine(trait.HeroMoveSpeedMult, aug.HeroMoveSpeedMult)));
+            CombatModifierHub.SetDefenseAdd(UnitSide.Hero, aug.HeroDefenseAdd + trait.HeroDefenseAdd);
+            CombatModifierHub.SetDefenseAdd(UnitSide.DemonArmy, trait.MonsterDefenseAdd);
 
             foreach (var job in AllJobs)
             {
@@ -495,8 +500,12 @@ namespace OZGL2.Synergy
             CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.DemonArmy, syn.HealerHealAmountMult);
             CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.Hero, _roundHeroHeal);
 
+            _traitKillXp = trait.KillXpBonus;
             if (MawangXpBridge.Mawang != null)
+            {
                 MawangXpBridge.Mawang.XpGainMult = Combine(trait.XpGainMult, aug.XpGainMult);
+                TraitMawangSettings.Apply(trait, MawangXpBridge.Mawang); // 레벨업 필요 XP·레벨 보너스 LP·5레벨 XP
+            }
 
             if (_skillMods != null)
             {
@@ -505,6 +514,7 @@ namespace OZGL2.Synergy
                 _skillMods.CooldownMult = Mathf.Max(0.3f, Combine(trait.SkillCooldownMult, aug.SkillCooldownMult));
                 _skillMods.RadiusMult = Combine(trait.SkillRadiusMult, aug.SkillRadiusMult);
                 _skillMods.BuffDurationMult = Combine(trait.SkillBuffDurationMult, aug.SkillBuffDurationMult);
+                _skillMods.UltCooldownMult = trait.SkillUltCooldownMult;
                 _skillMods.CritChance = aug.CritChance;
                 _skillMods.EchoChance = aug.EchoChance;
                 _skillMods.OnHitSlowAmount = aug.OnHitSlowAmount;
