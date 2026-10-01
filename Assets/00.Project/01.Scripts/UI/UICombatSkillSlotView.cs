@@ -49,6 +49,8 @@ namespace OZGL2.UIFlow
         private Material _defaultFrameMaterial;
         private volatile bool _needsRefresh;
 
+        public UISkillPreviewCatalogSO PreviewCatalog => _previewCatalog;
+
         public void ShowSkill(UISkillPreviewCatalogSO.Entry entry)
         {
             // 이전 스킬의 쿨다운이 새 스킬에 남지 않도록 표시 상태만 초기화한다.

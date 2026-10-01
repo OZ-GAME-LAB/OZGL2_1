@@ -10,6 +10,7 @@ using OZGL2.Stage.Prototype;
 using OZGL2.UIFlow;
 using OZGL2.Synergy;
 using OZGL2.Progression;
+using OZGL2.Skill;
 using UnityEngine;
 
 namespace OZGL2.InGame
@@ -28,10 +29,26 @@ namespace OZGL2.InGame
         private InGameSynergyConnection _synergyConnection;
         private InGameSkillConnection _skillConnection;
         private RealSynergySync _runSynergy;
+        private bool _usesExternalSkillUi;
+        private bool _isUiInputBlocked;
         private SelectedStageSource _selectedSource;
         private bool _hasResolvedSelection;
         private string _selectionError;
         public string SelectedStageId => _selectedSource?.CreateSnapshot().StageId;
+        public StageDefinition SelectedStageDefinition => _selectedSource?.CreateSnapshot();
+        public RoundDefinition CurrentRoundDefinition
+        {
+            get
+            {
+                StageDefinition stage = SelectedStageDefinition;
+                int roundNumber = Stage != null ? Stage.CurrentRoundNumber : 0;
+                return stage != null && roundNumber > 0 && roundNumber <= stage.Rounds.Count
+                    ? stage.Rounds[roundNumber - 1]
+                    : null;
+            }
+        }
+        public SkillManager SkillManager => _runSynergy?.SkillManager;
+        public bool IsUiInputBlocked => _isUiInputBlocked;
         public bool HasCombatParticipants => _combatConnection != null && _combatConnection.ParticipantCount > 0;
         public bool HasExternalCombatParticipants => _combatConnection != null &&
             Array.Exists(_combatParticipants, component => component != null && component != _phasePresentation && component is IInGameCombatParticipant);
@@ -93,6 +110,8 @@ namespace OZGL2.InGame
                 _phasePresentation?.ValidateSetup();
                 _runSynergy = RealCombatBootstrap.EnsureInitialized();
                 _runSynergy.BeginRun();
+                _runSynergy.SetExternalSkillUiActive(_usesExternalSkillUi);
+                _runSynergy.SetUiInputBlocked(_isUiInputBlocked);
                 _skillConnection = new InGameSkillConnection(_runSynergy);
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
@@ -160,6 +179,20 @@ namespace OZGL2.InGame
             }
         }
         public bool TryBeginBattle(bool skip = false) => _phasePresentation != null ? _phasePresentation.RequestBattle(skip) : CommitBattleStart(skip);
+        public bool TryCastSkill(SkillRuntime skill) => _runSynergy != null && _runSynergy.TryCastSkill(skill);
+        public bool TryBeginSkillInput(SkillRuntime skill, IReadOnlyList<RectTransform> cancelAreas) =>
+            _runSynergy != null && _runSynergy.TryBeginSkillInput(skill, cancelAreas);
+        public void CancelSkillInput() => _runSynergy?.CancelSkillInput();
+        public void SetExternalSkillUiActive(bool isActive)
+        {
+            _usesExternalSkillUi = isActive;
+            _runSynergy?.SetExternalSkillUiActive(isActive);
+        }
+        public void SetUiInputBlocked(bool isBlocked)
+        {
+            _isUiInputBlocked = isBlocked;
+            _runSynergy?.SetUiInputBlocked(isBlocked);
+        }
         public bool TryRetryStage()
         {
             if (Result != null) return TryRetryResult(Result.RunId);

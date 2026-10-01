@@ -40,6 +40,8 @@ namespace OZGL2.Synergy
         private RealTargetProvider _targets;
         private RealAllyProvider _allies;
         private SkillBarUI _skillBar;
+        private bool _usesExternalSkillUi;
+        private bool _isUiInputBlocked;
 
         // ── 증강 실전투 상태 (전부 라운드/런 단위로 초기화)
         private AugmentModifiers _aug = AugmentModifiers.Neutral;
@@ -151,6 +153,7 @@ namespace OZGL2.Synergy
         public void PrepareCombat(Vector3 casterPosition)
         {
             StopCombat();
+            _skillManager?.ResetCooldowns();
             _executor.SetCasterPosition(casterPosition);
             _skillBar.RefreshContext(Camera.main, casterPosition);
         }
@@ -158,7 +161,40 @@ namespace OZGL2.Synergy
         public void SetCombatEnabled(bool isEnabled)
         {
             if (_skillManager != null) _skillManager.IsCastingEnabled = isEnabled;
-            if (_skillBar != null) _skillBar.gameObject.SetActive(isEnabled);
+            if (_skillBar == null) return;
+
+            if (_usesExternalSkillUi)
+            {
+                // 외부 스킨을 써도 팀 스킬바의 조준 상태 머신은 계속 실행되어야 한다.
+                if (!_skillBar.gameObject.activeSelf) _skillBar.gameObject.SetActive(true);
+                if (!isEnabled) _skillBar.CancelExternalCast();
+                _skillBar.RefreshInternalBarVisibility();
+                return;
+            }
+
+            // 외부 스킨이 없을 때는 팀원이 만든 기존 활성화 규칙을 그대로 유지한다.
+            _skillBar.gameObject.SetActive(isEnabled);
+        }
+
+        /// <summary>
+        /// Scene HUD가 실제 스킬 슬롯을 표시할 때 기존 런타임 생성 스킬바만 숨긴다.
+        /// SkillManager와 SkillExecutor는 그대로 유지된다.
+        /// </summary>
+        public void SetExternalSkillUiActive(bool isActive)
+        {
+            _usesExternalSkillUi = isActive;
+            if (_skillBar == null) return;
+
+            if (!_skillBar.gameObject.activeSelf) _skillBar.gameObject.SetActive(true);
+            _skillBar.SetExternalSkinActive(isActive);
+            if (!isActive && (_skillManager == null || !_skillManager.IsCastingEnabled))
+                _skillBar.gameObject.SetActive(false);
+        }
+
+        public void SetUiInputBlocked(bool isBlocked)
+        {
+            _isUiInputBlocked = isBlocked;
+            if (isBlocked) _skillBar?.RefreshContext(Camera.main, CasterPosition);
         }
 
         public void StopCombat()
@@ -221,7 +257,7 @@ namespace OZGL2.Synergy
 
             TickAugments();
 
-            if (_skillManager == null || !_skillManager.IsCastingEnabled) return;
+            if (_skillManager == null || !_skillManager.IsCastingEnabled || _isUiInputBlocked) return;
 
             // Bind() 시점엔 라운드가 아직 시작 안 돼서 UnitRegistry.KingWorldPosition이 비어있을 수
             // 있어(그러면 스킬 시전 위치가 (0,0,0) 같은 엉뚱한 곳에 고정됨) — 왕 위치가 실제로 잡힐
@@ -235,7 +271,7 @@ namespace OZGL2.Synergy
                 if (i >= 5) break;
                 if (Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
-                    TryCast(skill);
+                    TryCastSkill(skill);
                 }
                 i++;
             }
@@ -306,17 +342,29 @@ namespace OZGL2.Synergy
             GUILayout.EndArea();
         }
 
-        private void TryCast(SkillRuntime skill)
+        public bool TryCastSkill(SkillRuntime skill)
         {
+            if (_skillManager == null || !_skillManager.IsCastingEnabled || _isUiInputBlocked || skill == null) return false;
             if (skill.Data.castMode == SkillCastMode.Instant)
             {
-                _skillManager.TryCastInstant(skill);
-                return;
+                return _skillManager.TryCastInstant(skill);
             }
 
             var nearest = _targets.Nearest(CasterPosition);
             Vector3 point = nearest != null ? nearest.Position : CasterPosition;
-            _skillManager.TryCastTargeted(skill, point);
+            return _skillManager.TryCastTargeted(skill, point);
+        }
+
+        /// <summary>외부 HUD 스킨의 슬롯 입력을 기존 SkillBarUI 조준 시스템으로 전달한다.</summary>
+        public bool TryBeginSkillInput(SkillRuntime skill, IReadOnlyList<RectTransform> cancelAreas)
+        {
+            return !_isUiInputBlocked && _skillBar != null &&
+                _skillBar.TryBeginExternalCast(skill, cancelAreas);
+        }
+
+        public void CancelSkillInput()
+        {
+            _skillBar?.CancelExternalCast();
         }
 
         // ─────────────────────────────────────────── 증강 (즉시 효과 · 처치 훅 · 전투 중 감시)
@@ -333,8 +381,7 @@ namespace OZGL2.Synergy
                     MawangXpBridge.Mawang?.AddXp(Mathf.RoundToInt(d.value));
                     break;
                 case AugmentEffect.InstantResetCooldowns:
-                    if (_skillManager != null)
-                        foreach (var s in _skillManager.Skills) s.ResetCooldown();
+                    _skillManager?.ResetCooldowns();
                     break;
                 case AugmentEffect.InstantHealMonsters:
                     var allies = UnitRegistry.GetUnits(UnitSide.DemonArmy);
