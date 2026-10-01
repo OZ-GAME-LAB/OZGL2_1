@@ -22,7 +22,7 @@ namespace OZGL2.UIBridge
         private const float Width = 340f;
         private const float RefreshInterval = 0.25f;
 
-        private bool _open = true;
+        private bool _open; // 기본은 숨김 — 화면에는 아무것도 그리지 않고, F8을 눌렀을 때만 열린다
         private Vector2 _scroll;
         private float _nextRefresh;
 
@@ -134,11 +134,7 @@ namespace OZGL2.UIBridge
         private void OnGUI()
         {
             GUI.depth = -100;
-            if (!_open)
-            {
-                if (GUI.Button(new Rect(8, 8, 150, 26), "연동 디버그 (F8)")) _open = true;
-                return;
-            }
+            if (!_open) return;
 
             float height = Mathf.Min(Screen.height - 16f, 720f);
             GUILayout.BeginArea(new Rect(8, 8, Width, height), GUI.skin.box);
