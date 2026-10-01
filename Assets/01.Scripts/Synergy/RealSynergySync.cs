@@ -40,6 +40,8 @@ namespace OZGL2.Synergy
         private RealTargetProvider _targets;
         private RealAllyProvider _allies;
         private SkillBarUI _skillBar;
+        private bool _usesExternalSkillUi;
+        private bool _isUiInputBlocked;
 
         // ── 증강 실전투 상태 (전부 라운드/런 단위로 초기화)
         private AugmentModifiers _aug = AugmentModifiers.Neutral;
@@ -108,6 +110,7 @@ namespace OZGL2.Synergy
 
         // 라운드별 용사 스탯 배율(밸런스 시트 05·06·07의 HP/공격/공속/힐량 배율) — 밸런스 테스트 루프 전용.
         // 기본값 1이라 이 API를 아무도 안 부르는 일반 플레이에는 영향이 없다.
+        private int _traitKillXp;
         private float _roundHeroHp = 1f, _roundHeroAtk = 1f, _roundHeroSpd = 1f, _roundHeroHeal = 1f;
 
         /// <summary>현재 라운드의 용사 HP·공격·공속·힐량 배율을 시트 값으로 지정한다. HP는 용사가 스폰될 때
@@ -150,6 +153,7 @@ namespace OZGL2.Synergy
         public void PrepareCombat(Vector3 casterPosition)
         {
             StopCombat();
+            _skillManager?.ResetCooldowns();
             _executor.SetCasterPosition(casterPosition);
             _skillBar.RefreshContext(Camera.main, casterPosition);
         }
@@ -157,7 +161,40 @@ namespace OZGL2.Synergy
         public void SetCombatEnabled(bool isEnabled)
         {
             if (_skillManager != null) _skillManager.IsCastingEnabled = isEnabled;
-            if (_skillBar != null) _skillBar.gameObject.SetActive(isEnabled);
+            if (_skillBar == null) return;
+
+            if (_usesExternalSkillUi)
+            {
+                // 외부 스킨을 써도 팀 스킬바의 조준 상태 머신은 계속 실행되어야 한다.
+                if (!_skillBar.gameObject.activeSelf) _skillBar.gameObject.SetActive(true);
+                if (!isEnabled) _skillBar.CancelExternalCast();
+                _skillBar.RefreshInternalBarVisibility();
+                return;
+            }
+
+            // 외부 스킨이 없을 때는 팀원이 만든 기존 활성화 규칙을 그대로 유지한다.
+            _skillBar.gameObject.SetActive(isEnabled);
+        }
+
+        /// <summary>
+        /// Scene HUD가 실제 스킬 슬롯을 표시할 때 기존 런타임 생성 스킬바만 숨긴다.
+        /// SkillManager와 SkillExecutor는 그대로 유지된다.
+        /// </summary>
+        public void SetExternalSkillUiActive(bool isActive)
+        {
+            _usesExternalSkillUi = isActive;
+            if (_skillBar == null) return;
+
+            if (!_skillBar.gameObject.activeSelf) _skillBar.gameObject.SetActive(true);
+            _skillBar.SetExternalSkinActive(isActive);
+            if (!isActive && (_skillManager == null || !_skillManager.IsCastingEnabled))
+                _skillBar.gameObject.SetActive(false);
+        }
+
+        public void SetUiInputBlocked(bool isBlocked)
+        {
+            _isUiInputBlocked = isBlocked;
+            if (isBlocked) _skillBar?.RefreshContext(Camera.main, CasterPosition);
         }
 
         public void StopCombat()
@@ -220,7 +257,7 @@ namespace OZGL2.Synergy
 
             TickAugments();
 
-            if (_skillManager == null || !_skillManager.IsCastingEnabled) return;
+            if (_skillManager == null || !_skillManager.IsCastingEnabled || _isUiInputBlocked) return;
 
             // Bind() 시점엔 라운드가 아직 시작 안 돼서 UnitRegistry.KingWorldPosition이 비어있을 수
             // 있어(그러면 스킬 시전 위치가 (0,0,0) 같은 엉뚱한 곳에 고정됨) — 왕 위치가 실제로 잡힐
@@ -234,7 +271,7 @@ namespace OZGL2.Synergy
                 if (i >= 5) break;
                 if (Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
-                    TryCast(skill);
+                    TryCastSkill(skill);
                 }
                 i++;
             }
@@ -305,17 +342,29 @@ namespace OZGL2.Synergy
             GUILayout.EndArea();
         }
 
-        private void TryCast(SkillRuntime skill)
+        public bool TryCastSkill(SkillRuntime skill)
         {
+            if (_skillManager == null || !_skillManager.IsCastingEnabled || _isUiInputBlocked || skill == null) return false;
             if (skill.Data.castMode == SkillCastMode.Instant)
             {
-                _skillManager.TryCastInstant(skill);
-                return;
+                return _skillManager.TryCastInstant(skill);
             }
 
             var nearest = _targets.Nearest(CasterPosition);
             Vector3 point = nearest != null ? nearest.Position : CasterPosition;
-            _skillManager.TryCastTargeted(skill, point);
+            return _skillManager.TryCastTargeted(skill, point);
+        }
+
+        /// <summary>외부 HUD 스킨의 슬롯 입력을 기존 SkillBarUI 조준 시스템으로 전달한다.</summary>
+        public bool TryBeginSkillInput(SkillRuntime skill, IReadOnlyList<RectTransform> cancelAreas)
+        {
+            return !_isUiInputBlocked && _skillBar != null &&
+                _skillBar.TryBeginExternalCast(skill, cancelAreas);
+        }
+
+        public void CancelSkillInput()
+        {
+            _skillBar?.CancelExternalCast();
         }
 
         // ─────────────────────────────────────────── 증강 (즉시 효과 · 처치 훅 · 전투 중 감시)
@@ -332,8 +381,7 @@ namespace OZGL2.Synergy
                     MawangXpBridge.Mawang?.AddXp(Mathf.RoundToInt(d.value));
                     break;
                 case AugmentEffect.InstantResetCooldowns:
-                    if (_skillManager != null)
-                        foreach (var s in _skillManager.Skills) s.ResetCooldown();
+                    _skillManager?.ResetCooldowns();
                     break;
                 case AugmentEffect.InstantHealMonsters:
                     var allies = UnitRegistry.GetUnits(UnitSide.DemonArmy);
@@ -348,6 +396,8 @@ namespace OZGL2.Synergy
         /// <summary>용사 처치 훅 — 처형 재충전·연쇄 폭발·백성의 성원·사냥 개시.</summary>
         private void OnHeroKilled(UnitBase hero, int expReward)
         {
+            if (_traitKillXp > 0 && MawangXpBridge.Mawang != null) MawangXpBridge.Mawang.AddXp(_traitKillXp); // 특성: 처치 XP 보너스
+
             if (_aug.CooldownOnKillSeconds > 0f && _skillManager != null)
                 _skillManager.ReduceCooldowns(_aug.CooldownOnKillSeconds);
 
@@ -475,8 +525,10 @@ namespace OZGL2.Synergy
             CombatModifierHub.SetFirstHitShield(UnitSide.DemonArmy, aug.MonsterShieldActive);
 
             // 냉기 침식 — 용사 이동속도·방어력 동시 감소
-            CombatModifierHub.SetMoveSpeedMult(UnitSide.Hero, Mathf.Max(0.3f, aug.HeroMoveSpeedMult));
-            CombatModifierHub.SetDefenseAdd(UnitSide.Hero, aug.HeroDefenseAdd);
+            // 특성(용사 이동속도·방어 약화)과 증강을 합산. 마왕군 방어(특성)는 마왕군 쪽에 더한다.
+            CombatModifierHub.SetMoveSpeedMult(UnitSide.Hero, Mathf.Max(0.3f, Combine(trait.HeroMoveSpeedMult, aug.HeroMoveSpeedMult)));
+            CombatModifierHub.SetDefenseAdd(UnitSide.Hero, aug.HeroDefenseAdd + trait.HeroDefenseAdd);
+            CombatModifierHub.SetDefenseAdd(UnitSide.DemonArmy, trait.MonsterDefenseAdd);
 
             foreach (var job in AllJobs)
             {
@@ -495,8 +547,12 @@ namespace OZGL2.Synergy
             CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.DemonArmy, syn.HealerHealAmountMult);
             CombatModifierHub.SetHealMult(SynergyJob.Healer, UnitSide.Hero, _roundHeroHeal);
 
+            _traitKillXp = trait.KillXpBonus;
             if (MawangXpBridge.Mawang != null)
+            {
                 MawangXpBridge.Mawang.XpGainMult = Combine(trait.XpGainMult, aug.XpGainMult);
+                TraitMawangSettings.Apply(trait, MawangXpBridge.Mawang); // 레벨업 필요 XP·레벨 보너스 LP·5레벨 XP
+            }
 
             if (_skillMods != null)
             {
@@ -505,6 +561,7 @@ namespace OZGL2.Synergy
                 _skillMods.CooldownMult = Mathf.Max(0.3f, Combine(trait.SkillCooldownMult, aug.SkillCooldownMult));
                 _skillMods.RadiusMult = Combine(trait.SkillRadiusMult, aug.SkillRadiusMult);
                 _skillMods.BuffDurationMult = Combine(trait.SkillBuffDurationMult, aug.SkillBuffDurationMult);
+                _skillMods.UltCooldownMult = trait.SkillUltCooldownMult;
                 _skillMods.CritChance = aug.CritChance;
                 _skillMods.EchoChance = aug.EchoChance;
                 _skillMods.OnHitSlowAmount = aug.OnHitSlowAmount;

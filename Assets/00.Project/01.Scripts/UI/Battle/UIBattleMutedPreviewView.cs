@@ -54,6 +54,10 @@ namespace OZGL2.UIFlow
             new SynergyPreview("저주 의식", 3, 5)
         };
 
+        private bool _usesElapsedTime;
+
+        public int EnemySlotCount => Mathf.Max(ArrayLength(_enemyNames), ArrayLength(_enemyCounts));
+
         [Serializable]
         private sealed class EnemyPreview
         {
@@ -130,6 +134,14 @@ namespace OZGL2.UIFlow
 
         public void SetRemainingTime(float seconds)
         {
+            _usesElapsedTime = false;
+            _previewRemainingSeconds = IsFinite(seconds) ? Mathf.Max(0f, seconds) : 0f;
+            RefreshView();
+        }
+
+        public void SetElapsedTime(float seconds)
+        {
+            _usesElapsedTime = true;
             _previewRemainingSeconds = IsFinite(seconds) ? Mathf.Max(0f, seconds) : 0f;
             RefreshView();
         }
@@ -161,7 +173,7 @@ namespace OZGL2.UIFlow
             SetText(_waveText, "WAVE " + FormatNumber(Mathf.Clamp(_previewWave, 0, totalWaves)) +
                 " / " + FormatNumber(totalWaves));
             SetText(_levelText, "LV. " + FormatNumber(Mathf.Max(1, _previewLevel)));
-            SetText(_timeText, FormatTime(_previewRemainingSeconds));
+            SetText(_timeText, FormatTime(_previewRemainingSeconds, _usesElapsedTime));
             SetText(_costText, FormatNumber(Mathf.Max(0, _previewCost)));
             SetText(_rerollCostText, FormatNumber(Mathf.Max(0, _previewRerollCost)));
             SetText(_costTextSdf, FormatNumber(Mathf.Max(0, _previewCost)));
@@ -180,8 +192,9 @@ namespace OZGL2.UIFlow
             {
                 EnemyPreview enemy = _previewEnemies != null && i < _previewEnemies.Length
                     ? _previewEnemies[i] : null;
-                SetTextAt(_enemyNames, i, enemy != null ? enemy.Name : string.Empty);
-                SetTextAt(_enemyCounts, i, enemy != null ? "×" + FormatNumber(enemy.Count) : string.Empty);
+                bool hasEnemy = enemy != null && !string.IsNullOrWhiteSpace(enemy.Name);
+                SetTextAt(_enemyNames, i, hasEnemy ? enemy.Name : string.Empty);
+                SetTextAt(_enemyCounts, i, hasEnemy ? "×" + FormatNumber(enemy.Count) : string.Empty);
             }
 
             int synergySlots = Mathf.Max(ArrayLength(_synergyNames), ArrayLength(_synergyThresholds));
@@ -211,11 +224,12 @@ namespace OZGL2.UIFlow
         private static int ArrayLength(Text[] values) => values != null ? values.Length : 0;
         private static string FormatNumber(int value) => value.ToString(CultureInfo.InvariantCulture);
 
-        private static string FormatTime(float seconds)
+        private static string FormatTime(float seconds, bool isElapsed)
         {
-            // 올림으로 남은 1초 미만도 표시하며, 큰 입력의 정수 변환 오버플로를 방지한다.
+            // 남은 시간은 올림, 경과 시간은 내림으로 표시한다.
             double safeSeconds = IsFinite(seconds) ? Math.Max(0d, (double)seconds) : 0d;
-            int totalSeconds = (int)Math.Min(int.MaxValue, Math.Ceiling(safeSeconds));
+            double roundedSeconds = isElapsed ? Math.Floor(safeSeconds) : Math.Ceiling(safeSeconds);
+            int totalSeconds = (int)Math.Min(int.MaxValue, roundedSeconds);
             return (totalSeconds / 60).ToString("00", CultureInfo.InvariantCulture) + ":" +
                 (totalSeconds % 60).ToString("00", CultureInfo.InvariantCulture);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,6 +14,7 @@ namespace OZGL2.UIFlow
         private readonly List<UIPopupPanel> _openPopups = new List<UIPopupPanel>();
         private readonly List<GameObject> _previousSelections = new List<GameObject>();
         public int OpenCount => _openPopups.Count;
+        public event Action<int> OpenCountChanged;
         public bool IsTopPopup(UIPopupPanel popup) => popup != null && _openPopups.Count > 0 && _openPopups[_openPopups.Count - 1] == popup;
 
         public void OpenPopup(UIPopupPanel popup)
@@ -28,6 +30,7 @@ namespace OZGL2.UIFlow
             popup.SetInteractable(true);
             if (popup.FirstSelected != null) popup.FirstSelected.Select();
             else if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+            OpenCountChanged?.Invoke(_openPopups.Count);
         }
 
         public void CloseTopPopup()
@@ -57,6 +60,7 @@ namespace OZGL2.UIFlow
             else if (_screenGroup != null) _screenGroup.interactable = true;
             if (EventSystem.current != null)
                 EventSystem.current.SetSelectedGameObject(previousSelection != null && previousSelection.activeInHierarchy ? previousSelection : null);
+            OpenCountChanged?.Invoke(_openPopups.Count);
         }
 
         private void Update()

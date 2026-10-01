@@ -17,8 +17,14 @@ namespace OZGL2.UIFlow
         private readonly List<AugmentData> _activeChoices = new List<AugmentData>(3);
         private bool _hasInjectedChoices;
         private bool _hasConfirmedSelection;
+        private Func<AugmentData, bool> _selectionHandler;
 
         public event Action<AugmentData> AugmentSelected;
+
+        public void ConfigureSelectionHandler(Func<AugmentData, bool> selectionHandler)
+        {
+            _selectionHandler = selectionHandler;
+        }
 
         public void Configure(UIPopupPanel panel, UIAugmentCardView[] cards,
             UIAugmentVisualCatalogSO catalog, AugmentData[] previewChoices)
@@ -93,6 +99,8 @@ namespace OZGL2.UIFlow
             if (_hasConfirmedSelection || data == null || !_activeChoices.Contains(data)) return;
             UIPopupController controller = _panel != null ? _panel.Controller : null;
             if (controller != null && !controller.IsTopPopup(_panel)) return;
+            // 코어가 요청 ID와 후보를 검증한 뒤 수락한 경우에만 선택을 확정한다.
+            if (_selectionHandler != null && !_selectionHandler(data)) return;
             _hasConfirmedSelection = true;
             if (_cards != null)
                 foreach (UIAugmentCardView card in _cards)

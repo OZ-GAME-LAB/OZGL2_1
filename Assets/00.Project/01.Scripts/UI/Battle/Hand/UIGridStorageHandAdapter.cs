@@ -20,6 +20,7 @@ namespace OZGL2.UIFlow
     {
         private const string UNIT_ID_PREFIX = "UNIT:";
         private const string BLOCK_ID_PREFIX = "BLOCK:";
+        private const string REWARD_ID_PREFIX = "REWARD:";
         private const string LEGACY_TRAY_NAME = "storage-tray";
 
         [Header("손패")]
@@ -36,6 +37,8 @@ namespace OZGL2.UIFlow
 
         private readonly Dictionary<string, StoredIdentity> _identities =
             new Dictionary<string, StoredIdentity>();
+        private readonly Dictionary<string, int> _rewardOptionIndices =
+            new Dictionary<string, int>();
 
         private GridRunSession _session;
         private GridManager _manager;
@@ -52,6 +55,36 @@ namespace OZGL2.UIFlow
         private bool _isCancellingOwnedDrag;
         private bool _lastViewInteractable;
         private bool _hasLastViewInteractable;
+        private bool _isShowingRewardSelection;
+        private string _shownRewardRequestId;
+
+        public bool IsRuntimeConnected => _bootstrap != null && _phasePresentation != null && _legacyDocument != null;
+
+        /// <summary>Scene Root가 분리된 실제 InGame 연결을 명시적으로 주입한다.</summary>
+        public void ConfigureRuntimeSources(
+            InGamePrototypeBootstrap bootstrap,
+            InGamePhasePresentation phasePresentation,
+            UIDocument legacyDocument)
+        {
+            if (Application.isPlaying && isActiveAndEnabled)
+            {
+                if (_bootstrap != null) _bootstrap.Changed -= HandleBootstrapChanged;
+                CancelOwnedDrag();
+                UnbindManager();
+                RestoreLegacyStorageTray();
+            }
+
+            _bootstrap = bootstrap;
+            _phasePresentation = phasePresentation;
+            _legacyDocument = legacyDocument;
+
+            if (Application.isPlaying && isActiveAndEnabled)
+            {
+                if (_bootstrap != null) _bootstrap.Changed += HandleBootstrapChanged;
+                TryHideLegacyStorageTray();
+                RefreshSessionBinding();
+            }
+        }
 
         private void Awake()
         {
@@ -79,6 +112,9 @@ namespace OZGL2.UIFlow
             RestoreLegacyStorageTray();
 
             _identities.Clear();
+            _rewardOptionIndices.Clear();
+            _isShowingRewardSelection = false;
+            _shownRewardRequestId = null;
             if (_handView == null) return;
             _handView.SetInteractable(false);
             _handView.Clear();
@@ -132,6 +168,7 @@ namespace OZGL2.UIFlow
         private void SubscribeView()
         {
             if (_handView == null) return;
+            _handView.CardClicked += HandleCardClicked;
             _handView.CardBeginDrag += HandleCardBeginDrag;
             _handView.CardDragged += HandleCardDragged;
             _handView.CardEndDrag += HandleCardEndDrag;
@@ -140,6 +177,7 @@ namespace OZGL2.UIFlow
         private void UnsubscribeView()
         {
             if (_handView == null) return;
+            _handView.CardClicked -= HandleCardClicked;
             _handView.CardBeginDrag -= HandleCardBeginDrag;
             _handView.CardDragged -= HandleCardDragged;
             _handView.CardEndDrag -= HandleCardEndDrag;
@@ -163,20 +201,44 @@ namespace OZGL2.UIFlow
             }
 
             CancelOwnedDrag();
-            if (_manager != null) _manager.LayoutChanged -= HandleLayoutChanged;
+            if (_manager != null)
+            {
+                _manager.Changed -= HandleManagerChanged;
+                _manager.LayoutChanged -= HandleLayoutChanged;
+            }
 
             _session = nextSession;
             _manager = nextManager;
 
-            if (_manager != null) _manager.LayoutChanged += HandleLayoutChanged;
+            if (_manager != null)
+            {
+                _manager.Changed += HandleManagerChanged;
+                _manager.LayoutChanged += HandleLayoutChanged;
+            }
             RefreshItems();
         }
 
         private void UnbindManager()
         {
-            if (_manager != null) _manager.LayoutChanged -= HandleLayoutChanged;
+            if (_manager != null)
+            {
+                _manager.Changed -= HandleManagerChanged;
+                _manager.LayoutChanged -= HandleLayoutChanged;
+            }
             _manager = null;
             _session = null;
+            _isShowingRewardSelection = false;
+            _shownRewardRequestId = null;
+        }
+
+        private void HandleManagerChanged()
+        {
+            bool shouldShowRewards = ShouldShowRewardSelection();
+            string requestId = shouldShowRewards ? _bootstrap?.Rewards?.Pending?.RequestId : null;
+            if (shouldShowRewards != _isShowingRewardSelection || requestId != _shownRewardRequestId)
+                RefreshItems();
+            else
+                UpdateViewInteractability();
         }
 
         private void HandleLayoutChanged()
@@ -187,9 +249,12 @@ namespace OZGL2.UIFlow
         private void RefreshItems()
         {
             _identities.Clear();
+            _rewardOptionIndices.Clear();
 
             if (_manager == null)
             {
+                _isShowingRewardSelection = false;
+                _shownRewardRequestId = null;
                 if (_handView != null)
                 {
                     _handView.SetInteractable(false);
@@ -198,6 +263,15 @@ namespace OZGL2.UIFlow
                 }
                 return;
             }
+
+            if (ShouldShowRewardSelection())
+            {
+                RefreshRewardItems();
+                return;
+            }
+
+            _isShowingRewardSelection = false;
+            _shownRewardRequestId = null;
 
             IReadOnlyList<GridStoredItem> storedItems = _manager.GetStoredItems();
             var displayItems = new List<BattleHandCardDisplayData>(storedItems.Count);
@@ -219,6 +293,78 @@ namespace OZGL2.UIFlow
                 _hasLastViewInteractable = false;
             }
             UpdateViewInteractability();
+        }
+
+        private bool ShouldShowRewardSelection()
+        {
+            StageGridRewards rewards = _bootstrap != null ? _bootstrap.Rewards : null;
+            return _manager != null && rewards?.Pending != null &&
+                _session != null && _session.PendingRewardId == rewards.Pending.RequestId &&
+                _manager.Phase == eGridPhase.REWARD && !_manager.HasPendingStorage;
+        }
+
+        private void RefreshRewardItems()
+        {
+            StageGridRewards rewards = _bootstrap.Rewards;
+            string requestId = rewards.Pending.RequestId;
+            IReadOnlyList<GeneralRewardOption> candidates = rewards.Candidates;
+            var displayItems = new List<BattleHandCardDisplayData>(candidates.Count);
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                BattleHandCardDisplayData displayItem = CreateRewardDisplayItem(requestId, i, candidates[i]);
+                if (displayItem == null) continue;
+
+                displayItems.Add(displayItem);
+                _rewardOptionIndices[displayItem.Id] = i;
+            }
+
+            _isShowingRewardSelection = true;
+            _shownRewardRequestId = requestId;
+            if (_ownsDrag) CancelOwnedDrag();
+            if (_handView != null)
+            {
+                _handView.SetItems(displayItems);
+                _hasLastViewInteractable = false;
+            }
+            UpdateViewInteractability();
+        }
+
+        private BattleHandCardDisplayData CreateRewardDisplayItem(
+            string requestId,
+            int optionIndex,
+            GeneralRewardOption option)
+        {
+            if (option == null) return null;
+            string id = string.Concat(REWARD_ID_PREFIX, requestId, ":", optionIndex.ToString(CultureInfo.InvariantCulture));
+
+            if (option.Kind == eGeneralRewardKind.EXPANSION)
+            {
+                return new BattleHandCardDisplayData(
+                    id,
+                    eBattleHandCardKind.LAND_SLOT,
+                    "배치 영역 확장",
+                    areaTitle: "웨이브 보상",
+                    footprint: CreateDisplayFootprint(_manager.Definition.Expansion, 0, false));
+            }
+
+            UIUnitCatalogSO.Entry catalogEntry = FindUnitCatalogEntry(option.Unit.Id);
+            string title = catalogEntry != null && !string.IsNullOrWhiteSpace(catalogEntry.DisplayName)
+                ? catalogEntry.DisplayName
+                : option.Unit.DisplayName;
+            GetUnitStatTexts(option.Unit.Id, option.StarLevel, out string attack, out string defense, out string health);
+            return new BattleHandCardDisplayData(
+                id,
+                eBattleHandCardKind.UNIT,
+                title,
+                rankText: option.StarLevel.ToString(CultureInfo.InvariantCulture),
+                attack: attack,
+                defense: defense,
+                health: health,
+                areaTitle: "웨이브 보상",
+                areaDescription: catalogEntry != null ? catalogEntry.Description : string.Empty,
+                artwork: catalogEntry != null ? catalogEntry.Portrait : null,
+                footprint: CreateDisplayFootprint(option.Block, 0, false));
         }
 
         private BattleHandCardDisplayData CreateDisplayItem(GridStoredItem storedItem)
@@ -283,6 +429,16 @@ namespace OZGL2.UIFlow
 
         private void GetUnitStatTexts(UnitPlacement unit, out string attack, out string defense, out string health)
         {
+            GetUnitStatTexts(unit.Definition.Id, unit.StarLevel, out attack, out defense, out health);
+        }
+
+        private void GetUnitStatTexts(
+            string unitDefinitionId,
+            int starLevel,
+            out string attack,
+            out string defense,
+            out string health)
+        {
             attack = string.Empty;
             defense = string.Empty;
             health = string.Empty;
@@ -290,7 +446,7 @@ namespace OZGL2.UIFlow
             InGamePrototypeConfigSO config = _bootstrap != null ? _bootstrap.Config : null;
             DemonArmyCatalog armyCatalog = config != null ? config.DemonArmyCatalog : null;
             UnitBase prefab = armyCatalog != null
-                ? armyCatalog.FindPrefab(unit.Definition.Id, unit.StarLevel)
+                ? armyCatalog.FindPrefab(unitDefinitionId, starLevel)
                 : null;
             UnitStatData stats = prefab != null ? prefab.statData : null;
             if (stats == null) return;
@@ -324,6 +480,21 @@ namespace OZGL2.UIFlow
                 normalized[i] = new Vector2Int(cells[i].x - minX, maxY - cells[i].y);
             }
             return normalized;
+        }
+
+        private void HandleCardClicked(UIBattleCardHandSlot slot, PointerEventData eventData)
+        {
+            if (slot == null || eventData == null || eventData.button != PointerEventData.InputButton.Left ||
+                !_isShowingRewardSelection || !_rewardOptionIndices.TryGetValue(slot.Id, out int optionIndex)) return;
+
+            StageGridRewards rewards = _bootstrap != null ? _bootstrap.Rewards : null;
+            string requestId = rewards?.Pending?.RequestId;
+            if (string.IsNullOrEmpty(requestId) || requestId != _shownRewardRequestId ||
+                _bootstrap.IsUiInputBlocked) return;
+
+            // TrySelect가 false여도 보관함 초과 처리가 시작됐을 수 있으므로 최신 Grid 상태로 다시 그린다.
+            rewards.TrySelect(requestId, optionIndex);
+            RefreshItems();
         }
 
         private void HandleCardBeginDrag(UIBattleCardHandSlot slot, PointerEventData eventData)
@@ -527,10 +698,23 @@ namespace OZGL2.UIFlow
         {
             if (_handView == null) return;
 
-            bool canInteract = isActiveAndEnabled && _manager != null &&
-                _phasePresentation != null && _phasePresentation.Surface != null &&
-                _phasePresentation.CanInteract && _manager.Phase == eGridPhase.PREPARATION &&
-                !_manager.HasPendingStorage && (!_manager.HasSelection || IsManagerSelectionOwned());
+            bool canInteract;
+            if (_isShowingRewardSelection)
+            {
+                StageGridRewards rewards = _bootstrap != null ? _bootstrap.Rewards : null;
+                canInteract = isActiveAndEnabled && _manager != null &&
+                    rewards?.Pending != null && rewards.Pending.RequestId == _shownRewardRequestId &&
+                    _session != null && _session.PendingRewardId == _shownRewardRequestId &&
+                    _manager.Phase == eGridPhase.REWARD && !_manager.HasPendingStorage &&
+                    !_manager.HasSelection && !_bootstrap.IsUiInputBlocked;
+            }
+            else
+            {
+                canInteract = isActiveAndEnabled && _manager != null &&
+                    _phasePresentation != null && _phasePresentation.Surface != null &&
+                    _phasePresentation.CanInteract && _manager.Phase == eGridPhase.PREPARATION &&
+                    !_manager.HasPendingStorage && (!_manager.HasSelection || IsManagerSelectionOwned());
+            }
 
             // View를 잠그면 Slot이 drag flag를 먼저 내리므로, 선택 상태를 그 전에 원자적으로 정리한다.
             if (_ownsDrag && !canInteract && !_isCancellingOwnedDrag)

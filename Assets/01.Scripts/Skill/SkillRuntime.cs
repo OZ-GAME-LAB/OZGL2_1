@@ -26,7 +26,8 @@ namespace OZGL2.Skill
         public int UnlockCost => Data.category == SkillCategory.Ultimate ? 5 : Mathf.Clamp(Data.tier, 1, 4);
 
         public float EffectivePower => Data.skillPower * _mods.PowerMult;
-        public float EffectiveCooldown => Data.cooldown * _mods.CooldownMult;
+        public float EffectiveCooldown => Data.cooldown * _mods.CooldownMult
+                                          * (Data.category == SkillCategory.Ultimate ? _mods.UltCooldownMult : 1f);
         public float EffectiveRadius => Data.radius * _mods.RadiusMult;
         public float EffectiveBuffDuration => Data.duration * _mods.BuffDurationMult;
         public int EffectiveReviveCount => Mathf.Max(0, Data.reviveCount + _mods.ReviveBonus);

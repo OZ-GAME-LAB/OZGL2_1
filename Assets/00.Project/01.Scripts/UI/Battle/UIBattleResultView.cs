@@ -103,6 +103,7 @@ namespace OZGL2.UIFlow
         private BattleResultDisplayData _runtimeData;
         private Button _subscribedButton;
         private bool _needsRefresh;
+        private Func<bool> _returnToLobbyHandler;
 
         public eBattleResultState State => _state;
         public UIPopupPanel Popup => _popup;
@@ -125,6 +126,12 @@ namespace OZGL2.UIFlow
         {
             _navigator = navigator;
             _lobbyScenePath = lobbyScenePath;
+            SyncButtonSubscription();
+        }
+
+        public void ConfigureReturnToLobby(Func<bool> returnToLobbyHandler)
+        {
+            _returnToLobbyHandler = returnToLobbyHandler;
             SyncButtonSubscription();
         }
 
@@ -177,6 +184,12 @@ namespace OZGL2.UIFlow
         {
             if (!Application.IsPlaying(gameObject)) return;
             if (_popup != null && _popup.Controller != null && !_popup.Controller.IsTopPopup(_popup)) return;
+            if (_returnToLobbyHandler != null)
+            {
+                if (!_returnToLobbyHandler())
+                    Debug.LogWarning("코어 루프가 로비 이동 요청을 수락하지 않았습니다.", this);
+                return;
+            }
             if (_navigator == null || string.IsNullOrWhiteSpace(_lobbyScenePath))
             {
                 Debug.LogWarning("결과 화면의 Navigator와 로비 Scene 경로 연결을 확인하세요.", this);
