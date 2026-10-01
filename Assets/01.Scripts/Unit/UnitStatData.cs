@@ -62,6 +62,15 @@ public class UnitStatData : ScriptableObject
     [Range(0f, 3f)]
     public float executeDamageBonusPerMissingHealth = 0f; // 대상이 잃은 체력 비율만큼 추가 피해 배율(0=비활성, 0.5=최대 +50%)
 
+    [Header("화상(도트) — 기본공격 적중 시 대상에게 지속 피해 추가 (0=비활성)")]
+    public float burnDamagePerSecond = 0f;
+    public float burnDuration = 0f;
+
+    [Header("회복 오라 — 공격 여부와 무관하게 주기적으로 자신 포함 주변 아군 회복 (0=비활성)")]
+    public float auraHealAmount = 0f;
+    public float auraHealInterval = 0f;
+    public float auraHealRadius = 0f;
+
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
     public int killExpReward = 0;       // 용사 처치 시 지급 경험치 (성민 파트 연계)

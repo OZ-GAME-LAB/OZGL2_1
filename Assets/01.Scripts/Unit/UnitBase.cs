@@ -99,6 +99,101 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     void IStatusReceiver.ApplyKnockback(Vector3 dir, float force) => transform.position += dir.normalized * force;
     void IStatusReceiver.ApplyVulnerable(float multiplier, float seconds) { _vulnerableMult = multiplier; _vulnerableExpire = Time.time + seconds; }
 
+    /// <summary>
+    /// 화상(도트) 적용. 아직 팀 공용 IStatusReceiver 계약엔 없는, 이번 보스 전용 기믹이라
+    /// UnitBase 공개 메서드로만 추가 — 스킬 시스템에서도 필요해지면 그때 인터페이스로 승격.
+    /// 재적용 시 dps는 최신 값으로 덮어쓰고, 지속시간은 더 긴 쪽으로 갱신한다(ApplyStun과 동일 정책).
+    /// </summary>
+    public void ApplyBurn(float damagePerSecond, float seconds)
+    {
+        if (currentState == UnitState.Dead || damagePerSecond <= 0f || seconds <= 0f)
+        {
+            return;
+        }
+
+        _burnDps = damagePerSecond;
+        _burnExpire = Mathf.Max(_burnExpire, Time.time + seconds);
+    }
+
+    private static readonly Color BurnTintColor = new Color(1f, 0.55f, 0.55f);
+    private bool _burnTintActive;
+
+    /// <summary>매 프레임 호출: 화상 중이면 BurnTickInterval마다 dps x 간격만큼 피해를 입히고, 화상 상태를 붉은 틴트로 표시한다.</summary>
+    private void TickBurn()
+    {
+        bool burning = Time.time < _burnExpire;
+        if (burning != _burnTintActive)
+        {
+            SetBurnTint(burning);
+        }
+
+        if (!burning)
+        {
+            return;
+        }
+
+        _burnTickTimer -= Time.deltaTime;
+        if (_burnTickTimer <= 0f)
+        {
+            _burnTickTimer += BurnTickInterval;
+            TakeDamage(Mathf.RoundToInt(_burnDps * BurnTickInterval));
+        }
+    }
+
+    private void SetBurnTint(bool active)
+    {
+        _burnTintActive = active;
+        Color tint = active ? BurnTintColor : Color.white;
+        for (int i = 0; i < _bodyRenderers.Length; i++)
+        {
+            if (_bodyRenderers[i] != null)
+            {
+                _bodyRenderers[i].color = tint;
+            }
+        }
+    }
+
+    /// <summary>매 프레임 호출: auraHealAmount가 설정된 유닛(팔라딘류)은 공격 여부와 무관하게 주기적으로 주변 아군(자신 포함)을 회복한다.</summary>
+    private void TickAuraHeal()
+    {
+        if (statData == null || statData.auraHealAmount <= 0f)
+        {
+            return;
+        }
+
+        _auraHealTimer -= Time.deltaTime;
+        if (_auraHealTimer <= 0f)
+        {
+            _auraHealTimer += Mathf.Max(statData.auraHealInterval, 0.1f);
+            ApplyAuraHeal();
+        }
+    }
+
+    private void ApplyAuraHeal()
+    {
+        var allies = UnitRegistry.GetUnits(Side);
+        float radiusSqr = statData.auraHealRadius * statData.auraHealRadius;
+        float healMult = CombatModifierHub.GetHealMult(statData.job, statData.side);
+        int amount = Mathf.RoundToInt(statData.auraHealAmount * healMult);
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            UnitBase ally = allies[i];
+            if (ally == null || ally.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            float distSqr = (ally.transform.position - transform.position).sqrMagnitude;
+            if (distSqr <= radiusSqr)
+            {
+                ally.Heal(amount);
+            }
+        }
+
+        CombatEffects.PlaySaintCast(transform.position);
+    }
+
     // IPooledHeroState (OZGL2.Stage) — HeroPool이 용사를 재사용할 때 호출.
     void IPooledHeroState.ResetForSpawn(long leaseId)
     {
@@ -113,6 +208,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         _buffAttackMult = 1f; _buffAttackExpire = 0f;
         _buffAttackSpeedMult = 1f; _buffAttackSpeedExpire = 0f;
         _buffDefenseMult = 1f; _buffDefenseExpire = 0f;
+        _burnDps = 0f; _burnExpire = 0f; _burnTickTimer = 0f;
+        if (_burnTintActive)
+        {
+            SetBurnTint(false); // 이전 대여 때 화상으로 붉게 물든 채 반납됐을 수 있으니 즉시 원복
+        }
+        _auraHealTimer = 0f;
 
         if (statData != null)
         {
@@ -164,6 +265,15 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     private float _buffAttackSpeedMult = 1f, _buffAttackSpeedExpire;
     private float _buffDefenseMult = 1f, _buffDefenseExpire;
 
+    // 화상(도트): dps/만료시각만 들고, 실제 틱(TickBurn)은 매 프레임 시간 누적으로 처리.
+    private float _burnDps;
+    private float _burnExpire;
+    private float _burnTickTimer;
+    private const float BurnTickInterval = 1f;
+
+    // 회복 오라(팔라딘류): 공격 상태와 무관하게 항상 흐르는 별도 타이머.
+    private float _auraHealTimer;
+
     private float EffectiveSlowMult => Time.time < _slowExpire ? _slowMult : 1f;
     private float EffectiveVulnerableMult => Time.time < _vulnerableExpire ? _vulnerableMult : 1f;
     private float EffectiveBuffAttackMult => Time.time < _buffAttackExpire ? _buffAttackMult : 1f;
@@ -211,7 +321,27 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         InitSpumAnimation();
         EnsureClickCollider();
+        // 화상 틴트 대상 스냅샷은 체력바를 붙이기 전에 떠야 한다 — 안 그러면 체력바(Background/Fill)
+        // 스프라이트까지 자식으로 잡혀서 화상 중에 체력바까지 붉게 물든다.
+        CacheBodyRenderers();
         UnitHealthBar.Attach(this);
+    }
+
+    /// <summary>화상 등 색상 틴트를 입힐 대상 스프라이트 목록. "Shadow"는 팩마다 톤이 달라 제외(UnitHealthBar와 동일 기준).</summary>
+    private SpriteRenderer[] _bodyRenderers = System.Array.Empty<SpriteRenderer>();
+
+    private void CacheBodyRenderers()
+    {
+        var all = GetComponentsInChildren<SpriteRenderer>(true);
+        var filtered = new System.Collections.Generic.List<SpriteRenderer>(all.Length);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i].name.IndexOf("Shadow", System.StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                filtered.Add(all[i]);
+            }
+        }
+        _bodyRenderers = filtered.ToArray();
     }
 
     /// <summary>
@@ -327,6 +457,14 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             _slowEffectInstance = null;
         }
 
+        // 화상(도트)·회복 오라는 기절 중에도, 어떤 상태(Idle/Move/Attack)든 계속 틱한다 —
+        // "행동"이 아니라 지속효과라서 스턴/상태 전이와 무관하게 흘러야 함.
+        if (currentState != UnitState.Dead)
+        {
+            TickBurn();
+            TickAuraHeal();
+        }
+
         if (Time.time < _stunExpire)
         {
             return; // 스턴 중엔 상태 틱 자체를 건너뛴다 (행동 불가)
@@ -403,6 +541,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     /// <summary>
     /// 좌우 이동 방향에 맞춰 스프라이트를 뒤집는다 (SPUM 프리팹은 localScale.x 반전 방식 사용).
+    /// 기존엔 direction.x >= 0일 때 미러링 없음(양수 스케일)으로 처리했는데, 실제 SPUM 리그의
+    /// 기본(미러링 전) 포즈가 왼쪽을 보고 있어서 좌우가 전부 반대로 보이는 문제가 있었다.
+    /// 기준을 뒤집어 direction.x < 0(왼쪽)일 때 기본 포즈를 쓰고, 오른쪽으로 향할 때 미러링한다.
     /// </summary>
     protected virtual void FaceDirection(Vector3 direction)
     {
@@ -412,7 +553,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         Vector3 scale = transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * (direction.x < 0f ? -1f : 1f);
+        scale.x = Mathf.Abs(scale.x) * (direction.x < 0f ? 1f : -1f);
         transform.localScale = scale;
     }
 
@@ -439,7 +580,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         currentTarget = target;
-        attackCooldownTimer = 0f; // 사거리 진입 즉시 첫 공격/치료가 나가도록
+        // attackCooldownTimer는 건드리지 않는다 — 스폰 직후(0으로 초기화됨)엔 그대로 즉시 첫 공격이 나가고,
+        // 이미 교전 중이던 유닛이 대상이 죽어서 재탐색하는 경우엔 남아있던 쿨다운을 그대로 이어간다.
+        // 예전엔 여기서 매번 0으로 리셋해서, 대상이 자주 죽는(스플래시 등) 상황에서 사실상 공속이 무제한으로
+        // 빨라지는 버그가 있었다 (마법사 타겟 전환마다 쿨다운 없이 즉발 공격).
         SetState(UnitState.Attack);
         return true;
     }
@@ -752,6 +896,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             _attackCount % statData.comboStunAttackInterval == 0)
         {
             ((IStatusReceiver)target).ApplyStun(statData.comboStunDuration);
+        }
+
+        // 화상(화염기사류): 기본공격이 명중하는 대상에게 매번 화상을 새로 걸어(갱신) 도트 피해를 추가.
+        if (statData.burnDamagePerSecond > 0f)
+        {
+            target.ApplyBurn(statData.burnDamagePerSecond, statData.burnDuration);
         }
 
         if (statData.projectilePrefab != null)

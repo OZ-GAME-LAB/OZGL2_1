@@ -129,17 +129,17 @@ MonoBehaviour:
     _growthCount: 2
     _experience: 4
   - _heroId: H_BOSS_01
-    _prefab: {fileID: -7584488347318697607, guid: 5f7d676537044d19a599a9c3e22ccdd0, type: 3}
+    _prefab: {fileID: 8258306693839877733, guid: 0bf70a7c6a9b1774a9606b46f8538d9c, type: 3}
     _initialCapacity: 1
     _growthCount: 1
     _experience: 30
   - _heroId: H_BOSS_02
-    _prefab: {fileID: -5820338468307478942, guid: 6e8f8e604b5e49baad01e73fcfd964b0, type: 3}
+    _prefab: {fileID: -19642668971362273, guid: 23f2baee181b6ba46a5549fdd3f128fc, type: 3}
     _initialCapacity: 1
     _growthCount: 1
     _experience: 45
   - _heroId: H_BOSS_FINAL_01
-    _prefab: {fileID: -6526327328208007526, guid: 034a28d708f84db0a956e8b81681a993, type: 3}
+    _prefab: {fileID: -8449092976086221763, guid: 2b06490771237a24ea03b3db8c3ed711, type: 3}
     _initialCapacity: 1
     _growthCount: 1
     _experience: 60
