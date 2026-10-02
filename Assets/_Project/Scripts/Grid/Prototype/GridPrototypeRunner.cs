@@ -83,17 +83,20 @@ namespace OZGL2.Grid.Prototype
         private void Build()
         {
             _root = GetComponent<UIDocument>().rootVisualElement; _root.Clear();
-            _root.style.backgroundColor = _worldSurface != null ? Color.clear : new Color(0.035f, 0.055f, 0.09f);
-            _root.style.paddingBottom = _worldSurface != null ? 110 : 0;
+            bool isWorldPresentation = _worldSurface != null;
+            _root.style.backgroundColor = isWorldPresentation ? Color.clear : new Color(0.035f, 0.055f, 0.09f);
+            _root.style.paddingBottom = isWorldPresentation ? 110 : 0;
             _root.style.alignItems = Align.Center; _root.style.justifyContent = Justify.Center;
             _root.style.color = new Color(0.87f, 0.92f, 1); _root.style.fontSize = 18;
-            var title = new Label("CASTLE GRID  /  PREPARATION PROTOTYPE"); title.style.fontSize = 26; _root.Add(title);
-            _status = new Label(); _status.style.marginTop = 10; _root.Add(_status);
+            var title = new Label("CASTLE GRID  /  PREPARATION PROTOTYPE"); title.style.fontSize = 26;
+            title.style.display = isWorldPresentation ? DisplayStyle.None : DisplayStyle.Flex; _root.Add(title);
+            _status = new Label(); _status.style.marginTop = 10;
+            _status.style.display = isWorldPresentation ? DisplayStyle.None : DisplayStyle.Flex; _root.Add(_status);
             _message = new Label(); _message.style.marginTop = 8; _message.style.height = 28; _root.Add(_message);
             Board = _worldSurface == null ? new GridBoardView(Manager, _boardTheme) : null;
             var surface = _worldSurface ?? Board;
             _root.Add(surface.Element);
-            if (_worldSurface != null)
+            if (isWorldPresentation)
             {
                 _root.style.justifyContent = Justify.FlexStart;
                 surface.Element.style.flexGrow = 1; surface.Element.style.width = Length.Percent(100);
@@ -108,7 +111,8 @@ namespace OZGL2.Grid.Prototype
             _expansionCard.style.backgroundColor = new Color(0.14f, 0.35f, 0.28f);
             _expansionCard.style.marginTop = 10;
             _expansionCard.RegisterCallback<PointerDownEvent>(_input.BeginExpansion); _root.Add(_expansionCard);
-            var actions = new VisualElement(); actions.style.flexDirection = FlexDirection.Row; actions.style.marginTop = 14; _root.Add(actions);
+            var actions = new VisualElement(); actions.style.flexDirection = FlexDirection.Row; actions.style.marginTop = 14;
+            actions.style.display = isWorldPresentation ? DisplayStyle.None : DisplayStyle.Flex; _root.Add(actions);
             _start = AddButton(actions, "Start battle", () => BeginBattle(false));
             _skip = AddButton(actions, "Skip preparation", () => BeginBattle(true));
             _recovery = new VisualElement(); _recovery.style.flexDirection = FlexDirection.Row; _root.Add(_recovery);

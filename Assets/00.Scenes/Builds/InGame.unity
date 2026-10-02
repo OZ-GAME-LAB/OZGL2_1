@@ -684,11 +684,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 789913265453973723}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -12.6436, y: 509}
-  m_SizeDelta: {x: 2164.845, y: 1447.3799}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 196}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!4 &683877930957882283
 Transform:
   m_ObjectHideFlags: 0
@@ -739,15 +739,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2058518264, guid: 6473e8cff4cb8a84cae5a2fd1893dad1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4cd855ec405e9f742a0576a2d79038cd, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -775,9 +775,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1651496125, guid: b56985c6690f61d4f9c28ace7b4f0d18, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1c003be26d0a8dc4db2e77e5ddf19cef, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1106,9 +1106,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -74680597, guid: 6473e8cff4cb8a84cae5a2fd1893dad1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 227c0b8170a1fce46abd566f6470962a, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -2569,11 +2569,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1438908419871327346, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 47.8
+      value: 47.80005
       objectReference: {fileID: 0}
     - target: {fileID: 1438908419871327346, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 64.2
+      value: 64.19995
       objectReference: {fileID: 0}
     - target: {fileID: 1568020249915672270, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_IsActive
@@ -2693,7 +2693,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3236460204139886205, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1.3200073
+      value: -1.3200684
       objectReference: {fileID: 0}
     - target: {fileID: 3236460204139886205, guid: 10151c01b7fab0c439822499fc265d41, type: 3}
       propertyPath: m_ConstrainProportionsScale
@@ -3443,9 +3443,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -271178372, guid: e6aaaaa3ffe2778459ff2ff646a3b3c9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 227c0b8170a1fce46abd566f6470962a, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -3672,7 +3672,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3bdd830212846714093e7f9fce300d61, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e915ab1fa73f7a14b820eebdfea75dc5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
