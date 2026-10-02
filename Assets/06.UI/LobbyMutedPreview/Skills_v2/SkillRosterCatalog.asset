@@ -27,7 +27,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 120
+    _effectValue: 40
     _cooldown: "12\uCD08"
   - _id: ui_preview_ice_spike
     _displayName: "\uC5BC\uC74C \uAC00\uC2DC"
@@ -43,7 +43,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 90
+    _effectValue: 28
     _cooldown: "10\uCD08"
   - _id: ui_preview_strike
     _displayName: "\uC5F0\uC1C4 \uBC88\uAC1C"
@@ -59,7 +59,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uC5F0\uC1C4 \uD53C\uD574"
-    _effectValue: "80 \xB7 5\uCCB4"
+    _effectValue: "25 \xB7 5\uCCB4"
     _cooldown: "15\uCD08"
   - _id: ui_preview_fire_tornado
     _displayName: "\uD654\uC5FC \uD68C\uC624\uB9AC"
@@ -75,7 +75,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uC9C0\uC18D \uD53C\uD574"
-    _effectValue: "24 / 0.2\uCD08"
+    _effectValue: "4 / 0.2\uCD08"
     _cooldown: "22\uCD08"
   - _id: ui_preview_meteor
     _displayName: "\uC6B4\uC11D \uB099\uD558"
@@ -91,7 +91,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 400
+    _effectValue: 140
     _cooldown: "30\uCD08"
   - _id: ui_preview_abyss
     _displayName: "\uACF5\uD5C8 \uBD95\uAD34"
@@ -107,7 +107,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 150
+    _effectValue: 50
     _cooldown: "28\uCD08"
   - _id: ui_preview_knockback_wave
     _displayName: "\uB109\uBC31 \uD30C\uB3D9"
@@ -277,7 +277,7 @@ MonoBehaviour:
     _activation: "\uC989\uC2DC"
     _isArcane: 0
     _effectLabel: "\uC5F0\uC18D \uD53C\uD574"
-    _effectValue: "150 \xD7 20\uD68C"
+    _effectValue: "55 \xD7 20\uD68C"
     _cooldown: "60\uCD08"
   - _id: ui_preview_absolute_zero
     _displayName: "\uC808\uB300 \uC601\uB3C4"
@@ -307,5 +307,5 @@ MonoBehaviour:
     _activation: "\uC989\uC2DC"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 600
+    _effectValue: 220
     _cooldown: "90\uCD08"

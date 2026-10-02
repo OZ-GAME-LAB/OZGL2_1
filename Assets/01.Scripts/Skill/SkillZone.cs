@@ -7,7 +7,7 @@ namespace OZGL2.Skill
     /// <summary>
     /// 지속 장판. 수명 동안 틱마다 반경 내 대상에 효과를 적용한다.
     ///  - 고정: 감속 늪·저주 낙인
-    ///  - 이동: 화염 회오리 (마왕 → 지정점 방향으로 이동하며 끌어당김 + 도트딜)
+    ///  - 이동: 화염 회오리 (마왕 → 지정점 방향으로 이동하며 적을 휘감아 일정 거리까지 끌고 감 + 도트딜)
     /// </summary>
     public class SkillZone : MonoBehaviour
     {
@@ -90,16 +90,36 @@ namespace OZGL2.Skill
             return Mathf.Abs(pos.x - c.x) > w || Mathf.Abs(pos.y - c.y) > h;
         }
 
+        // 회오리가 한 대상을 끌고 갈 수 있는 총 거리 = pullForce × 0.5 (화염 회오리: force 8 → 4칸). 이 거리를 채우면 풀어 준다.
+        private const float CarryDistanceFactor = 0.5f;
+        // 끌려가는 속도는 회오리 속도의 95% — 회오리 안에 머물며 휘감겨 가고, 앞으로 튕겨 나가지 않는다.
+        private const float CarrySpeedFactor = 0.95f;
+        private readonly Dictionary<IDamageable, float> _carried = new Dictionary<IDamageable, float>();
+
+        /// <summary>
+        /// 회오리 안의 적을 진행 방향으로 "휘감아 끌고 간다". 예전에는 회오리 속도의 6배로 밀쳐서(force 8 → 초당 48) 용사가
+        /// 회오리를 앞질러 화면 끝까지 날아갔다. 이제는 회오리와 비슷한 속도로, 한 대상당 정해진 거리까지만 끌고 가고,
+        /// 중심 쪽으로 살짝 당겨 회오리 안에 머물게 한다(그동안 도트 피해를 계속 받는다).
+        /// </summary>
         private void ShoveEnemies()
         {
             if (_enemies == null || _pullForce <= 0f) return;
+            float maxCarry = _pullForce * CarryDistanceFactor;
             _enemyBuffer.Clear();
             _enemies.QueryInRadius(transform.position, _radius, _enemyBuffer);
             foreach (var e in _enemyBuffer)
             {
-                // 회오리 진행 방향으로 강하게 밀치고, 살짝 휘감기(옆으로) 섞음
-                Vector3 shove = _moveDir + (transform.position - e.Position).normalized * 0.3f;
-                (e as IStatusReceiver)?.ApplyKnockback(shove, _pullForce * Time.deltaTime * 6f);
+                if (e.IsDead) continue;
+                _carried.TryGetValue(e, out float used);
+                if (used >= maxCarry) continue; // 충분히 끌고 왔으면 놓아 준다
+
+                Vector3 toCenter = transform.position - e.Position;
+                toCenter.z = 0f;
+                float inward = Mathf.Clamp01(toCenter.magnitude / Mathf.Max(0.01f, _radius)); // 바깥쪽일수록 중심으로 당김
+                Vector3 dir = (_moveDir + toCenter.normalized * (0.6f * inward)).normalized;
+                float step = Mathf.Min(_moveSpeed * CarrySpeedFactor * Time.deltaTime, maxCarry - used);
+                (e as IStatusReceiver)?.ApplyKnockback(dir, step);
+                _carried[e] = used + step;
             }
         }
 
@@ -142,7 +162,7 @@ namespace OZGL2.Skill
                         status?.ApplyVulnerable(_magnitude, _tick + 0.05f);
                         break;
                     case ZoneEffect.DamageOverTime:
-                        e.TakeDamage(_magnitude);
+                        if (_magnitude > 0f) e.TakeDamage(_magnitude); // 0이면 피해 없는 장판(이동·휘감기만 확인할 때)
                         break;
                 }
             }

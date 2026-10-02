@@ -60,6 +60,9 @@ namespace OZGL2.Progression
             PlayerPrefs.Save();
         }
 
+        /// <summary>스킬 세팅에서 한 번이라도 장착을 저장했는가. 저장한 적이 없는 신규 계정만 기본 스킬(화염구)을 자동 장착한다.</summary>
+        public static bool HasSavedEquipment => PlayerPrefs.HasKey(KeyEquip);
+
         /// <summary>장착된 스킬 id 목록 (쉼표 구분).</summary>
         public static List<string> GetEquipped()
         {
