@@ -52,7 +52,9 @@ namespace OZGL2.UIBridge
         // 호버 설명 팝업
         private Canvas _tipCanvas;
         private RectTransform _tipBox;
-        private TMP_Text _tipText;
+        private RectTransform _tipContent;
+        private string _tipSignature;
+        private readonly Dictionary<string, Sprite> _sprites = new Dictionary<string, Sprite>();
         private TMP_FontAsset _font;
         private int _hoverSlot = -1;
 
@@ -173,16 +175,16 @@ namespace OZGL2.UIBridge
             }
             EnsureTooltip();
             if (_tipCanvas == null) return;
-            // 내용은 매 프레임 다시 쓴다(유닛을 옮기면 배치 수가 바뀌므로)
-            _tipText.text = BuildTooltipText(tracker, _slotDef[slot]);
-            _tipText.ForceMeshUpdate();
-            Vector2 text = _tipText.GetPreferredValues();
-            const float pad = 22f;
+
+            // 내용이 바뀔 때만 다시 만든다(유닛을 옮기면 배치 수가 바뀐다)
+            string signature = SignatureOf(tracker, _slotDef[slot], slot);
+            if (signature != _tipSignature)
+            {
+                _tipSignature = signature;
+                BuildTip(tracker, _slotDef[slot], slot);
+            }
+            Vector2 size = _tipBox.sizeDelta;
             float scale = Mathf.Max(0.8f, Screen.height / 1080f);
-            Vector2 size = new Vector2(text.x + pad * 2f, text.y + pad * 2f);
-            _tipBox.sizeDelta = size;
-            var textRect = (RectTransform)_tipText.transform;
-            textRect.sizeDelta = new Vector2(size.x - pad * 2f, size.y - pad * 2f);
 
             // 시너지 줄의 왼쪽에, 줄과 위쪽을 맞춰 띄운다(화면 밖으로 나가지 않게 보정)
             float x = rowRect.xMin - size.x - 14f * scale;
@@ -192,6 +194,15 @@ namespace OZGL2.UIBridge
             _tipBox.anchoredPosition = new Vector2(x, y);
             _tipCanvas.enabled = true;
             _hoverSlot = slot;
+        }
+
+        private string SignatureOf(SynergyTracker tracker, SynergyData def, int slot)
+        {
+            var sb = new StringBuilder();
+            sb.Append(slot).Append('|').Append(def.job).Append('|').Append(tracker.CountOf(def.job)).Append('|').Append(Screen.height);
+            foreach (var combo in tracker.ComboDefs)
+                if (combo != null && (combo.jobA == def.job || combo.jobB == def.job)) sb.Append('|').Append(tracker.IsComboActive(combo) ? 1 : 0);
+            return sb.ToString();
         }
 
         private int FindHoveredSlot(out Rect rowRect)
@@ -222,44 +233,186 @@ namespace OZGL2.UIBridge
             return def != null ? def.displayName : job.ToString();
         }
 
-        private string BuildTooltipText(SynergyTracker tracker, SynergyData def)
+        private struct TipRow
+        {
+            public Sprite pip; public Color pipTint; public string body;
+            public TipRow(Sprite pip, Color pipTint, string body) { this.pip = pip; this.pipTint = pipTint; this.body = body; }
+        }
+
+        /// <summary>이름으로 이미 로드된 UI 스프라이트를 찾는다(씬의 시너지 줄·웨이브 패널이 쓰는 그림을 그대로 재사용).</summary>
+        private Sprite Spr(string name)
+        {
+            if (_sprites.TryGetValue(name, out var cached) && cached != null) return cached;
+            foreach (var sp in Resources.FindObjectsOfTypeAll<Sprite>())
+                if (sp != null && sp.name == name) { _sprites[name] = sp; return sp; }
+            return null;
+        }
+
+        private void BuildTip(SynergyTracker tracker, SynergyData def, int slot)
         {
             int count = tracker.CountOf(def.job);
-            int tier = tracker.TierOf(def.job);
-            const string gold = "#F2DC8C", gray = "#8C8C8C", white = "#F5F2E8", green = "#9BE59B", sky = "#9CD2FF";
-            var sb = new StringBuilder();
+            const string gold = "#F2DC8C", gray = "#9A968E", white = "#F5F2E8", green = "#9BE59B", sky = "#9CD2FF";
+            Sprite pipOn = Spr("Frame_DiamondRed"), pipOff = Spr("Frame_DiamondNeutral");
+            Color offTint = new Color(0.6f, 0.6f, 0.6f, 0.8f);
 
-            // 제목 + 현재 상태
-            sb.Append("<size=130%><b><color=").Append(gold).Append('>').Append(def.displayName).Append(" 시너지</color></b></size>\n");
-            sb.Append("<color=").Append(white).Append(">현재 ").Append(count).Append("명 배치 · ")
-              .Append(tier >= 2 ? "2단계 발동 중" : tier == 1 ? "1단계 발동 중" : "아직 발동 전").Append("</color>\n\n");
+            // 제목 줄: 직업 아이콘(다이아 받침 위) + "직업 시너지" + 현재 배치 수
+            string titleBody = "<size=105%><b><color=" + gold + ">" + def.displayName + " 시너지</color></b></size>\n"
+                             + "<size=78%><color=" + (count > 0 ? white : gray) + ">현재 " + count + "명 배치</color></size>";
 
-            // 1단계 / 2단계를 줄 머리말과 색으로 분명히 나눈다
-            AppendTier(sb, "1단계", sky, def.tier1Threshold, def.tier1Desc, count >= def.tier1Threshold, tier == 1, gray, green);
-            sb.Append('\n');
-            AppendTier(sb, "2단계", gold, def.tier2Threshold, def.tier2Desc, count >= def.tier2Threshold, tier >= 2, gray, green);
+            var rows = new List<TipRow>();
+            rows.Add(MakeTier(pipOn, pipOff, offTint, "1단계", sky, def.tier1Threshold, Short(def, def.tier1Desc), count >= def.tier1Threshold, gray, green));
+            rows.Add(MakeTier(pipOn, pipOff, offTint, "2단계", gold, def.tier2Threshold, Short(def, def.tier2Desc), count >= def.tier2Threshold, gray, green));
 
-            bool header = false;
+            var combos = new List<TipRow>();
             foreach (var combo in tracker.ComboDefs)
             {
                 if (combo == null || (combo.jobA != def.job && combo.jobB != def.job)) continue;
-                if (!header) { sb.Append("\n\n<color=").Append(gold).Append("><b>조합 시너지</b></color>\n"); header = true; }
                 bool active = tracker.IsComboActive(combo);
-                sb.Append("<color=").Append(active ? green : gray).Append('>')
-                  .Append(active ? "[발동] " : "[대기] ").Append(combo.displayName)
-                  .Append(" (").Append(JobName(tracker, combo.jobA)).Append("+").Append(JobName(tracker, combo.jobB))
-                  .Append(" 각 ").Append(combo.requiredCountEach).Append("명)\n   ").Append(combo.desc).Append("</color>\n");
+                string color = active ? green : gray;
+                string body = "<b><color=" + color + ">" + combo.displayName + "</color></b>  <size=78%><color=" + gray + ">"
+                              + JobName(tracker, combo.jobA) + "·" + JobName(tracker, combo.jobB) + " 각 " + combo.requiredCountEach + "명</color></size>\n"
+                              + "<size=82%><color=" + color + ">" + ComboEffect(combo.desc) + "</color></size>";
+                combos.Add(new TipRow(active ? pipOn : pipOff, active ? Color.white : offTint, body));
             }
-            return sb.ToString().TrimEnd();
+
+            LayoutTip(slot, titleBody, rows, combos);
         }
 
-        /// <summary>한 단계 블록: "1단계 · 3명" 머리말 한 줄 + 효과 한 줄. 달성한 단계는 밝게, 아직인 단계는 회색으로 표시한다.</summary>
-        private static void AppendTier(StringBuilder sb, string label, string labelColor, int threshold, string desc,
-            bool reached, bool currentTier, string gray, string green)
+        private static TipRow MakeTier(Sprite on, Sprite off, Color offTint, string label, string labelColor, int threshold, string desc,
+            bool reached, string gray, string green)
         {
-            sb.Append("<color=").Append(labelColor).Append("><b>[").Append(label).Append("] ").Append(threshold).Append("명 이상</b></color>");
-            sb.Append("  <color=").Append(reached ? green : gray).Append('>').Append(reached ? (currentTier ? "발동 중" : "달성") : "대기").Append("</color>\n");
-            sb.Append("<color=").Append(reached ? green : gray).Append('>').Append("   ").Append(desc).Append("</color>");
+            string body = "<b><color=" + (reached ? green : labelColor) + ">" + label + "</color></b>  <color=" + gray + ">" + threshold + "명</color>\n"
+                          + "<size=88%><color=" + (reached ? green : gray) + ">" + desc + "</color></size>";
+            return new TipRow(reached ? on : off, reached ? Color.white : offTint, body);
+        }
+
+        private void LayoutTip(int slot, string titleBody, List<TipRow> rows, List<TipRow> combos)
+        {
+            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            float padX = 46f * s, padTop = 40f * s, padBottom = 40f * s, pip = 40f * s, gap = 14f * s, rowGap = 10f * s;
+            float fontSize = 27f * s, titleIcon = 66f * s;
+
+            for (int i = _tipContent.childCount - 1; i >= 0; i--) Destroy(_tipContent.GetChild(i).gameObject);
+
+            // 글 먼저 만들어 폭을 잰다
+            var titleText = TipText(titleBody, fontSize, Color.white);
+            Vector2 titlePref = titleText.GetPreferredValues();
+            float maxText = titlePref.x + titleIcon - pip; // 제목은 아이콘이 더 크다
+            var items = new List<(TipRow row, TMP_Text text, Vector2 size)>();
+            foreach (var row in rows) { var tx = TipText(row.body, fontSize, Color.white); var sz = tx.GetPreferredValues(); maxText = Mathf.Max(maxText, sz.x); items.Add((row, tx, sz)); }
+            TMP_Text headerText = null; Vector2 headerSize = default;
+            var comboItems = new List<(TipRow row, TMP_Text text, Vector2 size)>();
+            if (combos.Count > 0)
+            {
+                headerText = TipText("<b><color=#F2DC8C>조합 시너지</color></b>", fontSize * 0.85f, Color.white);
+                headerSize = headerText.GetPreferredValues();
+                foreach (var row in combos) { var tx = TipText(row.body, fontSize, Color.white); var sz = tx.GetPreferredValues(); maxText = Mathf.Max(maxText, sz.x); comboItems.Add((row, tx, sz)); }
+            }
+
+            float width = padX * 2f + pip + gap + maxText;
+            float y = -padTop;
+
+            // 제목 줄
+            var diamond = TipImage("TitleDiamond", Spr("Frame_DiamondNeutral"), RowDiamondColor(slot), titleIcon);
+            Place(diamond.rectTransform, padX - (titleIcon - pip) * 0.5f, y - titleIcon * 0.5f, 0f, 0.5f);
+            var icon = _icons[slot] != null ? _icons[slot].sprite : null;
+            if (icon != null)
+            {
+                var ic = TipImage("TitleIcon", icon, Color.white, titleIcon * 0.52f);
+                Place(ic.rectTransform, padX - (titleIcon - pip) * 0.5f + titleIcon * 0.5f, y - titleIcon * 0.5f, 0.5f, 0.5f);
+            }
+            var tr = titleText.rectTransform;
+            tr.sizeDelta = titlePref;
+            Place(tr, padX + pip + gap + (titleIcon - pip) * 0.5f, y - titleIcon * 0.5f, 0f, 0.5f);
+            y -= titleIcon + 14f * s;
+
+            foreach (var (row, text, size) in items) y = PlaceRow(row, text, size, padX, y, pip, gap, rowGap);
+
+            if (headerText != null)
+            {
+                y -= 6f * s;
+                headerText.rectTransform.sizeDelta = headerSize;
+                Place(headerText.rectTransform, padX, y, 0f, 1f);
+                y -= headerSize.y + rowGap;
+                foreach (var (row, text, size) in comboItems) y = PlaceRow(row, text, size, padX, y, pip, gap, rowGap);
+            }
+
+            _tipBox.sizeDelta = new Vector2(width, -y - rowGap + padBottom);
+        }
+
+        private float PlaceRow(TipRow row, TMP_Text text, Vector2 size, float padX, float y, float pip, float gap, float rowGap)
+        {
+            float rowH = Mathf.Max(pip, size.y);
+            if (row.pip != null)
+            {
+                var img = TipImage("Pip", row.pip, row.pipTint, pip);
+                Place(img.rectTransform, padX, y - rowH * 0.5f, 0f, 0.5f);
+            }
+            text.rectTransform.sizeDelta = size;
+            Place(text.rectTransform, padX + pip + gap, y - rowH * 0.5f, 0f, 0.5f);
+            return y - rowH - rowGap;
+        }
+
+        private static void Place(RectTransform rt, float x, float y, float pivotX, float pivotY)
+        {
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(pivotX, pivotY);
+            rt.anchoredPosition = new Vector2(x, y);
+        }
+
+        private Color RowDiamondColor(int slot)
+        {
+            var frame = _rows[slot] != null ? _rows[slot].transform.Find("Frame") : null;
+            var img = frame != null ? frame.GetComponent<Image>() : null;
+            return img != null ? img.color : Color.white;
+        }
+
+        private TMP_Text TipText(string body, float size, Color color)
+        {
+            var go = new GameObject("Text", typeof(RectTransform));
+            go.transform.SetParent(_tipContent, false);
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            if (_font != null) tmp.font = _font;
+            tmp.fontSize = size;
+            tmp.color = color;
+            tmp.alignment = TextAlignmentOptions.Left;
+            tmp.richText = true;
+            tmp.raycastTarget = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.lineSpacing = -4f;
+            tmp.text = body;
+            tmp.ForceMeshUpdate();
+            return tmp;
+        }
+
+        private Image TipImage(string name, Sprite sprite, Color color, float size)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.transform.SetParent(_tipContent, false);
+            ((RectTransform)go.transform).sizeDelta = new Vector2(size, size);
+            var img = go.GetComponent<Image>();
+            img.sprite = sprite;
+            img.color = color;
+            img.enabled = sprite != null;
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+            return img;
+        }
+
+        /// <summary>효과 문구에서 중복되는 직업 이름 머리말("마법사 공격력 +12%" → "공격력 +12%")을 뺀다.</summary>
+        private static string Short(SynergyData def, string desc)
+        {
+            if (string.IsNullOrEmpty(desc)) return string.Empty;
+            string prefix = def.displayName + " ";
+            return desc.StartsWith(prefix) ? desc.Substring(prefix.Length) : desc;
+        }
+
+        /// <summary>조합 설명은 "조건 — 효과" 꼴이라, 조건은 윗줄에 이미 있으므로 효과만 남긴다.</summary>
+        private static string ComboEffect(string desc)
+        {
+            if (string.IsNullOrEmpty(desc)) return string.Empty;
+            int dash = desc.IndexOf('—');
+            return dash >= 0 ? desc.Substring(dash + 1).Trim() : desc;
         }
 
         private void EnsureTooltip()
@@ -277,29 +430,44 @@ namespace OZGL2.UIBridge
             _tipBox.anchorMin = _tipBox.anchorMax = Vector2.zero;
             _tipBox.pivot = Vector2.zero;
             var bg = boxGo.GetComponent<Image>();
-            bg.color = new Color(0.05f, 0.04f, 0.06f, 0.94f);
+            bg.color = new Color(0.06f, 0.03f, 0.05f, 0.95f);
             bg.raycastTarget = false;
-            var outline = boxGo.AddComponent<Outline>();
-            outline.effectColor = new Color(0.92f, 0.86f, 0.6f, 0.9f);
-            outline.effectDistance = new Vector2(2f, -2f);
 
-            var textGo = new GameObject("Text", typeof(RectTransform));
-            textGo.transform.SetParent(boxGo.transform, false);
-            var rt = (RectTransform)textGo.transform;
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            // "이번 웨이브" 패널과 같은 9분할 프레임(씬에 이미 올라와 있는 그림을 이름으로 찾아 쓴다)
+            var frameSprite = Spr("Frame_CostPlate");
+            if (frameSprite != null)
+            {
+                var frameGo = new GameObject("Frame", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                frameGo.transform.SetParent(boxGo.transform, false);
+                var fr = (RectTransform)frameGo.transform;
+                fr.anchorMin = Vector2.zero; fr.anchorMax = Vector2.one; fr.offsetMin = fr.offsetMax = Vector2.zero;
+                var frame = frameGo.GetComponent<Image>();
+                frame.sprite = frameSprite;
+                frame.type = Image.Type.Sliced;
+                frame.pixelsPerUnitMultiplier = 2.6f; // 모서리 장식이 내용을 가리지 않게 테두리를 얇게
+                frame.raycastTarget = false;
+            }
+            else
+            {
+                var outline = boxGo.AddComponent<Outline>();
+                outline.effectColor = new Color(0.92f, 0.86f, 0.6f, 0.9f);
+                outline.effectDistance = new Vector2(2f, -2f);
+            }
+
+            var contentGo = new GameObject("Content", typeof(RectTransform));
+            contentGo.transform.SetParent(boxGo.transform, false);
+            _tipContent = (RectTransform)contentGo.transform;
+            _tipContent.anchorMin = Vector2.zero; _tipContent.anchorMax = Vector2.one;
+            _tipContent.offsetMin = _tipContent.offsetMax = Vector2.zero;
+
             _font = FindKoreanFont("시너지현재명배치단계발동중아직전달성대기조합이상각궁수전사방패병마법사도적힐러");
-            _tipText = textGo.AddComponent<TextMeshProUGUI>();
-            if (_font != null) _tipText.font = _font;
-            _tipText.fontSize = 24f * Mathf.Max(0.8f, Screen.height / 1080f);
-            _tipText.alignment = TextAlignmentOptions.TopLeft;
-            _tipText.richText = true;
-            _tipText.raycastTarget = false;
-            _tipText.textWrappingMode = TextWrappingModes.NoWrap;
+            _tipSignature = null;
             _tipCanvas.enabled = false;
         }
 
         private static TMP_FontAsset FindKoreanFont(string sample)
         {
+            if (UiFontOverride.Current != null) return UiFontOverride.Current; // 씬 전체 폰트(던파 비트체)가 있으면 그것을 쓴다
             foreach (var font in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
                 if (font != null && font.HasCharacters(sample, out _, true, true)) return font;
             return null;

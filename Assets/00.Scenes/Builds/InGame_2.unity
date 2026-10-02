@@ -3922,7 +3922,7 @@ PrefabInstance:
     - target: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _boardTheme
       value: 
-      objectReference: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
+      objectReference: {fileID: 11400000, guid: dcf8238883a058540a7ad8589f3f6020, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -3975,7 +3975,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameGridPresentation
   _bootstrap: {fileID: 8701223948942012780}
-  _theme: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
+  _theme: {fileID: 11400000, guid: dcf8238883a058540a7ad8589f3f6020, type: 2}
 --- !u!114 &8701223948942012782 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
@@ -4087,6 +4087,14 @@ GameObject:
   - component: {fileID: 6666600008}
   - component: {fileID: 6666600009}
   - component: {fileID: 6666600010}
+  - component: {fileID: 6666600011}
+  - component: {fileID: 6666600012}
+  - component: {fileID: 6666600013}
+  - component: {fileID: 6666600014}
+  - component: {fileID: 6666600016}
+  - component: {fileID: 6666600017}
+  - component: {fileID: 6666600018}
+  - component: {fileID: 6666600020}
   m_Layer: 0
   m_Name: ReleaseMode
   m_TagString: Untagged
@@ -4145,7 +4153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b2a58c0b29b5aa49f0bd83881c212da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameTileBackground
-  _theme: {fileID: 11400000, guid: a77b62e97db668b478fb6e95592ec073, type: 2}
+  _theme: {fileID: 11400000, guid: dcf8238883a058540a7ad8589f3f6020, type: 2}
   _coverMargin: 1.6
   _tileVariation: 0.04
   _edgeDarken: 0.3
@@ -4189,6 +4197,14 @@ MonoBehaviour:
   _startAmount: 0
   _rewardScale: 1
   _floatSeconds: 0.9
+  _frameSprite: {fileID: 21300000, guid: 3d40549f2cfef7c46af22f5c48a31250, type: 3}
+  _ornamentSprite: {fileID: 21300000, guid: e448f556a530282458ffeaa6ea507255, type: 3}
+  _gemIcon: {fileID: 21300000, guid: 5b60d4d1192005541a4aeb691b38b3fc, type: 3}
+  _spIcon: {fileID: 21300000, guid: e0d49650fa268d542937aa3ed7487a10, type: 3}
+  _cardIcon: {fileID: 21300000, guid: 10ab51bead245dd41840fcf6b7346221, type: 3}
+  _augmentIcon: {fileID: 21300000, guid: 4fdd34170a3cdec4289dbe11e83ffb48, type: 3}
+  _clearIcon: {fileID: 21300000, guid: 22ae4e917e6b42c41a8e06a67fa941d1, type: 3}
+  _unlockIcon: {fileID: 21300000, guid: 2f12b84e4bbda69439e99dbded359930, type: 3}
 --- !u!114 &6666600010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4204,6 +4220,135 @@ MonoBehaviour:
   _dragScale: 0.55
   _dragAlpha: 0.85
   _dropZoneHeight: 190
+--- !u!114 &6666600011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6f02d2cec8f50408514645170171e08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameDemonKing
+  _prefab: {fileID: 7784438773992661821, guid: e454046cbb79c8a45bd042d39355d3f8, type: 3}
+  _scale: 1.5
+  _cellOffset: {x: 0, y: -0.4}
+  _sortingOrderBoost: 5
+--- !u!114 &6666600012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9901030b1b2574389bd750b987c0145, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameSoulAbsorb
+  _soulColor: {r: 0.55, g: 0.85, b: 1, a: 1}
+  _riseSeconds: 0.28
+  _flySeconds: 0.75
+  _orbSize: 46
+  _bossOrbCount: 4
+  _bossExpThreshold: 20
+  _maxActiveOrbs: 60
+--- !u!114 &6666600013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3508503595155f5b811b0b8d6ee2cdd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameStarBadges
+  _starSprite: {fileID: 21300000, guid: bafe7fc3cd64f4740b6a2b6b0f2d9777, type: 3}
+  _starSize: 0.26
+  _combatStarSize: 0.2
+  _prepSortingOrder: 520
+  _combatSortingOrder: 1010
+--- !u!114 &6666600014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 606011960dd35f34ba659e86b18d413f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameSkillCooldownFx
+  _dimAlpha: 0.58
+  _preciseUnderSeconds: 3
+  _warmTextColor: {r: 1, g: 0.86, b: 0.45, a: 1}
+  _sparkColor: {r: 1, g: 0.95, b: 0.8, a: 1}
+  _readyPulse: 0.18
+--- !u!114 &6666600016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41fdbee43e74577387588d5d1389e23b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiFontOverride
+  _font: {fileID: 12800000, guid: 3d42c3a42941d8c40a8f3eb008fe2aea, type: 3}
+  _scanSeconds: 0.4
+--- !u!114 &6666600017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c655a8d30bc15951b7d6e5f75d2a572e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameCardSizing
+  _cardScale: 0.34
+  _hoverScale: 1.3
+  _hoverRise: 170
+  _spacing: -16
+  _restingYOffset: 0
+  _rewardRestingYOffset: 8
+  _rewardHoverScale: 1.12
+  _rewardHoverRise: 24
+  _rewardSpacing: 28
+--- !u!114 &6666600018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96194258f8225b3cac08c8a74d1a93e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameUiPolish
+  _waveIcon: {fileID: 21300000, guid: 2f12b84e4bbda69439e99dbded359930, type: 3}
+--- !u!114 &6666600020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbea4d9b5bcb585c9911afb0133f024e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameIdleUnits
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

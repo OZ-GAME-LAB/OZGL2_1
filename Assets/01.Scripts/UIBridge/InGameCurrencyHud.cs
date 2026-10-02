@@ -60,9 +60,19 @@ namespace OZGL2.UIBridge
         private bool _pushed;
         private bool _buttonHooked;
         private int _roundKillGain, _roundBonusGain, _roundSpGain, _roundNumberShown;
+        [Header("보상 패널 이미지 (이번 웨이브 패널과 같은 프레임·아이콘)")]
+        [SerializeField] private Sprite _frameSprite;
+        [SerializeField] private Sprite _ornamentSprite;
+        [SerializeField] private Sprite _gemIcon;
+        [SerializeField] private Sprite _spIcon;
+        [SerializeField] private Sprite _cardIcon;
+        [SerializeField] private Sprite _augmentIcon;
+        [SerializeField] private Sprite _clearIcon;
+        [SerializeField] private Sprite _unlockIcon;
+
         private Canvas _summaryCanvas;
+        private RectTransform _summaryContent;
         private RectTransform _summaryBox;
-        private TMP_Text _summaryText;
         private Canvas _canvas;
         private TMP_FontAsset _font;
         private readonly List<Floating> _floats = new List<Floating>();
@@ -87,6 +97,8 @@ namespace OZGL2.UIBridge
             _buttonHooked = false;
             if (_summaryCanvas != null) Destroy(_summaryCanvas.gameObject);
             _summaryCanvas = null;
+            foreach (var portrait in _portraits.Values) if (portrait != null) portrait.Release();
+            _portraits.Clear();
             if (_widgetCanvas != null) Destroy(_widgetCanvas.gameObject);
             _widgetCanvas = null;
             if (_canvas != null) Destroy(_canvas.gameObject);
@@ -114,6 +126,7 @@ namespace OZGL2.UIBridge
             if (!_pushed) Push();
             RefreshRerollState();
             RefreshSummary(stage);
+            RefreshNextWavePreview(stage);
             UpdatePulse();
             RefreshCombatWidget(stage);
             UpdateFloats();
@@ -373,17 +386,19 @@ namespace OZGL2.UIBridge
             (_clearBonusBase > 0 || _clearBonusPerRound > 0f)
                 ? Mathf.Max(0, Mathf.RoundToInt(_clearBonusBase + _clearBonusPerRound * (round - 1))) : 0;
 
-        /// <summary>이번 라운드를 클리어하면 받게 될 것을 "이번 웨이브" 패널 바로 아래에 미리 보여 준다(준비·전투 중). 보상 선택 중에는 숨긴다.</summary>
+        /// <summary>이번 라운드를 클리어하면 받게 될 것을 "이번 웨이브" 패널 바로 아래에 미리 보여 준다. 배치(준비) 중에만 보이고,
+        /// 전투 중에는 "이번 웨이브" 패널과 함께 숨긴다(전투 화면을 가리지 않게). 보상 선택 중에도 숨긴다.</summary>
         private void RefreshSummary(StageManager stage)
         {
-            bool show = stage != null && (stage.State == eStageState.PREPARATION || stage.State == eStageState.COMBAT);
+            SetWavePanelsVisible(stage == null || stage.State != eStageState.COMBAT);
+            bool show = stage != null && stage.State == eStageState.PREPARATION;
             if (!show)
             {
                 if (_summaryCanvas != null && _summaryCanvas.enabled) _summaryCanvas.enabled = false;
                 return;
             }
             int round = Mathf.Max(1, stage.CurrentRoundNumber);
-            string signature = (stage.Progress != null ? stage.Progress.StageId : "") + "#" + round + "#" + SkillTreeStore.HighestMilestone;
+            string signature = (stage.Progress != null ? stage.Progress.StageId : "") + "#" + round + "#" + SkillTreeStore.HighestMilestone + "#" + SkillTreeStore.HighestDripStep + "#" + UnitUnlockStore.UnlockedCount;
             if (signature != _previewSignature || _summaryCanvas == null) BuildPreviewText(stage, round, signature);
             if (_summaryCanvas == null || string.IsNullOrEmpty(_previewText)) return;
             PlaceSummaryUnderWavePanel();
@@ -399,33 +414,461 @@ namespace OZGL2.UIBridge
             EnsureSummary();
             int heroCount, killTotal;
             if (!TryGetRoundHeroReward(stage, round, out heroCount, out killTotal)) { _previewText = null; return; }
+            bool isBoss = IsBossRound(stage, round);
+            bool isFinal = round >= stage.TotalRounds;
 
-            const string gold = "#F2DC8C", sky = "#9CD2FF", green = "#9BE59B", gray = "#A8A8A8", white = "#F5F2E8";
             int bonus = ClearBonus(round);
             int sp = PreviewSp(round);
-            var sb = new System.Text.StringBuilder();
-            sb.Append("<color=").Append(gold).Append("><b>이번 라운드 클리어 보상</b></color>\n");
-            sb.Append("<color=").Append(white).Append(">재화  최대 +").Append(killTotal + bonus).Append("</color>");
-            sb.Append("<color=").Append(gray).Append(">   (용사 ").Append(heroCount).Append("명 처치 ").Append(killTotal).Append(" + 클리어 ").Append(bonus).Append(")</color>\n");
+            var rows = new List<RewardRow>();
+
+            rows.Add(new RewardRow(_gemIcon, Color.white, "재화", "최대 +" + (killTotal + bonus),
+                "용사 " + heroCount + "명 처치 " + killTotal + " + 클리어 " + bonus, "#F2DC8C"));
+
             if (sp > 0)
-                sb.Append("<color=").Append(green).Append("><b>SP  +").Append(sp).Append("</b>   마일스톤 보상! (스킬 해금에 사용)</color>\n");
+                rows.Add(new RewardRow(_spIcon, new Color(0.6f, 0.9f, 0.6f), "SP", "+" + sp,
+                    (round % 10 == 0 ? "마일스톤 보너스 포함" : SkillTreeStore.DripEveryRounds + "라운드마다 +1") + " · 스킬 해금", "#9BE59B"));
             else
             {
-                int next = (round / 10 + 1) * 10;
-                string where = next <= stage.TotalRounds ? "라운드 " + next + " (" + (next - round) + "라운드 남음)" : "없음";
-                sb.Append("<color=").Append(sky).Append(">SP  없음</color><color=").Append(gray).Append(">   다음 SP: ").Append(where).Append("</color>\n");
+                int nextRound = 0;
+                for (int r = round + 1; r <= stage.TotalRounds && nextRound == 0; r++)
+                    if (SkillTreeStore.PreviewForRound(r, MilestoneSpBonus()) > 0) nextRound = r;
+                rows.Add(new RewardRow(_spIcon, new Color(0.6f, 0.82f, 1f), "SP", "이번엔 없음",
+                    nextRound > 0 ? "다음 SP: 라운드 " + nextRound : "이번 스테이지엔 더 없음", "#9CD2FF"));
             }
-            sb.Append("<color=").Append(white).Append(">유닛 카드  3장 중 1장 선택</color>");
-            _previewText = sb.ToString();
-            _summaryText.text = _previewText;
-            _summaryText.ForceMeshUpdate();
-            Vector2 preferred = _summaryText.GetPreferredValues();
-            const float pad = 16f;
-            _summaryBox.sizeDelta = new Vector2(Mathf.Max(preferred.x + pad * 2f, _summaryMinWidth), preferred.y + pad * 2f);
-            ((RectTransform)_summaryText.transform).sizeDelta = new Vector2(preferred.x, preferred.y);
+
+            string unlockId = UnitUnlockStore.PreviewForRound(round);
+            if (unlockId != null)
+            {
+                var unlockRow = new RewardRow(_unlockIcon != null ? _unlockIcon : _cardIcon, new Color(1f, 0.82f, 0.4f), "마왕군 해금",
+                    UnitUnlockStore.DisplayName(unlockId), "클리어하면 영구 해금", "#FFD27A");
+                unlockRow.portrait = UnitPortrait(unlockId);
+                rows.Add(unlockRow);
+            }
+
+            if (isFinal)
+                rows.Add(new RewardRow(_clearIcon, new Color(0.94f, 0.63f, 0.71f), "스테이지 클리어", "마지막 라운드", "다음 라운드 보상은 없음", "#F0A0B4"));
+            else
+            {
+                if (isBoss)
+                    rows.Add(new RewardRow(_augmentIcon, Color.white, "증강", "1개 선택", "보스 처치 보상", "#C9A8FF"));
+            }
+
+            _previewText = "rows";
+            LayoutSummary(rows);
+        }
+
+        private readonly Dictionary<string, RenderTexture> _portraits = new Dictionary<string, RenderTexture>();
+
+        /// <summary>
+        /// 유닛 프리팹의 스프라이트 파츠만 복사해 화면 밖에서 한 번 그린 그림을 돌려준다(유닛 스크립트가 실행되거나 전투에 등록되지 않는다).
+        /// 그리지 못하면 null — 부르는 쪽이 아이콘으로 대신한다.
+        /// </summary>
+        private RenderTexture UnitPortrait(string unitId)
+        {
+            if (string.IsNullOrEmpty(unitId)) return null;
+            if (_portraits.TryGetValue(unitId, out var cached) && cached != null) return cached;
+            try
+            {
+                var catalog = _bootstrap != null && _bootstrap.Config != null ? _bootstrap.Config.DemonArmyCatalog : null;
+                var prefab = catalog != null ? catalog.FindPrefab(unitId) : null;
+                if (prefab == null) return null;
+
+                var root = new GameObject("UnitPortraitRoot");
+                root.transform.position = new Vector3(5000f, 5000f, 0f);
+                Bounds bounds = default;
+                bool any = false;
+                Transform pt = prefab.transform;
+                Vector3 ps = pt.lossyScale;
+                foreach (var r in prefab.GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    if (r.sprite == null || r.name.IndexOf("Shadow", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                    bool visible = true;
+                    for (var c = r.transform; c != null; c = c.parent) { if (!c.gameObject.activeSelf) { visible = false; break; } if (c == pt) break; }
+                    if (!visible) continue;
+
+                    var go = new GameObject(r.name);
+                    go.transform.SetParent(root.transform, false);
+                    go.transform.localPosition = pt.InverseTransformPoint(r.transform.position);
+                    go.transform.localRotation = Quaternion.Inverse(pt.rotation) * r.transform.rotation;
+                    Vector3 ls = r.transform.lossyScale;
+                    go.transform.localScale = new Vector3(Mathf.Abs(ps.x) > 1e-4f ? ls.x / ps.x : ls.x, Mathf.Abs(ps.y) > 1e-4f ? ls.y / ps.y : ls.y, ls.z);
+                    var nr = go.AddComponent<SpriteRenderer>();
+                    nr.sprite = r.sprite;
+                    nr.color = r.color;
+                    nr.flipX = r.flipX; nr.flipY = r.flipY;
+                    nr.sharedMaterial = r.sharedMaterial;
+                    nr.sortingLayerID = r.sortingLayerID;
+                    nr.sortingOrder = r.sortingOrder;
+                    if (!any) { bounds = nr.bounds; any = true; } else bounds.Encapsulate(nr.bounds);
+                }
+                if (!any) { Destroy(root); return null; }
+
+                var camGo = new GameObject("UnitPortraitCamera");
+                var cam = camGo.AddComponent<Camera>();
+                cam.orthographic = true;
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = new Color(0f, 0f, 0f, 0f);
+                cam.cullingMask = ~0;
+                cam.nearClipPlane = 0.1f; cam.farClipPlane = 50f;
+                cam.orthographicSize = Mathf.Max(bounds.size.x, bounds.size.y) * 0.5f * 1.15f;
+                camGo.transform.position = new Vector3(bounds.center.x, bounds.center.y, -10f);
+                // 1차: 넓게 그려서 실제로 그림이 있는 부분(알파)의 범위를 구한다. 스프라이트 사각형에는 투명 여백이 많아 그대로 그리면 작게 나온다.
+                const int probe = 256;
+                float size1 = cam.orthographicSize;
+                Vector3 center1 = camGo.transform.position;
+                var probeRt = new RenderTexture(probe, probe, 0, RenderTextureFormat.ARGB32);
+                cam.targetTexture = probeRt;
+                cam.Render();
+                var prevActive = RenderTexture.active;
+                RenderTexture.active = probeRt;
+                var readable = new Texture2D(probe, probe, TextureFormat.RGBA32, false);
+                readable.ReadPixels(new Rect(0, 0, probe, probe), 0, 0);
+                RenderTexture.active = prevActive;
+                var px = readable.GetPixels32();
+                Destroy(readable);
+                probeRt.Release();
+
+                int minX = probe, minY = probe, maxX = -1, maxY = -1;
+                for (int y = 0; y < probe; y++)
+                    for (int x = 0; x < probe; x++)
+                        if (px[y * probe + x].a > 12)
+                        {
+                            if (x < minX) minX = x; if (x > maxX) maxX = x;
+                            if (y < minY) minY = y; if (y > maxY) maxY = y;
+                        }
+                if (maxX >= minX)
+                {
+                    float unit = size1 * 2f / probe;
+                    float cx = center1.x - size1 + (minX + maxX + 1) * 0.5f * unit;
+                    float cy = center1.y - size1 + (minY + maxY + 1) * 0.5f * unit;
+                    float half = Mathf.Max(maxX - minX + 1, maxY - minY + 1) * unit * 0.5f * 1.12f;
+                    camGo.transform.position = new Vector3(cx, cy, -10f);
+                    cam.orthographicSize = Mathf.Max(0.05f, half);
+                }
+
+                var rt = new RenderTexture(192, 192, 0, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point };
+                cam.targetTexture = rt;
+                cam.Render();
+                cam.targetTexture = null;
+                Destroy(camGo);
+                Destroy(root);
+                _portraits[unitId] = rt;
+                return rt;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("유닛 초상을 그리지 못했습니다: " + e.Message);
+                return null;
+            }
+        }
+
+        // ───────────── 마왕군 해금 알림 배너
+
+        private GameObject _bannerGo;
+        private Coroutine _bannerRoutine;
+
+        /// <summary>라운드를 클리어해 새 마왕군이 해금됐을 때 화면 위쪽에 잠깐 알려 준다(유닛 그림 + 이름).</summary>
+        public void AnnounceUnitUnlock(string unitId)
+        {
+            if (_bannerRoutine != null) StopCoroutine(_bannerRoutine);
+            if (_bannerGo != null) Destroy(_bannerGo);
+            _bannerRoutine = StartCoroutine(BannerRoutine(unitId));
+        }
+
+        private System.Collections.IEnumerator BannerRoutine(string unitId)
+        {
+            EnsureCanvas();
+            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            var go = new GameObject("UnitUnlockBanner", typeof(RectTransform), typeof(CanvasGroup));
+            go.transform.SetParent(_canvas.transform, false);
+            _bannerGo = go;
+            var group = go.GetComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.blocksRaycasts = false;
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+
+            var bgGo = new GameObject("Bg", typeof(RectTransform), typeof(Image));
+            bgGo.transform.SetParent(go.transform, false);
+            var bgRect = (RectTransform)bgGo.transform;
+            bgRect.anchorMin = Vector2.zero; bgRect.anchorMax = Vector2.one; bgRect.offsetMin = bgRect.offsetMax = Vector2.zero;
+            var bg = bgGo.GetComponent<Image>();
+            bg.color = new Color(0.06f, 0.03f, 0.05f, 0.94f);
+            bg.raycastTarget = false;
+            if (_frameSprite != null)
+            {
+                var frameGo = new GameObject("Frame", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                frameGo.transform.SetParent(go.transform, false);
+                var fr = (RectTransform)frameGo.transform;
+                fr.anchorMin = Vector2.zero; fr.anchorMax = Vector2.one; fr.offsetMin = fr.offsetMax = Vector2.zero;
+                var frame = frameGo.GetComponent<Image>();
+                frame.sprite = _frameSprite;
+                frame.type = Image.Type.Sliced;
+                frame.pixelsPerUnitMultiplier = 2.6f;
+                frame.raycastTarget = false;
+            }
+
+            float portraitSize = 92f * s, padX = 34f * s, gap = 16f * s;
+            var portrait = UnitPortrait(unitId);
+            var title = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+            title.transform.SetParent(go.transform, false);
+            if (_font != null) title.font = _font;
+            title.fontSize = 26f * s;
+            title.richText = true;
+            title.alignment = TextAlignmentOptions.Left;
+            title.textWrappingMode = TextWrappingModes.NoWrap;
+            title.raycastTarget = false;
+            title.text = "<b><color=#FFD27A>새 마왕군 해금!</color></b>\n<size=130%><b><color=#F5F2E8>" + UnitUnlockStore.DisplayName(unitId) + "</color></b></size>";
+            title.ForceMeshUpdate();
+            Vector2 textSize = title.GetPreferredValues();
+
+            float width = padX * 2f + (portrait != null ? portraitSize + gap : 0f) + textSize.x;
+            float height = Mathf.Max(portraitSize, textSize.y) + 2f * 26f * s;
+            rect.sizeDelta = new Vector2(width, height);
+            float x = padX;
+            if (portrait != null)
+            {
+                var pgo = new GameObject("Portrait", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+                pgo.transform.SetParent(go.transform, false);
+                var pr = (RectTransform)pgo.transform;
+                pr.anchorMin = pr.anchorMax = new Vector2(0f, 0.5f);
+                pr.pivot = new Vector2(0f, 0.5f);
+                pr.sizeDelta = new Vector2(portraitSize, portraitSize);
+                pr.anchoredPosition = new Vector2(x, 0f);
+                var raw = pgo.GetComponent<RawImage>();
+                raw.texture = portrait;
+                raw.raycastTarget = false;
+                x += portraitSize + gap;
+            }
+            var tr = (RectTransform)title.transform;
+            tr.anchorMin = tr.anchorMax = new Vector2(0f, 0.5f);
+            tr.pivot = new Vector2(0f, 0.5f);
+            tr.sizeDelta = textSize;
+            tr.anchoredPosition = new Vector2(x, 0f);
+
+            // 위에서 내려오며 나타나고, 잠시 머문 뒤 사라진다
+            float top = -Screen.height * 0.12f;
+            for (float t0 = 0f; t0 < 0.35f; t0 += Time.unscaledDeltaTime)
+            {
+                float k = t0 / 0.35f;
+                group.alpha = k;
+                rect.anchoredPosition = new Vector2(0f, top + (1f - k) * 40f * s);
+                yield return null;
+            }
+            group.alpha = 1f;
+            rect.anchoredPosition = new Vector2(0f, top);
+            float hold = 0f;
+            while (hold < 3f) { hold += Time.unscaledDeltaTime; yield return null; }
+            for (float t0 = 0f; t0 < 0.5f; t0 += Time.unscaledDeltaTime)
+            {
+                group.alpha = 1f - t0 / 0.5f;
+                yield return null;
+            }
+            Destroy(go);
+            _bannerGo = null;
+            _bannerRoutine = null;
+        }
+
+        private struct RewardRow
+        {
+            public Sprite icon; public Color tint; public string title, value, sub, titleColor; public Texture portrait;
+            public RewardRow(Sprite icon, Color tint, string title, string value, string sub, string titleColor)
+            { this.icon = icon; this.tint = tint; this.title = title; this.value = value; this.sub = sub; this.titleColor = titleColor; portrait = null; }
+        }
+
+        /// <summary>보상 행마다 아이콘 + 두 줄 글(제목·값 / 설명)로 배치한다. 프레임은 "이번 웨이브" 패널과 같은 이미지다.</summary>
+        private void LayoutSummary(List<RewardRow> rows)
+        {
+            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            float padX = 36f * s, padTop = 30f * s, padBottom = 30f * s, iconSize = 40f * s, gap = 12f * s, rowGap = 8f * s;
+            float titleSize = 25f * s, mainSize = 22f * s;
+
+            for (int i = _summaryContent.childCount - 1; i >= 0; i--) Destroy(_summaryContent.GetChild(i).gameObject);
+
+            var title = NewSummaryText("Title", "<b>이번 라운드 보상</b>", titleSize, new Color(0.95f, 0.86f, 0.55f));
+            Vector2 titleSizePref = title.GetPreferredValues();
+
+            var items = new List<(RewardRow row, TMP_Text text, Vector2 size)>();
+            float maxTextW = 0f;
+            foreach (var row in rows)
+            {
+                string body = "<size=100%><b><color=" + row.titleColor + ">" + row.title + "</color></b>  <color=#F5F2E8><b>" + row.value + "</b></color></size>\n"
+                              + "<size=74%><color=#BDB8AE>" + row.sub + "</color></size>";
+                var text = NewSummaryText("Row", body, mainSize, Color.white);
+                Vector2 size = text.GetPreferredValues();
+                maxTextW = Mathf.Max(maxTextW, size.x);
+                items.Add((row, text, size));
+            }
+
+            float iconCol = iconSize;
+            foreach (var it in items) if (it.row.portrait != null) iconCol = iconSize * 2.0f;
+            float contentW = padX + iconCol + gap + maxTextW + padX;
+            float width = Mathf.Max(_summaryMinWidth, contentW, titleSizePref.x + 2f * padX + 60f * s);
+            float y = -padTop;
+
+            // 제목 + 양옆 장식
+            var titleRect = (RectTransform)title.transform;
+            titleRect.anchorMin = titleRect.anchorMax = new Vector2(0f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+            titleRect.sizeDelta = titleSizePref;
+            titleRect.anchoredPosition = new Vector2(width * 0.5f, y);
+            if (_ornamentSprite != null)
+            {
+                float o = 20f * s;
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    var orn = NewSummaryImage("Ornament", _ornamentSprite, Color.white, o);
+                    var r = (RectTransform)orn.transform;
+                    r.anchorMin = r.anchorMax = new Vector2(0f, 1f);
+                    r.pivot = new Vector2(0.5f, 0.5f);
+                    r.anchoredPosition = new Vector2(width * 0.5f + side * (titleSizePref.x * 0.5f + 20f * s), y - titleSizePref.y * 0.5f);
+                }
+            }
+            y -= titleSizePref.y + 10f * s;
+
+            foreach (var (row, text, size) in items)
+            {
+                float rowH = Mathf.Max(row.portrait != null ? iconCol : iconSize, size.y);
+                if (row.portrait != null)
+                {
+                    // 해금되는 유닛의 모습(스프라이트를 한 번 그려 둔 그림)
+                    var goPortrait = new GameObject("Portrait", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+                    goPortrait.transform.SetParent(_summaryContent, false);
+                    var raw = goPortrait.GetComponent<RawImage>();
+                    raw.texture = row.portrait;
+                    raw.raycastTarget = false;
+                    var pr = (RectTransform)goPortrait.transform;
+                    pr.sizeDelta = new Vector2(iconCol, iconCol);
+                    pr.anchorMin = pr.anchorMax = new Vector2(0f, 1f);
+                    pr.pivot = new Vector2(0f, 0.5f);
+                    pr.anchoredPosition = new Vector2(padX, y - rowH * 0.5f);
+                }
+                else if (row.icon != null)
+                {
+                    var icon = NewSummaryImage("Icon", row.icon, row.tint, iconSize);
+                    var ir = (RectTransform)icon.transform;
+                    ir.anchorMin = ir.anchorMax = new Vector2(0f, 1f);
+                    ir.pivot = new Vector2(0f, 0.5f);
+                    ir.anchoredPosition = new Vector2(padX, y - rowH * 0.5f);
+                }
+                var tr = (RectTransform)text.transform;
+                tr.anchorMin = tr.anchorMax = new Vector2(0f, 1f);
+                tr.pivot = new Vector2(0f, 0.5f);
+                tr.sizeDelta = size;
+                tr.anchoredPosition = new Vector2(padX + iconCol + gap, y - rowH * 0.5f);
+                y -= rowH + rowGap;
+            }
+
+            _summaryBox.sizeDelta = new Vector2(width, -y - rowGap + padBottom);
+        }
+
+        private TMP_Text NewSummaryText(string name, string text, float size, Color color)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(_summaryContent, false);
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            if (_font != null) tmp.font = _font;
+            tmp.fontSize = size;
+            tmp.color = color;
+            tmp.alignment = TextAlignmentOptions.Left;
+            tmp.richText = true;
+            tmp.raycastTarget = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.text = text;
+            tmp.ForceMeshUpdate();
+            return tmp;
+        }
+
+        private Image NewSummaryImage(string name, Sprite sprite, Color color, float size)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.transform.SetParent(_summaryContent, false);
+            ((RectTransform)go.transform).sizeDelta = new Vector2(size, size);
+            var img = go.GetComponent<Image>();
+            img.sprite = sprite;
+            img.color = color;
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+            return img;
         }
 
         private float _summaryMinWidth;
+
+        // ───────────── 카드 보상 선택 중에는 "이번 웨이브"가 다음 웨이브 정보를 보여 준다
+
+        private string _nextWaveSignature;
+        private float _nextWaveReassert;
+
+        /// <summary>
+        /// 라운드를 깨고 카드(·증강)를 고르는 동안에도 라운드 번호는 방금 깬 라운드 그대로라서, "이번 웨이브" 패널과 웨이브 숫자가 지난 웨이브 값에 머물렀다.
+        /// 이 구간에는 다음에 싸울 웨이브의 용사 구성과 웨이브 번호를 대신 보여 준다. 배치 단계로 넘어가면 팀 코드가 같은 값을 다시 쓴다.
+        /// </summary>
+        private void RefreshNextWavePreview(StageManager stage)
+        {
+            bool reward = stage != null && (stage.State == eStageState.GENERAL_REWARD || stage.State == eStageState.AUGMENT);
+            if (!reward || stage.CurrentRoundNumber >= stage.TotalRounds || _view == null) { _nextWaveSignature = null; return; }
+
+            int next = stage.CurrentRoundNumber + 1;
+            string signature = (stage.Progress != null ? stage.Progress.StageId : "") + "#" + next;
+            if (signature == _nextWaveSignature && Time.unscaledTime < _nextWaveReassert) return;
+            _nextWaveSignature = signature;
+            _nextWaveReassert = Time.unscaledTime + 0.5f; // 팀 코드가 다른 이유로 값을 되돌려도 곧 다시 맞춘다
+
+            var config = _bootstrap != null ? _bootstrap.Config : null;
+            string stageId = stage.Progress != null ? stage.Progress.StageId : null;
+            if (config == null || config.StageCatalog == null || string.IsNullOrEmpty(stageId)) return;
+            StageDefinition definition;
+            try { definition = config.StageCatalog.Resolve(stageId); }
+            catch { return; }
+            if (definition == null || next > definition.Rounds.Count) return;
+
+            _view.SetWave(next, stage.TotalRounds);
+            int slotCount = _view.EnemySlotCount;
+            for (int i = 0; i < slotCount; i++) _view.SetEnemy(i, string.Empty, 0);
+
+            var order = new List<string>();
+            var counts = new Dictionary<string, int>();
+            foreach (var spawn in definition.Rounds[next - 1].Spawns)
+            {
+                if (!counts.ContainsKey(spawn.HeroId)) { counts[spawn.HeroId] = 0; order.Add(spawn.HeroId); }
+                counts[spawn.HeroId] += spawn.Count;
+            }
+            int direct = order.Count <= slotCount ? order.Count : Mathf.Max(0, slotCount - 1);
+            for (int i = 0; i < direct; i++) _view.SetEnemy(i, HeroDisplayName(config, order[i]), counts[order[i]]);
+            if (order.Count > slotCount && slotCount > 0)
+            {
+                int rest = 0;
+                for (int i = direct; i < order.Count; i++) rest += counts[order[i]];
+                _view.SetEnemy(slotCount - 1, "기타 " + (order.Count - direct) + "종", rest);
+            }
+        }
+
+        private static string HeroDisplayName(InGamePrototypeConfigSO config, string heroId)
+        {
+            var catalog = config.HeroPoolCatalog;
+            if (catalog == null) return heroId;
+            foreach (var entry in catalog.CreateSnapshot())
+            {
+                if (entry == null || entry.HeroId != heroId || entry.Prefab == null) continue;
+                var unit = entry.Prefab.GetComponentInChildren<UnitBase>(true);
+                if (unit != null && unit.statData != null && !string.IsNullOrWhiteSpace(unit.statData.displayName)) return unit.statData.displayName;
+            }
+            return heroId;
+        }
+
+        private bool IsBossRound(StageManager stage, int round)
+        {
+            var config = _bootstrap != null ? _bootstrap.Config : null;
+            string stageId = stage.Progress != null ? stage.Progress.StageId : null;
+            if (config == null || config.StageCatalog == null || string.IsNullOrEmpty(stageId)) return false;
+            try
+            {
+                var definition = config.StageCatalog.Resolve(stageId);
+                return definition != null && round >= 1 && round <= definition.Rounds.Count && definition.Rounds[round - 1].IsBossRound;
+            }
+            catch { return false; }
+        }
 
         /// <summary>이번 라운드에 나올 용사 수와, 모두 처치했을 때 받을 재화(처치 보상 합계)를 데이터에서 계산한다.</summary>
         private bool TryGetRoundHeroReward(StageManager stage, int round, out int heroCount, out int killTotal)
@@ -460,12 +903,7 @@ namespace OZGL2.UIBridge
         }
 
         /// <summary>이번 라운드를 클리어했을 때 받게 될 마일스톤 SP (이미 받은 마일스톤이면 0).</summary>
-        private int PreviewSp(int round)
-        {
-            int milestone = round / 10;
-            if (round % 10 != 0 || milestone <= SkillTreeStore.HighestMilestone) return 0;
-            return milestone + MilestoneSpBonus();
-        }
+        private int PreviewSp(int round) => SkillTreeStore.PreviewForRound(round, MilestoneSpBonus());
 
         private int MilestoneSpBonus()
         {
@@ -475,6 +913,39 @@ namespace OZGL2.UIBridge
         }
 
         private RectTransform _wavePanel;
+        private readonly List<CanvasGroup> _waveGroups = new List<CanvasGroup>();
+        private bool _waveHidden;
+        private float _waveShownAlpha = 1f;
+        private float _nextWaveScan;
+
+        /// <summary>"이번 웨이브" 패널(WavePreviewPanel*)을 보이거나 숨긴다. 팀 UI를 건드리지 않게 CanvasGroup 투명도로만 처리한다.</summary>
+        private void SetWavePanelsVisible(bool visible)
+        {
+            if ((_waveGroups.Count == 0 || _waveGroups.Exists(g => g == null)) && Time.unscaledTime >= _nextWaveScan)
+            {
+                _nextWaveScan = Time.unscaledTime + 1f;
+                _waveGroups.Clear();
+                foreach (var rect in Resources.FindObjectsOfTypeAll<RectTransform>())
+                {
+                    // 패널 안쪽 CanvasGroup은 펼침/접힘 연출이 알파를 쓰므로 건드리지 않고, 그 바깥 마스크(뷰포트)에 따로 그룹을 둔다.
+                    if (!rect.gameObject.scene.IsValid() || rect.name != "WavePreviewViewport") continue;
+                    var group = rect.GetComponent<CanvasGroup>();
+                    if (group == null) group = rect.gameObject.AddComponent<CanvasGroup>();
+                    _waveGroups.Add(group);
+                }
+                _waveHidden = false;
+            }
+            if (visible && !_waveHidden) return;
+            if (!visible && !_waveHidden) _waveShownAlpha = _waveGroups.Count > 0 && _waveGroups[0] != null ? Mathf.Max(0.01f, _waveGroups[0].alpha) : 1f;
+            _waveHidden = !visible;
+            foreach (var group in _waveGroups) // 숨기는 동안은 매 프레임 다시 적용 — 다른 UI 연출이 알파를 되돌려도 숨김이 유지된다
+            {
+                if (group == null) continue;
+                group.alpha = visible ? _waveShownAlpha : 0f;
+                group.blocksRaycasts = visible;
+                group.interactable = visible;
+            }
+        }
 
         /// <summary>"이번 웨이브" 패널 바로 아래, 같은 왼쪽 끝과 폭에 맞춰 놓는다(웨이브 패널을 펼치면 함께 내려간다).</summary>
         private void PlaceSummaryUnderWavePanel()
@@ -520,23 +991,34 @@ namespace OZGL2.UIBridge
             _summaryBox.anchorMin = _summaryBox.anchorMax = Vector2.zero; // 화면 왼쪽 아래 기준 좌표
             _summaryBox.pivot = new Vector2(0f, 1f);                       // 왼쪽 위 모서리를 기준점으로
             var bg = boxGo.GetComponent<Image>();
-            bg.color = new Color(0.05f, 0.04f, 0.06f, 0.88f);
+            bg.color = new Color(0.06f, 0.03f, 0.05f, 0.94f);
             bg.raycastTarget = false;
-            var outline = boxGo.AddComponent<Outline>();
-            outline.effectColor = new Color(0.55f, 0.1f, 0.12f, 0.95f);
-            outline.effectDistance = new Vector2(2f, -2f);
 
-            var textGo = new GameObject("Text", typeof(RectTransform));
-            textGo.transform.SetParent(boxGo.transform, false);
-            var rt = (RectTransform)textGo.transform;
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-            _summaryText = textGo.AddComponent<TextMeshProUGUI>();
-            if (_font != null) _summaryText.font = _font;
-            _summaryText.fontSize = 22f * Mathf.Max(0.8f, Screen.height / 1080f);
-            _summaryText.alignment = TextAlignmentOptions.TopLeft;
-            _summaryText.richText = true;
-            _summaryText.raycastTarget = false;
-            _summaryText.textWrappingMode = TextWrappingModes.NoWrap;
+            // 프레임 이미지("이번 웨이브" 패널과 같은 9분할 프레임)
+            if (_frameSprite != null)
+            {
+                var frameGo = new GameObject("Frame", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                frameGo.transform.SetParent(boxGo.transform, false);
+                var fr = (RectTransform)frameGo.transform;
+                fr.anchorMin = Vector2.zero; fr.anchorMax = Vector2.one; fr.offsetMin = fr.offsetMax = Vector2.zero;
+                var frame = frameGo.GetComponent<Image>();
+                frame.sprite = _frameSprite;
+                frame.type = Image.Type.Sliced;
+                frame.pixelsPerUnitMultiplier = 2.6f; // 모서리 장식이 내용을 가리지 않게 테두리를 얇게
+                frame.raycastTarget = false;
+            }
+            else
+            {
+                var outline = boxGo.AddComponent<Outline>();
+                outline.effectColor = new Color(0.55f, 0.1f, 0.12f, 0.95f);
+                outline.effectDistance = new Vector2(2f, -2f);
+            }
+
+            var contentGo = new GameObject("Content", typeof(RectTransform));
+            contentGo.transform.SetParent(boxGo.transform, false);
+            _summaryContent = (RectTransform)contentGo.transform;
+            _summaryContent.anchorMin = Vector2.zero; _summaryContent.anchorMax = Vector2.one;
+            _summaryContent.offsetMin = _summaryContent.offsetMax = Vector2.zero;
             _summaryCanvas.enabled = false;
         }
 
@@ -710,6 +1192,7 @@ namespace OZGL2.UIBridge
             _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _canvas.sortingOrder = 25; // 손패·드롭 존보다 위, 시너지 팝업(30)·결과 팝업(100)보다 아래
             const string sample = "+-0123456789보상을고를때만쓸수있어요재화가모자라요필요다시뽑았지못했라운드클리어이번보너스달성마일스톤스킬해금에사용다음남음없음최대용사명처치유닛카드장중선택";
+            if (UiFontOverride.Current != null) { _font = UiFontOverride.Current; return; } // 씬 전체 폰트(던파 비트체)
             foreach (var font in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
                 if (font != null && font.HasCharacters(sample, out _, true, true)) { _font = font; break; }
         }
