@@ -178,6 +178,7 @@ namespace OZGL2.UIBridge
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("SP +5")) SkillTreeStore.SkillPoints += 5;
             if (GUILayout.Button("SP 0")) SkillTreeStore.SkillPoints = 0;
+            if (GUILayout.Button("마왕군 해금 초기화")) UnitUnlockStore.ResetAll();
             if (GUILayout.Button("스킬 저장 전부 삭제"))
             {
                 SkillTreeStore.Wipe(_skills.Select(s => s.skillId));

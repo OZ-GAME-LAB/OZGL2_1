@@ -21,7 +21,7 @@ MonoBehaviour:
   _lobbyScenePath: Assets/00.Scenes/Builds/Lobby_2.unity
   _stageSelectionScenePath: Assets/00.Scenes/Builds/Lobby_2.unity
   _heroPoolCatalog: {fileID: 11400000, guid: 7f9aa8f1c8b248a3bfbaa4e496f5f55a, type: 2}
-  _heroSpawnTopMargin: 3
+  _heroSpawnTopMargin: 8
   _heroSpawnHorizontalInset: 0.5
   _demonArmyCatalog: {fileID: 11400000, guid: 3b939de62a4742fcb02fddfbb200c868, type: 2}
   _gridWorldOrigin: {x: 0, y: 0, z: 0}

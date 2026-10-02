@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: InGameCameraConfig_2
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.InGameCameraConfigSO
   _transitionSeconds: 0.55
-  _preparationPadding: 0.5
-  _battlePadding: 0.4
+  _preparationPadding: 0.6
+  _battlePadding: 0.8
   _preparationViewport:
     serializedVersion: 2
     x: 0.08
-    y: 0.22
+    y: 0.3
     width: 0.84
-    height: 0.52
+    height: 0.58
   _battleViewport:
     serializedVersion: 2
     x: 0.06
-    y: 0.15
+    y: 0.2
     width: 0.88
-    height: 0.73
+    height: 0.77

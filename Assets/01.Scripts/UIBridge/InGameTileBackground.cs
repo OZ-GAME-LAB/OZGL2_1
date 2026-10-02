@@ -24,7 +24,7 @@ namespace OZGL2.UIBridge
         [SerializeField] private Color _demonTint = new Color(1.05f, 0.72f, 0.82f, 1f);
         [SerializeField, Min(1f)] private float _blendRows = 3f;
         [SerializeField, Min(0)] private int _heroSideRowsAboveGrid = 1;
-        [SerializeField] private bool _showFactionFlags = true;
+        [SerializeField] private bool _showFactionFlags = false;
 
         private Transform _root;
         private Sprite _sprite;
