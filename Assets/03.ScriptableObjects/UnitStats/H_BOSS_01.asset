@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: H_BOSS_01
   m_EditorClassIdentifier:
   unitId: H_BOSS_01
-  displayName: 중간보스
+  displayName: 화염기사
   side: 0
   job: 0
-  maxHealth: 900
+  maxHealth: 800
   attackPower: 36
   attackSpeed: 0.8
   defensePercent: 0.15
@@ -28,6 +28,8 @@ MonoBehaviour:
   splashSecondaryDamagePercent: 1
   splashMaxTargets: 0
   ccResistance: 0.5
+  burnDamagePerSecond: 8
+  burnDuration: 3
   cost: 0
   killExpReward: 30
   starLevel: 1

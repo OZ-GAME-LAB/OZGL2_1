@@ -22,7 +22,7 @@ namespace OZGL2.UIBridge
         private const float Width = 340f;
         private const float RefreshInterval = 0.25f;
 
-        private bool _open = true;
+        private bool _open; // 기본은 숨김 — 화면에는 아무것도 그리지 않고, F8을 눌렀을 때만 열린다
         private Vector2 _scroll;
         private float _nextRefresh;
 
@@ -134,11 +134,7 @@ namespace OZGL2.UIBridge
         private void OnGUI()
         {
             GUI.depth = -100;
-            if (!_open)
-            {
-                if (GUI.Button(new Rect(8, 8, 150, 26), "연동 디버그 (F8)")) _open = true;
-                return;
-            }
+            if (!_open) return;
 
             float height = Mathf.Min(Screen.height - 16f, 720f);
             GUILayout.BeginArea(new Rect(8, 8, Width, height), GUI.skin.box);
@@ -182,6 +178,7 @@ namespace OZGL2.UIBridge
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("SP +5")) SkillTreeStore.SkillPoints += 5;
             if (GUILayout.Button("SP 0")) SkillTreeStore.SkillPoints = 0;
+            if (GUILayout.Button("마왕군 해금 초기화")) UnitUnlockStore.ResetAll();
             if (GUILayout.Button("스킬 저장 전부 삭제"))
             {
                 SkillTreeStore.Wipe(_skills.Select(s => s.skillId));
@@ -198,7 +195,7 @@ namespace OZGL2.UIBridge
             {
                 bool starter = RealSynergySync.IsStarterSkill(s);
                 bool unlocked = starter || SkillTreeStore.IsUnlocked(s.skillId);
-                bool equipped = starter || _equipped.Contains(s.skillId);
+                bool equipped = _equipped.Contains(s.skillId) || (starter && !SkillTreeStore.HasSavedEquipment);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("T" + s.tier + " " + s.displayName, GUILayout.Width(130));
                 GUI.enabled = !starter;
@@ -209,7 +206,7 @@ namespace OZGL2.UIBridge
                     ResyncSkillWindows();
                     Snapshot();
                 }
-                GUI.enabled = !starter && unlocked;
+                GUI.enabled = unlocked;
                 if (GUILayout.Button(equipped ? "장착 ✔" : "장착", GUILayout.Width(70)))
                 {
                     ToggleEquipped(s.skillId, !equipped);
@@ -253,7 +250,7 @@ namespace OZGL2.UIBridge
             {
                 int capacity = 3 + Traits().BuildModifiers().ExtraSkillSlots;
                 if (list.Contains(skillId)) return;
-                if (list.Count(id => !IsStarterId(id)) + 1 >= capacity) { _message = "장착 용량 초과 (화염구 1칸 포함 " + capacity + "칸)"; return; }
+                if (list.Count + 1 > capacity) { _message = "장착 용량 초과 (" + capacity + "칸)"; return; }
                 list.Add(skillId);
                 _message = string.Empty;
             }

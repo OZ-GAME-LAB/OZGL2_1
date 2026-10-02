@@ -13,21 +13,26 @@ MonoBehaviour:
   m_Name: H_BOSS_FINAL_01
   m_EditorClassIdentifier:
   unitId: H_BOSS_FINAL_01
-  displayName: 최종보스
+  displayName: 용인족 마법사
   side: 0
-  job: 0
-  maxHealth: 2400
-  attackPower: 60
+  job: 3
+  maxHealth: 2200
+  attackPower: 54
   attackSpeed: 0.9
   defensePercent: 0.2
-  attackRange: 1
+  attackRange: 4.5
   moveSpeed: 0.6
   healAmount: 0
-  attackAnimationIndex: 0
+  attackAnimationIndex: 4
+  projectilePrefab: {fileID: 3930159081165078694, guid: 28caf29c89fd9dd489eb927a24059dc9, type: 3}
+  projectileSpeed: 5
+  projectileDefaultFacing: {x: 1, y: 0}
   splashRadius: 1.5
   splashSecondaryDamagePercent: 0.5
   splashMaxTargets: 3
   ccResistance: 0.65
+  comboStunAttackInterval: 5
+  comboStunDuration: 1.5
   cost: 0
   killExpReward: 60
-  starLevel: 1
+  starLevel: 2
