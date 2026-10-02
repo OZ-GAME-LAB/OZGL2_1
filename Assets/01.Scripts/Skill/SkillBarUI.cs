@@ -588,6 +588,8 @@ namespace OZGL2.Skill
 
         private static Color ReticleColor(SkillData d)
         {
+            // 스킬 이펙트(VFX)의 대표 색 — 사거리 표시가 그 스킬의 이펙트 색과 같게 보인다. 이펙트가 없으면 아래 기본색.
+            if (SkillVfxColor.TryGet(d, out var vfxColor)) return vfxColor;
             if (d.effectType == SkillEffectType.PersistentZone || d.effectType == SkillEffectType.Stun)
                 return new Color(0.4f, 0.8f, 1f);
             if (d.effectType == SkillEffectType.HealAllies || d.zoneTarget == ZoneTarget.Allies)

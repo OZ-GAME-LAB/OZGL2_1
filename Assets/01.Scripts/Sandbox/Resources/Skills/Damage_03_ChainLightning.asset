@@ -43,5 +43,6 @@ MonoBehaviour:
   scaleCastVfxToRadius: 0
   vfxIsUi: 1
   fallFromSky: 0
+  vfxRecolor: {r: 1, g: 0.85, b: 0.1, a: 1}
   flourishVfx: {fileID: 0}
   flourishCount: 0
