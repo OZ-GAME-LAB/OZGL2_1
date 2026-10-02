@@ -10,29 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 340054d7b15f5294eb3991ed595a4dc6, type: 3}
-  m_Name: H_BOSS_FINAL_01
+  m_Name: H_BOSS_05
   m_EditorClassIdentifier:
-  unitId: H_BOSS_FINAL_01
-  displayName: 용인족 마법사
+  unitId: H_BOSS_05
+  displayName: 왕이 된 용사
   side: 0
-  job: 3
-  maxHealth: 2200
-  attackPower: 54
+  job: 0
+  maxHealth: 1900
+  attackPower: 50
   attackSpeed: 0.9
-  defensePercent: 0.2
-  attackRange: 4.5
-  moveSpeed: 0.6
+  defensePercent: 0.25
+  attackRange: 1
+  moveSpeed: 0.7
   healAmount: 0
-  attackAnimationIndex: 4
-  projectilePrefab: {fileID: 3930159081165078694, guid: 28caf29c89fd9dd489eb927a24059dc9, type: 3}
-  projectileSpeed: 5
-  projectileDefaultFacing: {x: 1, y: 0}
-  splashRadius: 1.5
-  splashSecondaryDamagePercent: 0.5
-  splashMaxTargets: 3
-  ccResistance: 0.65
+  attackAnimationIndex: 0
+  splashRadius: 0
+  splashSecondaryDamagePercent: 1
+  splashMaxTargets: 0
+  ccResistance: 0.7
   comboStunAttackInterval: 5
   comboStunDuration: 1.5
+  phaseTransitionHealthRatio: 0.5
+  phaseTransitionAttackMultiplier: 1.5
+  phaseTransitionBuffDuration: 15
+  phaseTransitionStunDuration: 2.5
+  phaseTransitionRadius: 4
   cost: 0
-  killExpReward: 60
+  killExpReward: 80
   starLevel: 2
