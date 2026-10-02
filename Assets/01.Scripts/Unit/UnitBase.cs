@@ -143,12 +143,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     private void SetBurnTint(bool active)
     {
         _burnTintActive = active;
-        Color tint = active ? BurnTintColor : Color.white;
         for (int i = 0; i < _bodyRenderers.Length; i++)
         {
             if (_bodyRenderers[i] != null)
             {
-                _bodyRenderers[i].color = tint;
+                // 원래 색에 붉은 틴트를 곱해서 적용 — 해제 시엔 각 파츠의 원래 색으로 정확히 복귀.
+                _bodyRenderers[i].color = active ? _bodyRendererOriginalColors[i] * BurnTintColor : _bodyRendererOriginalColors[i];
             }
         }
     }
@@ -329,6 +329,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     /// <summary>화상 등 색상 틴트를 입힐 대상 스프라이트 목록. "Shadow"는 팩마다 톤이 달라 제외(UnitHealthBar와 동일 기준).</summary>
     private SpriteRenderer[] _bodyRenderers = System.Array.Empty<SpriteRenderer>();
+    // 파츠마다 원래 색(흰색이 아닐 수 있음 — 염색된 천/가죽 등)이 달라서, 틴트 해제 시 무조건 흰색이
+    // 아니라 각자 원래 색으로 되돌려야 한다. 그래서 캐싱 시점의 색을 같이 기억해둔다.
+    private Color[] _bodyRendererOriginalColors = System.Array.Empty<Color>();
 
     private void CacheBodyRenderers()
     {
@@ -342,6 +345,11 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             }
         }
         _bodyRenderers = filtered.ToArray();
+        _bodyRendererOriginalColors = new Color[_bodyRenderers.Length];
+        for (int i = 0; i < _bodyRenderers.Length; i++)
+        {
+            _bodyRendererOriginalColors[i] = _bodyRenderers[i].color;
+        }
     }
 
     /// <summary>
