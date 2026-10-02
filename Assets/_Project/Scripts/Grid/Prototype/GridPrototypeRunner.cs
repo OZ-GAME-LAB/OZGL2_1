@@ -8,6 +8,7 @@ namespace OZGL2.Grid.Prototype
     [RequireComponent(typeof(UIDocument))]
     public sealed class GridPrototypeRunner : MonoBehaviour
     {
+        private const float WORLD_MESSAGE_HUD_OFFSET = 110;
         [SerializeField] private GridBoardThemeSO _boardTheme;
         private VisualElement _root;
         private VisualElement _tray;
@@ -93,6 +94,12 @@ namespace OZGL2.Grid.Prototype
             _status = new Label(); _status.style.marginTop = 10;
             _status.style.display = isWorldPresentation ? DisplayStyle.None : DisplayStyle.Flex; _root.Add(_status);
             _message = new Label(); _message.style.marginTop = 8; _message.style.height = 28; _root.Add(_message);
+            // 레이아웃/입력 영역은 유지하고 월드 화면 안내문만 정보 바 아래로 옮긴다.
+            if (isWorldPresentation)
+            {
+                _message.style.translate = new Translate(0, WORLD_MESSAGE_HUD_OFFSET, 0);
+                _message.pickingMode = PickingMode.Ignore;
+            }
             Board = _worldSurface == null ? new GridBoardView(Manager, _boardTheme) : null;
             var surface = _worldSurface ?? Board;
             _root.Add(surface.Element);
