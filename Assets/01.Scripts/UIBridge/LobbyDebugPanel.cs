@@ -194,7 +194,7 @@ namespace OZGL2.UIBridge
             {
                 bool starter = RealSynergySync.IsStarterSkill(s);
                 bool unlocked = starter || SkillTreeStore.IsUnlocked(s.skillId);
-                bool equipped = starter || _equipped.Contains(s.skillId);
+                bool equipped = _equipped.Contains(s.skillId) || (starter && !SkillTreeStore.HasSavedEquipment);
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("T" + s.tier + " " + s.displayName, GUILayout.Width(130));
                 GUI.enabled = !starter;
@@ -205,7 +205,7 @@ namespace OZGL2.UIBridge
                     ResyncSkillWindows();
                     Snapshot();
                 }
-                GUI.enabled = !starter && unlocked;
+                GUI.enabled = unlocked;
                 if (GUILayout.Button(equipped ? "장착 ✔" : "장착", GUILayout.Width(70)))
                 {
                     ToggleEquipped(s.skillId, !equipped);
@@ -249,7 +249,7 @@ namespace OZGL2.UIBridge
             {
                 int capacity = 3 + Traits().BuildModifiers().ExtraSkillSlots;
                 if (list.Contains(skillId)) return;
-                if (list.Count(id => !IsStarterId(id)) + 1 >= capacity) { _message = "장착 용량 초과 (화염구 1칸 포함 " + capacity + "칸)"; return; }
+                if (list.Count + 1 > capacity) { _message = "장착 용량 초과 (" + capacity + "칸)"; return; }
                 list.Add(skillId);
                 _message = string.Empty;
             }

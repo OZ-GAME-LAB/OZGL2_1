@@ -4086,6 +4086,7 @@ GameObject:
   - component: {fileID: 6666600006}
   - component: {fileID: 6666600008}
   - component: {fileID: 6666600009}
+  - component: {fileID: 6666600010}
   m_Layer: 0
   m_Name: ReleaseMode
   m_TagString: Untagged
@@ -4188,6 +4189,21 @@ MonoBehaviour:
   _startAmount: 0
   _rewardScale: 1
   _floatSeconds: 0.9
+--- !u!114 &6666600010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 062e49d1e9b35f329e8fc0b04235bd6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameCardDragFeel
+  _dragScale: 0.55
+  _dragAlpha: 0.85
+  _dropZoneHeight: 190
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using OZGL2.Grid;
+using OZGL2.Progression;
+using OZGL2.Synergy;
 using OZGL2.InGame;
+using OZGL2.Stage;
 using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
@@ -11,10 +14,11 @@ namespace OZGL2.UIBridge
 {
     /// <summary>
     /// 인게임 재화(불꽃)와 리롤.
-    /// - 용사를 처치할 때마다 처치 보상(UnitBase.OnHeroKilled의 보상 값 × _rewardScale)만큼 재화가 쌓인다.
+    /// - 용사를 처치할 때마다 처치 보상(UnitBase.OnHeroKilled의 보상 값 × _rewardScale)만큼, 라운드를 깰 때 클리어 보너스만큼 재화가 쌓인다.
     /// - 왼쪽 아래 재화 표시가 바로 갱신되고, 얻을 때마다 아이콘이 살짝 커졌다 돌아오며, 쓰러진 자리에서 "+N"이 떠오른다.
-    /// - 리롤 버튼: 라운드 보상(유닛 3택 1) 카드를 고르는 중에 재화를 내고 후보 카드를 다시 뽑는다. 재화가 모자라거나 보상을 고르는 중이 아니면
+    /// - 리롤 버튼: 라운드 보상(유닛 3택 1) 카드를 고르는 중에 재화를 내고 후보 카드를 다시 뽑는다. 비용은 라운드가 올라갈수록 늘어난다. 재화가 모자라거나 보상을 고르는 중이 아니면
     ///   안내 문구가 뜨고 아무 일도 일어나지 않는다. 새 판(재도전 포함)이 시작되면 재화는 시작값으로 돌아간다.
+    /// - "이번 웨이브" 패널 아래에, 이번 라운드를 클리어하면 받을 보상(재화 최대치, SP, 유닛 카드)을 미리 보여 준다. SP는 10·20·30라운드 마일스톤에서 받는다.
     /// UI 스크립트와 보상 코드(StageGridRewards)는 수정하지 않고 리플렉션과 공개 API로만 다룬다.
     /// </summary>
     public sealed class InGameCurrencyHud : MonoBehaviour
@@ -24,10 +28,14 @@ namespace OZGL2.UIBridge
         [SerializeField, Min(0)] private int _startAmount = 0;
         [SerializeField, Min(0f)] private float _rewardScale = 1f;
         [SerializeField, Min(0.1f)] private float _floatSeconds = 0.9f;
-        [Header("리롤")]
-        [SerializeField, Min(0)] private int _rerollCost = 100;
-        [Tooltip("같은 보상에서 리롤할 때마다 비용이 이만큼 늘어난다. 0이면 항상 같은 비용.")]
-        [SerializeField, Min(0)] private int _rerollCostStep = 0;
+        [Header("라운드 클리어 보너스 (전투가 끝나 보상을 고를 때 한 번 지급)")]
+        [SerializeField, Min(0)] private int _clearBonusBase = 4;
+        [SerializeField, Min(0f)] private float _clearBonusPerRound = 0.5f;
+        [Header("리롤 비용 = 기본 + 라운드당 증가 × (현재 라운드 - 1) + 같은 보상 안에서 다시 뽑을 때마다 추가")]
+        [Tooltip("1라운드 기준 비용. 용사 처치 수입이 라운드 1에 9, 라운드 10에 약 65, 라운드 20에 약 100(보통 난이도)이라 거기에 맞췄다.")]
+        [SerializeField, Min(0)] private int _rerollBase = 12;
+        [SerializeField, Min(0f)] private float _rerollPerRound = 4.2f;
+        [SerializeField, Min(0)] private int _rerollRepeatStep = 5;
 
         private sealed class Floating
         {
@@ -41,8 +49,9 @@ namespace OZGL2.UIBridge
         private InGamePrototypeBootstrap _bootstrap;
         private UIGridStorageHandAdapter _handAdapter;
         private object _stage;
+        private eStageState _prevState = eStageState.IDLE;
         private RectTransform _pulseTarget;
-        private Button _rerollButton;
+        private readonly List<Button> _rerollButtons = new List<Button>();
         private TMP_Text _rerollCostLabel;
         private float _pulse;
         private int _balance;
@@ -50,12 +59,18 @@ namespace OZGL2.UIBridge
         private string _rerollRequestId;
         private bool _pushed;
         private bool _buttonHooked;
+        private int _roundKillGain, _roundBonusGain, _roundSpGain, _roundNumberShown;
+        private Canvas _summaryCanvas;
+        private RectTransform _summaryBox;
+        private TMP_Text _summaryText;
         private Canvas _canvas;
         private TMP_FontAsset _font;
         private readonly List<Floating> _floats = new List<Floating>();
 
         public int Balance => _balance;
-        private int CurrentRerollCost => _rerollCost + _rerollCostStep * _rerollCount;
+        private int CurrentRound => Mathf.Max(1, _bootstrap?.Stage != null ? _bootstrap.Stage.CurrentRoundNumber : 1);
+        private int CurrentRerollCost =>
+            Mathf.Max(1, Mathf.RoundToInt(_rerollBase + _rerollPerRound * (CurrentRound - 1))) + _rerollRepeatStep * _rerollCount;
 
         private void OnEnable()
         {
@@ -67,8 +82,13 @@ namespace OZGL2.UIBridge
         private void OnDisable()
         {
             UnitBase.OnHeroKilled -= OnHeroKilled;
-            if (_rerollButton != null && _buttonHooked) _rerollButton.onClick.RemoveListener(OnRerollClicked);
+            foreach (var button in _rerollButtons) if (button != null) button.onClick.RemoveListener(OnRerollClicked);
+            _rerollButtons.Clear();
             _buttonHooked = false;
+            if (_summaryCanvas != null) Destroy(_summaryCanvas.gameObject);
+            _summaryCanvas = null;
+            if (_widgetCanvas != null) Destroy(_widgetCanvas.gameObject);
+            _widgetCanvas = null;
             if (_canvas != null) Destroy(_canvas.gameObject);
             _canvas = null;
             _floats.Clear();
@@ -89,10 +109,13 @@ namespace OZGL2.UIBridge
                 _balance = _startAmount;
                 _pushed = false;
             }
+            TrackClearBonus(stage);
             TrackRewardRequest();
             if (!_pushed) Push();
             RefreshRerollState();
+            RefreshSummary(stage);
             UpdatePulse();
+            RefreshCombatWidget(stage);
             UpdateFloats();
         }
 
@@ -107,6 +130,7 @@ namespace OZGL2.UIBridge
         {
             int gain = Mathf.Max(1, Mathf.RoundToInt(reward * _rewardScale));
             _balance += gain;
+            _roundKillGain += gain;
             Push();
             _pulse = 0.3f;
             if (hero != null) SpawnFloating(WorldToScreen(hero.transform.position + Vector3.up * 0.4f), "+" + gain, new Color(1f, 0.86f, 0.35f));
@@ -114,21 +138,72 @@ namespace OZGL2.UIBridge
 
         // ───────────── 리롤
 
+        /// <summary>
+        /// 리롤 UI는 원래 그림(Image)뿐이고 Button 컴포넌트가 없어서 눌러도 아무 일이 없었다.
+        /// 이름에 "Reroll"이 들어간 UI 요소마다 Button을 붙이고(레이캐스트 켬) 같은 리롤 동작에 연결한다.
+        /// 한 번 누르면 맨 위에 있는 요소 하나만 반응하므로 리롤이 두 번 실행되지는 않는다.
+        /// </summary>
         private void HookRerollButton()
         {
-            if (_buttonHooked && _rerollButton != null) return;
-            foreach (var button in Resources.FindObjectsOfTypeAll<Button>())
+            if (!_buttonHooked)
             {
-                if (!button.gameObject.scene.IsValid() || button.gameObject.name != "Button_Reroll") continue;
-                _rerollButton = button;
-                _rerollButton.onClick.RemoveListener(OnRerollClicked);
-                _rerollButton.onClick.AddListener(OnRerollClicked);
-                _buttonHooked = true;
-                break;
+                foreach (var graphic in Resources.FindObjectsOfTypeAll<Graphic>())
+                {
+                    var go = graphic.gameObject;
+                    if (!go.scene.IsValid() || go.name.IndexOf("Reroll", System.StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    if (graphic.GetComponentInParent<Canvas>(true) == null) continue;
+                    graphic.raycastTarget = true;
+                    var button = go.GetComponent<Button>();
+                    if (button == null)
+                    {
+                        button = go.AddComponent<Button>();
+                        button.transition = Selectable.Transition.None;
+                        button.targetGraphic = graphic;
+                    }
+                    button.onClick.RemoveListener(OnRerollClicked);
+                    button.onClick.AddListener(OnRerollClicked);
+                    _rerollButtons.Add(button);
+                }
+                if (_rerollButtons.Count > 0)
+                {
+                    _buttonHooked = true;
+                    Debug.Log("[리롤] 리롤 버튼 " + _rerollButtons.Count + "개를 연결했습니다.");
+                }
             }
             if (_rerollCostLabel == null)
                 foreach (var text in Resources.FindObjectsOfTypeAll<TMP_Text>())
                     if (text.gameObject.scene.IsValid() && text.gameObject.name == "RerollValue_Text") { _rerollCostLabel = text; break; }
+        }
+
+        /// <summary>전투가 끝나 보상 선택으로 넘어가는 순간 라운드 클리어 보너스를 한 번 지급한다(그 보상에서 바로 리롤에 쓸 수 있다).</summary>
+        private void TrackClearBonus(StageManager stage)
+        {
+            if (stage == null) { _prevState = eStageState.IDLE; return; }
+            var state = stage.State;
+            if (state == _prevState) return;
+            if (state == eStageState.COMBAT && _prevState != eStageState.COMBAT)
+            {
+                _roundKillGain = _roundBonusGain = _roundSpGain = 0; // 새 전투가 시작되면 이번 라운드 기록을 비운다
+            }
+            if (state == eStageState.GENERAL_REWARD && _prevState == eStageState.COMBAT)
+            {
+                int round = Mathf.Max(1, stage.CurrentRoundNumber);
+                _roundNumberShown = round;
+                int bonus = ClearBonus(round);
+                var at = _pulseTarget != null ? ScreenCenter(_pulseTarget) : new Vector2(Screen.width * 0.12f, Screen.height * 0.2f);
+                if (bonus > 0)
+                {
+                    _balance += bonus;
+                    _roundBonusGain = bonus;
+                    _pushed = false;
+                    _pulse = 0.3f;
+                    SpawnFloating(at, "+" + bonus + "  라운드 클리어 보너스", new Color(0.75f, 1f, 0.8f));
+                }
+                // 마일스톤 SP(10·20·30라운드…)는 이 순간 바로 지급한다. 같은 마일스톤을 두 번 받지는 않는다.
+                _roundSpGain = SkillTreeStore.GrantForRound(round, MilestoneSpBonus());
+                if (_roundSpGain > 0) SpawnFloating(at + new Vector2(0f, 46f), "SP +" + _roundSpGain + "  마일스톤 달성!", new Color(0.6f, 1f, 0.65f));
+            }
+            _prevState = state;
         }
 
         /// <summary>같은 보상(요청)에서만 리롤 횟수를 세고, 새 보상이 나오면 비용을 처음으로 되돌린다.</summary>
@@ -152,7 +227,7 @@ namespace OZGL2.UIBridge
         private void RefreshRerollState()
         {
             bool choosing = IsChoosingReward(out _);
-            if (_rerollButton != null && _rerollButton.interactable != choosing) _rerollButton.interactable = choosing;
+            // 비활성으로 막으면 눌렀을 때 안내 문구도 못 띄우므로 버튼은 항상 눌리게 두고, 안 되는 이유는 누른 뒤 안내로 알려 준다.
             if (_rerollCostLabel != null)
             {
                 // 보상을 고르는 중인데 재화가 모자라면 비용을 빨갛게 보여 준다.
@@ -163,7 +238,7 @@ namespace OZGL2.UIBridge
 
         private void OnRerollClicked()
         {
-            Vector2 at = _rerollButton != null ? ScreenCenter(_rerollButton.transform as RectTransform) : new Vector2(Screen.width * 0.2f, Screen.height * 0.12f);
+            Vector2 at = _rerollButtons.Count > 0 && _rerollButtons[0] != null ? ScreenCenter(_rerollButtons[0].transform as RectTransform) : new Vector2(Screen.width * 0.2f, Screen.height * 0.12f);
             if (!IsChoosingReward(out var run))
             {
                 SpawnFloating(at, "보상을 고를 때만 쓸 수 있어요", new Color(0.8f, 0.85f, 1f));
@@ -292,6 +367,340 @@ namespace OZGL2.UIBridge
             }
         }
 
+        // ───────────── 라운드 보상 요약 (재화 · SP)
+
+        private int ClearBonus(int round) =>
+            (_clearBonusBase > 0 || _clearBonusPerRound > 0f)
+                ? Mathf.Max(0, Mathf.RoundToInt(_clearBonusBase + _clearBonusPerRound * (round - 1))) : 0;
+
+        /// <summary>이번 라운드를 클리어하면 받게 될 것을 "이번 웨이브" 패널 바로 아래에 미리 보여 준다(준비·전투 중). 보상 선택 중에는 숨긴다.</summary>
+        private void RefreshSummary(StageManager stage)
+        {
+            bool show = stage != null && (stage.State == eStageState.PREPARATION || stage.State == eStageState.COMBAT);
+            if (!show)
+            {
+                if (_summaryCanvas != null && _summaryCanvas.enabled) _summaryCanvas.enabled = false;
+                return;
+            }
+            int round = Mathf.Max(1, stage.CurrentRoundNumber);
+            string signature = (stage.Progress != null ? stage.Progress.StageId : "") + "#" + round + "#" + SkillTreeStore.HighestMilestone;
+            if (signature != _previewSignature || _summaryCanvas == null) BuildPreviewText(stage, round, signature);
+            if (_summaryCanvas == null || string.IsNullOrEmpty(_previewText)) return;
+            PlaceSummaryUnderWavePanel();
+            _summaryCanvas.enabled = true;
+        }
+
+        private string _previewSignature, _previewText;
+        private Dictionary<string, int> _heroReward;
+
+        private void BuildPreviewText(StageManager stage, int round, string signature)
+        {
+            _previewSignature = signature;
+            EnsureSummary();
+            int heroCount, killTotal;
+            if (!TryGetRoundHeroReward(stage, round, out heroCount, out killTotal)) { _previewText = null; return; }
+
+            const string gold = "#F2DC8C", sky = "#9CD2FF", green = "#9BE59B", gray = "#A8A8A8", white = "#F5F2E8";
+            int bonus = ClearBonus(round);
+            int sp = PreviewSp(round);
+            var sb = new System.Text.StringBuilder();
+            sb.Append("<color=").Append(gold).Append("><b>이번 라운드 클리어 보상</b></color>\n");
+            sb.Append("<color=").Append(white).Append(">재화  최대 +").Append(killTotal + bonus).Append("</color>");
+            sb.Append("<color=").Append(gray).Append(">   (용사 ").Append(heroCount).Append("명 처치 ").Append(killTotal).Append(" + 클리어 ").Append(bonus).Append(")</color>\n");
+            if (sp > 0)
+                sb.Append("<color=").Append(green).Append("><b>SP  +").Append(sp).Append("</b>   마일스톤 보상! (스킬 해금에 사용)</color>\n");
+            else
+            {
+                int next = (round / 10 + 1) * 10;
+                string where = next <= stage.TotalRounds ? "라운드 " + next + " (" + (next - round) + "라운드 남음)" : "없음";
+                sb.Append("<color=").Append(sky).Append(">SP  없음</color><color=").Append(gray).Append(">   다음 SP: ").Append(where).Append("</color>\n");
+            }
+            sb.Append("<color=").Append(white).Append(">유닛 카드  3장 중 1장 선택</color>");
+            _previewText = sb.ToString();
+            _summaryText.text = _previewText;
+            _summaryText.ForceMeshUpdate();
+            Vector2 preferred = _summaryText.GetPreferredValues();
+            const float pad = 16f;
+            _summaryBox.sizeDelta = new Vector2(Mathf.Max(preferred.x + pad * 2f, _summaryMinWidth), preferred.y + pad * 2f);
+            ((RectTransform)_summaryText.transform).sizeDelta = new Vector2(preferred.x, preferred.y);
+        }
+
+        private float _summaryMinWidth;
+
+        /// <summary>이번 라운드에 나올 용사 수와, 모두 처치했을 때 받을 재화(처치 보상 합계)를 데이터에서 계산한다.</summary>
+        private bool TryGetRoundHeroReward(StageManager stage, int round, out int heroCount, out int killTotal)
+        {
+            heroCount = killTotal = 0;
+            var config = _bootstrap != null ? _bootstrap.Config : null;
+            string stageId = stage.Progress != null ? stage.Progress.StageId : null;
+            if (config == null || config.StageCatalog == null || string.IsNullOrEmpty(stageId)) return false;
+            StageDefinition definition;
+            try { definition = config.StageCatalog.Resolve(stageId); }
+            catch { return false; }
+            if (definition == null || round > definition.Rounds.Count) return false;
+
+            if (_heroReward == null)
+            {
+                _heroReward = new Dictionary<string, int>();
+                if (config.HeroPoolCatalog != null)
+                    foreach (var entry in config.HeroPoolCatalog.CreateSnapshot())
+                    {
+                        var unit = entry.Prefab != null ? entry.Prefab.GetComponent<UnitBase>() : null;
+                        int reward = unit != null && unit.statData != null ? unit.statData.killExpReward : entry.Experience;
+                        _heroReward[entry.HeroId] = reward;
+                    }
+            }
+            foreach (var spawn in definition.Rounds[round - 1].Spawns)
+            {
+                int reward = _heroReward.TryGetValue(spawn.HeroId, out var r) ? r : 0;
+                heroCount += spawn.Count;
+                killTotal += spawn.Count * Mathf.Max(1, Mathf.RoundToInt(reward * _rewardScale)); // 실제 지급(OnHeroKilled)과 같은 계산
+            }
+            return true;
+        }
+
+        /// <summary>이번 라운드를 클리어했을 때 받게 될 마일스톤 SP (이미 받은 마일스톤이면 0).</summary>
+        private int PreviewSp(int round)
+        {
+            int milestone = round / 10;
+            if (round % 10 != 0 || milestone <= SkillTreeStore.HighestMilestone) return 0;
+            return milestone + MilestoneSpBonus();
+        }
+
+        private int MilestoneSpBonus()
+        {
+            var sync = FindFirstObjectByType<RealSynergySync>();
+            var traits = sync != null && sync.Traits != null ? sync.Traits : new TraitTree(Resources.LoadAll<TraitData>("Traits"));
+            return traits.BuildModifiers().MilestoneSpBonus;
+        }
+
+        private RectTransform _wavePanel;
+
+        /// <summary>"이번 웨이브" 패널 바로 아래, 같은 왼쪽 끝과 폭에 맞춰 놓는다(웨이브 패널을 펼치면 함께 내려간다).</summary>
+        private void PlaceSummaryUnderWavePanel()
+        {
+            if (_wavePanel == null)
+                foreach (var rect in Resources.FindObjectsOfTypeAll<RectTransform>())
+                    if (rect.gameObject.scene.IsValid() && rect.name.StartsWith("WavePreviewPanel")) { _wavePanel = rect; break; }
+
+            Vector2 topLeft = new Vector2(Screen.width * 0.03f, Screen.height * 0.72f); // 못 찾았을 때의 대략 위치
+            float width = Screen.width * 0.32f;
+            if (_wavePanel != null && _wavePanel.gameObject.activeInHierarchy)
+            {
+                var canvas = _wavePanel.GetComponentInParent<Canvas>();
+                Camera cam = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.rootCanvas.worldCamera : null;
+                var corners = new Vector3[4];
+                _wavePanel.GetWorldCorners(corners);
+                Vector2 bl = RectTransformUtility.WorldToScreenPoint(cam, corners[0]);
+                Vector2 tr = RectTransformUtility.WorldToScreenPoint(cam, corners[2]);
+                topLeft = new Vector2(Mathf.Min(bl.x, tr.x), Mathf.Min(bl.y, tr.y) - 8f);
+                width = Mathf.Abs(tr.x - bl.x);
+            }
+            if (Mathf.Abs(width - _summaryMinWidth) > 1f)
+            {
+                _summaryMinWidth = width;
+                _previewSignature = null; // 폭이 바뀌면 크기를 다시 계산
+            }
+            _summaryBox.anchoredPosition = topLeft;
+        }
+
+        private void EnsureSummary()
+        {
+            if (_summaryCanvas != null) return;
+            EnsureCanvas();
+            var go = new GameObject("ClearRewardPreview", typeof(RectTransform));
+            go.transform.SetParent(transform, false);
+            _summaryCanvas = go.AddComponent<Canvas>();
+            _summaryCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _summaryCanvas.sortingOrder = 12; // 손패·드롭 존보다 아래, 시너지 팝업·결과 팝업보다 아래
+
+            var boxGo = new GameObject("Box", typeof(RectTransform), typeof(Image));
+            boxGo.transform.SetParent(go.transform, false);
+            _summaryBox = (RectTransform)boxGo.transform;
+            _summaryBox.anchorMin = _summaryBox.anchorMax = Vector2.zero; // 화면 왼쪽 아래 기준 좌표
+            _summaryBox.pivot = new Vector2(0f, 1f);                       // 왼쪽 위 모서리를 기준점으로
+            var bg = boxGo.GetComponent<Image>();
+            bg.color = new Color(0.05f, 0.04f, 0.06f, 0.88f);
+            bg.raycastTarget = false;
+            var outline = boxGo.AddComponent<Outline>();
+            outline.effectColor = new Color(0.55f, 0.1f, 0.12f, 0.95f);
+            outline.effectDistance = new Vector2(2f, -2f);
+
+            var textGo = new GameObject("Text", typeof(RectTransform));
+            textGo.transform.SetParent(boxGo.transform, false);
+            var rt = (RectTransform)textGo.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            _summaryText = textGo.AddComponent<TextMeshProUGUI>();
+            if (_font != null) _summaryText.font = _font;
+            _summaryText.fontSize = 22f * Mathf.Max(0.8f, Screen.height / 1080f);
+            _summaryText.alignment = TextAlignmentOptions.TopLeft;
+            _summaryText.richText = true;
+            _summaryText.raycastTarget = false;
+            _summaryText.textWrappingMode = TextWrappingModes.NoWrap;
+            _summaryCanvas.enabled = false;
+        }
+
+        // ───────────── 전투 중 재화 표시 (준비 단계의 재화 아이콘은 전투 화면에서는 사라진다)
+
+        private Canvas _widgetCanvas;
+        private RectTransform _widgetBox;
+        private TMP_Text _widgetText;
+        private float _displayBalance;
+        private bool _widgetPlaced;
+
+        /// <summary>
+        /// 전투 화면에는 재화 표시가 없어서(준비 화면에만 있다) 용사를 잡아도 쌓이는 게 안 보였다.
+        /// 기존 재화 아이콘이 보이지 않는 동안에는 왼쪽 아래에 작은 재화 표시를 띄워 숫자가 실시간으로 올라가게 한다.
+        /// </summary>
+        private RectTransform _combatClone;
+        private TMP_Text _cloneText;
+        private bool _cloneFailed;
+
+        /// <summary>
+        /// 준비 화면의 재화 아이콘(불꽃 다이아몬드)을 그대로 복제해 전투 화면 쪽에도 같은 모양·같은 자리에 둔다.
+        /// 전투 화면 페이지의 자식이라 전투 화면일 때만 보이고, 숫자와 "톡" 커지는 효과는 원본과 같이 갱신한다.
+        /// 복제에 실패하면 false를 돌려주고 아래의 작은 임시 표시를 쓴다.
+        /// </summary>
+        private bool TryRefreshCloneWidget()
+        {
+            if (_cloneFailed) return false;
+            if (_combatClone == null)
+            {
+                if (_pulseTarget == null) return false;
+                var bridge = FindFirstObjectByType<UIInGameBattleBridge>(FindObjectsInactive.Include);
+                var combatPage = bridge != null
+                    ? typeof(UIInGameBattleBridge).GetField("_combatPage", Private)?.GetValue(bridge) as GameObject : null;
+                var parent = combatPage != null ? combatPage.transform as RectTransform : null;
+                if (parent == null) { _cloneFailed = true; return false; }
+
+                var copy = Instantiate(_pulseTarget.gameObject, parent, false);
+                copy.name = "Currency_Combat";
+                copy.SetActive(true);
+                // UI 그림·글자 외의 동작 스크립트는 복제본에서 제거(원본과 겹쳐 동작하지 않게)
+                foreach (var behaviour in copy.GetComponentsInChildren<MonoBehaviour>(true))
+                {
+                    var ns = behaviour.GetType().Namespace ?? "";
+                    if (!ns.StartsWith("UnityEngine.UI") && !ns.StartsWith("TMPro")) Destroy(behaviour);
+                }
+                foreach (var graphic in copy.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+
+                _combatClone = (RectTransform)copy.transform;
+                // 원본과 같은 화면 위치·크기에 놓는다(부모가 달라도 월드 기준으로 맞춘다)
+                _combatClone.position = _pulseTarget.position;
+                _combatClone.rotation = _pulseTarget.rotation;
+                Vector3 ps = parent.lossyScale;
+                Vector3 os = _pulseTarget.lossyScale;
+                _combatClone.localScale = new Vector3(ps.x != 0 ? os.x / ps.x : 1f, ps.y != 0 ? os.y / ps.y : 1f, 1f);
+                _cloneBaseScale = _combatClone.localScale;
+                _combatClone.SetAsLastSibling();
+
+                foreach (var text in copy.GetComponentsInChildren<TMP_Text>(true))
+                    if (_cloneText == null || text.gameObject.name.IndexOf("Value", System.StringComparison.OrdinalIgnoreCase) >= 0) _cloneText = text;
+                if (_cloneText == null) { Destroy(copy); _combatClone = null; _cloneFailed = true; return false; }
+            }
+            _displayBalance = Mathf.MoveTowards(_displayBalance, _balance, Mathf.Max(30f, Mathf.Abs(_balance - _displayBalance) * 6f) * Time.unscaledDeltaTime);
+            _cloneText.text = Mathf.RoundToInt(_displayBalance).ToString();
+            float k = _pulse > 0f ? 1f + 0.18f * Mathf.Sin((_pulse / 0.3f) * Mathf.PI) : 1f;
+            _combatClone.localScale = new Vector3(_cloneBaseScale.x * k, _cloneBaseScale.y * k, 1f);
+            return true;
+        }
+
+        private Vector3 _cloneBaseScale = Vector3.one;
+
+        private void RefreshCombatWidget(StageManager stage)
+        {
+            if (TryRefreshCloneWidget())
+            {
+                if (_widgetCanvas != null && _widgetCanvas.enabled) _widgetCanvas.enabled = false;
+                return;
+            }
+            bool currencyVisible = _pulseTarget != null && _pulseTarget.gameObject.activeInHierarchy;
+            bool inRun = stage != null && stage.State != eStageState.IDLE && stage.State != eStageState.CLEARED &&
+                         stage.State != eStageState.FAILED && stage.State != eStageState.CANCELLED;
+            bool show = inRun && !currencyVisible && stage.State == eStageState.COMBAT;
+            if (!show)
+            {
+                if (_widgetCanvas != null && _widgetCanvas.enabled) _widgetCanvas.enabled = false;
+                _displayBalance = _balance;
+                return;
+            }
+            EnsureWidget();
+            if (_widgetCanvas == null) return;
+            _widgetCanvas.enabled = true;
+            PlaceWidget();
+
+            // 숫자가 한 번에 바뀌지 않고 빠르게 올라간다
+            _displayBalance = Mathf.MoveTowards(_displayBalance, _balance, Mathf.Max(30f, Mathf.Abs(_balance - _displayBalance) * 6f) * Time.unscaledDeltaTime);
+            _widgetText.text = Mathf.RoundToInt(_displayBalance).ToString();
+            float k = _pulse > 0f ? 1f + 0.22f * Mathf.Sin((_pulse / 0.3f) * Mathf.PI) : 1f;
+            _widgetBox.localScale = new Vector3(k, k, 1f);
+        }
+
+        private void PlaceWidget()
+        {
+            // 왼쪽 아래, 하단 HUD 바로 위. 화면 크기에 맞춰 위치를 잡는다.
+            _widgetBox.anchoredPosition = new Vector2(Screen.width * 0.02f, Screen.height * 0.2f);
+        }
+
+        private void EnsureWidget()
+        {
+            if (_widgetCanvas != null) return;
+            EnsureCanvas();
+            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            var go = new GameObject("CombatCurrency", typeof(RectTransform));
+            go.transform.SetParent(transform, false);
+            _widgetCanvas = go.AddComponent<Canvas>();
+            _widgetCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _widgetCanvas.sortingOrder = 14;
+
+            var boxGo = new GameObject("Box", typeof(RectTransform), typeof(Image));
+            boxGo.transform.SetParent(go.transform, false);
+            _widgetBox = (RectTransform)boxGo.transform;
+            _widgetBox.anchorMin = _widgetBox.anchorMax = Vector2.zero;
+            _widgetBox.pivot = new Vector2(0f, 0f);
+            _widgetBox.sizeDelta = new Vector2(190f * s, 64f * s);
+            var bg = boxGo.GetComponent<Image>();
+            bg.color = new Color(0.07f, 0.04f, 0.05f, 0.9f);
+            bg.raycastTarget = false;
+            var outline = boxGo.AddComponent<Outline>();
+            outline.effectColor = new Color(0.85f, 0.7f, 0.35f, 0.95f);
+            outline.effectDistance = new Vector2(2f, -2f);
+
+            // 불꽃 아이콘(준비 화면과 같은 그림)
+            Sprite flame = null;
+            foreach (var sprite in Resources.FindObjectsOfTypeAll<Sprite>())
+                if (sprite != null && sprite.name == "Icon_Flame") { flame = sprite; break; }
+            var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconGo.transform.SetParent(boxGo.transform, false);
+            var iconRect = (RectTransform)iconGo.transform;
+            iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, 0.5f);
+            iconRect.pivot = new Vector2(0.5f, 0.5f);
+            iconRect.anchoredPosition = new Vector2(38f * s, 0f);
+            iconRect.sizeDelta = new Vector2(44f * s, 44f * s);
+            var icon = iconGo.GetComponent<Image>();
+            icon.sprite = flame;
+            icon.enabled = flame != null;
+            icon.preserveAspect = true;
+            icon.raycastTarget = false;
+
+            var textGo = new GameObject("Value", typeof(RectTransform));
+            textGo.transform.SetParent(boxGo.transform, false);
+            var textRect = (RectTransform)textGo.transform;
+            textRect.anchorMin = new Vector2(0f, 0f);
+            textRect.anchorMax = new Vector2(1f, 1f);
+            textRect.offsetMin = new Vector2(70f * s, 0f);
+            textRect.offsetMax = new Vector2(-14f * s, 0f);
+            _widgetText = textGo.AddComponent<TextMeshProUGUI>();
+            if (_font != null) _widgetText.font = _font;
+            _widgetText.fontSize = 34f * s;
+            _widgetText.fontStyle = FontStyles.Bold;
+            _widgetText.alignment = TextAlignmentOptions.MidlineLeft;
+            _widgetText.color = new Color(1f, 0.88f, 0.4f);
+            _widgetText.raycastTarget = false;
+            _widgetText.textWrappingMode = TextWrappingModes.NoWrap;
+            _widgetCanvas.enabled = false;
+        }
+
         private void EnsureCanvas()
         {
             if (_canvas != null) return;
@@ -300,7 +709,7 @@ namespace OZGL2.UIBridge
             _canvas = go.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _canvas.sortingOrder = 25; // 손패·드롭 존보다 위, 시너지 팝업(30)·결과 팝업(100)보다 아래
-            const string sample = "+-0123456789보상을고를때만쓸수있어요재화가모자라요필요다시뽑았지못했";
+            const string sample = "+-0123456789보상을고를때만쓸수있어요재화가모자라요필요다시뽑았지못했라운드클리어이번보너스달성마일스톤스킬해금에사용다음남음없음최대용사명처치유닛카드장중선택";
             foreach (var font in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
                 if (font != null && font.HasCharacters(sample, out _, true, true)) { _font = font; break; }
         }
