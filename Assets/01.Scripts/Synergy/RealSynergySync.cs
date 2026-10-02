@@ -224,12 +224,14 @@ namespace OZGL2.Synergy
             foreach (var data in defs)
             {
                 if (data == null) continue;
-                // 화염구는 계정 상태·초기화 여부와 무관하게 항상 기본 해금 + 자동 장착 — 신규 플레이어 최소 공격 수단.
+                // 화염구는 항상 기본 해금이고, 스킬 세팅에서 저장한 적이 없는 신규 계정에게만 자동 장착한다.
+                // 한 번이라도 장착을 저장했다면 그 목록을 그대로 따른다(화염구를 뺐으면 인게임에도 없다).
                 bool starterFree = IsStarterSkill(data);
+                bool starterAutoEquip = starterFree && !SkillTreeStore.HasSavedEquipment;
                 bool unlocked = starterFree || _debugUnlockAllSkills || SkillTreeStore.IsUnlocked(data.skillId);
                 var runtime = _skillManager.Register(data, unlocked);
                 // 디버그 모드: 용량 찰 때까지 등록 순서대로 우선 채워 넣고, 나머지는 디버그 패널에서 직접 스왑.
-                bool shouldEquip = unlocked && (starterFree || (_debugUnlockAllSkills
+                bool shouldEquip = unlocked && (starterAutoEquip || (_debugUnlockAllSkills
                     ? _skillManager.EquippedCount < _skillManager.EquipCapacity
                     : equipped.Contains(data.skillId)));
                 if (shouldEquip) _skillManager.TryEquip(runtime);

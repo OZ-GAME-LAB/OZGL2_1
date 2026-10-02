@@ -76,9 +76,13 @@ namespace OZGL2.Skill
             {
                 var child = transform.GetChild(i);
                 if (child == _caster) continue;
+                // 마지막 용사를 잡는 그 한 방의 폭발은 전투가 끝나는 순간(정리)에 같이 지워져서 보이지 않았다.
+                // 착탄 폭발은 이미 자기 수명(AutoDestroy)이 예약돼 있으니 정리 대상에서 뺀다.
+                if (_impactVfx.Contains(child.gameObject)) continue;
                 child.gameObject.SetActive(false);
                 Destroy(child.gameObject);
             }
+            _impactVfx.RemoveWhere(g => g == null);
             _enemyBuf.Clear();
             _allyBuf.Clear();
             // StopAllCoroutines로 도트 코루틴이 같이 죽는데 기록만 남으면, 다음에 같은 대상에게 도트를 걸 때
@@ -261,6 +265,9 @@ namespace OZGL2.Skill
         /// Vacuum·Zone(PersistentZone 등)도 castVfx를 point에 그대로 스폰해서 같은 손보정을 못 받고 있었다.</summary>
         private static Vector3 VfxPoint(SkillData d, Vector3 point) => point + new Vector3(d.visualOffsetX, d.visualOffsetY, 0f);
 
+        /// <summary>착탄 폭발 이펙트 — 전투 종료 정리(CancelActiveEffects)에서 지우지 않고 자기 수명대로 재생되게 둔다.</summary>
+        private readonly HashSet<GameObject> _impactVfx = new HashSet<GameObject>();
+
         private void Impact(SkillData d, float power, Vector3 point, float radiusOverride = -1f)
         {
             float r = radiusOverride > 0f ? radiusOverride : d.radius;
@@ -278,6 +285,7 @@ namespace OZGL2.Skill
                 var fx = SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi);
                 ScaleAreaVfx(fx, r);
                 AutoDestroy(fx);
+                if (fx != null) _impactVfx.Add(fx);
             }
             else
             {
@@ -787,6 +795,32 @@ namespace OZGL2.Skill
             return stats;
         }
 
+        /// <summary>진단용: 이펙트가 생성되고 0.2초 뒤에 실제로 살아 있는지, 보이는 이미지가 있는지, 화면 안에 있는지를 로그로 남긴다(에디터·개발 빌드).</summary>
+        private IEnumerator LogVfxState(GameObject go, Vector3 pos, string label)
+        {
+            yield return new WaitForSeconds(0.2f);
+            if (go == null) { Debug.Log("[VFX] " + label + ": 0.2초 뒤 이미 삭제됨"); yield break; }
+            var canvas = go.GetComponent<Canvas>();
+            var images = go.GetComponentsInChildren<UnityEngine.UI.Image>(true);
+            int visible = 0;
+            string first = "-";
+            foreach (var img in images)
+            {
+                if (img == null || !img.enabled || !img.gameObject.activeInHierarchy || img.sprite == null || img.color.a <= 0.01f) continue;
+                if (visible++ == 0)
+                    first = img.sprite.name + " 크기(월드)=" + img.rectTransform.rect.size * img.transform.lossyScale.x + " 색알파=" + img.color.a;
+            }
+            var cam = Camera.main;
+            Vector3 vp = cam != null ? cam.WorldToViewportPoint(pos) : Vector3.zero;
+            var animator = go.GetComponentInChildren<Animator>();
+            Debug.Log("[VFX] " + label + " 상태: 활성=" + go.activeInHierarchy + ", 캔버스켜짐=" + (canvas != null && canvas.enabled)
+                + ", 월드스케일=" + go.transform.lossyScale + ", 이미지 " + images.Length + "개 중 보이는 " + visible + "개(" + first + ")"
+                + ", 화면 위치(뷰포트)=" + vp + ", 애니메이터=" + (animator != null ? (animator.enabled ? "동작중" : "꺼짐") : "없음")
+                + ", 시간배율=" + Time.timeScale);
+        }
+
+        private const int VfxSortingOrder = 10; // 유닛 스프라이트 파츠(-10~6)보다 위, 체력바(1000)·사거리 표시(500)보다 아래
+
         private GameObject SpawnVfx(GameObject prefab, Vector3 pos, Quaternion rot, bool isUi)
         {
             GameObject go;
@@ -797,6 +831,8 @@ namespace OZGL2.Skill
                 canvasGo.transform.SetPositionAndRotation(pos, rot);
                 var canvas = canvasGo.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.WorldSpace;
+                // 월드 캔버스는 정렬 순서 0이 기본이라 SPUM 유닛 스프라이트 파츠(최대 6)에 가려질 수 있어 살짝만 올린다.
+                canvas.sortingOrder = VfxSortingOrder;
                 canvasGo.transform.localScale = Vector3.one * (1f / 64f);
                 var child = Instantiate(prefab, canvasGo.transform);
                 child.transform.localPosition = Vector3.zero;
@@ -804,10 +840,16 @@ namespace OZGL2.Skill
                 // 원본에 혹시 남아있을 수 있는 오프셋과 무관하게 항상 캔버스(=목표 지점) 정중앙에 오게 함.
                 if (child.transform is RectTransform rt) rt.anchoredPosition = Vector2.zero;
                 go = canvasGo;
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log("[VFX] UI 이펙트 생성: " + prefab.name + " 위치 " + pos + " (캔버스 정렬 " + VfxSortingOrder + ")");
+                    StartCoroutine(LogVfxState(go, pos, prefab.name));
+                }
             }
             else
             {
                 go = Instantiate(prefab, pos, rot, transform);
+                if (Debug.isDebugBuild) Debug.Log("[VFX] 이펙트 생성: " + prefab.name + " 위치 " + pos);
             }
 
             if (!_playSfx)
@@ -837,7 +879,16 @@ namespace OZGL2.Skill
 
             // uGUI(Animator) 기반 Pixel Art VFX — 한 번 재생 길이만큼만
             bool isUi = go.GetComponentInChildren<Canvas>() != null || go.GetComponentInChildren<Animator>() != null;
-            Destroy(go, isUi ? _uiVfxLifetime : _fallbackLifetime);
+            float life = isUi ? _uiVfxLifetime : _fallbackLifetime;
+            // 팩의 공용 애니메이션(IdleVFX)은 0.7초짜리 루프라, 수명이 더 길면 끝부분에서 처음 프레임이 다시 재생된다 — 한 번 재생 길이로 맞춘다.
+            var anim = go.GetComponentInChildren<Animator>();
+            if (isUi && anim != null && anim.runtimeAnimatorController != null)
+            {
+                float clip = 0f;
+                foreach (var c in anim.runtimeAnimatorController.animationClips) clip = Mathf.Max(clip, c.length);
+                if (clip > 0.1f) life = Mathf.Min(life, clip / Mathf.Max(anim.speed, 0.01f));
+            }
+            Destroy(go, life);
         }
 
         // ─────────────────────────────────────────── 코드 연출 유틸

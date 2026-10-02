@@ -224,8 +224,10 @@ namespace OZGL2.UIBridge
                 if (desired.Count < UiSlotCount && !desired.Contains(entryId)) desired.Add(entryId);
             }
 
-            foreach (var entry in _catalog.Entries)
-                if (entry != null && entry.DisplayName == StarterSkillName) Add(entry.Id);
+            // 저장한 적이 없는 신규 계정에게만 기본 스킬(화염구)을 보여 준다. 저장한 뒤에는 저장된 목록 그대로.
+            if (!SkillTreeStore.HasSavedEquipment)
+                foreach (var entry in _catalog.Entries)
+                    if (entry != null && entry.DisplayName == StarterSkillName) Add(entry.Id);
             foreach (var realId in SkillTreeStore.GetEquipped())
                 foreach (var pair in _realIdByEntryId)
                     if (pair.Value == realId && IsUnlocked(pair.Key, _catalog.Entries[_indexByEntryId[pair.Key]].DisplayName)) Add(pair.Key);

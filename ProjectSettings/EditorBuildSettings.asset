@@ -15,6 +15,12 @@ EditorBuildSettings:
     path: Assets/00.Scenes/Builds/Lobby.unity
     guid: 419a1b509808b394592d0f1aa9802da9
   - enabled: 1
+    path: Assets/00.Scenes/Builds/Lobby_2.unity
+    guid: 88b37910b86c5ea3be66cb5776b53d54
+  - enabled: 1
+    path: Assets/00.Scenes/Builds/InGame_2.unity
+    guid: 9bf05dcf09b35ee78392bbaffc5e11fe
+  - enabled: 1
     path: Assets/00.Scenes/JOB_SUNGMIN/JOB_SUNGMIN_Lobby.unity
     guid: f926dbc171fdbbb449d8e157e4c6f9f4
   - enabled: 1

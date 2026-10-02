@@ -19,7 +19,7 @@ MonoBehaviour:
   castMode: 1
   cooldown: 30
   effectType: 0
-  skillPower: 400
+  skillPower: 140
   radius: 4
   duration: 2
   castDelay: 0.8

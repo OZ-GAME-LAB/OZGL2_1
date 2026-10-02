@@ -19,7 +19,7 @@ MonoBehaviour:
   castMode: 1
   cooldown: 28
   effectType: 6
-  skillPower: 150
+  skillPower: 50
   radius: 2.5
   duration: 2
   castDelay: 0
@@ -31,7 +31,7 @@ MonoBehaviour:
   zoneMoveSpeed: 4
   onHitSlowMultiplier: 0
   onHitSlowSeconds: 2
-  onHitDotDamage: 10
+  onHitDotDamage: 6
   onHitDotSeconds: 3
   onHitDotTick: 0.5
   zoneEffect: 1

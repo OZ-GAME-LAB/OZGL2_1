@@ -32,7 +32,7 @@ MonoBehaviour:
   zoneEffect: 3
   zoneTarget: 0
   zoneTick: 0.2
-  zoneMagnitude: 24
+  zoneMagnitude: 4
   buffStat: 0
   buffMultiplier: 1.3
   reviveCount: 3
