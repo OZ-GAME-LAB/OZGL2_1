@@ -31,6 +31,9 @@ MonoBehaviour:
   zoneMoveSpeed: 5
   onHitSlowMultiplier: 0
   onHitSlowSeconds: 2
+  onHitDotDamage: 16
+  onHitDotSeconds: 3
+  onHitDotTick: 0.3
   zoneEffect: 0
   zoneTarget: 0
   zoneTick: 0.3
