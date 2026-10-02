@@ -895,6 +895,9 @@ MonoBehaviour:
     - _heroId: H_MAG_01
       _count: 5
       _intervalSeconds: 0.5
+    - _heroId: H_BOSS_04
+      _count: 1
+      _intervalSeconds: 0.5
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 0
@@ -1144,6 +1147,9 @@ MonoBehaviour:
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 6
+      _intervalSeconds: 0.5
+    - _heroId: H_BOSS_05
+      _count: 1
       _intervalSeconds: 0.5
     _isBossRound: 1
     _rewardId: reward_dummy_general

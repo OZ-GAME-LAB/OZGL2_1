@@ -194,6 +194,109 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         CombatEffects.PlaySaintCast(transform.position);
     }
 
+    /// <summary>매 프레임 호출: summonInterval이 설정된 유닛(교황류)은 공격 여부와 무관하게 주기적으로 증원을 직접 소환한다.</summary>
+    private void TickSummon()
+    {
+        if (statData == null || statData.summonPrefab == null || statData.summonInterval <= 0f ||
+            !BossSummonTag.CombatEnabled)
+        {
+            return;
+        }
+
+        _summonTimer -= Time.deltaTime;
+        if (_summonTimer <= 0f)
+        {
+            _summonTimer += Mathf.Max(statData.summonInterval, 0.1f);
+            SpawnSummonWave();
+        }
+    }
+
+    /// <summary>
+    /// HeroPool/PooledStageBattle을 거치지 않고 직접 Instantiate — 승패 판정과 엮이지 않는 "임시 증원".
+    /// BossSummonTag로 등록해서 라운드 경계 정리(BossSummonCombatParticipant)만 받는다.
+    /// </summary>
+    private void SpawnSummonWave()
+    {
+        int activeCount = BossSummonTag.ActiveCount;
+        int capacity = Mathf.Max(0, statData.summonMaxActive - activeCount);
+        int toSpawn = Mathf.Min(statData.summonCountPerWave, capacity);
+
+        for (int i = 0; i < toSpawn; i++)
+        {
+            Vector2 offset = UnityEngine.Random.insideUnitCircle * Mathf.Max(0.1f, statData.summonSpawnRadius);
+            Vector3 spawnPosition = transform.position + new Vector3(offset.x, offset.y, 0f);
+            GameObject instance = Instantiate(statData.summonPrefab, spawnPosition, Quaternion.identity);
+            instance.AddComponent<BossSummonTag>();
+
+            // HeroPool.Rent()를 거치지 않는 직접 스폰이라 ResetForSpawn이 안 불린다 — 마왕을 향해
+            // 걷기 시작하도록 여기서 직접 지정해줘야 한다(안 그러면 가만히 서있기만 함).
+            UnitBase summonedUnit = instance.GetComponent<UnitBase>();
+            if (summonedUnit != null && UnitRegistry.KingWorldPosition.HasValue)
+            {
+                summonedUnit.SetMoveTarget(UnitRegistry.KingWorldPosition.Value);
+            }
+        }
+
+        if (toSpawn > 0 && statData.summonBuffAttackMultiplier > 1f)
+        {
+            ApplySummonBuff();
+        }
+    }
+
+    /// <summary>소환과 함께 주변 아군(용사)에게 짧은 공격력 버프("축복")를 건다.</summary>
+    private void ApplySummonBuff()
+    {
+        var allies = UnitRegistry.GetUnits(Side);
+        float radiusSqr = statData.summonBuffRadius * statData.summonBuffRadius;
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            UnitBase ally = allies[i];
+            if (ally == null || ally.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            float distSqr = (ally.transform.position - transform.position).sqrMagnitude;
+            if (distSqr <= radiusSqr)
+            {
+                ((IHealable)ally).ApplyBuff("attack", statData.summonBuffAttackMultiplier, statData.summonBuffDuration);
+            }
+        }
+
+        CombatEffects.PlaySaintCast(transform.position);
+    }
+
+    /// <summary>
+    /// TakeDamage에서 체력이 임계값 이하로 떨어진 순간 1회만 호출 — 공격력 자강 버프 + 주변 적(마왕군) 전체 스턴.
+    /// "왕이 된 용사"류 최종보스의 체력 50% 각성 연출.
+    /// </summary>
+    private void TriggerPhaseTransition()
+    {
+        ((IHealable)this).ApplyBuff("attack", statData.phaseTransitionAttackMultiplier, statData.phaseTransitionBuffDuration);
+
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var enemies = UnitRegistry.GetUnits(enemySide);
+        float radiusSqr = statData.phaseTransitionRadius * statData.phaseTransitionRadius;
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            UnitBase enemy = enemies[i];
+            if (enemy == null || enemy.currentState == UnitState.Dead)
+            {
+                continue;
+            }
+
+            float distSqr = (enemy.transform.position - transform.position).sqrMagnitude;
+            if (distSqr <= radiusSqr)
+            {
+                ((IStatusReceiver)enemy).ApplyStun(statData.phaseTransitionStunDuration);
+            }
+        }
+
+        CombatEffects.PlayMagicCast(transform.position);
+    }
+
     // IPooledHeroState (OZGL2.Stage) — HeroPool이 용사를 재사용할 때 호출.
     void IPooledHeroState.ResetForSpawn(long leaseId)
     {
@@ -214,6 +317,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             SetBurnTint(false); // 이전 대여 때 화상으로 붉게 물든 채 반납됐을 수 있으니 즉시 원복
         }
         _auraHealTimer = 0f;
+        _summonTimer = 0f;
+        _hasTriggeredPhaseTransition = false;
 
         if (statData != null)
         {
@@ -273,6 +378,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     // 회복 오라(팔라딘류): 공격 상태와 무관하게 항상 흐르는 별도 타이머.
     private float _auraHealTimer;
+
+    // 소환(교황류): 공격 상태와 무관하게 항상 흐르는 별도 타이머.
+    private float _summonTimer;
+
+    // 페이즈 전환(최종보스류): 체력 임계값 발동은 전투당 1회만.
+    private bool _hasTriggeredPhaseTransition;
 
     private float EffectiveSlowMult => Time.time < _slowExpire ? _slowMult : 1f;
     private float EffectiveVulnerableMult => Time.time < _vulnerableExpire ? _vulnerableMult : 1f;
@@ -471,6 +582,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             TickBurn();
             TickAuraHeal();
+            TickSummon();
         }
 
         if (Time.time < _stunExpire)
@@ -1050,6 +1162,15 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         if (currentHealth <= 0)
         {
             Die();
+            return;
+        }
+
+        // 페이즈 전환(최종보스류): 체력이 임계값 아래로 떨어진 "그 순간" 1회만 발동.
+        if (!_hasTriggeredPhaseTransition && statData != null && statData.phaseTransitionHealthRatio > 0f &&
+            currentHealth <= statData.maxHealth * statData.phaseTransitionHealthRatio)
+        {
+            _hasTriggeredPhaseTransition = true;
+            TriggerPhaseTransition();
         }
     }
 

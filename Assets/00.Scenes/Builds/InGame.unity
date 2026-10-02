@@ -462,6 +462,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1591044039}
   - component: {fileID: 1591044038}
+  - component: {fileID: 3734979246930877985}
   m_Layer: 0
   m_Name: InGameRunHost
   m_TagString: Untagged
@@ -479,8 +480,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 533035b4027544acad6467f5c1aa0377, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileCombatParticipant
+--- !u!114 &3734979246930877985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591044037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0e8f1fa3934537affea49feb1fb3f1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BossSummonCombatParticipant
 --- !u!4 &1591044039
 Transform:
   m_ObjectHideFlags: 0
@@ -3909,12 +3922,16 @@ PrefabInstance:
       objectReference: {fileID: 8701223948942012783}
     - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _combatParticipants.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: '_combatParticipants.Array.data[0]'
-      value: 
+      value:
       objectReference: {fileID: 1591044038}
+    - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
+      propertyPath: '_combatParticipants.Array.data[1]'
+      value:
+      objectReference: {fileID: 3734979246930877985}
     - target: {fileID: 8715256182333729861, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _boardTheme
       value: 

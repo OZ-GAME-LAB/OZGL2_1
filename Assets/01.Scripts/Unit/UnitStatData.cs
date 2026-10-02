@@ -71,6 +71,25 @@ public class UnitStatData : ScriptableObject
     public float auraHealInterval = 0f;
     public float auraHealRadius = 0f;
 
+    [Header("소환(교황류) — 주기적으로 아군(용사) 증원 소환, 소환수는 풀링 없이 직접 스폰 (0=비활성)")]
+    public GameObject summonPrefab;        // 소환할 유닛 프리팹(UnitBase 포함된 용사 프리팹)
+    public float summonInterval = 0f;      // 소환 주기(초)
+    public int summonCountPerWave = 0;     // 1회 소환 시 마리 수
+    public int summonMaxActive = 0;        // 이 보스가 살려둔 소환수 동시 생존 상한
+    public float summonSpawnRadius = 1.5f; // 소환 위치가 자신 중심으로 퍼지는 반경
+    [Range(1f, 3f)]
+    public float summonBuffAttackMultiplier = 1f; // 소환 시 주변 아군(용사)에게 거는 공격력 배율(1=비활성)
+    public float summonBuffDuration = 0f;
+    public float summonBuffRadius = 0f;
+
+    [Header("페이즈 전환(최종보스류) — 체력 비율 이하로 떨어지면 1회 발동 (0=비활성)")]
+    [Range(0f, 1f)]
+    public float phaseTransitionHealthRatio = 0f; // 예: 0.5 = 체력 50% 이하에서 발동
+    public float phaseTransitionAttackMultiplier = 1f; // 발동 시 자신 공격력 배율
+    public float phaseTransitionBuffDuration = 0f;
+    public float phaseTransitionStunDuration = 0f; // 발동 시 주변 적(마왕군) 전체 스턴
+    public float phaseTransitionRadius = 0f;
+
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
     public int killExpReward = 0;       // 용사 처치 시 지급 경험치 (성민 파트 연계)

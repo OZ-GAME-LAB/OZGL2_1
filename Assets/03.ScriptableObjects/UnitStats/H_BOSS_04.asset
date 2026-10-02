@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 340054d7b15f5294eb3991ed595a4dc6, type: 3}
+  m_Name: H_BOSS_04
+  m_EditorClassIdentifier:
+  unitId: H_BOSS_04
+  displayName: 교황
+  side: 0
+  job: 0
+  maxHealth: 1400
+  attackPower: 34
+  attackSpeed: 0.8
+  defensePercent: 0.15
+  attackRange: 2.5
+  moveSpeed: 0.5
+  healAmount: 0
+  attackAnimationIndex: 0
+  splashRadius: 0
+  splashSecondaryDamagePercent: 1
+  splashMaxTargets: 0
+  ccResistance: 0.5
+  summonPrefab: {fileID: 1279840019893266538, guid: e5118c48eadbe244e96f46686537facf, type: 3}
+  summonInterval: 10
+  summonCountPerWave: 2
+  summonMaxActive: 4
+  summonSpawnRadius: 2
+  summonBuffAttackMultiplier: 1.3
+  summonBuffDuration: 6
+  summonBuffRadius: 5
+  cost: 0
+  killExpReward: 70
+  starLevel: 1
