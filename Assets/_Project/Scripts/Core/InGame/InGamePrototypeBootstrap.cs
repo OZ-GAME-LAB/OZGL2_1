@@ -25,6 +25,8 @@ namespace OZGL2.InGame
         [SerializeField] private MonoBehaviour[] _combatParticipants = Array.Empty<MonoBehaviour>();
         [Tooltip("IStageRewards를 구현한 실제 증강 선택 연결부. 비어 있으면 더미 사용.")]
         [SerializeField] private MonoBehaviour _augmentProvider;
+        [Tooltip("연결된 씬만 웨이브 결과 확인을 사용한다. 최종 결과창은 기존 경로를 유지한다.")]
+        [SerializeField] private InGameWaveResultPresenter _waveResultPresenter;
         private InGameCombatConnection _combatConnection;
         private InGameSynergyConnection _synergyConnection;
         private InGameSkillConnection _skillConnection;
@@ -108,6 +110,7 @@ namespace OZGL2.InGame
                 ResolveSelection();
                 _config.Validate(_selectedSource.CreateSnapshot());
                 _phasePresentation?.ValidateSetup();
+                _waveResultPresenter?.ValidateSetup();
                 _runSynergy = RealCombatBootstrap.EnsureInitialized();
                 _runSynergy.BeginRun();
                 _runSynergy.SetExternalSkillUiActive(_usesExternalSkillUi);
@@ -145,8 +148,10 @@ namespace OZGL2.InGame
                     () => _session?.Session, _config.DemonArmyCatalog, transform,
                     _config.GridWorldOrigin, _config.CellWorldSize,
                     out _heroPool, resource => _defenders = resource, _combatConnection, _config.CreateHeroSpawnPositions());
+                if (_waveResultPresenter != null)
+                    battle = new InGameExperienceBattle(battle, MawangXpBridge.Mawang);
                 Stage = new StageManager(battle, Rewards, preparation, _session,
-                    new FileStageProgressStore(Path.Combine(directory, "Runs")), lobby);
+                    new FileStageProgressStore(Path.Combine(directory, "Runs")), lobby, _waveResultPresenter);
                 Stage.StateChanged += OnStateChanged;
                 _host = new GameObject("InGameRunHost").AddComponent<StageRunHost>();
                 _host.OwnResource(_heroPool);
