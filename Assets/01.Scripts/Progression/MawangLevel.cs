@@ -24,6 +24,8 @@ namespace OZGL2.Progression
         public int Level { get; private set; } = 1;
         public int Xp { get; private set; }
         public int Points { get; private set; }
+        /// <summary>이번 런에 실제 지급된 XP. 레벨업 소비량과 무관하며 저장/재지급에는 사용하지 않는다.</summary>
+        public long TotalEarnedXp { get; private set; }
 
         /// <summary>특성 "통찰" — XP 획득 배율.</summary>
         public float XpGainMult { get; set; } = 1f;
@@ -68,7 +70,9 @@ namespace OZGL2.Progression
         {
             if (amount <= 0) return;
 
-            Xp += Mathf.Max(1, Mathf.RoundToInt(amount * Mathf.Max(0f, XpGainMult)));
+            int earned = Mathf.Max(1, Mathf.RoundToInt(amount * Mathf.Max(0f, XpGainMult)));
+            Xp += earned;
+            TotalEarnedXp += earned;
 
             bool leveled = false;
             while (Xp >= XpToNext)
@@ -91,7 +95,11 @@ namespace OZGL2.Progression
             if (Level % 5 == 0)
             {
                 lp += 1 + Mathf.Max(0, MilestoneBonusLp);
-                if (SurgeXpOnMilestone > 0) Xp += SurgeXpOnMilestone; // while 루프가 다시 검사
+                if (SurgeXpOnMilestone > 0)
+                {
+                    Xp += SurgeXpOnMilestone; // while 루프가 다시 검사
+                    TotalEarnedXp += SurgeXpOnMilestone;
+                }
             }
             Points += lp;
         }
@@ -101,6 +109,7 @@ namespace OZGL2.Progression
         {
             Level = 1;
             Xp = 0;
+            TotalEarnedXp = 0;
             Save();
             XpChanged?.Invoke();
         }
@@ -141,6 +150,7 @@ namespace OZGL2.Progression
             Level = 1;
             Xp = 0;
             Points = 0;
+            TotalEarnedXp = 0;
             XpChanged?.Invoke();
             PointsChanged?.Invoke();
         }

@@ -18,6 +18,10 @@ namespace OZGL2.Grid.UI
         private readonly List<SpriteRenderer> _frontier = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _invalid = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _occupied = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _occupiedBorders = new List<SpriteRenderer>();
+        private readonly List<SpriteRenderer> _cellHoverBorders = new List<SpriteRenderer>();
+        private readonly GridTerrainTileSetSO _terrainStyle;
+        private Vector2Int? _hoveredCell;
         private readonly List<SpriteRenderer> _hover = new List<SpriteRenderer>();
         private readonly List<SpriteRenderer> _invalidBorders = new List<SpriteRenderer>();
         private readonly Sprite _solid;
@@ -33,9 +37,9 @@ namespace OZGL2.Grid.UI
         public Func<string, int, float> RangeProvider { get; set; }
         public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, GameObject> prefab, Transform parent)
             : this(grid, mapping, cellSize, (id, star) => prefab(id), parent) { }
-        public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, int, GameObject> prefab, Transform parent)
+        public GridWorldPreparationView(GridManager grid, GridWorldMapping mapping, float cellSize, Func<string, int, GameObject> prefab, Transform parent, GridTerrainTileSetSO terrainStyle = null)
         {
-            _grid = grid; _mapping = mapping; _cellSize = cellSize; _prefab = prefab;
+            _grid = grid; _mapping = mapping; _cellSize = cellSize; _prefab = prefab; _terrainStyle = terrainStyle;
             _root = new GameObject("PreparationVisuals"); _root.transform.SetParent(parent, false);
             _solid = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 2, 2), new Vector2(0.5f, 0.5f), 2);
             var king = Square("KingMarker", _root.transform, -1, new Color(0.6f, 0.4f, 0.12f));
@@ -45,7 +49,24 @@ namespace OZGL2.Grid.UI
             SetVisible(false);
         }
         public void SetVisible(bool visible)
-        { IsVisible = visible; _root.SetActive(visible); if (visible) Refresh(); }
+        { IsVisible = visible; if (!visible) _hoveredCell = null; _root.SetActive(visible); if (visible) Refresh(); }
+        public void SetHoveredCell(Vector2Int? cell)
+        {
+            if (_terrainStyle == null) return;
+            if (!IsVisible || _grid.Phase != eGridPhase.PREPARATION || _grid.HasSelection || _grid.HasPendingStorage ||
+                (cell.HasValue && (cell.Value.x < 0 || cell.Value.y < 0 ||
+                cell.Value.x >= _grid.Definition.MaximumSize.x || cell.Value.y >= _grid.Definition.MaximumSize.y))) cell = null;
+            if (_hoveredCell == cell) return;
+            _hoveredCell = cell;
+            RefreshCellHover();
+        }
+        private void RefreshCellHover()
+        {
+            if (_terrainStyle == null) return;
+            if (_grid.Phase != eGridPhase.PREPARATION || _grid.HasSelection || _grid.HasPendingStorage) _hoveredCell = null;
+            RenderCellBorders(_cellHoverBorders, _hoveredCell.HasValue ? new[] { _hoveredCell.Value } : Array.Empty<Vector2Int>(),
+                _terrainStyle.HoverBorder, _terrainStyle.HoverBorderWidth, -64, "CellHoverBorder");
+        }
         public void Refresh()
         {
             if (!IsVisible) return;
@@ -78,7 +99,11 @@ namespace OZGL2.Grid.UI
             // 합성 자체는 막지 않고(GridManager.CanFuseUnits), 이 칸이 남아있는 동안 CanBeginBattle이
             // false가 되어 정리하기 전까진 웨이브를 시작할 수 없다.
             var invalid = preparing ? _grid.GetInvalidCells(selected) : Array.Empty<Vector2Int>();
-            RenderSquares(_occupied, preparing ? _grid.GetOccupiedCells(selected) : Array.Empty<Vector2Int>(), GridBoardView.OCCUPIED_COLOR, -80, 0.94f);
+            var occupied = preparing ? _grid.GetOccupiedCells(selected) : Array.Empty<Vector2Int>();
+            RenderSquares(_occupied, occupied, _terrainStyle != null ? _terrainStyle.OccupiedFill : GridBoardView.OCCUPIED_COLOR, -80, 0.94f);
+            if (_terrainStyle != null)
+                RenderCellBorders(_occupiedBorders, occupied, _terrainStyle.OccupiedBorder, _terrainStyle.OccupiedBorderWidth, -79, "OccupiedCellBorder");
+            RefreshCellHover();
             RenderSquares(_invalid, invalid, GridBoardView.INVALID_PLACEMENT_COLOR, -70, 0.98f);
             RenderInvalidBorders(invalid);
             var hovered = preparing ? _grid.FindExpansion(_grid.HoveredExpansionId) : null;
@@ -216,6 +241,21 @@ namespace OZGL2.Grid.UI
                     renderer.transform.localScale = new Vector3(side < 2 ? 0.035f : 0.975f, side < 2 ? 0.975f : 0.035f, 1) * _cellSize;
                 }
             for (; index < _invalidBorders.Count; index++) _invalidBorders[index].gameObject.SetActive(false);
+        }
+        private void RenderCellBorders(List<SpriteRenderer> renderers, IEnumerable<Vector2Int> cells, Color color, float width, int order, string name)
+        {
+            int index = 0;
+            if (width > 0f)
+                foreach (var cell in cells)
+                    for (int side = 0; side < 4; side++)
+                    {
+                        if (index == renderers.Count) renderers.Add(Square(name, _root.transform, order, color));
+                        var renderer = renderers[index++]; renderer.gameObject.SetActive(true); renderer.color = color;
+                        var offset = side == 0 ? Vector2.left : side == 1 ? Vector2.right : side == 2 ? Vector2.up : Vector2.down;
+                        renderer.transform.position = _mapping.GetWorldPosition((Vector2)cell + offset * (0.5f - width * 0.5f));
+                        renderer.transform.localScale = new Vector3(side < 2 ? width : 1f, side < 2 ? 1f : width, 1f) * _cellSize;
+                    }
+            for (; index < renderers.Count; index++) renderers[index].gameObject.SetActive(false);
         }
         public void Dispose()
         {

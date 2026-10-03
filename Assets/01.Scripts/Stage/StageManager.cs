@@ -7,7 +7,7 @@ namespace OZGL2.Stage
     public enum eStageState
     {
         IDLE, INITIALIZING, PREPARATION, COMBAT, GENERAL_REWARD, AUGMENT,
-        SETTLING, CLEARED, FAILED, CANCELLED, ERROR, RETURNING_TO_LOBBY
+        SETTLING, CLEARED, FAILED, CANCELLED, ERROR, RETURNING_TO_LOBBY, WAVE_RESULT
     }
 
     /// <summary>Unity 메인 스레드에서 호출하며, 외부 시스템 완료 후 다음 단계로 진행합니다.</summary>
@@ -19,6 +19,7 @@ namespace OZGL2.Stage
         private readonly IStageSession _session;
         private readonly IStageProgressStore _progressStore;
         private readonly IStageLobby _lobby;
+        private readonly IStageWaveResults _waveResults;
         private StageRunProgress _runProgress;
         private StageRunResult _snapshot;
         private int _isRunning;
@@ -38,7 +39,8 @@ namespace OZGL2.Stage
         public event Action<eStageState> StateChanged;
 
         public StageManager(IStageBattle battle, IStageRewards rewards,
-            IStagePreparation preparation, IStageSession session, IStageProgressStore progressStore, IStageLobby lobby)
+            IStagePreparation preparation, IStageSession session, IStageProgressStore progressStore, IStageLobby lobby,
+            IStageWaveResults waveResults = null)
         {
             _battle = battle ?? throw new ArgumentNullException(nameof(battle));
             _rewards = rewards ?? throw new ArgumentNullException(nameof(rewards));
@@ -46,6 +48,7 @@ namespace OZGL2.Stage
             _session = session ?? throw new ArgumentNullException(nameof(session));
             _progressStore = progressStore ?? throw new ArgumentNullException(nameof(progressStore));
             _lobby = lobby ?? throw new ArgumentNullException(nameof(lobby));
+            _waveResults = waveResults;
         }
 
         public async Task RunAsync(IStageDataSource source, CancellationToken cancellationToken)
@@ -112,6 +115,13 @@ namespace OZGL2.Stage
                         // 최종 라운드는 다음 전투용 보상 선택을 생략한다.
                         await FinishAsync(true, cancellationToken);
                         return;
+                    }
+
+                    if (_waveResults != null)
+                    {
+                        SetState(eStageState.WAVE_RESULT);
+                        await _waveResults.ShowAsync(new StageWaveResult(_snapshot.RunId, CurrentRoundNumber, result), cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
                     }
 
                     SetState(eStageState.GENERAL_REWARD);
