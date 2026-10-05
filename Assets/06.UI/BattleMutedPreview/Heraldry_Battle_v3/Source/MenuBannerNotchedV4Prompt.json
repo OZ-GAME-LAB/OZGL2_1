@@ -1,0 +1,16 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-06",
+  "output": "menu_banner_notched_v4.png",
+  "prompt": "Use case: precise-object-edit\nAsset type: a single isolated production game HUD menu ribbon sprite, transparent PNG, front-facing, no text or symbol.\nInput images: Image 1 is the existing ribbon to replace; its lower silhouette and realistic fabric treatment are WRONG and must be changed. Image 2 is the style reference: match its restrained, smooth 2D illustrated dark burgundy and antique-gold UI art. Image 3 shows the intended bottom silhouette drawn in red on the small right-hand ribbon, for shape guidance only.\nPrimary request: redraw the entire single blank menu ribbon so it belongs seamlessly to the reference HUD. Keep dark burgundy fill, fine antique-gold edging, and a clean black outer contour; change the fabric texture to smooth simplified handpainted / cel-shaded game UI.\nCRITICAL SHAPE: a plain upright rectangle with exactly ONE upward triangular notch cut out of the bottom center. Left and right outside edges stay perfectly vertical all the way down to the TWO bottom OUTSIDE corners. Connect bottom-left corner directly to the raised center-notch apex, then directly to the bottom-right corner. Exactly two diagonal bottom segments, making an upward chevron /\\; absolutely NO other diagonal bevels along the outer lower corners. The bottom endpoints coincide with the outermost left and right vertical edges. Do not copy the W-shaped lower silhouette of image 1.\nExact normalized outline vertices in clockwise image coordinates: (0,0), (1,0), (1,1), (0.5,0.80), (0,1), close. Overall visible body width-to-height 86:110. Thin gold trim follows this same five-edge shape. Flat unbroken horizontal top.\nStyle: polished non-pixel medieval dark-casual fantasy UI; clean simplified broad tonal planes, muted burgundy #552327 to #702c30; subdued antique brass #A7834D with a delicate warm highlight. Match the reference UI quality without photorealism. Keep the center mostly flat and empty, spacious enough for a separately overlaid hamburger icon.\nComposition: one complete vertically oriented ribbon centered on a truly transparent canvas with small even clear margins. Crisp silhouette and preserved alpha.\nAvoid: W-shaped tips, beveled lower outside corners, diamond point bottom, central downward point, extra tails, torn edges, frills, photo-real velvet, cloth weave, speckles, grunge, grain, glossy satin, puffy folds, bright yellow gold, blurred glow, cast shadow onto background, letters, logos, icon, pole, full HUD, backdrop.",
+  "sourceGeneratedImage": "C:/Users/sudea/.codex/generated_images/01a10c99-26da-7f12-955a-a26597d68879/exec-150ab6da-c3d7-41f3-96eb-591a81c6a45f.png",
+  "review": {
+    "shape": "Vertical outer edges terminate at bottom outside corners; one central upward notch; exactly two bottom diagonal segments.",
+    "style": "Smooth restrained illustrated burgundy fill and antique-gold edge, no realistic velvet weave.",
+    "pixelEdits": false,
+    "imageSize": [1109, 1419],
+    "alphaGreaterThan5TopLeftBBox": [135, 144, 977, 1289],
+    "recommendedUnityBottomLeftSpriteRect": [135, 130, 842, 1145],
+    "alphaNote": "Generated alpha preserved; isolated alpha 1-5 pixels exist in outer canvas, so use the visible-alpha bounding box for the Sprite Rect."
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "useCase": "stylized-concept",
+  "tool": "built-in image_gen",
+  "generatedAt": "2026-10-05",
+  "referencePath": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-384815c9-747e-406f-87f9-fa50a6d9973f.png",
+  "finalSource": "C:/Users/sudea/.codex/generated_images/01a10c87-5030-7013-b3cf-910360c80e81/exec-3e7f756f-3a94-4fc5-99b4-3062bc902fb6.png",
+  "workspaceAsset": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v3/Source/synergy_body_roomy.png",
+  "prompts": [
+    "Use case: stylized-concept\nAsset type: production Unity game UI sprite, a single empty synergy status plaque.\nInput image 1 is only the style reference: the four black/gold synergy cards. Recreate ONE blank plaque body, excluding their separate hanging fabric flags, white symbols, dividing line, and all lettering.\nPrimary request: a roomy, horizontal charcoal-black rectangular plaque with a very thin antique-gold metal edge, in the exact clean casual-medieval heraldry style of the reference. The finished visible silhouette must have width:height about 2.88:1, intended to display at 300 x 104 pixels. It needs more usable vertical interior than the older narrow strip: black reading space for two rows of text, with at least 70% of the plaque height open, calm and empty.\nShape: near-straight long top and bottom horizontal gold edges, modest curved ends with tiny curled flourishes at four corners. Slight angular shoulder points on the upper edge as in reference, but NO large central crest. Keep the gold line itself thin, about 2.5 to 3 pixels at final 104px display height. Small painted bevel, dark edge and restrained highlight like the reference; no multiple inset frame lines. The interior is a flat opaque deep charcoal with a barely perceptible dark warm gradient.\nComposition: single isolated plaque, centered, front-on, no perspective. Render large and sharp on a landscape canvas, preserving 2.88:1 visible silhouette proportions with a small transparent safety margin on every side. Border and filled body are together in the same sprite.\nColor: muted antique warm gold, restrained saturation and brightness, charcoal black (#19191c approximately). No colored fabric whatsoever.\nConstraints: genuinely transparent outside the silhouette, full opaque alpha 255 throughout the interior and metal. Smooth non-pixel-art rendering. No text, no numbers, no icon, no divider, no ribbon, no flag, no horn emblem, no skull, no diamond badge, no checkerboard paint, no screenshot border, no backdrop, no cast shadow outside the silhouette, no watermark. The input reference is an example of the shape/style only; output exactly one empty plaque.",
+    "Use case: precise-object-edit\nEdit target: the supplied single empty black and gold plaque.\nChange only the plaque proportions and border weight: make the vertical blank charcoal area 45% TALLER while keeping the same width. The visible plaque silhouette must be 2.88:1 wide-to-high, not the current very long 3.8:1 strip. Shrink the four gold curled flourishes to 70% of their present thickness/size, make gold a little less yellow and less bright. Gold long horizontal lines at final 104px height only 2 to 3px thick. Make upper corner shoulder points lower and modest.\nPreserve: one single blank plaque; deep nearly black FULLY OPAQUE filled body, fine antique-gold curled frame and slight bevel, clean non-pixel casual medieval heraldry rendering. No text, no divider, no icons, no numbers, no ribbons, no flags, no horns or central crest. Broad smooth empty black center suitable for a left icon plus two rows of text.\nComposition: visible silhouette 2.88:1, centred with small transparent margins; not a screenshot or a collage. True transparent pixels OUTSIDE the plaque, and fully opaque alpha 255 INSIDE. No shadow or faint pixels floating outside edges. This is a clean production UI sprite, no background scene or checkerboard paint.",
+    "Use case: precise-object-edit\nThe attached plaque is currently much too narrow and squat. Make a new taller version, dramatically ADD vertical empty black space BETWEEN THE TOP AND BOTTOM GOLD LINES, so the vertical frame side edges become about twice their present length. Keep the gold long horizontal line thickness and the four corner curls SMALL, do NOT scale the existing art vertically.\nOutput canvas should be about 1800 pixels wide and 1000 pixels tall. The plaque itself should be approximately 1650 pixels wide and 575 pixels tall, centrally placed, with transparent empty space above and below. This target visible shape width/height is 2.87:1. A medium-height rectangle, NOT a narrow label strip. Its empty black center should feel large and spacious vertically.\nKeep the same four small antique-gold curled corners, thin gold outline, modest shallow upper shoulder points, single opaque charcoal fill, and clean painted non-pixel-art medieval game UI style. Gold restrained warm antique tone, not shiny yellow. Fully opaque black filled interior alpha255; genuine transparent alpha outside silhouette. Only one empty panel. No text, no icon, no numbers, no inner divider, no flags, no ribbon, no crest, no diamond emblem, no background, no cast shadow, no watermark.",
+    "Use case: stylized-concept\nAsset type: a SINGLE EMPTY medieval fantasy game UI card body, on real transparency.\nStyle reference: use the attached image's four small synergy plaques ONLY for the thin muted gold curled metal edge and solid charcoal black fill, not their text, icons or flags.\nGenerate one NEW PLAQUE with a MUCH TALLER READING AREA. Medium horizontal rectangle, width around THREE TIMES its height. The painted silhouette should be 1500 pixels wide and 520 pixels tall. Use a SQUARE canvas with this plaque centered. Large transparent empty areas above and below the plaque are intentional.\nA thin antique gold outline about 8 pixels thick on the high-resolution asset, with very small curled corners, shallow angular shoulder points, understated illustrated metal bevel. Do not use giant gold ornaments. Broad black interior from immediately inside top edge to bottom edge; no extra frame within the frame. Deep charcoal #19191c, faint soft warm lighting, fully opaque alpha255. All outside pixels transparent alpha0 except clean antialiased edge.\nThis body is a blank dark plaque only, ready for two rows of text added separately by Unity. No lettering, numbers, icon, divider line, flag, ribbon, emblem, skull, horns, scene, patterned background, watermark or extra panels. Smooth nonpixel cartoon-medieval game UI. Match the reference's restrained saturation and clean uncomplicated silhouette."
+  ],
+  "selectedGenerationIndex": 2,
+  "rejectedGenerationIndexes": [
+    0,
+    1,
+    3
+  ],
+  "imageSize": {
+    "width": 2124,
+    "height": 740
+  },
+  "alphaBounds16": {
+    "x": 100,
+    "yBottom": 99,
+    "width": 1925,
+    "height": 566
+  },
+  "recommendedSpriteRect": {
+    "x": 97,
+    "y": 97,
+    "width": 1931,
+    "height": 571
+  },
+  "recommendedSpriteBorder": {
+    "left": 430,
+    "bottom": 115,
+    "right": 430,
+    "top": 145
+  },
+  "recommendedTargetSize": {
+    "width": 300,
+    "height": 104
+  },
+  "recommendedPixelsPerUnitMultiplier": 6.4367,
+  "notes": [
+    "PNG copied unchanged; no direct pixel edits performed.",
+    "Center pixel alpha is 253, not the requested 255. Preserve alpha and report accurately.",
+    "Visible silhouette ratio remains about 3.40:1 after generated edits; use Image.Sliced to extend only central fill and straight vertical sections to target ratio, not deform corner flourishes.",
+    "A few alpha<16 pixels outside silhouette are excluded by recommended SpriteRect.",
+    "No text, divider, icons or flags are baked in. Tintable flags remain separate existing sprites."
+  ]
+}

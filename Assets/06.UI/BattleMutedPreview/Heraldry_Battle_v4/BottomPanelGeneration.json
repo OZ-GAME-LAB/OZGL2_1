@@ -1,0 +1,104 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v3/Source/bottom_panel_fullbleed.png",
+  "prompts": [
+    "Use case: precise-object-edit.\nInput image 1: EDIT TARGET, production game HUD bottom panel PNG.\nModify ONLY the thickness of the continuous antique-gold metal TOP border: make its visible gold line approximately 1.5 times the current thickness, a 50 percent increase. This is a small local edit, not a redesign. Thicken the gold band by expanding it a little vertically into the black panel while preserving its centerline, gold hues, highlights and dark edge. The long horizontal sections must be visibly 50% thicker; do not leave them unchanged. Retain the exact existing pair of compact curled flourishes, their positions, and the raised central contour. Do not enlarge the curls into oversized ornaments.\nPreserve everything else: same 2172x724 wide canvas, unchanged placement and height of the shallow bottom strip, unchanged charcoal-to-near-black panel gradient, same dark low-contrast castle silhouettes, same rounded compact curls, same top contour route. Actual top contour begins around y402, central flat around y423, sides around y438. Keep all transparent area above the contour genuinely transparent. Panel remains full-bleed to the extreme left, right and bottom of the canvas.\nNo left or right border and NO bottom border; no enclosing rectangle, no ribbons or flags, no chains, no icons, no buttons, no text, no watermark, no checkerboard texture. Do not move or rescale the panel. Do not add another outline parallel to the existing line: simply widen the same antique gold metal top line to 150% of its present stroke thickness.",
+    "Use case: precise-object-edit.\nImage 1 is the exact edit target. Make one very subtle adjustment to this game HUD sprite: increase ONLY the gold TOP outline thickness by about 50 percent.\nPixel thickness guide at this 2172x724 resolution: the existing central straight gold band is approximately 5 pixels thick (near x1086, y423-427). Make it 7 to 8 pixels thick, NOT 12 pixels and not a thick belt. Maintain the top edge near its original y422 and expand the gold band down by only 2-3 pixels. Keep it narrow and refined with the exact same restrained antique-gold color, not glowing yellow. Keep the two gold curls exactly the original size, shape, position. Keep all horizontal geometry and every other part of the original unchanged.\nCritical invariants: keep 2172x724 canvas and the panel’s current placement; preserve the black charcoal gradient and castle silhouette artwork; full opaque dark fill reaches left edge, right edge, and bottom edge. The top area remains genuinely transparent. No bottom border and no side border; no enclosed rectangle. No flags, chains, buttons, text or icons.\nClean alpha: the top outline edge must be cleanly antialiased; any pixels above its silhouette are completely transparent without red, yellow, green, magenta or white edge debris. There must be no colored fringe floating above the top line. Do not reinterpret transparent pixels as colored artwork. Modify ONLY the existing gold stroke to a restrained 7-8 pixel band, preserving the rest of the source composition.",
+    "Use case: precise-object-edit. Image1 is the edit target.\nEdit the existing narrow top gold band ONLY: reduce its current thickness by one third, so its visible straight sections become about 8 source pixels thick instead of the current 12 pixels. Keep the bottom edge of the metal in place and lower its top edge by four pixels. Keep its exact antique gold colors and shading. Preserve the original curl ornaments at their current size/position, raised center contour, all castle silhouettes and charcoal background, and exactly the same 2172x724 canvas and composition.\nAlso clean the fully transparent area immediately above the silhouette: remove all red residue fringe so the sky area has pure zero alpha. The intended outline is gold and black only. Keep actual transparency above the contour; no colored background.\nOnly the top has a border. No vertical side border, no bottom border, no flag, ribbon, icon, chain, button, text or additional ornament. Left, right and bottom panel fill continues to the extreme edges. Do not change the panel height or image proportions.",
+    "Precise game UI PNG edit. The existing straight antique gold top frame line is slightly too thick. Make ONLY the long straight metal sections noticeably thinner, reduce them to 70% of their current thickness. Their total gold width including highlights should become 7 pixels, never more than 8 pixels, on this same 2172x724 canvas. Keep compact gold curl ornaments exactly as-is. Do not move or resize anything else. Preserve all castle silhouettes, charcoal gradient, all panel proportions and antique gold color. This remains a single open-top-trim bottom panel, no side or bottom borders, no added artwork. Full bleed to left/right/bottom. Absolutely transparent above the contour, with zero opaque red/yellow residue. The only requested shape change is thinning the current 10-11-pixel gold straight lines to about 7 pixels while retaining their route.",
+    "Image 1 is the exact edit target, not a loose inspiration.\nApply a very small localized change: add TWO pixels of the same antique-gold color immediately below the existing five-pixel-wide gold top trim, so it is seven pixels wide. The original five pixels should remain in place and untouched. Do not replace it with a large beveled bar. Keep the original slim dark outer edge. This is subtle slightly thicker edging, not bold edging.\nDo not change the gold curls or their size. Do not move any part of the border. Keep every castle silhouette and the dark gradient exactly as they are. Preserve the 2172x724 canvas and original layout: gold curls around y402; central line at y423; side line at y437. Preserve empty transparent alpha above the contour. Everything below remains near-black and filled to the far left, far right and bottom image edges.\nNo side or bottom outlines. No flags, ribbons, text, icons or decorative additions. Only add a narrow 2-pixel gold strip on the bottom side of the existing thin top trim. Keep the source colors and alpha clean."
+  ],
+  "selectedAttempt": 3,
+  "selectedOutput": "C:/Users/sudea/.codex/generated_images/01a10c86-f801-7353-8da9-3ee93fafeb6a/exec-ecc1a1d5-5ddf-4964-8f1e-a84ffa026b5c.png",
+  "savedAsset": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v4/Source/bottom_panel_fullbleed_thicker.png",
+  "textureSize": [
+    2172,
+    724
+  ],
+  "recommendedUnitySpriteRectBottomLeft": [
+    0,
+    54,
+    2172,
+    273
+  ],
+  "targetUIRect": [
+    1920,
+    241
+  ],
+  "alphaBounds20Top": 399,
+  "alphaSamples": {
+    "interior": 253,
+    "left": 253,
+    "right": 253,
+    "bottom": 253,
+    "redFringeMaximumAlpha": 1
+  },
+  "validation": {
+    "sampleXs": [
+      100,
+      400,
+      900,
+      1086,
+      1300,
+      1800,
+      2072
+    ],
+    "brightGoldThreshold": "A>30 && R>90 && G>60 && R-B>30",
+    "originalBrightGoldThickness": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "selectedBrightGoldThickness": [
+      11,
+      11,
+      10,
+      9,
+      10,
+      11,
+      11
+    ],
+    "tintedMetalThreshold": "A>100 && R-B>5",
+    "originalMetalPixelCount": [
+      9,
+      9,
+      8,
+      8,
+      8,
+      8,
+      7
+    ],
+    "selectedMetalPixelCount": [
+      14,
+      13,
+      12,
+      12,
+      12,
+      13,
+      14
+    ],
+    "centralMetalThicknessRatio": 1.5,
+    "brightGoldCoreRatioRange": [
+      1.8,
+      2.2
+    ],
+    "originalDisplayedBrightGoldWidth": 4.42,
+    "selectedDisplayedBrightGoldWidthRange": [
+      7.96,
+      9.73
+    ],
+    "originalDisplayedCentralMetalWidth": 7.07,
+    "selectedDisplayedCentralMetalWidth": 10.61,
+    "notes": [
+      "Not a mathematically uniform 1.5x stroke: central metal including dark antique-gold edges is 1.5x; brighter core is 1.8-2.2x. This is the closest of five generated attempts preserving composition.",
+      "First/second/fifth attempts were too heavy; fourth shifted geometry farther from source. Selected third attempt preserves contour placement within a few pixels.",
+      "Antialiased colored residue above contour has maximum alpha=1/255 and is preserved unchanged; no direct pixel correction was performed.",
+      "Only top border; left/right/bottom full-bleed dark panel. No flags, buttons, chains, icons, text or bottom/side outline.",
+      "Source image was only copied. SpriteRect selection does not alter pixels."
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "tool": "built-in image_gen",
+  "generatedAt": "2026-10-05",
+  "assets": [
+    {
+      "file": "hud_bar_blank.png",
+      "width": 2048,
+      "height": 768,
+      "alphaOver20BoundsTopLeft": [
+        15,
+        294,
+        2032,
+        480
+      ],
+      "prompts": [
+        "Use case: precise-object-edit / background-extraction.\nAsset type: Unity 2D battle HUD sprite, production raster asset, one isolated long TOP BAR ONLY, not a complete screen.\nInput image 1 is the edit target and exact style reference. Extract/reconstruct ONLY the long horizontal HUD rail at the very top. REMOVE every other panel and object in the image.\nKeep the top bar's softly beveled muted antique-gold narrow perimeter, fully opaque nearly-black charcoal inset, sculpted gold curling left/right endcaps, and the left hanging burgundy torn banner WITH its small simplified gold horned demon skull emblem. Keep a flat dark burgundy menu area at the far-right INSIDE the rail. Both background fill and metal border are one combined asset.\nRemove ALL text, numbers, letters, crossed swords icon, round chevron button, XP/level gauge and its frame, remaining-unit icon, menu hamburger icon, ALL internal separators, ALL mid-bar internal ornament. The long charcoal rail interior is continuous and completely BLANK, except the dark-red rightmost menu surface. The left demon banner is the only retained emblem.\nComposition: retain the original very long/thin main rail: around 1600 px width x 90 px height, with left banner down to around 130px; no distortion or thickening. Whole object's proportions ~12:1 including banner; main rail about18:1. Render crisp enlarged details. It may occupy a thin horizontal strip centered in a 3:1 landscape canvas with lots of genuine transparent space above/below. Do NOT stretch the rail to fill canvas height. Endcaps must be completely in frame.\nPalette must match reference gold/burgundy/black. No pixel-art, checkerboard pattern, gray/white matte, text, letters, fake alpha, shadow cast on backdrop, extra gems or diamonds. Outside asset silhouette is genuinely transparent alpha. Dark inset remains fully OPAQUE. This is a final game sprite, not a mockup.",
+        "Use case: background-extraction. This image is edit target. Make ONLY one correction: completely remove the golden/brown/red soft external glow surrounding the long game UI bar. Outside the precise silhouette of the metal rail, gold endcaps, and burgundy left banner must be genuine clean alpha zero, with only 1-2px natural antialiased edges. No shadow and no glow. Keep exact bar dimensions, location in canvas, gold trim shape and color, fully opaque dark charcoal fill, red right menu square, horned demon on left red banner identical. All empty surroundings transparent; not gray, not white, not checkerboard pattern. No other modifications. Retain long low narrow proportions. Interior dark fill must be 100% opaque. Do not add any text or UI icons."
+      ]
+    },
+    {
+      "file": "wave_frame_blank.png",
+      "width": 1944,
+      "height": 809,
+      "alphaOver20BoundsTopLeft": [
+        79,
+        21,
+        1865,
+        748
+      ],
+      "prompts": [
+        "Use case: precise-object-edit / background-extraction.\nAsset type: Unity 2D battle wave preview FRAME, one isolated production-ready PNG sprite.\nInput image is the exact edit target. Change ONLY this: remove the Korean header and ALL text, all unit portraits and numbers, the horizontal gold separator line and its little diamond, and both vertical separator lines. Inpaint those removed areas with the same completely opaque near-black charcoal interior.\nKeep the frame OUTER silhouette exactly: muted gold narrow beveled sculpted border, central small horned demon skull crest at the very top, gently arched header crest support, soft curled gold corners, left and right short torn burgundy ribbon drapes. Preserve proportions ~2.4:1, colors, widths, line thickness, border materials and nice casual medieval heraldic style. Both black background and gold border remain one combined asset. No separate pieces.\nFill nearly entire landscape canvas with this frame, thin transparent padding. Preserve all horns/ribbon tips fully inside canvas. Front orthographic view. Smooth high resolution non-pixel edges.\nOutside the panel silhouette must be fully transparent alpha. Interior must be FULLY OPAQUE solid dark charcoal, not transparency. NO soft shadow, glow, colored halo, checkerboard, scene, text, letters, symbols inside panel, UI controls, or extra decorative motifs. Just the emptied original frame on genuine transparent background.",
+        "Use case: precise-object-edit. This image is edit target. Keep the complete design identical, and only add a small clean transparent margin so neither top horn can touch or be cut by the canvas edge. Scale entire asset uniformly down about 4% centered within the same landscape canvas to create transparent padding on every side. Same frame proportions, gold trim shape and thickness, crest, burgundy ribbons, completely blank dark charcoal inset, all unchanged. The charcoal inset must be fully 100% opaque; genuine transparent alpha only outside silhouette. No text, separators, units, icons, background, shadow or glow. Preserve the reference gold saturation exactly, do not brighten or embellish."
+      ]
+    },
+    {
+      "file": "bottom_tray_blank.png",
+      "width": 2172,
+      "height": 724,
+      "alphaOver20BoundsTopLeft": [
+        25,
+        249,
+        2144,
+        537
+      ],
+      "prompts": [
+        "Use case: precise-object-edit / background-extraction.\nAsset type: Unity 2D battle bottom storage TRAY FRAME, one isolated production sprite, no mockup.\nInput image is exact style and shape reference. Reconstruct ONLY the wide low BOTTOM charcoal inventory tray. Remove everything else. Preserve the tray narrow muted gold sculpted perimeter and opaque black-charcoal inset. The gold upper edge is mostly horizontal, with a small curved step UP into a broad slightly higher central plateau spanning the middle 45% of the tray. Add the reference modest upward gold curls at the two shoulders of this shallow plateau. Reference short burgundy torn ribbons remain at far left and far right edges. Dark understated faint castle silhouettes may be inside the bottom edge. Frame background and frame border are a single combined asset.\nDELETE the flame currency medallion, reroll circle, cost badge, chains, battle-start button including its big horns, all skill slots, every icon, ALL text and numbers. After deleting those things, continue the tray fill and border coherently underneath. The whole inner panel is blank opaque charcoal. No circles or slots retained. This is a tray only.\nComposition: main physical object ratio about 8:1 (roughly 1600x200 excluding narrow padding). Long, low, wide rectangular tray with shallow raised central area and short outer ribbon drops. Use a 3:1 landscape canvas if necessary but keep the actual tray small height in central horizontal strip with real transparent space above/below; NEVER stretch to fill canvas height.\nMatch original muted gold thickness and burgundy tones, smoothly illustrated casual medieval gothic heraldry, nonpixel rendering. Thin clean perimeter, not heavy armor. All ornament within canvas. Genuinely transparent outside silhouette, interior FULLY OPAQUE. No external glow, shadow, halos, backdrop, checkerboard, text, watermark, neon, extra symbols, diamonds or jewels."
+      ]
+    }
+  ],
+  "validation": {
+    "directPixelEdits": false,
+    "alphaPreserved": true,
+    "exteriorAlpha": 0,
+    "sampledInteriorAlpha": 253,
+    "notes": "HUD preview glow has alpha 0. No scene, prefab, script or meta edited."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-d3efb25d-1ca8-42d0-8fce-b1914c7344e3.png",
+  "initialPrompt": "Use case: stylized-concept\nAsset type: production-ready transparent PNG game HUD bottom background ONLY, designed for a 1920 by 241 pixel Unity rectangle.\nInput image 1 is a style reference, NOT a complete UI to reproduce.\nPrimary request: regenerate only the long charcoal-black bottom tray background from the reference, purpose-built in an approximately 8:1 width-to-height ratio. Preferred output canvas 3072 x 386 pixels. A single extremely wide shallow panel, filling the entire left edge, right edge and bottom edge of the output.\nShape: a slender antique gold TOP outline only. Most of the top edge is nearly horizontal; around x=30% and x=72%, a gently raised middle section with tiny tight upright curled flourishes matching the reference. The curls must be round and compact, never horizontally stretched. This is a bottom-screen full-bleed background, not a floating card. Absolutely no vertical outline on either side, absolutely no bottom outline, no bevel or shadow line along bottom or sides. Charcoal black panel fill continues uninterrupted to the left, right and bottom image edges. Only space ABOVE the scalloped top silhouette is transparent.\nVisual: muted casual medieval fantasy heraldry, clean crisp hand-painted nonpixel game art, restrained dark charcoal gradient (#1b1c21 to #111217), very subtle low-contrast castle/roof silhouettes within the bottom third, and a single thin warm antique gold top contour. Gold line much thinner and more delicate than the reference, about 2-3 screen pixels at 1920 width, with small illustrated highlights and narrow dark outline, not a chunky gold belt.\nConstraints: create only the background. Remove all currency circles, fire icons, reroll controls, start button, swords, text, numbers, chains, horns, badges, side ribbons and cloth flags from the reference. No objects are placed on this panel. No left or right hanging banners. No enclosed frame. No checkerboard baked into pixels. No padding along left/right/bottom: fully opaque dark fill there. No transparency inside the black panel. Do not squeeze a tall panel: draw natively very wide and shallow.",
+  "correctionPrompt": "Use case: precise-object-edit. Edit this transparent PNG game HUD background to correct only proportions and border thickness. Preserve its charcoal gradient, subdued castle silhouettes, clean illustrated style, two compact gold curls, only-top-border design, and full-bleed left/right/bottom sides.\nCritical pixel layout: keep a wide landscape canvas with a 3:1 aspect ratio (such as 2172x724). The highest opaque pixel of the gold curls must be at y=452, 62.5% down from the top. The entire actual panel occupies ONLY the bottom 272 pixels, so its actual silhouette width-to-height is 8:1. The top 62.5% of the canvas is empty transparent alpha. Place the straight central top line at y=470, and side top lines at y=485. Keep the 2 curls small, circular, no horizontal squash.\nMake the antique-gold top line 50% thinner than the input: a delicate narrow 3-pixel gold line at 1920px display width with tiny dark edge. Reduce curl size slightly too. Do not compress the whole existing image; redraw the panel natively with the stated shallow proportions. All canvas sides below that contour and entire bottom edge are completely filled opaque near-black, no transparent fading. Castle silhouettes only low and subtle near bottom.\nAbsolutely no lower border, no side borders, no full frame, no side banners, no ribbon tails, no text, no icons, no buttons, no chain, no checkerboard texture. Only the region ABOVE the top silhouette is transparent.",
+  "selectedOutput": "C:/Users/sudea/.codex/generated_images/01a10c86-f801-7353-8da9-3ee93fafeb6a/exec-0664faee-774c-476d-9108-55255be2dfac.png",
+  "savedAsset": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v3/Source/bottom_panel_fullbleed.png",
+  "textureSize": [
+    2172,
+    724
+  ],
+  "alphaBoundsThreshold20TopLeft": [
+    0,
+    402,
+    2172,
+    322
+  ],
+  "recommendedUnitySpriteRectBottomLeft": [
+    0,
+    51,
+    2172,
+    273
+  ],
+  "targetRect": [
+    1920,
+    241
+  ],
+  "notes": [
+    "Generated at near-native strip proportions; Sprite rect includes the entire gold contour and discards transparent top plus 51px of redundant dark bottom bleed. No source pixels were edited, resized or recolored.",
+    "The crop ratio 7.9560 differs from target 7.9668 by approximately 0.14%; curls retain circular proportions.",
+    "Only top gold contour remains; no side or bottom border, flags, text, controls or icons.",
+    "Panel fill alpha at sampled locations is 253, near-opaque generated alpha, preserved unchanged."
+  ]
+}
