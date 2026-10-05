@@ -1,0 +1,43 @@
+{
+  "version": 4,
+  "date": "2026-10-05",
+  "scope": "Lobby subtitle ornament, short flame icon, medallion alpha-only repair; no gameplay changes",
+  "generated": [
+    {
+      "key": "summary_ornament_v4",
+      "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-9416c31f-4499-4e9b-b964-fb1184a206ca.png",
+      "prompt": "Use case: ui-mockup. Production game UI ornament only on actual transparent background. Input image 1 is STYLE REFERENCE ONLY: study the slender pale antique-gold ornament immediately to the LEFT of the central battle subtitle, above the big red battle preparation button. Ignore red annotations. Recreate one LEFT ornament as a clean isolated bitmap: one long hairline tapering horizontal gold rule starting at the left and connecting into a small hollow lozenge diamond at its RIGHT endpoint. An elegant hollow diamond formed by slender warm ivory-gold beveled metal sides, perfectly symmetric, modest narrow rhombus, no filled gemstone. The diamond is about 18 percent of the ornament width and full height; the line extends leftward from its left corner. Smooth softly shaded antique brass/ivory metallic highlight, subdued low saturation, clean sharp edge. Whole visible design ratio about 6:1, centered on a wide canvas, transparent generous margins. The horizontal rule fades subtly at far left. Must read at final size 90x16 px. ONE ornament only, no mirrored pair, no text, no UI window, no scrollwork, no flourish, no big gold bar, no scenery, no pixel art, no grain or speckles. All metal and shading rendered in one image.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-05fb2578-cb60-40d2-b347-f7304d8b2a80.png",
+      "output": "Sprites/summary_ornament_v4.png"
+    },
+    {
+      "key": "icon_flame_compact_v4",
+      "prompt": "Use case: ui-mockup. One production game UI talent FIRE ICON on genuine transparent background. Compact broad balanced ivory silhouette, width-to-height ratio about 0.85:1, three softly curling flame lobes with a short rounded-upward central tip and two low side tips. Top tip must be SHORT: upper projection is at most 15 percent of total height, absolutely no tall thin tail, no elongated S-shaped top. Broad rounded flame base with one large simple inner teardrop negative-space opening. Strong clean readable shape for 48-56px medieval casual-fantasy menu icon. Warm creamy ivory #F0E4C5, almost flat color with very restrained light cream edge shading. Centered, fully contained, symmetric visual weight, smooth high-resolution anti-aliased edge. Opaque solid ivory body, holes and exterior truly transparent. No enclosing circle, no medallion, no border, no badge, no words, no orange, no red, no black rectangle, no textures, no gritty grain, no sparkles, no long tail, no pixel art. This is a stylized flame pictogram, not realistic fire.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-d6cd4247-fadb-49f1-b4f5-72fa880606dd.png",
+      "output": "Sprites/icon_flame_compact_v4.png"
+    }
+  ],
+  "alpha_repair": {
+    "approval": "사용자: 내부 알파만 직접 보정",
+    "original_suffix": "_v2.png",
+    "output_suffix": "_opaque_v4.png",
+    "channels": "RGB unchanged; alpha 255 only for connected dark interior; exterior and antialiased silhouette unchanged",
+    "mask": "center(627,627),radius<=370,alpha>=240,R<115; exclude warm gold (R>G*1.25 && G>B*1.1), flood fill from center. Neutral achievement medallion also includes its entirely interior radius<=300 core to retain warm dark pixels; RGB and exterior remain unchanged.",
+    "sprites": [
+      "medallion",
+      "medallion_traits",
+      "medallion_skills",
+      "medallion_codex"
+    ],
+    "corrected_pixels": [
+      399560,
+      397147,
+      398571,
+      396774
+    ]
+  },
+  "normal_copy": {
+    "description": "용사들의 침입이 시작됩니다.\n방어를 준비하고 성을 지켜내세요.",
+    "summary": "용사들의 첫 번째 침입"
+  }
+}

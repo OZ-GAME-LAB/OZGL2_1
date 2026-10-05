@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-05",
+  "mode": "built-in image_gen",
+  "integration_scene": "Assets/00.Scenes/Builds/Lobby.unity",
+  "font_distribution": {
+    "asset": "Fonts/Heraldry_NotoSans_SDF.asset",
+    "guid": "e08c1fa83b0651a44adc9ad86bf72b56",
+    "package": "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Lobby_Fonts_20261005.unitypackage",
+    "note": "프로젝트 정책에 따라 생성된 TMP 폰트와 meta는 Git에서 제외됩니다. 다른 PC에서는 원본 GUID를 유지한 이 패키지를 가져와야 합니다. 팀 Drive 업로드는 별도로 필요합니다."
+  },
+  "reference": "Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-01_로비·전투_통합승인시안.png",
+  "assets": [
+    {
+      "key": "background",
+      "prompt": "Use case: stylized-concept. Production asset for a 1920x1080 Unity lobby. Image 1 is STYLE reference ONLY: use the backdrop behind its LEFT lobby. Create only that clean background, no UI at all. Full-bleed 16:9 indigo dusk medieval demon fortress courtyard, muted plum cloud band near horizon, layered distant castles at left and right, burgundy demon-army banners on poles and sparse spear silhouettes near outer sides, dark stone paving at bottom 18%. Center and upper center quiet low contrast indigo sky/atmosphere so three UI cards can be overlaid. Semi-casual hand-painted 2D simplified 2-3-step shading, smooth high resolution, restrained color saturation. Matching reference palette #24345D #141D36 #68455E with burgundy flags. No readable text, no cards, no frames, no buttons, no characters, no pixel art, no logo, no bright orange sky. Fill every pixel with background scenery.",
+      "transparent": false,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b0b7e479-3d7c-49c0-b157-141251487395.png",
+      "output": "Sprites/background.png"
+    },
+    {
+      "key": "difficulty_card",
+      "prompt": "Use case: ui-mockup. ONE production sprite on genuinely transparent background. Image1 style reference: reproduce the LEFT lobby side difficulty CARD BODY ONLY, as a tall 5:6 silhouette centered and filling canvas with just 3% transparent margin. Matte charcoal nearly black opaque interior, elegant restrained antique gold heraldic border (dark outer edge, muted gold band, slim ivory gold highlight), gently curved shoulders, pointed lower center. Small golden horned demon crest at top center and short dark burgundy split cloth tails hanging along upper left/right edges. Same proportions as reference side cards, simplified clean 2D metal, NO extra flourishes. Interior COMPLETELY EMPTY: remove all letters, characters, separator lines, emblem/watermark. Frame and opaque background MUST be joined in one sprite. Need huge blank readable interior. Smooth high-res edges, not pixel art, not ornate realistic jewelry. Exactly one card, front-facing orthographic, symmetric. Gold limited to border, no glow.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-7d41f5f4-fccc-492e-98dd-982a4156588e.png",
+      "output": "Sprites/difficulty_card.png"
+    },
+    {
+      "key": "primary_button",
+      "prompt": "Use case: ui-mockup. ONE production sprite on genuinely transparent background. Image1 style reference: LEFT lobby red 'battle preparation' button body ONLY. Long horizontal heraldic button with roughly 4.8:1 overall width to height, centered fills width, antique gold restrained border, matte dark burgundy red center with a subtle darker lower gradient, pointed clipped ends and gentle curve. Small curled gold shoulders and short burgundy cloth ribbon tails at far left and right as in reference, not oversized. Background and frame joined into ONE complete sprite. Interior EMPTY with generous clean space for an icon and live Korean text later. NO icon, text, numbers, logo, watermark, extra objects or backdrop. Smooth crisp 2D game UI, not pixel art, not ornate jewelry, no glossy bright red.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-989b0314-3ae0-402c-918e-7dbb0e63dcc1.png",
+      "output": "Sprites/primary_button.png"
+    },
+    {
+      "key": "medallion",
+      "prompt": "ONE blank circular navigation medallion, on genuine transparent background. UI production sprite matching Image1 style reference. Perfect circle thin antique gold rim with dark outline and modest pale gold edge. Tiny pointed tips only at four cardinal directions, each under 6% diameter. Flat matte charcoal opaque center, no words or pictogram. Smooth high-resolution semi-casual medieval demon heraldry, 2-3 tone simplified gold shading. Front facing orthographic, symmetrical. Occupy 90% of square canvas. NO diamond surround, NO gems, no complex filigree, no pixel art.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b670d837-04e8-4ded-bdfc-d197da28d63a.png",
+      "output": "Sprites/medallion.png"
+    },
+    {
+      "key": "menu_panel",
+      "prompt": "ONE menu popup BODY production sprite on genuine transparent background, about 3:4 width/height shape filling canvas leaving 3% transparent margin. Reference Image1 visual style only: matte charcoal black opaque interior, narrow restrained antique gold border with gently curled upper corners, subtle pointed shoulders and lower center. Small horned golden demon crest top center, short burgundy cloth on side edges upper quarter only. Huge completely empty inside suitable for heading and three vertical buttons later. Body and background joined. No text, icons, divider, buttons, characters, watermark, scenery. Front-facing symmetrical smooth high-res 2D semi-casual medieval UI. Gold not shiny yellow; avoid excessive tiny detailing.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-15e0cec9-8962-4513-aeff-e11626d6dd21.png",
+      "output": "Sprites/menu_panel.png"
+    },
+    {
+      "key": "topbar",
+      "prompt": "ONE horizontal HUD outer bar BODY production sprite on genuine transparent background. 8:1 width to visible-height elongated shape (canvas may have transparent top/bottom). Reference Image1 upper-left lobby LV HUD. Matte charcoal-black opaque inside, slender restrained antique-gold rim, gently curled/pointed end caps. Absolutely blank interior where text and separate XP slider will be placed later. No text, no filled meter, no lines inside, no icons, no emblem, no diamond ornaments, no cloth. Clean smooth 2D simplified gold metal, dark outline pale edge highlights, modest compact end ornaments.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-6c88ba2c-2511-4b6d-b7da-417f4e3359d3.png",
+      "output": "Sprites/topbar.png"
+    },
+    {
+      "key": "menu_button",
+      "prompt": "ONE tall small burgundy banner-shaped menu button BODY on genuine transparent background, width-to-height about 3:4. Reference Image1 upper-right lobby menu banner. Matte burgundy cloth, antique gold slim border, pointed V tip at bottom, dark outline, smooth high-res simplified 2D. No pictogram/text, huge clear central area for hamburgericon later. No additional crest, gem, diamond or scene. Centered complete silhouette, minimal margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-06311198-dcb8-478b-b431-527483a3f565.png",
+      "output": "Sprites/menu_button.png"
+    },
+    {
+      "key": "icon_trophy",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: a trophy cup with two handles and short sturdy pedestal, simple achievement pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-83ebefc0-9bd1-4af9-b13d-b073dbcea924.png",
+      "output": "Sprites/icon_trophy.png"
+    },
+    {
+      "key": "icon_flame",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: a graceful bold three-tongue flame with one negative-space inner teardrop, simple talent pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-2c3464ec-ce28-4a61-9c39-0791dcd731a3.png",
+      "output": "Sprites/icon_flame.png"
+    },
+    {
+      "key": "icon_swirl",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: a bold clockwise spiral magic vortex made of four curving tapered arms, simple skill pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-a9a8e242-8d25-49ce-8435-2596df158b02.png",
+      "output": "Sprites/icon_swirl.png"
+    },
+    {
+      "key": "icon_book",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: an open medieval book, two ivory pages and thin outline spine, simple codex pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-e477a229-5c9a-4d76-95ef-2e248cca49a4.png",
+      "output": "Sprites/icon_book.png"
+    },
+    {
+      "key": "icon_swords",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: two symmetrical crossed straight medieval swords with short guards and simple round pommels, blade tips up, simple battle pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-e412db2b-6f46-40e9-a127-44d11f41c6b4.png",
+      "output": "Sprites/icon_swords.png"
+    },
+    {
+      "key": "icon_gear",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: a simple symmetrical eight-tooth gear with a round negative space center, settings pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-99c51692-c190-4900-bfe6-4ab6d016e3ce.png",
+      "output": "Sprites/icon_gear.png"
+    },
+    {
+      "key": "icon_exit",
+      "prompt": "Use case: logo-brand. ONE standalone game UI icon on genuine transparent background: an open door with a right-pointing arrow exiting, bold uncomplicated quit game pictogram. Image1 STYLE reference only: smooth high-resolution ivory navigation icons in its LEFT lobby. Solid warm ivory #F0E5CD silhouette, tiny subtle cream highlight allowed, NO other colors. Crisp curved anti-aliased edges, 2D hand-drawn vector-like simplified medieval fantasy silhouette readable at 48 pixels. Fill center 80% of a square. No frame, medallion, border, background, letters, words, numbers, gems, ornament, shadow or glow. Absolutely NOT pixel art, NOT stair-stepped edges, NOT 3D. Single isolated symbol with generous transparent margin.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-6fd6217e-a302-42c2-8d9e-b438b49e2a98.png",
+      "output": "Sprites/icon_exit.png"
+    },
+    {
+      "key": "difficulty_selected",
+      "prompt": "Use case: precise-object-edit. Edit this ONE existing transparent UI card sprite to make its SELECTED-state counterpart. Preserve EXACTLY the silhouette, dimensions, gold frame, horn crest, cloth tails, positions and all transparent surroundings. Change ONLY the large opaque charcoal interior into a very dark muted burgundy #351C25 gradient (darker edges), calm and low contrast; do not recolor the gold or cloth. No icon, lettering, ornament, rays or glow. It must be identical geometry so normal and selected share Unity layout. Preserve real alpha transparency.",
+      "transparent": true,
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-693ea7ef-47ed-45f8-ae2e-f0a5a5f6ac82.png",
+      "output": "Sprites/difficulty_selected.png"
+    }
+  ]
+}
