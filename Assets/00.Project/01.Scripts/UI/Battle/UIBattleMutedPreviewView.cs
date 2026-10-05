@@ -21,6 +21,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Text _costText;
         [SerializeField] private Text _rerollCostText;
         [SerializeField] private TMP_Text _costTextSdf;
+        [SerializeField] private TMP_Text _combatCostTextSdf;
         [SerializeField] private TMP_Text _rerollCostTextSdf;
         [SerializeField] private Image _experienceFill;
 
@@ -212,6 +213,8 @@ namespace OZGL2.UIFlow
             SetText(_costText, FormatNumber(Mathf.Max(0, _previewCost)));
             SetText(_rerollCostText, FormatNumber(Mathf.Max(0, _previewRerollCost)));
             SetText(_costTextSdf, FormatNumber(Mathf.Max(0, _previewCost)));
+            // 두 화면 모두 같은 전달값을 읽으며, 표시 코드에서 별도 재화 잔액을 만들지 않는다.
+            SetText(_combatCostTextSdf, FormatNumber(Mathf.Max(0, _previewCost)));
             SetText(_rerollCostTextSdf, FormatNumber(Mathf.Max(0, _previewRerollCost)));
 
             if (_experienceFill != null)

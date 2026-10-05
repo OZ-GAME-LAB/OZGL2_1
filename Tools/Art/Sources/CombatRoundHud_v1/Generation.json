@@ -1,0 +1,51 @@
+{
+  "version": "CombatRoundHud_v1",
+  "tool": "builtin image_gen.imagegen",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-2888efaa-c65e-4214-97a5-bfcd39c9ad8d.png",
+  "outputDirectory": "Tools/Art/Sources/CombatRoundHud_v1",
+  "artOnly": true,
+  "sceneOrCodeModified": false,
+  "bitmapPostProcessing": "None. Generated PNG copied without pixel edits.",
+  "generations": [
+    {
+      "role": "initial damage draft - not final",
+      "prompt": "Use case: precise-object-edit.\nAsset type: production-ready transparent PNG sprite for a Unity medieval casual-fantasy combat skill button.\nInput image 1 is the visual reference. Extract and faithfully enlarge/recreate ONLY the LEFT RED circular button body/frame into one isolated square sprite. Delete the flame glyph and Korean caption; do not copy the long background bar, separators, other buttons, or UI text.\nSubject: a single perfectly round front-facing medallion button. Match the reference's two very thin concentric metallic rim lines separated by a dark groove, dark nearly black burgundy opaque interior with a very subtle red glow near the edge, and the one tiny red antique-metal diamond detail at twelve o'clock. The rim is muted red/burnished crimson metal with small restrained warm highlights and a thin black outside contour. Keep the same simple hand-painted non-pixel 2D casual-medieval UI quality, not a photoreal 3D metal object.\nComposition: square 1024x1024, circle center at (512,530), circular body diameter about 880px, tiny top finial reaching y=65; balanced transparent margin on all sides. Exact circle rather than ellipse. Large blank interior for separately-rendered icon and cooldown text. Keep the rim slender, do not thicken.\nAlpha requirements: exterior outside the circular silhouette is genuinely transparent. The ENTIRE dark interior disk is fully opaque, alpha 255 everywhere, not a hole and not translucent. Preserve clean antialiased outer edge.\nConstraints: only one empty red button; NO icon, NO flame, NO letters, NO numbers, NO text, NO cooldown gauge, NO arc overlay, NO bottom finial, NO side ornaments, NO cast shadow beyond silhouette, NO screenshot background, NO checkerboard artwork.",
+      "generatedPath": "C:/Users/sudea/.codex/generated_images/01a10ccf-7763-7b31-8b26-5083d17b9e08/exec-67604dbe-ac95-4f8a-b6bd-f8c2bdbecbaf.png",
+      "decision": "Too shiny and saturated; superseded by refined damage output."
+    },
+    {
+      "role": "damage final",
+      "prompt": "Use case: precise-object-edit. Image 1 is the edit target, an empty red combat button sprite. Correct ONLY its finish and top finial to match small hand-painted 2D medieval-casual UI. Keep the circle exact same shape, canvas size, center and concentric line placement. Reduce the top diamond to half its width and half its height, still touching the top rim. Replace the bright glowing glossy red finish by a restrained muted crimson/copper metal (#a34b40 midtone, #da8770 modest highlights) with clean broad cel-shaded facets and NO realistic grunge texture. No orange neon highlights, no bloom, no glow. The interior is a completely flat opaque charcoal-burgundy disk #1b1417 with only a very subtle near-black gradient; no red glow. Keep the two thin rim lines separated by a black groove. Clean sharp non-pixel 2D game art. Keep exterior transparency and every interior pixel fully opaque alpha255. Absolutely no icon, numbers, text, extra marks, bottom or side ornaments, or background.",
+      "generatedPath": "C:/Users/sudea/.codex/generated_images/01a10ccf-7763-7b31-8b26-5083d17b9e08/exec-a5deb3ad-3f75-4246-8673-cdd8c59d0fce.png",
+      "output": "skill_round_damage.png"
+    },
+    {
+      "role": "buff final",
+      "prompt": "Use case: precise-object-edit. Image 1 is the final button sprite to edit.\nChange ONLY its color palette from crimson copper to BUFF antique gold/brass: rim midtone #a98745, restrained warm highlights #e4ca86, dark bronze shadows #59431f. Tiny top diamond also antique gold. Interior stays fully opaque nearly-black charcoal with a very subtle dark warm-brown tint (#191715).\nEverything else must be UNCHANGED: exact square canvas dimensions, circle center, diameter, outside silhouette, double narrow metallic rim geometry, rim thickness, finial size, lighting locations, groove, dark interior, transparent exterior, clean simple hand-painted 2D medieval-casual art style. Keep identical geometry and alignment because this is one of three interchangeable category sprites. No added detail. No text, icon, number, glow, bloom, grain, extra ornament, or background. Do not create a collage. Only one gold button. Exterior genuinely transparent and entire interior disk fully opaque alpha255.",
+      "generatedPath": "C:/Users/sudea/.codex/generated_images/01a10ccf-7763-7b31-8b26-5083d17b9e08/exec-27387f8a-4045-4c41-83f0-cafd3748ca94.png",
+      "output": "skill_round_buff.png"
+    },
+    {
+      "role": "debuff final",
+      "prompt": "Use case: precise-object-edit. Image 1 is the final button sprite to edit.\nChange ONLY its color palette from crimson copper to DEBUFF muted violet/amethyst metal: rim midtone #81508f, restrained lavender highlights #b988c4, dark purple shadows #392641. Tiny top diamond also amethyst metal. Interior stays fully opaque nearly-black charcoal with a very subtle dark purple tint (#19151b).\nEverything else must be UNCHANGED: exact square canvas dimensions, circle center, diameter, outside silhouette, double narrow metallic rim geometry, rim thickness, finial size, lighting locations, groove, dark interior, transparent exterior, clean simple hand-painted 2D medieval-casual art style. Keep identical geometry and alignment because this is one of three interchangeable category sprites. No added detail. No text, icon, number, glow, bloom, grain, extra ornament, or background. Do not create a collage. Only one purple button. Exterior genuinely transparent and entire interior disk fully opaque alpha255.",
+      "generatedPath": "C:/Users/sudea/.codex/generated_images/01a10ccf-7763-7b31-8b26-5083d17b9e08/exec-c97f7738-e2bc-494b-ad50-baaf14e476f5.png",
+      "output": "skill_round_debuff.png"
+    }
+  ],
+  "inspection": {
+    "allDimensions": [
+      1254,
+      1254
+    ],
+    "insideDisk": {
+      "center": [
+        627,
+        630
+      ],
+      "radius": 350,
+      "alphaMin": 253,
+      "alphaMax": 254
+    },
+    "alphaCaveat": "Prompt requested alpha255. Generated interior is alpha253-254, not fully opaque; outer low-alpha stray pixels also exist. Main integrator informed. No direct bitmap correction performed."
+  }
+}
