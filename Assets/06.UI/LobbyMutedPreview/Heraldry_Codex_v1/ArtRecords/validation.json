@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-05",
+  "scene": "Assets/00.Scenes/Builds/Lobby.unity",
+  "scope": "Canvas_LobbyOverlays/Canvas_UnitCodex",
+  "precedingSkillCommit": "21cb322",
+  "art": {
+    "method": "built-in image_gen",
+    "prompts": ["frames_generation.json", "star_generation.json", "count_badge_generation.json"],
+    "generatedPngCount": 5,
+    "portraitCount": 41,
+    "portraitMethod": "Existing LobbyUnitPortraitRenderer.RenderPortrait, invoked in-memory through Unity MCP. Copies visual components only; no source Prefab or Animator changes.",
+    "demonSource": "Assets/03.ScriptableObjects/DemonArmyCatalog.asset: prefab / prefabStar2 / prefabStar3",
+    "humanSource": "Assets/03.ScriptableObjects/HeroPoolCatalog.asset: grouped by HeroId; original catalog appearance order",
+    "sourceExclusions": ["Boss IDs not in the existing 12-entry codex", "DummyHeroPoolCatalog"],
+    "portraitFileConvention": "Portraits/{unitId}_{oneBasedAppearanceIndex}.png",
+    "alpha": "Generated alpha preserved; no manual pixel edits. Frame plus interior is a single image. SpriteRect excludes whitespace only for the star and count badge."
+  },
+  "runtime": {
+    "catalogEntries": 12,
+    "visiblePerFaction": 6,
+    "columns": 4,
+    "demonAppearances": 18,
+    "humanAppearances": 23,
+    "discoveryDefaultsPreserved": true,
+    "saveOrCombatRulesChanged": false,
+    "humanIndicator": "외형 i / n",
+    "demonIndicator": "1–3 stars"
+  },
+  "validation": {
+    "unityCompileErrors": 0,
+    "preexistingCompileWarning": "InGameCardSizing._rewardRestingYOffset CS0414, unrelated; final Play console clean",
+    "playAssertionsPassed": 127,
+    "playAssertionsFailed": 0,
+    "isolatedCodeAssertionsPassed": 27,
+    "all41AppearancesVerified": true,
+    "pointerChecks": ["Human previous appearance", "Demon 3 to 2 to 3 stars", "Both faction tabs", "Back closes popup", "Reopen preserves runtime selection"],
+    "pointerCaveat": "GraphicRaycaster checks were run after a Game View render. A pre-render faction-switch probe hit Viewport; repeated after rendering and passed.",
+    "finalPlayConsoleErrors": 0,
+    "finalPlayConsoleWarnings": 0,
+    "missingSerializedReferences": 0,
+    "outsideCodexComponentsCompared": 6604,
+    "outsideCodexComponentsChanged": 0,
+    "sharedPrefabsChanged": false,
+    "existingMetaFilesChanged": false,
+    "projectSettingsOrPackagesChanged": false,
+    "manualHardwareInput": "Not checked; user requested no computer control",
+    "otherAspectRatios": "Not checked",
+    "playerBuild": "Not checked"
+  },
+  "screenshots": [
+    "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Codex_Review_20261005/codex-demon-final.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Codex_Review_20261005/codex-human-final.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Codex_Review_20261005/codex-demon-three-stars.png"
+  ],
+  "inspectorChecklist": [
+    "Codex catalog points to Heraldry_Codex_v1/UnitCatalog.asset, not the shared Collections catalog",
+    "Template PreviousAppearance and NextAppearance each target the same card once",
+    "Template has 3 star Images and a separate human appearance TMP label",
+    "Original collection State, popup, ScrollRect and Back bindings retained",
+    "Layer/Tag/Collider/Rigidbody/Animator/Input System changes not required"
+  ]
+}
