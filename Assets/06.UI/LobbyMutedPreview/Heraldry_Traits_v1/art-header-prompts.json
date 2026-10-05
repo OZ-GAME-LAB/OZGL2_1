@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "date": "2026-10-05",
+  "tool": "built-in image_gen",
+  "alphaNotes": "원본 alpha 보존. 중심 alpha253~254, corner0. Unity rect는 alpha>8 bbox,bottom-left원점.",
+  "assets": [
+    {
+      "name": "traits_header",
+      "width": 1983,
+      "height": 793,
+      "unityRect": [
+        101,
+        111,
+        1783,
+        635
+      ],
+      "centerAlpha": 253,
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-fd15f5a8-59d8-44e0-bb6a-357598b4ac2b.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/traits_header.png",
+      "ref": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-05_로비_특성창_UI.png",
+      "prompt": "Use case: ui-mockup. Single shippable 2D medieval casual fantasy UI sprite. The attached image is reference for shape/style only, not a scene to copy. Clean nonpixel handpainted cel-shaded contours, subdued old gold satin metallic edges, nearblack charcoal panels, muted dark burgundy red cloth. Moderate low saturation; NO neon, yellow glow, lensflare, shiny3Drender, grunge noise, background scenery or checkerboard. Genuine transparent PNG exterior. Any dark filled interior must be solid fully opaque, alpha255, integrated with its frame. One asset centered with minimal transparent margin and complete silhouette visible. No text, letters, digits or watermark. Reconstruct ONLY central top TITLE PLAQUE with its integrated lower LP counter strip. No other UI. Actual full shape aspect ratio approximately2.5:1. Main horizontal black and subtle black-burgundy title panel with gently curved gothic gold upper edge and a small centered gold horned helmet crest. Two short ragged muted burgundy cloth tails hang at left and right outer edges. The main text area is empty. A thin straight gold horizontal separator across panel marks a second narrower black lower strip for LP text, also completely empty. Gold border and dark panel together. Strip must have sufficient usable height for one line and main title area for one large line. Remove the reference's white title and LP text, side inset diamonds, numeric levels, progressbars and all icons EXCEPT small top decorative horned helmet crest. Do not create a separate second panel or stack separate sprites. Match compact silhouette reference.",
+      "correction": "Use case: precise-object-edit. Change ONLY the COLOR PALETTE of this UI plaque, preserve exact silhouette, proportions, details, pixel dimensions, black panel, blank upper title area and blank lower LP strip, transparent exterior. Reduce gold SATURATION substantially to subdued dusty champagne antique metal: shadows warm gray-brown #625441, midtones #AE9270, highlights soft parchment #D1BD95, NOT bright yellow or orange. Reduce red cloth SATURATION and brightness to dark dry burgundy #632E35, shade #2A191F, highlight #805054, NOT bright crimson. Make the gold a quiet muted old metal that harmonizes with restrained medieval lobby UI. Avoid any glow. Do not add text, icons, lines, decorations. Existing horned helmet crest remains the same shape. Preserve genuine alpha outside, solid opaque interiors."
+    },
+    {
+      "name": "traits_detail_panel",
+      "width": 930,
+      "height": 1692,
+      "unityRect": [
+        47,
+        30,
+        836,
+        1662
+      ],
+      "centerAlpha": 254,
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-3e530fd3-0c50-4946-a3ef-3b8f9d62083d.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/traits_detail_panel.png",
+      "ref": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-07_로비_특성_상세설명창.png",
+      "prompt": "Use case: ui-mockup. Single shippable 2D medieval casual fantasy UI sprite. The attached image is reference for shape/style only, not a scene to copy. Clean nonpixel handpainted cel-shaded contours, subdued old gold satin metallic edges, nearblack charcoal panels, muted dark burgundy red cloth. Moderate low saturation; NO neon, yellow glow, lensflare, shiny3Drender, grunge noise, background scenery or checkerboard. Genuine transparent PNG exterior. Any dark filled interior must be solid fully opaque, alpha255, integrated with its frame. One asset centered with minimal transparent margin and complete silhouette visible. No text, letters, digits or watermark. Reconstruct ONLY the tall DETAIL PANEL FRAME AND BLACK BACKGROUND from the attached reference, remove all its contents. Full visible silhouette aspect ratio WIDTH0.55xHEIGHT. Long perfectly straight narrow gold sidebars, subtly curved gothic gold upper border with small centered gold horned helmet crest. Two narrow dark burgundy torn fabric tails on the upper left and upper right. Bottom border nearly flat with slight curve, small central gold downward diamond, restrained angular corner hooks. The entire inside is large clean uninterrupted opaque dark charcoal-black with an extremely faint dark brown gradient. Absolutely NO internal text, no divider lines, no diamonds inside, no icons, no buttons, no plus, no minus. No halo glow behind the panel. Complete silhouette including horn crest and tails on transparent exterior; elegant slim metal thickness at intendedscreen340pxwide.",
+      "correction": {
+        "name": "traits_detail_panel",
+        "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-647e5799-86d8-4559-b010-965694a439ec.png",
+        "prompt": "Use case: precise-object-edit. Change ONLY COLOR PALETTE, preserve exact silhouette/proportions and all ornament details. Make gold subdued champagne antique metal, shadowswarmgray-brown #625441, midtones#AE9270, highlightsoftparchment#D1BD95. Not brightyellow/orange. Reds become dark dryburgundy #632E35 withdeep#2A191F shadows andsoft#805054 highlights. Muted medieval lobby palette, no glow, no newtextures, no objects, no text. Preserve transparent exterior and opaque solid interiors. Panel inside remains entirely empty charcoalblack, with NO buttons/icons/lines."
+      }
+    },
+    {
+      "name": "traits_core_medallion",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        77,
+        94,
+        1096,
+        1098
+      ],
+      "centerAlpha": 253,
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-4a11c806-a61d-496f-b632-262be1a4f181.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/traits_core_medallion.png",
+      "ref": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-06_로비_특성트리_최신_v23.png",
+      "prompt": "Use case: ui-mockup. Single shippable 2D medieval casual fantasy UI sprite. The attached image is reference for shape/style only, not a scene to copy. Clean nonpixel handpainted cel-shaded contours, subdued old gold satin metallic edges, nearblack charcoal panels, muted dark burgundy red cloth. Moderate low saturation; NO neon, yellow glow, lensflare, shiny3Drender, grunge noise, background scenery or checkerboard. Genuine transparent PNG exterior. Any dark filled interior must be solid fully opaque, alpha255, integrated with its frame. One asset centered with minimal transparent margin and complete silhouette visible. No text, letters, digits or watermark. Reconstruct ONLY the large CENTRAL circular red DEMON KING MEDALLION in the attached skill-tree, with exact reference concept. One perfectly round dark burgundy-red opaque disk, narrow aged-gold circular bevel border and FOUR small gold diamond corner accents at north,east,south,west touching its rim. In center a clean simplified gold stylized horned crowned demon mask: angular long pointed chin, black narrow slanted eye slits, two sweeping upright gold horns, small crown with central rising spike and two small side crown points. Do not make a realistic human face or skull teeth. Main demon mask occupies roughly65percent of innerdisk width/height. Muted warm gold icon with broad flat two-tone celshaded planes, casual medieval logo-like silhouette, no intricate3D carving. No text below or anywhere, no connections/tree nodes, no flame halo. Match core design of reference, but lower saturated brightred to restrained oxblood and lower gold glare to antique satin gold. Square canvas, genuine transparent exterior, complete medallion and four tiny diamonds visible.",
+      "correction": {
+        "name": "traits_core_medallion",
+        "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-cf84f718-4de0-4a4f-86b6-c4e8ae983330.png",
+        "prompt": "Use case: precise-object-edit. Change ONLY COLOR PALETTE, preserve exact silhouette/proportions and all ornament details. Make gold subdued champagne antique metal, shadowswarmgray-brown #625441, midtones#AE9270, highlightsoftparchment#D1BD95. Not brightyellow/orange. Reds become dark dryburgundy #632E35 withdeep#2A191F shadows andsoft#805054 highlights. Muted medieval lobby palette, no glow, no newtextures, no objects, no text. Preserve transparent exterior and opaque solid interiors. Keep central crowned horned mask, circular disk andfour diamonds exactly the same shapes."
+      }
+    }
+  ]
+}

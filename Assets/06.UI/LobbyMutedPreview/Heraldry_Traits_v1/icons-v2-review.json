@@ -1,0 +1,773 @@
+{
+  "date": "2026-10-05",
+  "scope": "Lobby TraitsScreen의 노드 아이콘 40종 및 선택 상세창에 재사용되는 아이콘만 교체",
+  "generation": "built-in image_gen, 원본 개별 문양 직접 참조, 투명 PNG 40종, 수동 픽셀/알파 후처리 없음",
+  "preserved": [
+    "프레임",
+    "배치",
+    "연결선",
+    "문구",
+    "중앙 문장",
+    "기능/LP/해금/저장 규칙",
+    "공유 프리팹",
+    "기존 원본 이미지"
+  ],
+  "scene": "Assets/00.Scenes/Builds/Lobby.unity",
+  "scene_diff": {
+    "serialized_objects_checked": 8546,
+    "changed_components": 40,
+    "changed_property_only": "Image.m_Sprite",
+    "added": 0,
+    "removed": 0
+  },
+  "validation": {
+    "checks": 362,
+    "failures": [],
+    "nodes": 40,
+    "missingScripts": 0
+  },
+  "console": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "visual_check": "Unity MCP Game View 전체/확대/상세창 및 독립 100px 아트 검수. 신규 OS 화면 제어 없음.",
+  "not_checked": [
+    "Standalone Build",
+    "이번 아이콘 교체에서는 실제 하드웨어 클릭 별도 검증 없음"
+  ],
+  "prompts": [
+    "art-icons-v2-legion.json",
+    "art-icons-v2-curse.json",
+    "art-icons-v2-spells.json",
+    "art-icons-v2-wisdom.json"
+  ],
+  "screenshots": [
+    "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Traits_Review_20261005/traits-icons-v2-overview.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Traits_Review_20261005/traits-icons-v2-detail.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Traits_Review_20261005/traits-icons-v2-curse-spells.png"
+  ],
+  "mapping": [
+    {
+      "id": "Mon_A1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Sharpness.asset"
+    },
+    {
+      "id": "Mon_A2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Onslaught.asset"
+    },
+    {
+      "id": "Mon_A3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Execution.asset"
+    },
+    {
+      "id": "Mon_B1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Toughness.asset"
+    },
+    {
+      "id": "Mon_B2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_UndyingFlesh.asset"
+    },
+    {
+      "id": "Mon_B3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_IronArmor.asset"
+    },
+    {
+      "id": "Mon_C1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Agility.asset"
+    },
+    {
+      "id": "Mon_C2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_RepeatedStrikes.asset"
+    },
+    {
+      "id": "Mon_C3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_PiercingVolley.asset"
+    },
+    {
+      "id": "Mon_Cap",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_LegionAdvance.asset"
+    },
+    {
+      "id": "Hero_A1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Weakness.asset"
+    },
+    {
+      "id": "Hero_A2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Powerlessness.asset"
+    },
+    {
+      "id": "Hero_A3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Lethargy.asset"
+    },
+    {
+      "id": "Hero_B1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Disarm.asset"
+    },
+    {
+      "id": "Hero_B2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Shatter.asset"
+    },
+    {
+      "id": "Hero_B3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_VulnerabilityMark.asset"
+    },
+    {
+      "id": "Hero_C1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Slowness.asset"
+    },
+    {
+      "id": "Hero_C2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Quagmire.asset"
+    },
+    {
+      "id": "Hero_C3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Mire.asset"
+    },
+    {
+      "id": "Hero_Cap",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_DespairBrand.asset"
+    },
+    {
+      "id": "Sk_A1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_RuinEssence.asset"
+    },
+    {
+      "id": "Sk_A2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_PreciseSpell.asset"
+    },
+    {
+      "id": "Sk_A3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_MagicPenetration.asset"
+    },
+    {
+      "id": "Sk_B1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_SwiftSpell.asset"
+    },
+    {
+      "id": "Sk_B2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_Acceleration.asset"
+    },
+    {
+      "id": "Sk_B3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_TimeDistortion.asset"
+    },
+    {
+      "id": "Sk_C1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AreaDominion.asset"
+    },
+    {
+      "id": "Sk_C2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_LegionShout.asset"
+    },
+    {
+      "id": "Sk_C3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AdditionalCommand.asset"
+    },
+    {
+      "id": "Sk_Cap",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_DemonPower.asset"
+    },
+    {
+      "id": "Eco_A1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Insight.asset"
+    },
+    {
+      "id": "Eco_A2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_DeepInsight.asset"
+    },
+    {
+      "id": "Eco_A3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Plunder.asset"
+    },
+    {
+      "id": "Eco_B1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_FastGrowth.asset"
+    },
+    {
+      "id": "Eco_B2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_ExperienceCrystal.asset"
+    },
+    {
+      "id": "Eco_B3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Teaching.asset"
+    },
+    {
+      "id": "Eco_C1",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Expansion.asset"
+    },
+    {
+      "id": "Eco_C2",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_EfficientFormation.asset"
+    },
+    {
+      "id": "Eco_C3",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_GreatArmy.asset"
+    },
+    {
+      "id": "Eco_Cap",
+      "path": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_RulerWisdom.asset"
+    }
+  ],
+  "imports": [
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_DespairBrand.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_DespairBrand.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        119,
+        148,
+        1016,
+        962
+      ],
+      "transparent_pixels": 1324125,
+      "opaque_pixels": 231055
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Disarm.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Disarm.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        279,
+        154,
+        697,
+        947
+      ],
+      "transparent_pixels": 1124811,
+      "opaque_pixels": 437939
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Lethargy.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Lethargy.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        332,
+        291,
+        633,
+        637
+      ],
+      "transparent_pixels": 1343798,
+      "opaque_pixels": 215920
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Mire.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Mire.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        238,
+        306,
+        778,
+        611
+      ],
+      "transparent_pixels": 1382576,
+      "opaque_pixels": 176854
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Powerlessness.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Powerlessness.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        290,
+        243,
+        716,
+        737
+      ],
+      "transparent_pixels": 1395798,
+      "opaque_pixels": 162849
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Quagmire.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Quagmire.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        229,
+        271,
+        811,
+        788
+      ],
+      "transparent_pixels": 1204443,
+      "opaque_pixels": 335154
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Shatter.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Shatter.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        236,
+        180,
+        782,
+        893
+      ],
+      "transparent_pixels": 1331264,
+      "opaque_pixels": 211463
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Slowness.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Slowness.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        192,
+        218,
+        889,
+        833
+      ],
+      "transparent_pixels": 1087177,
+      "opaque_pixels": 471252
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_VulnerabilityMark.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_VulnerabilityMark.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        211,
+        299,
+        831,
+        676
+      ],
+      "transparent_pixels": 1396057,
+      "opaque_pixels": 162804
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Weakness.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Curse_Weakness.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        310,
+        284,
+        633,
+        732
+      ],
+      "transparent_pixels": 1203310,
+      "opaque_pixels": 360144
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Agility.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Agility.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        276,
+        206,
+        808,
+        863
+      ],
+      "transparent_pixels": 1316460,
+      "opaque_pixels": 243145
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Execution.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Execution.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        324,
+        289,
+        671,
+        674
+      ],
+      "transparent_pixels": 1402534,
+      "opaque_pixels": 158190
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_IronArmor.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_IronArmor.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        331,
+        238,
+        593,
+        808
+      ],
+      "transparent_pixels": 1251530,
+      "opaque_pixels": 312014
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_LegionAdvance.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_LegionAdvance.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        164,
+        235,
+        926,
+        824
+      ],
+      "transparent_pixels": 1257063,
+      "opaque_pixels": 291999
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Onslaught.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Onslaught.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        262,
+        272,
+        730,
+        716
+      ],
+      "transparent_pixels": 1354039,
+      "opaque_pixels": 202139
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_PiercingVolley.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_PiercingVolley.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        289,
+        227,
+        676,
+        841
+      ],
+      "transparent_pixels": 1376857,
+      "opaque_pixels": 175009
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_RepeatedStrikes.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_RepeatedStrikes.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        297,
+        273,
+        745,
+        701
+      ],
+      "transparent_pixels": 1412827,
+      "opaque_pixels": 140891
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Sharpness.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Sharpness.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        350,
+        308,
+        630,
+        643
+      ],
+      "transparent_pixels": 1493066,
+      "opaque_pixels": 71733
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Toughness.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_Toughness.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        167,
+        313,
+        920,
+        663
+      ],
+      "transparent_pixels": 1242249,
+      "opaque_pixels": 316481
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_UndyingFlesh.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Legion_UndyingFlesh.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        285,
+        315,
+        683,
+        624
+      ],
+      "transparent_pixels": 1291599,
+      "opaque_pixels": 273657
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_Acceleration.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_Acceleration.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        358,
+        256,
+        538,
+        745
+      ],
+      "transparent_pixels": 1364242,
+      "opaque_pixels": 181641
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AdditionalCommand.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AdditionalCommand.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        316,
+        236,
+        622,
+        807
+      ],
+      "transparent_pixels": 1409199,
+      "opaque_pixels": 136513
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AreaDominion.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AreaDominion.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        207,
+        336,
+        838,
+        623
+      ],
+      "transparent_pixels": 1248930,
+      "opaque_pixels": 306294
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_DemonPower.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_DemonPower.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        225,
+        217,
+        806,
+        844
+      ],
+      "transparent_pixels": 1292945,
+      "opaque_pixels": 253331
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_LegionShout.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_LegionShout.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        344,
+        274,
+        633,
+        775
+      ],
+      "transparent_pixels": 1377305,
+      "opaque_pixels": 180877
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_MagicPenetration.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_MagicPenetration.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        285,
+        159,
+        684,
+        933
+      ],
+      "transparent_pixels": 1412114,
+      "opaque_pixels": 136149
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_PreciseSpell.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_PreciseSpell.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        165,
+        164,
+        923,
+        941
+      ],
+      "transparent_pixels": 1396466,
+      "opaque_pixels": 145304
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_RuinEssence.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_RuinEssence.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        281,
+        220,
+        692,
+        817
+      ],
+      "transparent_pixels": 1434513,
+      "opaque_pixels": 115737
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_SwiftSpell.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_SwiftSpell.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        253,
+        256,
+        810,
+        737
+      ],
+      "transparent_pixels": 1354905,
+      "opaque_pixels": 195389
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_TimeDistortion.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_TimeDistortion.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        265,
+        255,
+        748,
+        770
+      ],
+      "transparent_pixels": 1273600,
+      "opaque_pixels": 264195
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_DeepInsight.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_DeepInsight.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        184,
+        158,
+        886,
+        938
+      ],
+      "transparent_pixels": 1303336,
+      "opaque_pixels": 242653
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_EfficientFormation.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_EfficientFormation.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        117,
+        118,
+        1019,
+        1019
+      ],
+      "transparent_pixels": 1266607,
+      "opaque_pixels": 286590
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Expansion.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Expansion.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        101,
+        255,
+        1052,
+        832
+      ],
+      "transparent_pixels": 1119717,
+      "opaque_pixels": 431198
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_ExperienceCrystal.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_ExperienceCrystal.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        388,
+        162,
+        478,
+        958
+      ],
+      "transparent_pixels": 1283469,
+      "opaque_pixels": 280880
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_FastGrowth.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_FastGrowth.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        269,
+        85,
+        730,
+        1087
+      ],
+      "transparent_pixels": 1179827,
+      "opaque_pixels": 372908
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_GreatArmy.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_GreatArmy.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        94,
+        263,
+        1066,
+        735
+      ],
+      "transparent_pixels": 1129639,
+      "opaque_pixels": 424848
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Insight.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Insight.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        257,
+        187,
+        736,
+        895
+      ],
+      "transparent_pixels": 1087748,
+      "opaque_pixels": 473686
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Plunder.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Plunder.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        155,
+        274,
+        946,
+        728
+      ],
+      "transparent_pixels": 930769,
+      "opaque_pixels": 630595
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_RulerWisdom.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_RulerWisdom.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        80,
+        188,
+        1094,
+        901
+      ],
+      "transparent_pixels": 1145642,
+      "opaque_pixels": 401394
+    },
+    {
+      "png": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Teaching.png",
+      "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Teaching.asset",
+      "width": 1254,
+      "height": 1254,
+      "rect": [
+        248,
+        178,
+        761,
+        903
+      ],
+      "transparent_pixels": 1039164,
+      "opaque_pixels": 518690
+    }
+  ]
+}

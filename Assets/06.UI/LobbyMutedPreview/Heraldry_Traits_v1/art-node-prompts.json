@@ -1,0 +1,91 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-06_로비_특성트리_최신_v23.png",
+  "transparent_background": true,
+  "alpha_policy": "Generated alpha preserved without pixel postprocessing. Near-black center fill approximately alpha252-254, not guaranteed255.",
+  "shape_note": "Circular icon plate with attached rounded label. Geometry requested1.4x label width; final approximate1.35-1.4x. Color variants share base composition; legion max occupies more of canvas and must use its own alpha bounds when importing.",
+  "assets": [
+    {
+      "file": "trait_node_legion.png",
+      "max": false,
+      "theme": "muted teal-green steel",
+      "prompt": "Use case: precise-object-edit. Input image is edit target. Make ONE tiny geometry adjustment only: shorten the nameplate horizontally by 14 percent, equally from left and right sides. Its center stays fixed. Do NOT change the nameplate height, vertical position, border thickness, or rounding. Do NOT change the circular button at all. The nameplate should become about 1.4 times the circle's diameter wide, not 1.6 times. Everything else strictly unchanged, including exact clean green metal colors, fully opaque black interiors, perfect circle, blank interiors, and true transparent exterior. No added elements. Keep canvas and whole object position unchanged.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-47aa27fb-8238-4979-8cf1-aefe9bf7204a.png",
+      "generation_prompt": "Use case: ui-mockup. Asset type: ONE production blank talent-node button background for a medieval fantasy Unity UI. Input image 1 is the SHAPE AND MATERIAL reference: imitate ONE of the small green circular nodes with its small nameplate in the top branch, not the full tree. Draw a perfectly front-facing exact circular button with a slim two-to-three-step muted green-teal tinted dark metal rim and a solid opaque near-black interior. Directly below, attached over the bottom edge of the circle, put one short horizontal blank rounded-rectangle nameplate, same slim muted teal/green metal border and solid opaque near-black fill. IMPORTANT GEOMETRY: circle true 1:1 diameter; nameplate outer width=1.40 times circle diameter; nameplate height=0.34 times circle diameter. Nameplate overlaps circle bottom by 0.12 times circle diameter. Both are horizontally centered. The circular rim is thin and tidy, approx 5 percent of diameter total thickness, not a heavy thick ring. Reference screen size is circle96px and label132x30px. Smooth subdued antique dark teal-green steel with restrained tiny lighter bevel highlights and clear thin near-black outer keyline. The interior circle and nameplate are completely EMPTY: no icon, no symbol, no text, no letters, no numbers, no badge, no shine spot. No decorations, spikes, gems, wings, foliage, rivets, top crest, connector lines, or tree. Clean well-proportioned simple silhouette. No perspective or elliptical circle, no glossy 3D chrome, no neon, no pixel art, no texture noise. Border+opaque background united in ONE sprite. Exterior genuinely transparent alpha, black interior fully opaque. Center the whole object on square transparent canvas with comfortable empty margins, everything fully visible.",
+      "initial_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-649bb3c7-de86-4041-86e1-f583a57b6043.png",
+      "intermediate_adjustment_prompt": "Use case: precise-object-edit. Image 1 is edit target. CHANGE ONLY THE GEOMETRY OF THE EMPTY NAMEPLATE below the circle: make it 1.40 times the OUTER CIRCLE diameter wide and 0.34 times that diameter tall. In the current 1254 square image the outer circle is about 570px wide, so the nameplate must be about 800px wide and 194px tall; expand equally left and right around the same center. Preserve the exact circle diameter, position, perfect circularity and thin muted green-teal metal appearance. Move the plate down slightly as needed so its top overlaps only the lowest 12 percent of the circle. Match its existing slim layered green steel frame and rounded rectangle shape. Both interiors solid opaque near-black and entirely blank. Keep the entire object centered and on true transparent background, fully visible, with smooth clean edges. NO other changes: no icons, no text, no numbers, no ornament, no extra rings, no raised medallion, no glow. Just widen/heighten the short nameplate to requested proportional measurements while keeping the circle unchanged.",
+      "intermediate_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-a3362cb9-a02a-4310-b6ae-fd7e6d67eba1.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_legion.png"
+    },
+    {
+      "file": "trait_node_legion_max.png",
+      "max": true,
+      "theme": "muted teal-green steel",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Make a MAXIMUM-LEVEL state of this blank talent node. Preserve EXACTLY its perfect circle, attached short rounded nameplate, proportions, position, rim thickness, canvas and all geometry. Outer metal rim and nameplate outer border should be muted teal-green steel, desaturated green-teal. Only the narrow innermost circular rim highlight and the innermost nameplate border should change to a visibly brighter muted ANTIQUE GOLD accent, one thin elegant old-gold ring, not a thick frame. Keep inner fill extremely dark almost-black with at most a trace of desaturated green-teal, fully opaque. Keep the empty circle and empty nameplate completely BLANK. No crown, stars, label, number, icon or decoration. No glow or particles, no neon, no specular glossy chrome. Subtle medieval painted metal. Preserve exterior genuine transparency, clean edges, no speckles or background. Do not alter the silhouette or add anything. This is just a theme-color and inner-ring-color state variation of the same image.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-9fccd897-4dbf-4aeb-8926-088441b3f70a.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_legion_max.png"
+    },
+    {
+      "file": "trait_node_curse.png",
+      "max": false,
+      "theme": "restrained purple-tinted dark steel",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Change ONLY the metal RIM COLOR from green-teal to restrained purple-tinted dark steel, muted lavender-mauve purple. The ring, short attached rounded nameplate, perfect circle, size, width, height, position, border thickness, lighting, dark keyline, canvas and margins must remain exactly unchanged. Preserve this simple restrained two-to-three-step painted metal appearance, not glossy chrome. Preserve both opaque near-black empty interiors. Preserve true alpha-transparent exterior. No icon, no text, no number, no decoration, no glow, no scenery, no connected line, no change in geometry. Recolor only, including the circular metal rim and nameplate metal border.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-c2063fae-f4c9-47fd-b420-21ede6a35b99.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_curse.png"
+    },
+    {
+      "file": "trait_node_curse_max.png",
+      "max": true,
+      "theme": "restrained purple-tinted dark steel",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Make a MAXIMUM-LEVEL state of this blank talent node. Preserve EXACTLY its perfect circle, attached short rounded nameplate, proportions, position, rim thickness, canvas and all geometry. Outer metal rim and nameplate outer border should be restrained purple-tinted dark steel, muted lavender-mauve purple. Only the narrow innermost circular rim highlight and the innermost nameplate border should change to a visibly brighter muted ANTIQUE GOLD accent, one thin elegant old-gold ring, not a thick frame. Keep inner fill extremely dark almost-black with at most a trace of muted lavender-mauve purple, fully opaque. Keep the empty circle and empty nameplate completely BLANK. No crown, stars, label, number, icon or decoration. No glow or particles, no neon, no specular glossy chrome. Subtle medieval painted metal. Preserve exterior genuine transparency, clean edges, no speckles or background. Do not alter the silhouette or add anything. This is just a theme-color and inner-ring-color state variation of the same image.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-2fdf45e1-c1cb-4bc5-8140-e614e1140c5b.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_curse_max.png"
+    },
+    {
+      "file": "trait_node_spells.png",
+      "max": false,
+      "theme": "muted blue-silver steel",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Change ONLY the metal RIM COLOR from green-teal to muted blue-silver steel, desaturated cold blue-silver. The ring, short attached rounded nameplate, perfect circle, size, width, height, position, border thickness, lighting, dark keyline, canvas and margins must remain exactly unchanged. Preserve this simple restrained two-to-three-step painted metal appearance, not glossy chrome. Preserve both opaque near-black empty interiors. Preserve true alpha-transparent exterior. No icon, no text, no number, no decoration, no glow, no scenery, no connected line, no change in geometry. Recolor only, including the circular metal rim and nameplate metal border.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-aed442b8-57c9-4196-8c63-71135bf5db58.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_spells.png"
+    },
+    {
+      "file": "trait_node_spells_max.png",
+      "max": true,
+      "theme": "muted blue-silver steel",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Make a MAXIMUM-LEVEL state of this blank talent node. Preserve EXACTLY its perfect circle, attached short rounded nameplate, proportions, position, rim thickness, canvas and all geometry. Outer metal rim and nameplate outer border should be muted blue-silver steel, desaturated cold blue-silver. Only the narrow innermost circular rim highlight and the innermost nameplate border should change to a visibly brighter muted ANTIQUE GOLD accent, one thin elegant old-gold ring, not a thick frame. Keep inner fill extremely dark almost-black with at most a trace of desaturated cold blue-silver, fully opaque. Keep the empty circle and empty nameplate completely BLANK. No crown, stars, label, number, icon or decoration. No glow or particles, no neon, no specular glossy chrome. Subtle medieval painted metal. Preserve exterior genuine transparency, clean edges, no speckles or background. Do not alter the silhouette or add anything. This is just a theme-color and inner-ring-color state variation of the same image.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-e96d102e-6226-4761-87b9-e75d701b3b38.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_spells_max.png"
+    },
+    {
+      "file": "trait_node_wisdom.png",
+      "max": false,
+      "theme": "subdued antique brass",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Change ONLY the metal RIM COLOR from green-teal to subdued antique brass, restrained old golden brass. The ring, short attached rounded nameplate, perfect circle, size, width, height, position, border thickness, lighting, dark keyline, canvas and margins must remain exactly unchanged. Preserve this simple restrained two-to-three-step painted metal appearance, not glossy chrome. Preserve both opaque near-black empty interiors. Preserve true alpha-transparent exterior. No icon, no text, no number, no decoration, no glow, no scenery, no connected line, no change in geometry. Recolor only, including the circular metal rim and nameplate metal border.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-e86bf696-577f-4e4b-9459-e178ba991d30.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_wisdom.png"
+    },
+    {
+      "file": "trait_node_wisdom_max.png",
+      "max": true,
+      "theme": "subdued antique brass",
+      "prompt": "Use case: precise-object-edit. Input image is the exact EDIT TARGET. Make a MAXIMUM-LEVEL state of this blank talent node. Preserve EXACTLY its perfect circle, attached short rounded nameplate, proportions, position, rim thickness, canvas and all geometry. Outer metal rim and nameplate outer border should be subdued antique brass, restrained old golden brass. Only the narrow innermost circular rim highlight and the innermost nameplate border should change to a visibly brighter muted ANTIQUE GOLD accent, one thin elegant old-gold ring, not a thick frame. Keep inner fill extremely dark almost-black with at most a trace of restrained old golden brass, fully opaque. Keep the empty circle and empty nameplate completely BLANK. No crown, stars, label, number, icon or decoration. No glow or particles, no neon, no specular glossy chrome. Subtle medieval painted metal. Preserve exterior genuine transparency, clean edges, no speckles or background. Do not alter the silhouette or add anything. This is just a theme-color and inner-ring-color state variation of the same image.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-72e49b45-613d-42a8-bf9f-c319560917cf.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_node_wisdom_max.png"
+    }
+  ],
+  "additional_branch_assets": [
+  {
+    "file": "trait_branch_header.png",
+    "prompt": "Use case: ui-mockup. Asset type: ONE blank talent-tree branch header panel for Unity UI. Input image is a shape reference, specifically the small blue-silver '주문 연구' header above the bottom branch. Extract/reconstruct ONLY that header panel's form, remove ALL letters and words. A long horizontal medieval metal nameplate approximately4.8:1 width to height, solid opaque near-black inner fill, slim layered neutral SILVER / gray steel frame. At both far ends, shallow outward triangular curved spear-tip-shaped frame terminals, small restrained diamond inset ornament near the left and right edges. Slight symmetric upward swept shoulders as in reference. No crest, no skull, no crown, no ribbon, no hanging part, no top or bottom diamond. The main central text area must be empty black. Use neutral monochrome gray-silver metal so the engine can tint it green/purple/blue/gold. Neutral silver diamonds too, not gold. Smooth high-resolution non-pixel edges, restrained painted metal bevel, no big glossy chrome highlights, no glow. Frame and background combined in one PNG. Only exterior truly transparent; interior fully opaque black. Center the entire long panel on transparent landscape canvas with a little margin, all ends visible. No text, numbers, icons, scene, tree, connector, or extra objects.",
+    "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-d634f7f2-ab7b-4572-9aeb-6289ea1b7206.png",
+    "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_branch_header.png"
+  },
+  {
+    "file": "trait_link_strip.png",
+    "prompt": "Use case: ui-mockup. Asset type: ONE neutral tintable connection-strip sprite for a medieval fantasy talent-tree UI. Generate a short perfectly horizontal slender metal bar, visual width:height12:1. Straight parallel upper and lower edges. Both left and right ends must terminate as simple FLAT VERTICAL squared ends, no rounding and no angled caps. Neutral gray-silver metal, one dark charcoal outer keyline, a narrow pale silver highlight running exactly through the horizontal middle and slight smooth shadow below. Completely straight, uniform cross-section across its entire length, subtle flat 2D UI painted-metal shading, no perspective. Engine will stretch length and tint by theme, so no pattern, no divisions, no repeats, no texture, no diamond, no ornament, no joints, no dots, no text, no icons, no glow, no 3D thick extrusion. Solid opaque bar interior and real transparent exterior. Place only this one bar centered on a transparent landscape canvas with generous empty exterior and no surrounding frame. Smooth non-pixel antialiased edges.",
+    "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-4bbd01b9-11ad-420f-a169-6ffc43842b7d.png",
+    "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_link_strip.png"
+  }
+]
+}

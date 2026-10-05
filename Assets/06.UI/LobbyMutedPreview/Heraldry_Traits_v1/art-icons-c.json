@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "date": "2026-10-05",
+  "tool": "built-in image_gen",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-06_로비_특성트리_최신_v23.png",
+  "notes": [
+    "각자산별독립imagegen호출",
+    "원본PNG알파및RGB보존,픽셀후처리없음",
+    "unityRect는alpha>8bbox,bottom-left원점",
+    "평면아이보리와옅은샌드톤,가는짙은갈색외곽으로작은사이즈가독성확보"
+  ],
+  "assets": [
+    {
+      "name": "trait_icon_fracture",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        232,
+        215,
+        787,
+        822
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-1c4df22b-ff62-41d9-8814-a923cbc52d3e.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_fracture.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: Three separate short vertical angular shard/zigzag slivers of a BROKEN PLATE arranged side-by-side; clearly fractured in a staggered lightning-like jagged silhouette. Center shardslightlyhigher, 3shards total, gapsaretransparent. Match the reference middle-right branch skill 파쇄. Not sword, not lightningbolt alone."
+    },
+    {
+      "name": "trait_icon_skull",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        223,
+        199,
+        808,
+        854
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-9cb945c4-7714-4bcc-b236-3a4c091ea455.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_skull.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: Simple compact front-facing SKULL silhouette, broad gently rounded cranium with two round darktransparenteyeholes, tinytriangulartransparentnosehole and three short rectangular teeth atbottom. Friendlysharp casualfantasy, nojawbone separate, nohorns, nocrossbones. Reference right-branch 취약 각인 icon."
+    },
+    {
+      "name": "trait_icon_flaming_skull",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        208,
+        118,
+        837,
+        1014
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-13e5455e-492f-4bdb-b7ba-79f6b1f91dd1.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_flaming_skull.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: Simple front-facing skull with 2transparenteyehollows and smallteeth, surrounded only along TOP by a crown of5short stylized flame tongues, matching reference far-right terminal 절망의 낙인. Flat silhouette, nohorns/no crossedbones/no realisticanatomy/no ribbon. Widerupperflamecrown."
+    },
+    {
+      "name": "trait_icon_puddle",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        210,
+        310,
+        834,
+        586
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-7c26f230-ba8c-4a88-bcee-931235c9b847.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_puddle.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: Small calm OVAL puddle/ripple with two flat concentric irregular oval rings and ONE small droplet hovering above its center. Flattened horizontalground perspective but graphic2D. Match reference 수렁 symbol. No cup, no splash explosion, no blue."
+    },
+    {
+      "name": "trait_icon_mire",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        175,
+        190,
+        902,
+        831
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-eb46a51a-4eec-47eb-afe4-ac198a158e76.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_mire.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: A small triangular heap of SIX round blobs/droplets arranged1top2middle3bottom, holes between blobs transparent. Stylized sticky mire/slime symbol, rounded bottomlumps andslightlypointedtopdrop. Matchreference 진창, no slimecharacter/eyes/face."
+    },
+    {
+      "name": "trait_icon_burst",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        192,
+        144,
+        872,
+        966
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-da656992-e146-4794-b1f8-fcce78a0d3f8.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_burst.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: A compact irregular explosive STARBURST with approximately10sharp broad points, oneor two small tiny notches, SOLID brightcream center. Nonuniform sharpburst inspired by reference 마력 관통. No longrays, no circularoutline, no starinside, no sparkles aroundit."
+    },
+    {
+      "name": "trait_icon_swift_eye",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        88,
+        360,
+        1077,
+        490
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-30373324-6cd6-4354-b560-945893573f6c.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_swift_eye.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: A horizontally elongated magical EYE SHAPED SWIRL: central small curled spiral opening, smooth upper/lowercrescent strokes extendedinto short pointed winglike tails left andright. Matchreference 신속한 주문 symbol, single abstracteye/vortex. No eyebrow, eyelash, humaneye realism, no detached arrows, no perfectround pinwheel."
+    },
+    {
+      "name": "trait_icon_hourglass",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        342,
+        227,
+        568,
+        783
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-6ea3cd55-33bf-4211-ab42-db8c16a9d4eb.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_hourglass.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: Minimal classic HOURGLASS frontview, TWO short parallel horizontal top/bottom bars, diagonalglasssides crossinwards at narrowmiddle waist, smallfilledivory sandtriangles in top/bottom. Transparent glass openareas. Straightclearcontours, symmetry. Reference 시간 왜곡, no woodtexture, no realistic3D."
+    },
+    {
+      "name": "trait_icon_trio",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        228,
+        337,
+        797,
+        563
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-aa7a3e01-5e29-481c-9dad-cdc180a0ed6b.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_trio.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: THREE simple upright pawn/people glyphs side-by-side, each small rounded head on tapered vertical robe-like body/short flatbase, central figure slightlytaller. Flat ivory silhouettes with transparent gaps, readas small group at24px. Reference 광역 지배/효율 편성/규모 확장 threeuprightglyphs. NO detailedfaces, no candles/flames, no hands, no geometric bar-chart."
+    },
+    {
+      "name": "trait_icon_megaphone",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        101,
+        239,
+        1057,
+        781
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-689db34a-4b42-4be6-8ef9-83c8f6482d8b.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Sprites/trait_icon_megaphone.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE skill-tree UI ICON. Reference image is style and silhouette guidance only. Recreate the requested tiny symbol visible in that trait tree as an independent high-resolution bitmap icon. Flat warm cream/ivory #EFE4CA with at most subtle muted sand #C7B38A accent and a VERY THIN darkbrown contour; clean simple crisp silhouette, no pixel art, no 3D or bevel, no shinygold, no neon, no glow, no cast shadow, no grain or distressed edges. Genuine transparent PNG background and holes. Single complete centered icon on square canvas, generous12percentclear exterior, shape occupies75percentcanvasheight. No surrounding circle, no button frame, no connecting lines, no label, no numbers, no unrelated symbols. Clean smooth transparent exterior without flecks or debris. Symbol: A SIMPLE oldfashioned commanding MEGAPHONE/HORN icon angled upperright: short narrowmouthpiece atlowerleft, flared triangulartrumpetbody widening toward upperright, rimopeningindicatedby a singlethin dark gap, smallcurvedhandle underbody. Matchreference 추가 지령. Flatgraphic, no soundwaves, no humanhand, no buttons, no realisticmetal."
+    }
+  ]
+}
