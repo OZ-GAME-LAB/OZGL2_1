@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e3d8e6cc55b14647a6eb0d5bd399cfd, type: 3}
+  m_Name: SkillCategoryStyle
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UISkillCategoryStyleSO
+  _damageIcon: {fileID: 2100000, guid: e32ff80e0a3d97b4cac2977302667559, type: 2}
+  _buffIcon: {fileID: 2100000, guid: f25f1ca66172bb7499542d022559bb6d, type: 2}
+  _debuffIcon: {fileID: 2100000, guid: 51b2d2ddb400dbe4e87b8e23a3ace21e, type: 2}
+  _slotTintMaterial: {fileID: 2100000, guid: 7067682f1bfede74db765cd65584cbb8, type: 2}
+  _emptyFrameMaterial: {fileID: 2100000, guid: e74da1a5eba04434bab07b07c807448a, type: 2}
+  _damageFrame: {fileID: 21300000, guid: 0d832765917ae96409e27908be165829, type: 2}
+  _buffFrame: {fileID: 21300000, guid: 32b40aaf93e3cf64c8bf92dd343a437d, type: 2}
+  _debuffFrame: {fileID: 21300000, guid: 9a32db427e8b3df409a7fe0c4719f54d, type: 2}
+  _damageFrameLayout: {x: 1, y: 1, z: 0, w: 0}
+  _buffFrameLayout: {x: 1, y: 1, z: 0, w: 0}
+  _debuffFrameLayout: {x: 1, y: 1, z: 0, w: 0}
+  _slotOpacity: 0.08

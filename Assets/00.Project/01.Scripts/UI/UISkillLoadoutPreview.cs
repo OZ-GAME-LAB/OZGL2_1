@@ -6,11 +6,12 @@ using UnityEngine.UI;
 
 namespace OZGL2.UIFlow
 {
-    // 스킬창 아트 검토를 위한 표시/임시 편집만 담당한다. 게임의 SkillTreeStore/PlayerPrefs는 변경하지 않는다.
+    // 표시/임시 장착 편집을 담당한다. 실제 계정 조회·해금·저장은 외부 바인더에 위임한다.
     [DisallowMultipleComponent]
     public sealed class UISkillLoadoutPreview : MonoBehaviour
     {
         private const int SLOT_COUNT = 3;
+        private const int MAX_SLOT_COUNT = 5;
         [SerializeField] private UISkillPreviewCatalogSO _catalog;
         [SerializeField] private UILobbyCollectionState _unlockState;
         [SerializeField] private Material _lockedIconMaterial;
@@ -47,28 +48,80 @@ namespace OZGL2.UIFlow
         [SerializeField] private int[] _initialEquipped = { 0, 4, 2 };
         [SerializeField] private int _initialSelected = 4;
 
-        private readonly int[] _committed = { -1, -1, -1 };
-        private readonly int[] _draft = { -1, -1, -1 };
+        [Header("Heraldry 계정 UI — 기존 화면은 비활성 유지")]
+        [SerializeField] private bool _useHeraldryLayout;
+        [SerializeField] private TMP_Text _availableSp;
+        [SerializeField] private TMP_Text _equippedCount;
+        [SerializeField] private TMP_Text[] _equippedNames;
+        [SerializeField] private TMP_Text _ownedCount;
+        [SerializeField] private Image _detailFrame;
+        [SerializeField] private UISkillArtButton _unlockButton;
+        [SerializeField] private UIPopupPanel _unlockConfirmation;
+        [SerializeField] private Image _unlockConfirmationIcon;
+        [SerializeField] private TMP_Text _unlockConfirmationName;
+        [SerializeField] private TMP_Text _unlockConfirmationCost;
+        [SerializeField] private TMP_Text _unlockConfirmationPoints;
+        [SerializeField] private TMP_Text _unlockConfirmationWarning;
+        [SerializeField] private UISkillArtButton _unlockConfirmButton;
+
+        private int[] _committed = { -1, -1, -1 };
+        private int[] _draft = { -1, -1, -1 };
         private bool _hasInitialized;
         private int _selected = -1;
         private int _category;
         private UIPopupPanel _panel;
         private UILobbyCollectionState _subscribedUnlockState;
+        private readonly Dictionary<string, int> _unlockCosts = new Dictionary<string, int>(StringComparer.Ordinal);
+        private int _skillPoints;
+        private int _slotCapacity = SLOT_COUNT;
+        private bool _hasAccountState;
+        private bool _isUnlockPending;
+        private string _pendingUnlockId = string.Empty;
 
+        public bool UsesHeraldryLayout => _useHeraldryLayout;
+        public int SlotCapacity => _useHeraldryLayout ? _slotCapacity : SLOT_COUNT;
         public int CategoryIndex => _category;
         public int EquippedCount { get { int count = 0; foreach (int i in _draft) if (IsSkillUnlocked(i)) count++; return count; } }
         public string SelectedSkillId => IsValid(_selected) ? _catalog.Entries[_selected].Id : string.Empty;
-        public bool HasChanges { get { for (int i = 0; i < SLOT_COUNT; i++) if (_draft[i] != _committed[i]) return true; return false; } }
+        public bool HasChanges { get { for (int i = 0; i < _draft.Length; i++) if (_draft[i] != _committed[i]) return true; return false; } }
         public bool IsExitConfirmationOpen => _exitConfirmation != null && _exitConfirmation.gameObject.activeInHierarchy;
-        // 실제 게임 저장을 도입할 때 연결할 이벤트. 미리보기 자체는 디스크에 저장하지 않는다.
+        public bool IsUnlockConfirmationOpen => _useHeraldryLayout && _unlockConfirmation != null && _unlockConfirmation.gameObject.activeInHierarchy;
+        // 바인더가 실제 계정에 장착 구성을 저장한다. UI는 디스크 저장을 직접 호출하지 않는다.
         public event Action<IReadOnlyList<string>> SaveRequested;
+        public event Action<string> UnlockRequested;
+
+        // 비용은 UI 카탈로그가 아니라 실제 스킬 원천을 읽은 바인더가 전달한다.
+        public void SetAccountState(int skillPoints, int slotCapacity, IReadOnlyDictionary<string, int> unlockCosts)
+        {
+            if (!_useHeraldryLayout) return;
+            _hasAccountState = true;
+            _skillPoints = Mathf.Max(0, skillPoints);
+            _slotCapacity = Mathf.Clamp(slotCapacity, SLOT_COUNT, MAX_SLOT_COUNT);
+            ResizeSlots(_slotCapacity);
+            _unlockCosts.Clear();
+            if (unlockCosts != null)
+                foreach (var pair in unlockCosts)
+                    if (!string.IsNullOrWhiteSpace(pair.Key) && pair.Value >= 0) _unlockCosts[pair.Key] = pair.Value;
+            if (isActiveAndEnabled) Refresh();
+        }
+
+        private void ResizeSlots(int count)
+        {
+            if (_committed.Length == count) return;
+            int previous = _committed.Length;
+            Array.Resize(ref _committed, count);
+            Array.Resize(ref _draft, count);
+            for (int i = previous; i < count; i++) { _committed[i] = -1; _draft[i] = -1; }
+        }
 
         private void OnEnable()
         {
             if (TryGetComponent(out _panel)) _panel.SetDismissGuard(TryDismiss);
+            if (_useHeraldryLayout && _unlockConfirmation != null)
+                _unlockConfirmation.SetDismissGuard(() => !_isUnlockPending);
             InitializeIfNeeded();
             RemoveLockedSkills();
-            Array.Copy(_committed, _draft, SLOT_COUNT);
+            Array.Copy(_committed, _draft, _committed.Length);
             _category = 0;
             _selected = IsValid(_initialSelected) ? _initialSelected : FindFirstVisible();
             SetStatus(string.Empty);
@@ -79,11 +132,16 @@ namespace OZGL2.UIFlow
         private void OnDisable()
         {
             if (_panel != null) _panel.SetDismissGuard(null);
+            if (_useHeraldryLayout && _unlockConfirmation != null) _unlockConfirmation.SetDismissGuard(null);
+            _pendingUnlockId = string.Empty;
+            _isUnlockPending = false;
+            _hasAccountState = false;
             UnsubscribeUnlockState();
         }
 
         private bool TryDismiss()
         {
+            if (IsUnlockConfirmationOpen || _isUnlockPending) return false;
             if (!HasChanges) return true;
             if (_panel != null && _panel.Controller != null && _exitConfirmation != null)
                 _panel.Controller.OpenPopup(_exitConfirmation);
@@ -102,7 +160,7 @@ namespace OZGL2.UIFlow
         {
             UIPopupController controller = _panel != null ? _panel.Controller : null;
             if (controller == null || !controller.IsTopPopup(_exitConfirmation)) return;
-            Array.Copy(_committed, _draft, SLOT_COUNT);
+            Array.Copy(_committed, _draft, _committed.Length);
             SetStatus(string.Empty);
             Refresh();
             controller.CloseTopPopup(); // 확인창을 닫고 원래 화면의 포커스를 복원한다.
@@ -111,6 +169,7 @@ namespace OZGL2.UIFlow
 
         public void ShowCategory(int category)
         {
+            if (_useHeraldryLayout && (IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending)) return;
             _category = Mathf.Clamp(category, 0, 3);
             if (!IsVisible(_selected)) _selected = FindFirstVisible();
             SetStatus(string.Empty);
@@ -120,6 +179,7 @@ namespace OZGL2.UIFlow
 
         public void SelectSkill(int index)
         {
+            if (_useHeraldryLayout && (IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending)) return;
             if (!IsVisible(index)) return;
             _selected = index;
             SetStatus(string.Empty);
@@ -128,7 +188,8 @@ namespace OZGL2.UIFlow
 
         public void SelectEquippedSlot(int slot)
         {
-            if (slot < 0 || slot >= SLOT_COUNT || !IsSkillUnlocked(_draft[slot])) return;
+            if (_useHeraldryLayout && (IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending)) return;
+            if (slot < 0 || slot >= SlotCapacity || !IsSkillUnlocked(_draft[slot])) return;
             _category = 0;
             _selected = _draft[slot];
             SetStatus(string.Empty);
@@ -137,7 +198,7 @@ namespace OZGL2.UIFlow
 
         public void EquipSelected()
         {
-            if (IsExitConfirmationOpen) return;
+            if (IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending) return;
             RemoveLockedSkills();
             if (!IsSkillUnlocked(_selected) || Array.IndexOf(_draft, _selected) >= 0) return;
             int slot = Array.IndexOf(_draft, -1);
@@ -149,7 +210,7 @@ namespace OZGL2.UIFlow
 
         public void UnequipSelected()
         {
-            if (IsExitConfirmationOpen) return;
+            if (IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending) return;
             if (!IsValid(_selected)) return;
             int slot = Array.IndexOf(_draft, _selected);
             if (slot < 0) return;
@@ -160,14 +221,14 @@ namespace OZGL2.UIFlow
 
         public void SavePreview()
         {
-            if (_catalog == null || IsExitConfirmationOpen) return;
+            if (_catalog == null || IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending) return;
             RemoveLockedSkills();
             if (!HasChanges) { Refresh(); return; }
-            Array.Copy(_draft, _committed, SLOT_COUNT);
+            Array.Copy(_draft, _committed, _draft.Length);
             var ids = new List<string>();
             foreach (int index in _committed) if (IsSkillUnlocked(index)) ids.Add(_catalog.Entries[index].Id);
             SaveRequested?.Invoke(ids.AsReadOnly());
-            SetStatus("미리보기 저장됨");
+            SetStatus(_useHeraldryLayout ? "스킬 구성이 저장되었습니다." : "미리보기 저장됨");
             Refresh();
         }
 
@@ -186,11 +247,113 @@ namespace OZGL2.UIFlow
             return _unlockState != null ? _unlockState.IsUnlocked(entry.Id, entry.DefaultUnlocked) : entry.DefaultUnlocked;
         }
 
+        public void OpenUnlockConfirmation()
+        {
+            if (!_useHeraldryLayout || IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending || !IsValid(_selected)) return;
+            string entryId = _catalog.Entries[_selected].Id;
+            if (!CanUnlock(entryId, out string reason)) { SetStatus(reason); return; }
+            UIPopupController controller = _panel != null ? _panel.Controller : null;
+            if (controller == null || !controller.IsTopPopup(_panel) || _unlockConfirmation == null)
+            {
+                SetStatus("잠금 해제 확인창 연결을 확인해주세요.");
+                return;
+            }
+            _pendingUnlockId = entryId;
+            RefreshUnlockConfirmation();
+            controller.OpenPopup(_unlockConfirmation);
+        }
+
+        public void CancelUnlock()
+        {
+            if (_isUnlockPending) return;
+            UIPopupController controller = _panel != null ? _panel.Controller : null;
+            if (controller != null && controller.IsTopPopup(_unlockConfirmation)) controller.CloseTopPopup();
+            _pendingUnlockId = string.Empty;
+        }
+
+        public void ConfirmUnlock()
+        {
+            UIPopupController controller = _panel != null ? _panel.Controller : null;
+            if (!_useHeraldryLayout || !IsUnlockConfirmationOpen || _isUnlockPending || controller == null || !controller.IsTopPopup(_unlockConfirmation)) return;
+            if (!CanUnlock(_pendingUnlockId, out string reason))
+            {
+                if (_unlockConfirmationWarning != null) _unlockConfirmationWarning.text = reason;
+                RefreshUnlockConfirmation(false);
+                return;
+            }
+            if (UnlockRequested == null)
+            {
+                if (_unlockConfirmationWarning != null) _unlockConfirmationWarning.text = "계정 연결을 확인해주세요.";
+                return;
+            }
+            _isUnlockPending = true;
+            RefreshUnlockConfirmation(false);
+            UnlockRequested.Invoke(_pendingUnlockId);
+        }
+
+        // 바인더는 실제 계정 상태를 먼저 갱신한 뒤 처리 결과를 전달한다. 장착 draft는 변경하지 않는다.
+        public void CompleteUnlock(bool succeeded, string message)
+        {
+            if (!_useHeraldryLayout || !_isUnlockPending) return;
+            _isUnlockPending = false;
+            UIPopupController controller = _panel != null ? _panel.Controller : null;
+            if (succeeded)
+            {
+                if (controller != null && controller.IsTopPopup(_unlockConfirmation)) controller.CloseTopPopup();
+                _pendingUnlockId = string.Empty;
+                SetStatus(string.IsNullOrEmpty(message) ? "스킬 잠금이 해제되었습니다." : message);
+            }
+            else if (_unlockConfirmationWarning != null) _unlockConfirmationWarning.text = message;
+            Refresh();
+            if (!succeeded) RefreshUnlockConfirmation(false);
+        }
+
+        private bool CanUnlock(string entryId, out string reason)
+        {
+            reason = string.Empty;
+            int index = FindSkillIndex(entryId);
+            if (!_hasAccountState || index < 0 || !_unlockCosts.TryGetValue(entryId, out int cost))
+                reason = "현재 해금할 수 없는 스킬입니다.";
+            else if (IsSkillUnlocked(index)) reason = "이미 잠금 해제된 스킬입니다.";
+            else if (_skillPoints < cost) reason = "보유 SP가 부족합니다.";
+            return string.IsNullOrEmpty(reason);
+        }
+
+        private int FindSkillIndex(string entryId)
+        {
+            if (string.IsNullOrEmpty(entryId) || _catalog == null || _catalog.Entries == null) return -1;
+            for (int i = 0; i < _catalog.Entries.Count; i++)
+                if (_catalog.Entries[i] != null && _catalog.Entries[i].Id == entryId) return i;
+            return -1;
+        }
+
+        private void RefreshUnlockConfirmation(bool resetWarning = true)
+        {
+            if (!_useHeraldryLayout) return;
+            int index = FindSkillIndex(_pendingUnlockId);
+            var entry = index >= 0 ? _catalog.Entries[index] : null;
+            bool mapped = entry != null && !string.IsNullOrEmpty(entry.Id) && _unlockCosts.TryGetValue(entry.Id, out _);
+            int cost = mapped ? _unlockCosts[entry.Id] : 0;
+            if (_unlockConfirmationIcon != null)
+            {
+                _unlockConfirmationIcon.sprite = entry != null ? entry.Icon : null;
+                _unlockConfirmationIcon.enabled = _unlockConfirmationIcon.sprite != null;
+                ApplyCategoryStyle(_unlockConfirmationIcon, null, entry);
+                ApplyLockedStyle(_unlockConfirmationIcon, null, null, entry != null && !IsSkillUnlocked(index));
+            }
+            if (_unlockConfirmationName != null) _unlockConfirmationName.text = entry != null ? entry.DisplayName : string.Empty;
+            if (_unlockConfirmationCost != null) _unlockConfirmationCost.text = mapped ? "해금 비용  " + cost + " SP" : "해금 불가";
+            if (_unlockConfirmationPoints != null) _unlockConfirmationPoints.text = mapped ? _skillPoints + " SP  →  " + Mathf.Max(0, _skillPoints - cost) + " SP" : _skillPoints + " SP";
+            if (_unlockConfirmationWarning != null && resetWarning)
+                _unlockConfirmationWarning.text = "스킬 해제에 사용한 SP 포인트는 환급할 수 없습니다.";
+            if (_unlockConfirmButton != null) _unlockConfirmButton.interactable = !_isUnlockPending && CanUnlock(_pendingUnlockId, out _);
+        }
+
         private void InitializeIfNeeded()
         {
             if (_hasInitialized) return;
             _hasInitialized = true;
-            for (int i = 0; i < SLOT_COUNT; i++)
+            for (int i = 0; i < SlotCapacity; i++)
             {
                 int candidate = _initialEquipped != null && i < _initialEquipped.Length ? _initialEquipped[i] : -1;
                 _committed[i] = IsSkillUnlocked(candidate) && Array.IndexOf(_committed, candidate) < 0 ? candidate : -1;
@@ -216,6 +379,9 @@ namespace OZGL2.UIFlow
                 if (_cards[i] == null) continue;
                 _cards[i].gameObject.SetActive(IsVisible(i));
                 _cards[i].SetChosen(i == _selected);
+                if (_useHeraldryLayout && _cards[i].targetGraphic is Image cardFrame)
+                    cardFrame.material = IsValid(i) && !IsSkillUnlocked(i) && i != _selected && _categoryStyle != null
+                        ? _categoryStyle.EmptyFrameMaterial : null;
                 if (_cardIcons != null && i < _cardIcons.Length && _cardIcons[i] != null)
                 {
                     _cardIcons[i].sprite = IsValid(i) ? _catalog.Entries[i].Icon : null;
@@ -225,9 +391,14 @@ namespace OZGL2.UIFlow
                 ApplyLockedStyle(GetImage(_cardIcons, i), GetImage(_cardSlotTints, i), GetImage(_cardLockIcons, i), IsValid(i) && !IsSkillUnlocked(i));
                 ApplyUltimateFrame(GetImage(_cardUltimateFrames, i), IsSkillUnlocked(i) && _catalog.Entries[i].IsUltimate);
             }
-            for (int i = 0; i < SLOT_COUNT; i++)
+            if (_useHeraldryLayout && _equippedSlotRects != null)
+                for (int i = 0; i < _equippedSlotRects.Length; i++)
+                    if (_equippedSlotRects[i] != null) _equippedSlotRects[i].gameObject.SetActive(i < SlotCapacity);
+            for (int i = 0; i < SlotCapacity; i++)
             {
                 bool hasSkill = IsSkillUnlocked(_draft[i]);
+                if (_useHeraldryLayout && _equippedNames != null && i < _equippedNames.Length && _equippedNames[i] != null)
+                    _equippedNames[i].text = hasSkill ? _catalog.Entries[_draft[i]].DisplayName : "빈 슬롯";
                 if (_equippedIcons != null && i < _equippedIcons.Length && _equippedIcons[i] != null)
                 {
                     _equippedIcons[i].sprite = hasSkill ? _catalog.Entries[_draft[i]].Icon : null;
@@ -251,24 +422,57 @@ namespace OZGL2.UIFlow
             }
             bool valid = IsValid(_selected);
             bool isUnlocked = IsSkillUnlocked(_selected);
-            if (_detailName != null) _detailName.text = !valid ? "스킬 선택" : isUnlocked ? _catalog.Entries[_selected].DisplayName : "미발견";
-            if (_detailDescription != null) _detailDescription.text = !valid ? string.Empty : isUnlocked ? _catalog.Entries[_selected].Description : "해금 후 정보 확인 가능";
+            bool showInformation = valid && (isUnlocked || _useHeraldryLayout);
+            if (_detailName != null) _detailName.text = !valid ? "스킬 선택" : showInformation ? _catalog.Entries[_selected].DisplayName : "미발견";
+            if (_detailDescription != null) _detailDescription.text = !valid ? string.Empty : showInformation ? _catalog.Entries[_selected].Description : "해금 후 정보 확인 가능";
             if (_detailMetadata != null)
             {
-                UISkillPreviewCatalogSO.Entry entry = isUnlocked ? _catalog.Entries[_selected] : null;
-                _detailMetadata.text = entry != null ? $"T{entry.Tier} · {entry.Activation} · 해금 {entry.UnlockSp} SP" : string.Empty;
+                UISkillPreviewCatalogSO.Entry entry = showInformation ? _catalog.Entries[_selected] : null;
+                string costText = entry == null ? string.Empty : _useHeraldryLayout
+                    ? (!string.IsNullOrEmpty(entry.Id) && _unlockCosts.TryGetValue(entry.Id, out int cost) ? cost + " SP" : "연결 확인 필요") : entry.UnlockSp + " SP";
+                _detailMetadata.text = entry != null ? $"T{entry.Tier} · {entry.Activation} · 해금 {costText}" : string.Empty;
             }
             if (_detailIcon != null) { _detailIcon.sprite = valid ? _catalog.Entries[_selected].Icon : null; _detailIcon.enabled = valid && _detailIcon.sprite != null; }
             ApplyCategoryStyle(_detailIcon, _detailSlotTint, valid ? _catalog.Entries[_selected] : null);
             ApplyLockedStyle(_detailIcon, _detailSlotTint, _detailLockIcon, valid && !isUnlocked);
+            if (_useHeraldryLayout && _detailFrame != null)
+            {
+                Sprite frame = valid && _categoryStyle != null ? _categoryStyle.GetEquippedFrame(_catalog.Entries[_selected].Category) : null;
+                _detailFrame.sprite = frame != null ? frame : _redFrame;
+                _detailFrame.material = !isUnlocked && _categoryStyle != null ? _categoryStyle.EmptyFrameMaterial : null;
+            }
             ApplyUltimateFrame(_detailUltimateFrame, isUnlocked && _catalog.Entries[_selected].IsUltimate);
-            if (_effectLabel != null) _effectLabel.text = isUnlocked ? _catalog.Entries[_selected].EffectLabel : "효과";
-            if (_effectValue != null) _effectValue.text = isUnlocked ? _catalog.Entries[_selected].EffectValue : "—";
-            if (_cooldown != null) _cooldown.text = isUnlocked ? _catalog.Entries[_selected].Cooldown : "—";
+            if (_effectLabel != null) _effectLabel.text = showInformation ? _catalog.Entries[_selected].EffectLabel : "효과";
+            if (_effectValue != null) _effectValue.text = showInformation ? _catalog.Entries[_selected].EffectValue : "—";
+            if (_cooldown != null) _cooldown.text = showInformation ? _catalog.Entries[_selected].Cooldown : "—";
             bool isEquipped = isUnlocked && Array.IndexOf(_draft, _selected) >= 0;
-            if (_equipButton != null) _equipButton.interactable = isUnlocked && !isEquipped && EquippedCount < SLOT_COUNT;
+            if (_equipButton != null) _equipButton.interactable = isUnlocked && !isEquipped && EquippedCount < SlotCapacity;
             if (_unequipButton != null) _unequipButton.interactable = isEquipped;
             if (_saveButton != null) _saveButton.interactable = _catalog != null && HasChanges;
+            if (_useHeraldryLayout)
+            {
+                if (_availableSp != null) _availableSp.text = "남은 SP  " + (_hasAccountState ? _skillPoints.ToString() : "—");
+                if (_equippedCount != null) _equippedCount.text = EquippedCount + " / " + SlotCapacity;
+                if (_ownedCount != null)
+                {
+                    int total = 0;
+                    int unlocked = 0;
+                    if (_catalog != null && _catalog.Entries != null)
+                        for (int i = 0; i < _catalog.Entries.Count; i++)
+                            if (IsValid(i)) { total++; if (IsSkillUnlocked(i)) unlocked++; }
+                    _ownedCount.text = "보유 스킬 " + unlocked + "/" + total;
+                }
+                if (_equipButton != null) _equipButton.gameObject.SetActive(!valid || isUnlocked);
+                if (_unequipButton != null) _unequipButton.gameObject.SetActive(!valid || isUnlocked);
+                if (_unlockButton != null)
+                {
+                    _unlockButton.gameObject.SetActive(valid && !isUnlocked);
+                    // 부족 SP 상태에서도 확인창 대신 상태 문구를 보여 줄 수 있도록 클릭은 허용한다.
+                    _unlockButton.interactable = valid && !isUnlocked && _hasAccountState &&
+                        !string.IsNullOrEmpty(_catalog.Entries[_selected].Id) && _unlockCosts.ContainsKey(_catalog.Entries[_selected].Id);
+                }
+                if (IsUnlockConfirmationOpen) RefreshUnlockConfirmation(false);
+            }
         }
 
         private void SubscribeUnlockState()
@@ -289,7 +493,7 @@ namespace OZGL2.UIFlow
         private void RemoveLockedSkills()
         {
             // 강제 재잠금은 저장 구성과 편집 구성을 함께 정리하여, 나머지 사용자의 미저장 편집만 유지한다.
-            for (int index = 0; index < SLOT_COUNT; index++)
+            for (int index = 0; index < _draft.Length; index++)
             {
                 // 카탈로그가 잠시 없거나 비어 있는 경우는 재잠금과 다르다. 표시만 숨기고 저장 구성은 보존한다.
                 if (IsValid(_committed[index]) && !IsSkillUnlocked(_committed[index])) _committed[index] = -1;
