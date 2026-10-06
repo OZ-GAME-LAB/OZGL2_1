@@ -4338,7 +4338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5873427a568446ada909e25012093bd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossSelectTestHarness
-  boss: 3
+  boss: 4
   bossConfigs:
   - {fileID: 11400000, guid: e2f2dd9fcb9640c498ce360bf9bbe445, type: 2}
   - {fileID: 11400000, guid: 92afdfe0e61b481fad48fd2cad081bf0, type: 2}

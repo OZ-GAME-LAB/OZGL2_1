@@ -29,7 +29,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 6
+      _count: 3
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 6
@@ -57,7 +57,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 6
+      _count: 3
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 6
@@ -85,7 +85,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 6
+      _count: 3
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 6

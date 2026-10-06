@@ -707,7 +707,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         float dist = Vector3.Distance(transform.position, target.transform.position);
-        if (dist > statData.attackRange)
+        if (dist > GetEngageRange())
         {
             return false;
         }
@@ -719,6 +719,24 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         // 빨라지는 버그가 있었다 (마법사 타겟 전환마다 쿨다운 없이 즉발 공격).
         SetState(UnitState.Attack);
         return true;
+    }
+
+    // 용사 원거리(궁수·마법사)는 사거리 끝에서 멈추지 않고 사거리의 이 비율까지 더 다가가서 교전을 시작한다.
+    // 아군은 이동하지 않아서 사거리 끝에서 쏘면 아군 근접·뒷줄이 닿지 못하고 일방적으로 맞기 때문.
+    // 일단 교전에 들어가면 대상 유지는 원래 사거리(attackRange) 기준이라 제자리에서 계속 쏜다.
+    private const float RangedHeroEngageRatio = 0.7f;
+    private const float RangedEngageMinRange = 1.5f; // 이 사거리 이하(근접)는 해당 없음
+
+    /// <summary>이동을 멈추고 교전을 시작하는 거리. 기본은 사거리 그대로, 용사 원거리 딜러만 더 가까이.</summary>
+    protected virtual float GetEngageRange()
+    {
+        float range = statData.attackRange;
+        if (Side == UnitSide.Hero && statData.healAmount <= 0f && range > RangedEngageMinRange)
+        {
+            range *= RangedHeroEngageRatio;
+        }
+
+        return range;
     }
 
     /// <summary>힐량이 있는 유닛(힐러)은 아군을, 그 외에는 적을 찾는다.</summary>

@@ -424,7 +424,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -449,7 +449,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -474,7 +474,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -499,7 +499,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -524,7 +524,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -549,7 +549,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -574,7 +574,7 @@ MonoBehaviour:
       _count: 7
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -599,7 +599,7 @@ MonoBehaviour:
       _count: 7
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -624,7 +624,7 @@ MonoBehaviour:
       _count: 7
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -646,7 +646,7 @@ MonoBehaviour:
       _count: 4
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 4
+      _count: 3
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 4
@@ -677,7 +677,7 @@ MonoBehaviour:
       _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 8
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -702,7 +702,7 @@ MonoBehaviour:
       _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 8
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -727,7 +727,7 @@ MonoBehaviour:
       _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 8
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -752,7 +752,7 @@ MonoBehaviour:
       _count: 8
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 8
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -777,7 +777,7 @@ MonoBehaviour:
       _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 9
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -802,7 +802,7 @@ MonoBehaviour:
       _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 9
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -827,7 +827,7 @@ MonoBehaviour:
       _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 9
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -852,7 +852,7 @@ MonoBehaviour:
       _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 9
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -877,7 +877,7 @@ MonoBehaviour:
       _count: 9
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 9
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -899,7 +899,7 @@ MonoBehaviour:
       _count: 5
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 5
+      _count: 3
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 5
@@ -930,7 +930,7 @@ MonoBehaviour:
       _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 12
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -955,7 +955,7 @@ MonoBehaviour:
       _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 11
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -980,7 +980,7 @@ MonoBehaviour:
       _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 12
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1005,7 +1005,7 @@ MonoBehaviour:
       _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 12
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1030,7 +1030,7 @@ MonoBehaviour:
       _count: 12
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 12
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1055,7 +1055,7 @@ MonoBehaviour:
       _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 13
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1080,7 +1080,7 @@ MonoBehaviour:
       _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 13
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1105,7 +1105,7 @@ MonoBehaviour:
       _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 13
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1130,7 +1130,7 @@ MonoBehaviour:
       _count: 13
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 13
+      _count: 3
       _intervalSeconds: 0.5
     _isBossRound: 0
     _rewardId: reward_dummy_general
@@ -1152,7 +1152,7 @@ MonoBehaviour:
       _count: 6
       _intervalSeconds: 0.5
     - _heroId: H_HEL_01
-      _count: 6
+      _count: 3
       _intervalSeconds: 0.5
     - _heroId: H_MAG_01
       _count: 6

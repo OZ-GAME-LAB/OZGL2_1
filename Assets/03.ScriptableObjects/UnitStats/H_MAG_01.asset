@@ -20,7 +20,7 @@ MonoBehaviour:
   attackPower: 20
   attackSpeed: 0.35
   defensePercent: 0.03
-  attackRange: 3
+  attackRange: 2.5
   moveSpeed: 0.8
   healAmount: 0
   attackAnimationIndex: 4
