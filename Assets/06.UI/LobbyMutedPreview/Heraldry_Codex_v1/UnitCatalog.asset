@@ -23,6 +23,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 0d8413dc3fa233c428272cf4631c9486, type: 3}
     _faction: 0
     _defaultUnlocked: 1
+    _baseStats: {fileID: 11400000, guid: 5360bb7d80d94d50a3b0b5b4306d6d81, type: 2}
   - _id: unit.M_ARC_01
     _displayName: "\uAD81\uC218"
     _description: "\uB9C8\uC655\uAD70 \xB7 \uAD81\uC218"
@@ -33,6 +34,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: ceb5099bdae378a40abad6a3ae3e08e0, type: 3}
     _faction: 0
     _defaultUnlocked: 1
+    _baseStats: {fileID: 11400000, guid: ff29d6c08c8142be8a04065f26268a29, type: 2}
   - _id: unit.M_MAG_01
     _displayName: "\uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
     _description: "\uB9C8\uC655\uAD70 \xB7 \uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
@@ -43,6 +45,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 117a97ddf7f08db489bc3c4a3eb59f64, type: 3}
     _faction: 0
     _defaultUnlocked: 1
+    _baseStats: {fileID: 11400000, guid: c342074664b042639d8809719dd2a688, type: 2}
   - _id: unit.M_SHD_01
     _displayName: "\uBC29\uD328\uBCD1(\uD0F1\uCEE4)"
     _description: "\uB9C8\uC655\uAD70 \xB7 \uBC29\uD328\uBCD1(\uD0F1\uCEE4)"
@@ -53,6 +56,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: da4b46c8c7bbc134c9859acb8abbbebc, type: 3}
     _faction: 0
     _defaultUnlocked: 0
+    _baseStats: {fileID: 11400000, guid: 5a6597c993ff4a95918a496a7a1a8ddb, type: 2}
   - _id: unit.M_HEL_01
     _displayName: "\uD790\uB7EC"
     _description: "\uB9C8\uC655\uAD70 \xB7 \uD790\uB7EC"
@@ -63,6 +67,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: b0710811893128746a37c7d387531e93, type: 3}
     _faction: 0
     _defaultUnlocked: 0
+    _baseStats: {fileID: 11400000, guid: c8ddef259afe479b951ed4b2a9947661, type: 2}
   - _id: unit.M_ROG_01
     _displayName: "\uB3C4\uC801(\uACE0\uC18D)"
     _description: "\uB9C8\uC655\uAD70 \xB7 \uB3C4\uC801(\uACE0\uC18D)"
@@ -73,6 +78,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 6f7e420c3c14c6f41b3431cc44ba9b64, type: 3}
     _faction: 0
     _defaultUnlocked: 0
+    _baseStats: {fileID: 11400000, guid: d675d80d2fde4d7282f5338a7b028136, type: 2}
   - _id: unit.H_WAR_01
     _displayName: "\uC804\uC0AC"
     _description: "\uC778\uAC04\uAD70 \xB7 \uC804\uC0AC"
@@ -83,6 +89,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 59bebb75ccfc00b459cbaae7e0b1bd01, type: 3}
     _faction: 1
     _defaultUnlocked: 1
+    _baseStats: {fileID: 11400000, guid: f562211e1828499893781f52c01820a1, type: 2}
   - _id: unit.H_ARC_01
     _displayName: "\uAD81\uC218"
     _description: "\uC778\uAC04\uAD70 \xB7 \uAD81\uC218"
@@ -94,6 +101,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 5e73ceaed87046a4091c786171207de2, type: 3}
     _faction: 1
     _defaultUnlocked: 1
+    _baseStats: {fileID: 11400000, guid: 6036461b30624023a9881be53571fffc, type: 2}
   - _id: unit.H_MAG_01
     _displayName: "\uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
     _description: "\uC778\uAC04\uAD70 \xB7 \uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
@@ -106,6 +114,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 2bfcb75c4a13f7944b8673bee7e131eb, type: 3}
     _faction: 1
     _defaultUnlocked: 1
+    _baseStats: {fileID: 11400000, guid: 7f1234eb4fff4b07907b911f8f6ac7be, type: 2}
   - _id: unit.H_SHD_01
     _displayName: "\uBC29\uD328\uBCD1"
     _description: "\uC778\uAC04\uAD70 \xB7 \uBC29\uD328\uBCD1"
@@ -117,6 +126,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: ed301ac34cf44714988bb17bb7ac1d92, type: 3}
     _faction: 1
     _defaultUnlocked: 0
+    _baseStats: {fileID: 11400000, guid: 0105499083064adbb713a23746b6184d, type: 2}
   - _id: unit.H_HEL_01
     _displayName: "\uD790\uB7EC"
     _description: "\uC778\uAC04\uAD70 \xB7 \uD790\uB7EC"
@@ -127,6 +137,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: e27b1bf630106b3428e9a5280ab94968, type: 3}
     _faction: 1
     _defaultUnlocked: 0
+    _baseStats: {fileID: 11400000, guid: f14723af9f1349958e53c7fb750c7fee, type: 2}
   - _id: unit.H_ROG_01
     _displayName: "\uB3C4\uC801(\uACE0\uC18D)"
     _description: "\uC778\uAC04\uAD70 \xB7 \uB3C4\uC801(\uACE0\uC18D)"
@@ -138,3 +149,4 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 60e1ce5d05ef29240be3a86c3066c51a, type: 3}
     _faction: 1
     _defaultUnlocked: 0
+    _baseStats: {fileID: 11400000, guid: 53348b7acf364d9e94f4b50f1640a936, type: 2}

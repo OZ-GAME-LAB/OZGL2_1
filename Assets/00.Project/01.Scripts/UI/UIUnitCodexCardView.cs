@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +19,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Button _nextAppearanceButton;
         [SerializeField] private Image[] _starImages = System.Array.Empty<Image>();
         [SerializeField] private TMP_Text _appearanceText;
+        [SerializeField] private Button _detailsButton;
 
         private const int MAX_DEMON_APPEARANCES = 3;
         private UIUnitCatalogSO.Entry _entry;
@@ -27,6 +29,8 @@ namespace OZGL2.UIFlow
 
         public string EntryId { get; private set; } = string.Empty;
         public bool IsUnlocked { get; private set; }
+        public UIUnitCatalogSO.Entry Entry => _entry;
+        public event Action<UIUnitCodexCardView> DetailsRequested;
         public int AppearanceIndex => IsUnlocked ? _appearanceIndex : 0;
         public int AppearanceCount => _entry == null ? 0 : _entry.Faction == eUnitCodexFaction.DEMON
             ? Mathf.Min(MAX_DEMON_APPEARANCES, _entry.AppearanceCount) : _entry.AppearanceCount;
@@ -48,6 +52,13 @@ namespace OZGL2.UIFlow
         public void PreviousAppearance() => ChangeAppearance(-1);
 
         public void NextAppearance() => ChangeAppearance(1);
+
+        // 화살표와 독립된 클릭 영역에서만 요청한다. 직접 호출해도 미발견 카드는 열리지 않는다.
+        public void RequestDetails()
+        {
+            if (!isActiveAndEnabled || !IsUnlocked || _entry == null || _entry.BaseStats == null) return;
+            DetailsRequested?.Invoke(this);
+        }
 
         private void ChangeAppearance(int direction)
         {
@@ -88,6 +99,8 @@ namespace OZGL2.UIFlow
             }
 
             if (_frame != null) _frame.raycastTarget = false;
+            if (_detailsButton != null)
+                _detailsButton.interactable = hasEntry && IsUnlocked && _entry.BaseStats != null;
             RefreshAppearanceControls(hasEntry);
         }
 

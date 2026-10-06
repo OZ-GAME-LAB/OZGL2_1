@@ -19,10 +19,13 @@ namespace OZGL2.UIFlow
         [SerializeField] private ScrollRect _scrollRect;
         [SerializeField] private TMP_Text _pageText;
         [SerializeField] private TMP_Text _emptyText;
+        [SerializeField] private UIUnitCodexDetailView _detailView;
 
         private readonly List<UIUnitCodexCardView> _cards = new List<UIUnitCodexCardView>();
         private UILobbyCollectionState _subscribedState;
         private int _faction;
+        private UIUnitCodexCardView _detailSource;
+        private UIPopupPanel _panel;
 
         public int FactionIndex => _faction;
         public int VisibleCount { get; private set; }
@@ -36,11 +39,19 @@ namespace OZGL2.UIFlow
 
         private void OnDisable()
         {
+            CloseDetails();
             UnsubscribeState();
+        }
+
+        private void OnDestroy()
+        {
+            foreach (UIUnitCodexCardView card in _cards)
+                if (card != null) card.DetailsRequested -= ShowDetails;
         }
 
         public void ShowFaction(int faction)
         {
+            CloseDetails();
             _faction = Mathf.Clamp(faction, 0, 1);
             Refresh();
             if (_scrollRect != null)
@@ -53,6 +64,24 @@ namespace OZGL2.UIFlow
         public UIUnitCodexCardView GetCard(int index)
         {
             return index >= 0 && index < _cards.Count ? _cards[index] : null;
+        }
+
+        private void ShowDetails(UIUnitCodexCardView card)
+        {
+            if (!isActiveAndEnabled || _detailView == null || card == null || !_cards.Contains(card) ||
+                !card.isActiveAndEnabled || !card.IsUnlocked || card.Entry == null ||
+                (int)card.Entry.Faction != _faction) return;
+            if (_panel == null && !TryGetComponent(out _panel)) return;
+            UIPopupController controller = _panel.Controller;
+            if (controller == null || !controller.IsTopPopup(_panel) || !_detailView.ShowUnit(card)) return;
+            _detailSource = card;
+            controller.OpenPopup(_detailView.Panel);
+        }
+
+        private void CloseDetails()
+        {
+            if (_detailView != null) _detailView.Close();
+            _detailSource = null;
         }
 
         public void Refresh()
@@ -90,6 +119,15 @@ namespace OZGL2.UIFlow
                 _emptyText.gameObject.SetActive(VisibleCount == 0);
             }
             if (_content != null) LayoutRebuilder.MarkLayoutForRebuild(_content);
+            RefreshDetails();
+        }
+
+        private void RefreshDetails()
+        {
+            if (_detailView == null || !_detailView.gameObject.activeSelf) return;
+            if (_detailSource == null || !_detailSource.isActiveAndEnabled || !_detailSource.IsUnlocked ||
+                _detailSource.EntryId != _detailView.DisplayedEntryId || !_detailView.ShowUnit(_detailSource))
+                CloseDetails();
         }
 
         private void EnsureCardCount(int entryCount)
@@ -100,6 +138,7 @@ namespace OZGL2.UIFlow
                 if (index < _cards.Count && _cards[index] != null) continue;
                 UIUnitCodexCardView card = Instantiate(_cardTemplate, _content, false);
                 card.name = $"UnitCard_{index:D2}";
+                card.DetailsRequested += ShowDetails;
                 if (index < _cards.Count) _cards[index] = card;
                 else _cards.Add(card);
             }

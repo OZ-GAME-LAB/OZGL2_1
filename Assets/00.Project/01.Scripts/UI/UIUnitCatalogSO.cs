@@ -22,6 +22,8 @@ namespace OZGL2.UIFlow
             private Sprite[] _portraitVariants = Array.Empty<Sprite>();
             [SerializeField] private eUnitCodexFaction _faction;
             [SerializeField] private bool _defaultUnlocked;
+            [SerializeField, Tooltip("기본 스탯 원본입니다. 도감은 읽기만 하며 전투 보정이나 저장값을 적용하지 않습니다.")]
+            private UnitStatData _baseStats;
 
             public string Id => _id ?? string.Empty;
             public string DisplayName => _displayName ?? string.Empty;
@@ -31,6 +33,7 @@ namespace OZGL2.UIFlow
             public int AppearanceCount => _portraitVariants != null && _portraitVariants.Length > 0 ? _portraitVariants.Length : 1;
             public eUnitCodexFaction Faction => _faction;
             public bool DefaultUnlocked => _defaultUnlocked;
+            public UnitStatData BaseStats => _baseStats;
 
             public Sprite GetPortrait(int appearanceIndex)
             {
