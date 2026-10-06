@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using OZGL2.Contracts;
 using OZGL2.Stage;
@@ -55,7 +56,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     float IDamageable.MaxHp => statData != null ? statData.maxHealth : 0f;
     bool IDamageable.IsDead => currentState == UnitState.Dead;
     Vector3 IDamageable.Position => transform.position;
-    void IDamageable.TakeDamage(float amount) => TakeDamage(Mathf.RoundToInt(amount));
+    // 스킬 시스템(성민 파트) 진입점 — 스킬 피해는 마법 피격음으로 처리한다.
+    void IDamageable.TakeDamage(float amount) => TakeDamage(Mathf.RoundToInt(amount), HitSoundKind.Magic);
 
     // IHealable (OZGL2.Contracts) — 힐/버프 스킬(흡혈 의식·광폭화 등) 전용 진입점.
     Vector3 IHealable.Position => transform.position;
@@ -136,7 +138,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         if (_burnTickTimer <= 0f)
         {
             _burnTickTimer += BurnTickInterval;
-            TakeDamage(Mathf.RoundToInt(_burnDps * BurnTickInterval));
+            TakeDamage(Mathf.RoundToInt(_burnDps * BurnTickInterval), HitSoundKind.None); // 도트는 피격음 없음
         }
     }
 
@@ -190,8 +192,6 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
                 ally.Heal(amount);
             }
         }
-
-        CombatEffects.PlaySaintCast(transform.position);
     }
 
     /// <summary>매 프레임 호출: summonInterval이 설정된 유닛(교황류)은 공격 여부와 무관하게 주기적으로 증원을 직접 소환한다.</summary>
@@ -461,7 +461,20 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             _bodyRendererOriginalColors[i] = _bodyRenderers[i].color;
         }
+
+        // 데미지 숫자 높이 계산용 스프라이트 키(발 위치 기준) — 보스처럼 큰 유닛도 비율로 맞추기 위해 기억해둔다.
+        if (_bodyRenderers.Length > 0)
+        {
+            Bounds bounds = _bodyRenderers[0].bounds;
+            for (int i = 1; i < _bodyRenderers.Length; i++)
+            {
+                bounds.Encapsulate(_bodyRenderers[i].bounds);
+            }
+            _spriteHeight = Mathf.Max(0.5f, bounds.max.y - transform.position.y);
+        }
     }
+
+    private float _spriteHeight = 1f;
 
     /// <summary>
     /// 클릭 선택(사거리 표시용) 판정용 콜라이더가 없으면 자식 SpriteRenderer들의 바운즈에 맞춰
@@ -869,6 +882,41 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         return lowest;
     }
 
+    private readonly List<UnitBase> _extraHealTargets = new List<UnitBase>(3);
+
+    /// <summary>FindLowestHealthAlly와 같은 기준(사거리 안·풀피 제외·체력 비율 최저)에서 이미 고른 대상은 빼고 찾는다.</summary>
+    private UnitBase FindLowestHealthAllyExcluding(List<UnitBase> excluded)
+    {
+        var candidates = UnitRegistry.GetUnits(Side);
+        UnitBase lowest = null;
+        float lowestRatio = float.MaxValue;
+        float rangeSqr = statData.attackRange * statData.attackRange;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit.currentState == UnitState.Dead || unit.statData == null ||
+                unit.currentHealth >= unit.statData.maxHealth || excluded.Contains(unit))
+            {
+                continue;
+            }
+
+            if ((unit.transform.position - transform.position).sqrMagnitude > rangeSqr)
+            {
+                continue;
+            }
+
+            float ratio = (float)unit.currentHealth / unit.statData.maxHealth;
+            if (ratio < lowestRatio)
+            {
+                lowestRatio = ratio;
+                lowest = unit;
+            }
+        }
+
+        return lowest;
+    }
+
     protected virtual void TickAttack()
     {
         if (currentTarget == null || currentTarget.currentState == UnitState.Dead)
@@ -988,9 +1036,28 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         if (statData.healAmount > 0f)
         {
-            CombatEffects.PlaySaintCast(transform.position);
             float healMult = CombatModifierHub.GetHealMult(statData.job, statData.side);
-            target.Heal(Mathf.RoundToInt(statData.healAmount * healMult));
+            int healAmount = Mathf.RoundToInt(statData.healAmount * healMult);
+            target.Heal(healAmount);
+
+            // 힐러 성급 기믹: 2성은 2명, 3성은 3명을 동시에 치료 — 주 대상 외에 사거리 안에서 체력 비율이 낮은 순으로 추가.
+            int extraTargets = Mathf.Clamp(statData.starLevel, 1, 3) - 1;
+            if (extraTargets > 0)
+            {
+                _extraHealTargets.Clear();
+                _extraHealTargets.Add(target);
+                for (int i = 0; i < extraTargets; i++)
+                {
+                    UnitBase extra = FindLowestHealthAllyExcluding(_extraHealTargets);
+                    if (extra == null)
+                    {
+                        break;
+                    }
+
+                    extra.Heal(healAmount);
+                    _extraHealTargets.Add(extra);
+                }
+            }
             return;
         }
 
@@ -1030,6 +1097,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
         else
         {
+            Sfx.Play(SfxId.AttackMelee);
             target.TakeDamage(damage);
             ApplySplashDamage(target, damage);
         }
@@ -1095,13 +1163,19 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         if (statData.job == SynergyJob.Mage)
         {
             CombatEffects.PlayMagicCast(transform.position);
+            Sfx.Play(SfxId.CastMagic);
+        }
+        else
+        {
+            Sfx.Play(SfxId.ShootArrow);
         }
 
         Vector3 spawnPosition = muzzlePoint != null ? muzzlePoint.position : transform.position;
         GameObject projectileObj = Instantiate(statData.projectilePrefab, spawnPosition, Quaternion.identity);
         Projectile projectile = projectileObj.AddComponent<Projectile>();
         projectile.Init(target, damage, statData.projectileSpeed, statData.projectileDefaultFacing,
-            statData.splashRadius, statData.splashSecondaryDamagePercent, statData.splashMaxTargets);
+            statData.splashRadius, statData.splashSecondaryDamagePercent, statData.splashMaxTargets,
+            statData.job == SynergyJob.Mage ? HitSoundKind.Magic : HitSoundKind.Physical);
     }
 
     /// <summary>
@@ -1121,8 +1195,11 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
+        int before = currentHealth;
         currentHealth = Mathf.Min(currentHealth + amount, statData.maxHealth);
         CombatEffects.PlayHeal(transform.position);
+        CombatEffects.PlayHealNumber(transform.position, _spriteHeight, currentHealth - before);
+        Sfx.Play(SfxId.Heal);
     }
 
     public virtual void SetMoveTarget(Vector3 targetPosition)
@@ -1148,7 +1225,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         PlaySpumAnimation(newState);
     }
 
-    public virtual void TakeDamage(int amount)
+    /// <summary>기본(근접·화살) 피해 — 피격음은 Hit.</summary>
+    public void TakeDamage(int amount) => TakeDamage(amount, HitSoundKind.Physical);
+
+    public virtual void TakeDamage(int amount, HitSoundKind soundKind)
     {
         if (currentState == UnitState.Dead)
         {
@@ -1157,8 +1237,14 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         // 증강(철벽 진형·수호의 방패) 보정 — 값이 없으면 amount 그대로 반환하므로 기존 동작은 변하지 않는다.
         amount = CombatModifierHub.FilterIncomingDamage(GetInstanceID(), Side, amount);
-        currentHealth -= Mathf.RoundToInt(amount * EffectiveVulnerableMult);
+        int appliedDamage = Mathf.RoundToInt(amount * EffectiveVulnerableMult);
+        currentHealth -= appliedDamage;
         CombatEffects.PlayHit(transform.position);
+        CombatEffects.PlayDamageNumber(transform.position, _spriteHeight, appliedDamage, Side);
+        if (appliedDamage > 0 && soundKind != HitSoundKind.None)
+        {
+            Sfx.Play(soundKind == HitSoundKind.Magic ? SfxId.HitMagic : SfxId.Hit);
+        }
         if (currentHealth <= 0)
         {
             Die();
@@ -1180,6 +1266,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         hasMoveTarget = false;
         currentTarget = null;
         SetState(UnitState.Dead);
+        Sfx.Play(Side == UnitSide.Hero ? SfxId.DeathHero : SfxId.DeathAlly);
 
         if (Side == UnitSide.Hero)
         {

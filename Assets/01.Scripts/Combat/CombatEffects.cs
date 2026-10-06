@@ -24,12 +24,44 @@ public static class CombatEffects
         }
     }
 
-    public static void PlayHit(Vector3 position) => SpawnOneShot(Catalog != null ? Catalog.hitEffect : null, position);
+    public static void PlayHit(Vector3 position)
+    {
+        float extraScale = Catalog != null ? Catalog.hitEffectScaleMultiplier : 1f;
+        float alpha = Catalog != null ? Catalog.hitEffectAlpha : 1f;
+        SpawnOneShot(Catalog != null ? Catalog.hitEffect : null, position, extraScale, alpha);
+    }
     public static void PlayHeal(Vector3 position) => SpawnOneShot(Catalog != null ? Catalog.healEffect : null, position);
     public static void PlayMagicCast(Vector3 position) => SpawnOneShot(Catalog != null ? Catalog.magicCastEffect : null, position);
     public static void PlaySaintCast(Vector3 position) => SpawnOneShot(Catalog != null ? Catalog.saintCastEffect : null, position);
 
-    private static void SpawnOneShot(GameObject prefab, Vector3 position)
+    /// <summary>피격 데미지 숫자를 position 위로 띄운다. amount가 0 이하(보호막 흡수 등)면 아무것도 안 띄운다.</summary>
+    public static void PlayDamageNumber(Vector3 feetPosition, float spriteHeight, int amount, UnitSide victimSide)
+    {
+        if (amount <= 0 || Catalog == null || !Catalog.showDamageNumbers)
+        {
+            return;
+        }
+
+        Vector3 position = feetPosition + Vector3.up * (spriteHeight * Catalog.damageNumberHeightRatio);
+        Color color = victimSide == UnitSide.Hero ? Catalog.heroDamageColor : Catalog.demonArmyDamageColor;
+        DamageNumber.Show(position, amount, color, Catalog.damageNumberFontSize,
+            Catalog.damageNumberRiseDistance, Catalog.damageNumberDuration);
+    }
+
+    /// <summary>회복량(실제로 차오른 양) 숫자를 초록색 "+N"으로 띄운다. 이미 풀피라 0이면 안 띄운다.</summary>
+    public static void PlayHealNumber(Vector3 feetPosition, float spriteHeight, int healedAmount)
+    {
+        if (healedAmount <= 0 || Catalog == null || !Catalog.showDamageNumbers)
+        {
+            return;
+        }
+
+        Vector3 position = feetPosition + Vector3.up * (spriteHeight * Catalog.damageNumberHeightRatio);
+        DamageNumber.Show(position, healedAmount, Catalog.healNumberColor, Catalog.damageNumberFontSize,
+            Catalog.damageNumberRiseDistance, Catalog.damageNumberDuration, "+");
+    }
+
+    private static void SpawnOneShot(GameObject prefab, Vector3 position, float extraScale = 1f, float alpha = 1f)
     {
         if (prefab == null)
         {
@@ -38,8 +70,85 @@ public static class CombatEffects
 
         GameObject instance = Object.Instantiate(prefab, position, Quaternion.identity);
         ApplyScale(instance);
+        if (!Mathf.Approximately(extraScale, 1f))
+        {
+            instance.transform.localScale *= extraScale;
+        }
+        ApplyAlpha(instance, alpha);
         float lifetime = GetParticleLifetime(instance);
         instance.AddComponent<TimedVisualEffect>().Init(lifetime);
+    }
+
+    /// <summary>이펙트를 반투명하게: 파티클 시작색과 스프라이트 색의 알파에 배율을 곱한다.</summary>
+    private static void ApplyAlpha(GameObject instance, float alpha)
+    {
+        if (alpha >= 0.999f)
+        {
+            return;
+        }
+
+        foreach (var particle in instance.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            var main = particle.main;
+            main.startColor = ScaleAlpha(main.startColor, alpha);
+        }
+
+        foreach (var sprite in instance.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            Color c = sprite.color;
+            c.a *= alpha;
+            sprite.color = c;
+        }
+    }
+
+    private static ParticleSystem.MinMaxGradient ScaleAlpha(ParticleSystem.MinMaxGradient source, float alpha)
+    {
+        switch (source.mode)
+        {
+            case ParticleSystemGradientMode.Color:
+            {
+                Color c = source.color;
+                c.a *= alpha;
+                return new ParticleSystem.MinMaxGradient(c);
+            }
+            case ParticleSystemGradientMode.TwoColors:
+            {
+                Color lo = source.colorMin;
+                Color hi = source.colorMax;
+                lo.a *= alpha;
+                hi.a *= alpha;
+                return new ParticleSystem.MinMaxGradient(lo, hi);
+            }
+            case ParticleSystemGradientMode.Gradient:
+                return new ParticleSystem.MinMaxGradient(ScaleGradientAlpha(source.gradient, alpha));
+            case ParticleSystemGradientMode.RandomColor:
+                return new ParticleSystem.MinMaxGradient(ScaleGradientAlpha(source.gradient, alpha))
+                {
+                    mode = ParticleSystemGradientMode.RandomColor
+                };
+            case ParticleSystemGradientMode.TwoGradients:
+                return new ParticleSystem.MinMaxGradient(
+                    ScaleGradientAlpha(source.gradientMin, alpha), ScaleGradientAlpha(source.gradientMax, alpha));
+            default:
+                return source;
+        }
+    }
+
+    private static Gradient ScaleGradientAlpha(Gradient source, float alpha)
+    {
+        var result = new Gradient();
+        if (source == null)
+        {
+            return result;
+        }
+
+        GradientAlphaKey[] alphaKeys = source.alphaKeys;
+        for (int i = 0; i < alphaKeys.Length; i++)
+        {
+            alphaKeys[i].alpha *= alpha;
+        }
+        result.SetKeys(source.colorKeys, alphaKeys);
+        return result;
     }
 
     /// <summary>원본 SPUM 이펙트가 유닛 크기 대비 커서, 카탈로그의 공통 배율만큼 축소해서 재생한다.</summary>
