@@ -1,0 +1,30 @@
+{
+  "task": "Small26px skill-lock glyph",
+  "date": "2026-10-05",
+  "method": "Built-in image_gen. Generated PNG copied unchanged; no manual resize or alpha processing.",
+  "name": "Icon_Lock",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-11_로비_스킬해금_확인창.png",
+  "prompt": "Use case: ui-mockup. Asset type: standalone transparent PNG padlock glyph for a small26px Unity skill-lock badge. Image1 is shape reference only: reproduce the small ivory padlock over the meteor skill thumbnail, not the surrounding artwork. Subject: one simple closed padlock, a squared rectangular body with very slightly rounded corners and a semicircular U-shaped shackle on top. Large readable central keyhole formed by a round head and short straight narrow stem. Smooth crisp2D vector-like edges, NO pixel art. Flat solid warm ivory #E9DFC7 body with an extremely thin neutralcharcoal outline only; no metallic gold, no shading, no bevel, no texture. Symmetric front view. Body and shackle proportions closely match the reference. Sized to read clearly when scaled down to26px. Square512x512canvas requested; glyph fills roughly70% of height, centered with equaltransparentmargin. Genuinely fully transparent outside, transparent hole inside the U-shackle, and genuinely transparent central keyhole. The charcoaloutline is a thincontour, not a blackblockfillingholes. No background, no frame, no plaque, no shadows, no glow, no text, no numbers, no ornaments, no second icon, no3D.",
+  "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-42b205e0-71f7-4a47-819b-9280c04177af.png",
+  "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/Icon_Lock.png",
+  "metrics": {
+    "width": 1254,
+    "height": 1254,
+    "unityRect": [
+      285,
+      198,
+      684,
+      861
+    ],
+    "cornerAlpha": 0,
+    "shackleHoleAlpha": 0,
+    "keyholeAlpha": 0,
+    "bodyAlpha": 254
+  },
+  "notes": [
+    "Requested512square but built-in output is1254square; preserved original output.",
+    "Outside, shackle hole, and central keyhole sampled atalpha0.",
+    "Ivory body sampledalpha254.",
+    "Simple warmivory silhouette, thin charcoaloutline, no surroundingframe."
+  ]
+}

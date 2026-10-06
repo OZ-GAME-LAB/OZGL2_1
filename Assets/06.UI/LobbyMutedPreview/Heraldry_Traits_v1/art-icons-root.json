@@ -1,0 +1,50 @@
+{
+  "tool": "built-in image_gen",
+  "source_directory": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998",
+  "reference": "1-06_로비_특성트리_최신_v23.png",
+  "constraints": "Smooth ivory nonpixel glyphs; transparent background; no frame or baked text; preserve original PNG alpha.",
+  "assets": [
+    {
+      "name": "magnifier",
+      "source": "exec-5fbcd11e-05ec-4a1a-85a5-7ccdac495a1d.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone Unity talent UI icon. Reference is only style reference. Create exactly one icon: A magnifying glass with a circular hollow lens, short diagonal handle, thin inner circle, for Deep Insight. Match the reference's simple flat cream/ivory skill glyphs. Smooth clean non-pixel contours, extremely thin warm dark edge, at most one subtle tan shade. No realism, no shiny bevels, no heavy shadow. Centered square canvas, isolated on genuinely transparent background. Icon fills about 70% canvas. Transparent holes and outer area clean. No medallion, circle frame, UI label, text, background glow or extra decoration. Readable at 55px.",
+      "path": "Sprites/trait_icon_magnifier.png"
+    },
+    {
+      "name": "pouch",
+      "source": "exec-cc6dec76-bf8d-4fa9-975e-0de653f2954c.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone Unity talent UI icon. Reference is only style reference. Create exactly one icon: A small tied medieval money pouch with one very simple round coin mark. No dollar sign or letters. Wide rounded bag and short gathered knot. Match the reference's simple flat cream/ivory skill glyphs. Smooth clean non-pixel contours, extremely thin warm dark edge, at most one subtle tan shade. No realism, no shiny bevels, no heavy shadow. Centered square canvas, isolated on genuinely transparent background. Icon fills about 70% canvas. Transparent holes and outer area clean. No medallion, circle frame, UI label, text, background glow or extra decoration. Readable at 55px.",
+      "path": "Sprites/trait_icon_pouch.png"
+    },
+    {
+      "name": "sprout",
+      "source": "exec-d7e4b59f-e093-43ba-9f1d-9d18c82e978b.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone Unity talent UI icon. Reference is only style reference. Create exactly one icon: Two simple leaves on a short upward stem, a seedling symbol for Fast Growth. Match the reference's simple flat cream/ivory skill glyphs. Smooth clean non-pixel contours, extremely thin warm dark edge, at most one subtle tan shade. No realism, no shiny bevels, no heavy shadow. Centered square canvas, isolated on genuinely transparent background. Icon fills about 70% canvas. Transparent holes and outer area clean. No medallion, circle frame, UI label, text, background glow or extra decoration. Readable at 55px.",
+      "path": "Sprites/trait_icon_sprout.png"
+    },
+    {
+      "name": "crystal",
+      "source": "exec-c00f93f5-8272-43c3-8290-6ae9cf9dbb85.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone Unity talent UI icon. Reference is only style reference. Create exactly one icon: One narrow four-sided faceted diamond crystal, pointed top and bottom, two ivory facets separated by a clear dark seam. No stars. Match the reference's simple flat cream/ivory skill glyphs. Smooth clean non-pixel contours, extremely thin warm dark edge, at most one subtle tan shade. No realism, no shiny bevels, no heavy shadow. Centered square canvas, isolated on genuinely transparent background. Icon fills about 70% canvas. Transparent holes and outer area clean. No medallion, circle frame, UI label, text, background glow or extra decoration. Readable at 55px.",
+      "path": "Sprites/trait_icon_crystal.png"
+    },
+    {
+      "name": "crown",
+      "source": "exec-3fad8926-704f-4a8a-9933-ea6df660b2d2.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone Unity talent UI icon. Reference is only style reference. Create exactly one icon: A three-point royal crown silhouette with central taller point and three tiny diamond tip jewels; open clean crown shape for Ruler Wisdom. Match the reference's simple flat cream/ivory skill glyphs. Smooth clean non-pixel contours, extremely thin warm dark edge, at most one subtle tan shade. No realism, no shiny bevels, no heavy shadow. Centered square canvas, isolated on genuinely transparent background. Icon fills about 70% canvas. Transparent holes and outer area clean. No medallion, circle frame, UI label, text, background glow or extra decoration. Readable at 55px.",
+      "path": "Sprites/trait_icon_crown.png"
+    },
+    {
+      "name": "army",
+      "source": "exec-de46e3e3-eb14-4172-afe2-630b99736f72.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone Unity talent UI icon. Reference is only style reference. Create exactly one icon: A compact formation of three tall spearhead triangles: one taller central spear and two shorter flank spears, small common bottom baseline. Simple Great Army emblem. Match the reference's simple flat cream/ivory skill glyphs. Smooth clean non-pixel contours, extremely thin warm dark edge, at most one subtle tan shade. No realism, no shiny bevels, no heavy shadow. Centered square canvas, isolated on genuinely transparent background. Icon fills about 70% canvas. Transparent holes and outer area clean. No medallion, circle frame, UI label, text, background glow or extra decoration. Readable at 55px.",
+      "path": "Sprites/trait_icon_army.png"
+    },
+    {
+      "name": "eye",
+      "source": "exec-50442b8a-afce-4dbe-a0b1-1fd95b4978cc.png",
+      "path": "Sprites/trait_icon_eye.png",
+      "prompt": "Standalone smooth ivory open eye trait glyph with central pupil. Nonpixel, extremely thin warm dark outline, transparent, no frame, no text."
+    }
+  ]
+}

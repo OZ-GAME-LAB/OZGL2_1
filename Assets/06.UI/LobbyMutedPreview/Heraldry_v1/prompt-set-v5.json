@@ -1,0 +1,48 @@
+{
+  "version": 5,
+  "date": "2026-10-05",
+  "scope": "Lobby main + MenuPopup + SettingsPopup only; shared prefabs and other screen interiors unchanged",
+  "generation_mode": "built-in image_gen",
+  "generated": [
+    {
+      "key": "menu_banner_reference_v5",
+      "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-b2f36065-dfb5-4bdc-b14f-b01093d11374.png",
+      "prompt": "Use case: ui-mockup. Create ONE production 2D medieval casual fantasy game UI MENU BUTTON BACKGROUND as a genuine transparent PNG, based closely on the attached tiny screenshot, which is a SHAPE AND COLOR REFERENCE, not a scene to reproduce. The asset is a vertical deep oxblood / near-black burgundy hanging pennant, straight parallel sides and a clean pointed V bottom, narrow warm subdued antique gold beveled outline, thin dark outer keyline, a second thin muted red inner inset edge. Small restrained gold turned-out triangular tabs at the lower left and lower right shoulder where the pointed base begins, matching the reference. Straight flat top that will sit behind the top edge of the screen. The body looks like smooth dark leather/cloth, restrained dark red center gradient, low saturation, deep shadows. Two tiny dim crimson horizontal diamond ticks near the upper quarter, and a single tiny muted red diamond just above the lower V tip. Main panel width to full height ratio approx 0.64. Symmetric, perfectly front-facing, clean elegant simple geometric silhouette, rendered with broad painted cel-shaded metal bevels readable at 60x95px. Centered on a portrait transparent canvas, complete silhouette visible, modest empty exterior margins. IMPORTANT: REMOVE / DO NOT DRAW the 3 cream horizontal menu bars shown in the reference: leave the central area EMPTY dark burgundy for a separate existing icon. No text, no icon, no skull, no horn crest, no scrollwork, no huge finials, no diamonds sticking out sideways, no rounded bottom, no rounded corners, no top hooks, no bright yellow gold, no orange, no pixel art, no glitter, no noise, no checkerboard, no scenery, no blue background. Fill and border together in one image. Interior is fully opaque; only the exterior is transparent.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-f2d4b44e-c753-4c7d-bc48-1f429d945bef.png",
+      "output": "Sprites/menu_banner_reference_v5.png",
+      "sprite": "Sprites/menu_banner_reference_v5.asset",
+      "unity_target": "Canvas_Lobby/SettingsButton",
+      "sprite_rect": [
+        174,
+        105,
+        690,
+        1306
+      ],
+      "display_size": [
+        80,
+        126
+      ],
+      "preserve_aspect": false,
+      "notes": "Existing three-bar icon and click event retained; generated alpha preserved."
+    }
+  ],
+  "fonts": {
+    "folder": "Assets/98.ExternalAssets/00.LocalStaging/01.Font/02.SDF_File",
+    "heading": "NEXON_Warhaven_Regular_SDF",
+    "bold_heading": "NEXON_Warhaven_Bold_SDF",
+    "body": "NEXON_Lv2_Gothic_SDF",
+    "settings": {
+      "sampling_point_size": 90,
+      "padding": 8,
+      "render_mode": "SDFAA",
+      "atlas": [
+        2048,
+        2048
+      ],
+      "population": "Dynamic",
+      "multi_atlas": true
+    },
+    "sharing_package": "Assets/98.ExternalAssets/00.LocalStaging/NEXON_Lobby_Fonts_20261005.unitypackage",
+    "note": "LocalStaging is Git ignored. Source fonts unchanged. Export includes original supplied TTF files, SDFs and their Unity metadata; no unrelated font license substituted."
+  }
+}

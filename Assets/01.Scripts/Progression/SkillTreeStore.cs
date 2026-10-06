@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using OZGL2.Skill;
 using UnityEngine;
 
 namespace OZGL2.Progression
@@ -17,11 +19,12 @@ namespace OZGL2.Progression
         private const string KeyDrip = "OZGL2.Skill.Drip";
         private const string KeyEquip = "OZGL2.Skill.Equip";
         private const string KeyUnlockPrefix = "OZGL2.Skill.Unlock.";
+        public static event Action Changed;
 
         public static int SkillPoints
         {
             get => PlayerPrefs.GetInt(KeySp, 0);
-            set { PlayerPrefs.SetInt(KeySp, Mathf.Max(0, value)); PlayerPrefs.Save(); }
+            set { PlayerPrefs.SetInt(KeySp, Mathf.Max(0, value)); PlayerPrefs.Save(); Changed?.Invoke(); }
         }
 
         /// <summary>지금까지 도달한 최고 마일스톤 단계 (라운드/10).</summary>
@@ -72,6 +75,36 @@ namespace OZGL2.Progression
         {
             PlayerPrefs.SetInt(KeyUnlockPrefix + skillId, value ? 1 : 0);
             PlayerPrefs.Save();
+            Changed?.Invoke();
+        }
+
+        // 확인창의 표시값을 신뢰하지 않고 확정 시 실제 스킬 비용·해금 상태·잔액을 재검사한다.
+        // 차감과 해금을 함께 기록한 뒤 한 번만 저장하므로 중복 확인도 추가 SP를 쓰지 않는다.
+        public static bool TryUnlock(SkillData data, out string reason)
+        {
+            reason = string.Empty;
+            if (data == null || string.IsNullOrWhiteSpace(data.skillId))
+            {
+                reason = "현재 해금할 수 없는 스킬입니다.";
+                return false;
+            }
+            if (data.displayName == "화염구" || IsUnlocked(data.skillId))
+            {
+                reason = "이미 잠금 해제된 스킬입니다.";
+                return false;
+            }
+            int cost = new SkillRuntime(data).UnlockCost;
+            int balance = SkillPoints;
+            if (balance < cost)
+            {
+                reason = "보유 SP가 부족합니다.";
+                return false;
+            }
+            PlayerPrefs.SetInt(KeySp, balance - cost);
+            PlayerPrefs.SetInt(KeyUnlockPrefix + data.skillId, 1);
+            PlayerPrefs.Save();
+            Changed?.Invoke();
+            return true;
         }
 
         /// <summary>스킬 세팅에서 한 번이라도 장착을 저장했는가. 저장한 적이 없는 신규 계정만 기본 스킬(화염구)을 자동 장착한다.</summary>
@@ -94,6 +127,7 @@ namespace OZGL2.Progression
         {
             PlayerPrefs.SetString(KeyEquip, string.Join(",", ids));
             PlayerPrefs.Save();
+            Changed?.Invoke();
         }
 
         /// <summary>전체 초기화 (샌드박스 디버그용). ids = 씬에 등장하는 모든 스킬 id.</summary>
@@ -108,6 +142,7 @@ namespace OZGL2.Progression
                 PlayerPrefs.DeleteKey(KeyUnlockPrefix + id);
             }
             PlayerPrefs.Save();
+            Changed?.Invoke();
         }
     }
 }

@@ -29,8 +29,9 @@ namespace OZGL2.InGame.Editor
             if (config == null) throw new InvalidOperationException("Missing InGame config.");
             var normal = AssetDatabase.LoadAssetAtPath<StageDataSO>(BALANCE_PATH + "StageNormal30.asset");
             var hard = AssetDatabase.LoadAssetAtPath<StageDataSO>(BALANCE_PATH + "StageHard50.asset");
-            if (normal == null || hard == null) throw new InvalidOperationException("Missing team balance stage assets.");
-            config.Validate(normal.CreateSnapshot()); config.Validate(hard.CreateSnapshot());
+            var hell = AssetDatabase.LoadAssetAtPath<StageDataSO>("Assets/03.ScriptableObjects/Stage/BalanceLoop/StageBalHell100.asset");
+            if (normal == null || hard == null || hell == null) throw new InvalidOperationException("Missing team balance stage assets.");
+            config.Validate(normal.CreateSnapshot()); config.Validate(hard.CreateSnapshot()); config.Validate(hell.CreateSnapshot());
 
             var catalog = AssetDatabase.LoadAssetAtPath<StageCatalogSO>(CATALOG_PATH);
             if (catalog == null)
@@ -39,9 +40,10 @@ namespace OZGL2.InGame.Editor
                 AssetDatabase.CreateAsset(catalog, CATALOG_PATH);
             }
             var catalogData = new SerializedObject(catalog);
-            var stages = catalogData.FindProperty("_stages"); stages.arraySize = 2;
+            var stages = catalogData.FindProperty("_stages"); stages.arraySize = 3;
             stages.GetArrayElementAtIndex(0).objectReferenceValue = normal;
             stages.GetArrayElementAtIndex(1).objectReferenceValue = hard;
+            stages.GetArrayElementAtIndex(2).objectReferenceValue = hell;
             catalogData.ApplyModifiedPropertiesWithoutUndo();
             catalog.CreateDefinitions();
             var settings = new SerializedObject(config);

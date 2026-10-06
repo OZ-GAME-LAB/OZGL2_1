@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-05",
+  "method": "built-in image_gen.imagegen",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-2e7e8641-ec63-4225-a0e1-6a962930798f.png",
+  "transparent_background": true,
+  "pixel_edits": false,
+  "notes": [
+    "레퍼런스 하단 컨트롤의 빈 배경 이미지이며 기존 텍스트와 아이콘은 Unity에서 별도 배치합니다.",
+    "이미지 생성 결과를 원본 PNG와 알파 그대로 복사했습니다.",
+    "미세 외곽 낮은 알파 픽셀이 있어 alpha>32 경계를 표시용 SpriteRect 가이드로 기록합니다. 픽셀 삭제는 하지 않았습니다.",
+    "중앙 알파는 252/254/252입니다. 완전 255 불투명이 아니라 거의 불투명한 생성 결과입니다."
+  ],
+  "assets": [
+    {
+      "name": "currency_medallion",
+      "file": "currency_medallion.png",
+      "original_path": "C:/Users/sudea/.codex/generated_images/01a10c5f-ac9b-7fa0-91f9-86e023189aad/exec-bd98f7ec-1e8f-433b-ba26-124f651d7cbb.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "all_nonzero_alpha_bounds_top_left_exclusive": [
+        25,
+        39,
+        1200,
+        1222
+      ],
+      "recommended_sprite_rect_bottom_left": [
+        160,
+        72,
+        903,
+        1133
+      ],
+      "sprite_rect_threshold": 32,
+      "center_alpha": 252,
+      "prompt": "Use case: stylized-concept. Asset type: production 2D Unity game UI sprite. Input image is only the visual-style and shape reference for the requested lower control; do not reproduce the screenshot. Style: smooth hand-drawn non-pixel casual medieval heraldry UI, dark charcoal outlines, moderately thick restrained antique gold/beige beveled rim, low-saturation burgundy. Clean sharp silhouette readable at 100 pixels. Soft illustrated shading, not realistic metal, no glossy chrome, no glow. Background genuinely transparent outside the asset, with perfectly opaque solid interior and all decoration attached. No letters, no numbers, no text, no symbols or icons inside. Centered front-on, no perspective, no background scene, no watermark. Primary request: isolate and accurately recreate the LOWER LEFT currency medallion frame seen in the reference, WITHOUT flame or 100. Shape round slightly vertical oval, near-circle with aspect 0.92 width to height. Dark opaque burgundy gently shaded center. Simple moderately thick antique-gold ring border, small diamond/spear gold ornament only at top and bottom, two short ragged burgundy ribbon tails peek behind the left lower edge. No side stars, no side ornaments, no crown, no horn. Whole frame must fit with transparent margin, image approximately square."
+    },
+    {
+      "name": "reroll_medallion",
+      "file": "reroll_medallion.png",
+      "original_path": "C:/Users/sudea/.codex/generated_images/01a10c5f-ac9b-7fa0-91f9-86e023189aad/exec-adaa1c6f-0484-4917-813e-7181bef9a110.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "all_nonzero_alpha_bounds_top_left_exclusive": [
+        0,
+        53,
+        1202,
+        1220
+      ],
+      "recommended_sprite_rect_bottom_left": [
+        187,
+        187,
+        878,
+        875
+      ],
+      "sprite_rect_threshold": 32,
+      "center_alpha": 254,
+      "prompt": "Use case: stylized-concept. Asset type: production 2D Unity game UI sprite. Input image is only the visual-style and shape reference for the requested lower control; do not reproduce the screenshot. Style: smooth hand-drawn non-pixel casual medieval heraldry UI, dark charcoal outlines, moderately thick restrained antique gold/beige beveled rim, low-saturation burgundy. Clean sharp silhouette readable at 100 pixels. Soft illustrated shading, not realistic metal, no glossy chrome, no glow. Background genuinely transparent outside the asset, with perfectly opaque solid interior and all decoration attached. No letters, no numbers, no text, no symbols or icons inside. Centered front-on, no perspective, no background scene, no watermark. Primary request: isolate and accurately recreate the SMALL LOWER LEFT REROLL circular button next to the currency shown in the reference, WITHOUT white arrows and WITHOUT cost plaque below it. One true circle, near-black charcoal opaque center, simple antique-gold moderately thick ring rim matching currency medallion material, one very small outward curled gold flourish at upper-left at roughly 11 o'clock. No other ornaments, no ribbons, no diamonds, no icons or words. Whole frame fits with transparent margin, image square. Inner empty dark disk remains completely opaque."
+    },
+    {
+      "name": "start_button",
+      "file": "start_button.png",
+      "original_path": "C:/Users/sudea/.codex/generated_images/01a10c5f-ac9b-7fa0-91f9-86e023189aad/exec-8fdaa32d-ac80-4ef3-9fe1-2f76c4bc1112.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "all_nonzero_alpha_bounds_top_left_exclusive": [
+        88,
+        67,
+        1965,
+        730
+      ],
+      "recommended_sprite_rect_bottom_left": [
+        91,
+        91,
+        1802,
+        597
+      ],
+      "sprite_rect_threshold": 32,
+      "center_alpha": 252,
+      "prompt": "Use case: stylized-concept. Asset type: production 2D Unity game UI sprite. Input image is only the visual-style and shape reference for the requested lower control; do not reproduce the screenshot. Style: smooth hand-drawn non-pixel casual medieval heraldry UI, dark charcoal outlines, moderately thick restrained antique gold/beige beveled rim, low-saturation burgundy. Clean sharp silhouette readable at 100 pixels. Soft illustrated shading, not realistic metal, no glossy chrome, no glow. Background genuinely transparent outside the asset, with perfectly opaque solid interior and all decoration attached. No letters, no numbers, no text, no symbols or icons inside. Centered front-on, no perspective, no background scene, no watermark. Primary request: isolate and faithfully recreate the LOWER RIGHT start battle button frame from the reference, removing crossed swords and all text only. One broad horizontal dark burgundy blank panel with simple moderately thick beveled gold border and pointed left/right ends. Two upward swept curved gold horn ornaments rise slightly from the upper-left and upper-right corners. One low curled gold flourish under each end, burgundy short ragged ribbon tails hang behind far left and far right edges. Keep readable broad empty center. Overall including attached ornaments width to height about 2.5:1. Inner burgundy clickable panel about 3.7:1 width to height. NO center stars, no badge, no skull, no large separate emblem, no repeated inner line clutter. Match simple clear rim thickness and matte muted gold from the reference. Transparent margins, landscape image."
+    }
+  ]
+}

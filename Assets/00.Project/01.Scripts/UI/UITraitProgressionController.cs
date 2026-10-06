@@ -13,6 +13,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private UITraitOverlayView _view;
         [SerializeField] private UITraitFrameView[] _nodes;
         [SerializeField] private TMP_Text _accountLevel;
+        [SerializeField] private UILobbyLevelHudView _accountHud;
         private TraitTree _tree;
         private MawangLevel _account;
 
@@ -40,13 +41,18 @@ namespace OZGL2.UIFlow
         {
             if (tree == null || account == null) throw new System.ArgumentNullException("특성/계정 모델");
             if (_tree != null) _tree.Changed -= Refresh;
-            if (_account != null) _account.PointsChanged -= Refresh;
+            if (_account != null)
+            {
+                _account.PointsChanged -= Refresh;
+                _account.XpChanged -= Refresh;
+            }
             _tree = tree;
             _account = account;
             if (isActiveAndEnabled)
             {
                 _tree.Changed += Refresh;
                 _account.PointsChanged += Refresh;
+                _account.XpChanged += Refresh;
                 Refresh();
             }
         }
@@ -61,7 +67,11 @@ namespace OZGL2.UIFlow
                 _view.ResetRequested -= ResetTraits;
             }
             if (_tree != null) _tree.Changed -= Refresh;
-            if (_account != null) _account.PointsChanged -= Refresh;
+            if (_account != null)
+            {
+                _account.PointsChanged -= Refresh;
+                _account.XpChanged -= Refresh;
+            }
         }
 
         private void Refresh()
@@ -70,6 +80,7 @@ namespace OZGL2.UIFlow
             _view.SetAvailablePoints(_account.Points);
             _view.ShowResetState(_tree.AllocatedPoints);
             if (_accountLevel != null) _accountLevel.text = "LV. " + _account.Level;
+            if (_accountHud != null) _accountHud.SetProgress(_account.Level, _account.Xp, _account.XpToNext);
             foreach (var node in _nodes)
                 if (node != null && node.Definition != null)
                     node.ShowRank(_tree.RankOf(node.Definition.id), _tree.IsOpen(node.Definition.id));

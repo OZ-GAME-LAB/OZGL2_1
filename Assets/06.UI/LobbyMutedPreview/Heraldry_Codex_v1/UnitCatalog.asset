@@ -1,0 +1,140 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea4df7b997cca334296a5b14c44de285, type: 3}
+  m_Name: UnitCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIUnitCatalogSO
+  _entries:
+  - _id: unit.M_WAR_01
+    _displayName: "\uC804\uC0AC(\uADFC\uB51C)"
+    _description: "\uB9C8\uC655\uAD70 \xB7 \uC804\uC0AC(\uADFC\uB51C)"
+    _portrait: {fileID: 21300000, guid: 80c3fec4de0be1542b87f54776b30473, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: a9450062b440dbe43a2dad477f819b80, type: 3}
+    - {fileID: 21300000, guid: a51616b16155710429dfa73224b3fd0c, type: 3}
+    - {fileID: 21300000, guid: 0d8413dc3fa233c428272cf4631c9486, type: 3}
+    _faction: 0
+    _defaultUnlocked: 1
+  - _id: unit.M_ARC_01
+    _displayName: "\uAD81\uC218"
+    _description: "\uB9C8\uC655\uAD70 \xB7 \uAD81\uC218"
+    _portrait: {fileID: 21300000, guid: dace5cd17617f2a4d80bc604667f7d32, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: dc935c9ebb9ca644aaa44a806a43d534, type: 3}
+    - {fileID: 21300000, guid: a08e990d36216414db6aaca1c83d9784, type: 3}
+    - {fileID: 21300000, guid: ceb5099bdae378a40abad6a3ae3e08e0, type: 3}
+    _faction: 0
+    _defaultUnlocked: 1
+  - _id: unit.M_MAG_01
+    _displayName: "\uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
+    _description: "\uB9C8\uC655\uAD70 \xB7 \uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
+    _portrait: {fileID: 21300000, guid: 24066cb5c7fa15c418c3f2293555259d, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: ec1104dbe2c1b5149ac518fb24274bd2, type: 3}
+    - {fileID: 21300000, guid: 6186d31f9476bf243880cd90d7e2c9ff, type: 3}
+    - {fileID: 21300000, guid: 117a97ddf7f08db489bc3c4a3eb59f64, type: 3}
+    _faction: 0
+    _defaultUnlocked: 1
+  - _id: unit.M_SHD_01
+    _displayName: "\uBC29\uD328\uBCD1(\uD0F1\uCEE4)"
+    _description: "\uB9C8\uC655\uAD70 \xB7 \uBC29\uD328\uBCD1(\uD0F1\uCEE4)"
+    _portrait: {fileID: 21300000, guid: f143835ec595944499170714b9d29c78, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: 09021436a045b194c84ab4f5ef979f4b, type: 3}
+    - {fileID: 21300000, guid: f1053f1e874bb3d41a906c62e6201972, type: 3}
+    - {fileID: 21300000, guid: da4b46c8c7bbc134c9859acb8abbbebc, type: 3}
+    _faction: 0
+    _defaultUnlocked: 0
+  - _id: unit.M_HEL_01
+    _displayName: "\uD790\uB7EC"
+    _description: "\uB9C8\uC655\uAD70 \xB7 \uD790\uB7EC"
+    _portrait: {fileID: 21300000, guid: c655e16a2ec344c40bbc9cd99e127c85, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: a5e46a69f775107429d9a7ff0db97fa9, type: 3}
+    - {fileID: 21300000, guid: 368d6db3101731b44b2f6d2d70e049a2, type: 3}
+    - {fileID: 21300000, guid: b0710811893128746a37c7d387531e93, type: 3}
+    _faction: 0
+    _defaultUnlocked: 0
+  - _id: unit.M_ROG_01
+    _displayName: "\uB3C4\uC801(\uACE0\uC18D)"
+    _description: "\uB9C8\uC655\uAD70 \xB7 \uB3C4\uC801(\uACE0\uC18D)"
+    _portrait: {fileID: 21300000, guid: 9e9db97c38d1d154594fe61401e63016, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: fd5e0d5092bf9934989407f3e1d88cb9, type: 3}
+    - {fileID: 21300000, guid: b1c77664ad31a374d890bbe3aaae99da, type: 3}
+    - {fileID: 21300000, guid: 6f7e420c3c14c6f41b3431cc44ba9b64, type: 3}
+    _faction: 0
+    _defaultUnlocked: 0
+  - _id: unit.H_WAR_01
+    _displayName: "\uC804\uC0AC"
+    _description: "\uC778\uAC04\uAD70 \xB7 \uC804\uC0AC"
+    _portrait: {fileID: 21300000, guid: 14104bfae95cc4a47a55ea026995159f, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: 908a9b09b44091a4a837742909dfd5f9, type: 3}
+    - {fileID: 21300000, guid: 0ede683e6f9335b4080af68a25e1fdef, type: 3}
+    - {fileID: 21300000, guid: 59bebb75ccfc00b459cbaae7e0b1bd01, type: 3}
+    _faction: 1
+    _defaultUnlocked: 1
+  - _id: unit.H_ARC_01
+    _displayName: "\uAD81\uC218"
+    _description: "\uC778\uAC04\uAD70 \xB7 \uAD81\uC218"
+    _portrait: {fileID: 21300000, guid: 12604d23db8cf1e4f86ec9d26d80d6be, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: 031c335939c91594ea3c4f940f8e1ab4, type: 3}
+    - {fileID: 21300000, guid: c74243b4bfd290149b9a2f5c25dab3ee, type: 3}
+    - {fileID: 21300000, guid: 8f0ed9067c6cb93498e2ffd4037d0ab6, type: 3}
+    - {fileID: 21300000, guid: 5e73ceaed87046a4091c786171207de2, type: 3}
+    _faction: 1
+    _defaultUnlocked: 1
+  - _id: unit.H_MAG_01
+    _displayName: "\uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
+    _description: "\uC778\uAC04\uAD70 \xB7 \uB9C8\uBC95\uC0AC(\uAD11\uC5ED)"
+    _portrait: {fileID: 21300000, guid: 0ca729274d9ea614087920016e4f6a52, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: 9ad721f61cf558a448c04747c7955849, type: 3}
+    - {fileID: 21300000, guid: 3f1d75ac8d811424ebcf7434be6afd2d, type: 3}
+    - {fileID: 21300000, guid: 108648f230aea5d41adcbfa9b5e1fbf3, type: 3}
+    - {fileID: 21300000, guid: 076fac4d4d1d83e4ab340cd2dac5060c, type: 3}
+    - {fileID: 21300000, guid: 2bfcb75c4a13f7944b8673bee7e131eb, type: 3}
+    _faction: 1
+    _defaultUnlocked: 1
+  - _id: unit.H_SHD_01
+    _displayName: "\uBC29\uD328\uBCD1"
+    _description: "\uC778\uAC04\uAD70 \xB7 \uBC29\uD328\uBCD1"
+    _portrait: {fileID: 21300000, guid: 91fae486d6cf10f4dbe49f47b3add2ec, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: 9b8cec51ee1a0cd4e80dda13612a71ee, type: 3}
+    - {fileID: 21300000, guid: 81d06c37b0759624cb083ff78bf743e5, type: 3}
+    - {fileID: 21300000, guid: 6b55df6662d5e5a4dab362e1e863269b, type: 3}
+    - {fileID: 21300000, guid: ed301ac34cf44714988bb17bb7ac1d92, type: 3}
+    _faction: 1
+    _defaultUnlocked: 0
+  - _id: unit.H_HEL_01
+    _displayName: "\uD790\uB7EC"
+    _description: "\uC778\uAC04\uAD70 \xB7 \uD790\uB7EC"
+    _portrait: {fileID: 21300000, guid: 6cbf03e91f9316245b7c92431a07ba00, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: 027caf1cdacada24daeaec26fabc22d5, type: 3}
+    - {fileID: 21300000, guid: 9736456cf4c187542818602910e452b6, type: 3}
+    - {fileID: 21300000, guid: e27b1bf630106b3428e9a5280ab94968, type: 3}
+    _faction: 1
+    _defaultUnlocked: 0
+  - _id: unit.H_ROG_01
+    _displayName: "\uB3C4\uC801(\uACE0\uC18D)"
+    _description: "\uC778\uAC04\uAD70 \xB7 \uB3C4\uC801(\uACE0\uC18D)"
+    _portrait: {fileID: 21300000, guid: 88eadf31160d9494db9930ff278ad334, type: 3}
+    _portraitVariants:
+    - {fileID: 21300000, guid: a3dd17e9cd213154787ef4b617840d44, type: 3}
+    - {fileID: 21300000, guid: a496442870658fe4888084d51e7d74f4, type: 3}
+    - {fileID: 21300000, guid: 3403be204cdfc444d8142fa8b07817c5, type: 3}
+    - {fileID: 21300000, guid: 60e1ce5d05ef29240be3a86c3066c51a, type: 3}
+    _faction: 1
+    _defaultUnlocked: 0

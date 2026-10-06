@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: StageHard50
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Stage.StageDataSO
   _stageId: stage_hard_50
+  _displayName: "\uC5B4\uB824\uC6C0"
   _rounds:
   - _roundId: stage_hard_50_round_01
     _spawns:

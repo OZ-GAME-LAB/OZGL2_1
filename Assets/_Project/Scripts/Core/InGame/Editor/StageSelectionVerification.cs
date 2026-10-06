@@ -17,12 +17,17 @@ namespace OZGL2.InGame.Editor
                 var config = AssetDatabase.LoadAssetAtPath<InGamePrototypeConfigSO>(InGamePrototypeSetup.CONFIG_PATH);
                 var catalog = config.StageCatalog;
                 var definitions = catalog.CreateDefinitions();
-                Check(definitions.Count == 2 && definitions[0].Rounds.Count == 30 && definitions[1].Rounds.Count == 50, "Team stage round counts");
+                Check(definitions.Count == 3 && definitions[0].Rounds.Count == 30 && definitions[1].Rounds.Count == 50 &&
+                    definitions[2].Rounds.Count == 100, "Team stage round counts");
                 foreach (var stage in definitions)
                 {
                     config.Validate(stage);
                     Check(catalog.Resolve(stage.StageId).StageId == stage.StageId, "Exact ID mapping");
                 }
+                Check(catalog.GetDisplayName(definitions[0].StageId) == "보통" &&
+                    catalog.GetDisplayName(definitions[1].StageId) == "어려움" &&
+                    catalog.GetDisplayName(definitions[2].StageId) == "헬", "Difficulty display names");
+                Check(catalog.GetDisplayName("unknown_stage") == "unknown_stage", "Unconfigured display name fallback");
                 Reject(() => catalog.Resolve("unknown_stage"), "Unknown ID");
                 Reject(() => catalog.Resolve(""), "Missing ID");
                 var missingHero = new StageDefinition("verification_missing_hero", new[]
@@ -60,7 +65,11 @@ namespace OZGL2.InGame.Editor
                 Check(session.Pending == null, "Selection reset");
                 var source = new SelectedStageSource(definitions[0]);
                 Check(ReferenceEquals(source.CreateSnapshot(), definitions[0]), "Selected definition stays immutable across retry");
-                Result = "PASS: 30/50-round mappings, pool compatibility, missing/unknown/duplicate data, duplicate launch, one-time consume, stale cancellation, wrong scene, selection reset, immutable source";
+                var hellRequest = new StageLaunchRequest(definitions[2].StageId, InGamePrototypeSetup.SCENE_PATH);
+                Check(session.TryQueue(hellRequest) && session.Consume(InGamePrototypeSetup.SCENE_PATH) == hellRequest, "Hell launch handoff");
+                var hellSource = new SelectedStageSource(definitions[2]);
+                Check(ReferenceEquals(hellSource.CreateSnapshot(), definitions[2]), "Hell definition retained for retry");
+                Result = "PASS: 30/50/100-round mappings, pool compatibility, missing/unknown/duplicate data, duplicate launch, one-time consume, stale cancellation, wrong scene, selection reset, immutable source, hell handoff/retry source";
             }
             catch (Exception exception) { Result = "FAIL: " + exception; }
             finally { if (copy != null) UnityEngine.Object.DestroyImmediate(copy); }

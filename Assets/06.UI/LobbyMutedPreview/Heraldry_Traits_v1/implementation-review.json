@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-05",
+  "preceding_achievement_commit": "840e39f",
+  "branch": "feat/ui-resource-replacement/1",
+  "scene": "Assets/00.Scenes/Builds/Lobby.unity",
+  "scope": "Canvas_LobbyOverlays/TraitsScreen only; scene instance overrides, original shared prefab unchanged",
+  "new_classes": 0,
+  "changes": [
+    "40 nodes: themed metal frames, integrated nameplates, 27 new smooth glyphs plus reused flame/book glyphs",
+    "4 directional independent 3-stage paths, orthogonal image-strip connections, 1:1 uniform tree scaling",
+    "Fixed top HUD/header/LP, read-only actual account XP, themed details/reset dialog/footer",
+    "Optional Heraldry text layout in existing UITraitOverlayView; optional HUD binding and balanced XP events in existing UITraitProgressionController"
+  ],
+  "preserved": {
+    "definitions_and_parents": true,
+    "outside_traits_serialized_objects_unchanged": true,
+    "save_data_unchanged": true,
+    "game_rules_unchanged": true,
+    "prefab_originals_unchanged": true,
+    "InGame_unchanged": true
+  },
+  "validation": {
+    "model_checks": 1474,
+    "effect_preview_checks": 4714,
+    "ui_model_binding_checks": 1272,
+    "raycast_zoom_drag_navigation_checks": 48,
+    "total_assertions": 7508,
+    "failed_assertions": 0,
+    "console_errors": 0,
+    "console_warnings": 0,
+    "missing_scripts_or_references": 0,
+    "inspected_components": 1592,
+    "git_code_diff_check": "passed",
+    "git_scene_diff_check": "Unity-generated YAML trailing whitespace reported; not text-edited per project rules",
+    "unverified": [
+      "physical mouse/keyboard manual testing (user requested no screen control)",
+      "non-16:9 aspect ratios",
+      "standalone player build"
+    ]
+  },
+  "final_state": {
+    "scene_saved": true,
+    "playing": false,
+    "traits_initially_inactive": true,
+    "initial_uniform_scale": 0.27
+  },
+  "art": {
+    "tool": "built-in image_gen",
+    "png_count": 40,
+    "sprite_count": 40,
+    "alpha_postprocessing": false,
+    "prompts": [
+      "art-node-prompts.json",
+      "art-header-prompts.json",
+      "art-icons-b.json",
+      "art-icons-c.json",
+      "art-icons-root.json"
+    ],
+    "source_image_directory": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998"
+  },
+  "screenshots": {
+    "overview": "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Traits_Review_20261005/traits-overview-final.png",
+    "detail": "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Traits_Review_20261005/traits-detail-final.png"
+  },
+  "font_dependencies": "Existing HeirofLightBold_SDF and NEXON_Lv2_Gothic_SDF under Git-ignored LocalStaging/01.Font/02.SDF_File. Do not force-add; teammates need the same font assets.",
+  "inspector_checks": [
+    "UITraitOverlayView._useHeraldryTextLayout true in Lobby scene only",
+    "UITraitProgressionController._nodes remains 40; _accountHud points to TraitsScreen/AccountStatus",
+    "Existing upgrade/downgrade/reset/close callbacks retained",
+    "No changes required for LayerMask/Tag/Collider/Rigidbody/Animator/Input System"
+  ],
+  "commit_status": "New trait work is uncommitted; no push"
+}

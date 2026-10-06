@@ -1,0 +1,85 @@
+{
+  "task": "Codex blank unit card and two faction-tab states",
+  "date": "2026-10-05",
+  "method": "Built-in image_gen. Two independent base generations, one selected-state color edit, one targeted card-width edit. Selected source PNG bytes copied unchanged without pixel or alpha processing.",
+  "referenceInspected": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-12_로비_도감_성급선택.png",
+  "notes": [
+    "Card canvas1160x1355 ratio0.8561 matches requested300:350 ratio0.8571.",
+    "Tab canvases1193x1319 ratio0.9045 match requested244:270 ratio0.9037.",
+    "Canvas ratios include transparent margins. Tight alpha-crop silhouette ratios differ. Use full-canvas sprites with preserveAspect to avoid stretching frame ornament geometry, or compensate after tightcrop.",
+    "Selected tab was a color-only edit of idle tab, but generated alpha boundaries drift by1-5pixels; matching full canvases minimizes visible shift.",
+    "Exteriors transparent. Centeralpha253(card,idle) and252(selected); not perfectly255opaque. Generated alpha preserved per instruction.",
+    "Card has empty upperstarzone, blank centralportraitzone, singlelowerdivider and blanknamezone. No artwork, labels, icons, stars or arrows baked in."
+  ],
+  "assets": [
+    {
+      "name": "codex_card",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-12_로비_도감_성급선택.png",
+      "prompt": "Use case: ui-mockup.\nAsset type: ONE independent production-ready transparent PNG game UI frame, not a screenshot.\nImage1 is a SHAPE AND STYLE REFERENCE ONLY, from the existing medieval casual-fantasy demon-army codex interface.\nSmooth high-resolution2D illustrated UI, no pixel art. Muted antique champagne-gold carved metal rim, narrow restrained bevel highlights, warm darkcharcoal and subdued burgundy palette. Match the reference's clean angular gothic corners and small geometric gold fittings, without adding elaborate decoration or large crests. Straight-on symmetric geometry, no perspective.\nFrame and its fully opaque dark interior background are one combined image. Only the outside silhouette is genuinely transparent alpha0. Fill ALL interior areas alpha255 with no see-through holes. No backdrop, checkerboard, shadow, haze or glow.\nKeep whole silhouette in frame with small transparent margins. Absolutely NO text, letters, numbers, stars, arrows, unit artwork, portraits, buttons, central icons, labels or watermarks. Blank usable areas only.\nSpecific asset: one upright unit portrait card like the right-hand unit cards in the reference. Exact VISIBLE outer silhouette proportions WIDTH:HEIGHT=300:350 (6:7), only moderately taller than wide; not a tall trading card. Target visible dimensions about900x1050.\nThin carved antiquegold rim with clipped/curved lower corners, a tiny centered diamond atop and below the rim, four small restrained angular cornerfittings. Two short narrow desaturated burgundy ribbon tails along upper sides, ending above the card's midpoint, outside usable body.\nInner layout baked only as subtle background treatment: upper20percent is plain nearblack blank space reserved for runtime stars/arrows; central60percent is a broad blank deep charcoal-to-muted-burgundy portrait space; lower20percent is plain charcoal reserved for runtime name. ONE thin horizontal gold divider above that bottom name area, at80percent down the body, with a tiny central dot if needed. No other interiorlines. Keep total rim+fabric slender and leave at least85percentbodyusable. No demonwatermark this version.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-6e13b1ff-7d2a-4286-82c1-696bc0cca08a.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Sprites/codex_card.png",
+      "revisionPrompt": "Edit ONLY the visible card's width/proportions in this transparent UI sprite. Keep the canvas1161x1355 exactly, keep vertical height and vertical position of the card unchanged. The current actual visible card outerbounds are about976wide by1249high; widen the visible card to about1070wide by1249high, so its visible outside width:height is approximately300:350 (6:7). Reduce horizontal transparent margins from about93pixels to45pixels each. Expand the large blank interior and straight horizontal metal spans; do not stretch or deform the square cornerornaments or diamonds or ribbons, keep those individual pieces same shape and scale. Keep gold frame thickness unchanged. Preserve dark top20percent blank strip, centraldarkburgundy empty portraitarea, lower20percent blanknamearea and the existing thin divider. Same smallredcloth, same gold palette, same transparencyoutside and opaqueinside. No text, no icons, no arrows, no stars, no characters, no extra ornament. The goal is simply a slightly wider card ready for300x350UI withoutdistortion.",
+      "revisedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-d34d87f8-6fef-4aec-a9f5-285089f12de7.png",
+      "selectedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-d34d87f8-6fef-4aec-a9f5-285089f12de7.png",
+      "metrics": {
+        "path": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-d34d87f8-6fef-4aec-a9f5-285089f12de7.png",
+        "width": 1160,
+        "height": 1355,
+        "unityRect": [
+          4,
+          55,
+          1152,
+          1258
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253
+      }
+    },
+    {
+      "name": "faction_tab_idle",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-12_로비_도감_성급선택.png",
+      "prompt": "Use case: ui-mockup.\nAsset type: ONE independent production-ready transparent PNG game UI frame, not a screenshot.\nImage1 is a SHAPE AND STYLE REFERENCE ONLY, from the existing medieval casual-fantasy demon-army codex interface.\nSmooth high-resolution2D illustrated UI, no pixel art. Muted antique champagne-gold carved metal rim, narrow restrained bevel highlights, warm darkcharcoal and subdued burgundy palette. Match the reference's clean angular gothic corners and small geometric gold fittings, without adding elaborate decoration or large crests. Straight-on symmetric geometry, no perspective.\nFrame and its fully opaque dark interior background are one combined image. Only the outside silhouette is genuinely transparent alpha0. Fill ALL interior areas alpha255 with no see-through holes. No backdrop, checkerboard, shadow, haze or glow.\nKeep whole silhouette in frame with small transparent margins. Absolutely NO text, letters, numbers, stars, arrows, unit artwork, portraits, buttons, central icons, labels or watermarks. Blank usable areas only.\nSpecific asset: one upright UNSELECTED faction tab, same as the lower-left human faction tab in the reference with its icon and lettering removed. Exact VISIBLE outer silhouette proportions WIDTH:HEIGHT=244:270 (approximately0.904), a near-square tab only10percent taller than wide. Target visible shape about976x1080. NOT a long portrait panel.\nThin carved antiquegold rim with small clipped lowercorners, tiny centered diamond at top and bottom and restrained small goldcornerfittings. Extremely short narrow desaturated darkbrown cloth tails upperleft andupperright, like reference but minimized. All inner space is uniform verydarkwarmcharcoal with a lowcontrast subtle gradient, completely blank with no divider. Generous area for separately placed factionicon and title. Muted idle appearance, no brightorange, no red selected center, no heraldic emblem.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-dd62bc6d-e46e-4b3a-a565-b34087599e25.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Sprites/faction_tab_idle.png",
+      "selectedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-dd62bc6d-e46e-4b3a-a565-b34087599e25.png",
+      "metrics": {
+        "path": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-dd62bc6d-e46e-4b3a-a565-b34087599e25.png",
+        "width": 1193,
+        "height": 1319,
+        "unityRect": [
+          33,
+          57,
+          1127,
+          1214
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253,
+        "transparentPixels": 411272,
+        "partialPixels": 1161072
+      }
+    },
+    {
+      "name": "faction_tab_selected",
+      "reference": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-dd62bc6d-e46e-4b3a-a565-b34087599e25.png",
+      "prompt": "Use case: precise-object-edit.\nAsset type: selected-state variant of the exact transparent faction-tab UI sprite provided.\nImage1 is the EDIT TARGET.\nChange ONLY two color regions: make the dark charcoal INNER BACKGROUND a restrained very dark wine-burgundy (#401A21 around the edges with subtle #552027 center); make the dark brown small side fabric tails subdued burgundy-red (#69292D).\nEVERYTHING ELSE MUST BE PIXEL-POSITION IDENTICAL: exact same canvas dimensions and transparent margin, exact same outer silhouette, gold frame, cornerpieces, top and bottom diamond, inner opening boundaries, proportions and locations. Do not enlarge, shrink, move, bend or embellish any element. Keep antiquegold rim color unchanged, no stronger highlights. Do not change the contour or cloth shape. This is the same button only SELECTED COLOR STATE.\nInterior must be opaque; exterior remains genuinely transparent. No glow. No text, factionicon, stars, arrows, watermarks, dividerline or added symbols. Smooth2D no pixelart. Preserve original alpha geometry, no backdrop.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-697d30eb-bfd8-4a71-a366-61f1874bf736.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Sprites/faction_tab_selected.png",
+      "selectedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-697d30eb-bfd8-4a71-a366-61f1874bf736.png",
+      "metrics": {
+        "path": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-697d30eb-bfd8-4a71-a366-61f1874bf736.png",
+        "width": 1193,
+        "height": 1319,
+        "unityRect": [
+          32,
+          53,
+          1129,
+          1219
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 252,
+        "transparentPixels": 404612,
+        "partialPixels": 1167857
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "task": "Skill settings separate blank panel artwork",
+  "date": "2026-10-05",
+  "method": "Built-in image_gen; one independent asset per call. Original PNG bytes copied unchanged. No pixel or alpha postprocessing.",
+  "referencesInspected": [
+    "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-08_로비_스킬세팅_전체.png",
+    "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-09_로비_보유스킬_잠금상태.png",
+    "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-10_로비_잠긴스킬_상세설명창.png",
+    "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-11_로비_스킬해금_확인창.png"
+  ],
+  "notes": [
+    "Exterior corner alpha is 0 in every final PNG.",
+    "Generated center/interior alpha sample is 253 rather than requested255 in every final PNG. Not manually corrected.",
+    "Each asset combines frame and dark body into one raster.",
+    "Detail panel was sent through one exterior-transparency edit after misleading preview. Original was retained after alpha inspection showed original exterior was already transparent; no manual correction."
+  ],
+  "assets": [
+    {
+      "name": "skill_owned_panel",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-09_로비_보유스킬_잠금상태.png",
+      "prompt": "Use case: ui-mockup.\nAsset type: a standalone production-ready raster UI panel sprite for a Unity medieval casual-fantasy demon-army game, not a screenshot.\nInput images: Image 1 is a DESIGN REFERENCE ONLY. Reconstruct its outer panel silhouette and decorative language as a new independent clean blank panel; do not copy any content widgets.\nStyle: smooth high-resolution hand-designed 2D game UI illustration, crisp clean silhouette, NO pixel art. Restrained antique champagne-gold metal bevel edging, very dark warm charcoal interior, short desaturated burgundy fabric tabs at the upper left and right, a SMALL centrally placed golden horned demon-helmet crest above the top rim. Elegant medieval heraldic contours matching the reference rather than a generic rectangle. Gold is muted warm metal, not glowing bright yellow or orange. Subtle restrained gold highlights only. Thin rim relative to broad usable body.\nComposition: symmetric front-facing orthographic panel, entire shape fully visible with clean transparent margin all around, no perspective or clipping. Decorative crest/fabric extends outside the main panel shape. The interior usable blank dark area must remain at least 80% of the main panel body's area.\nAlpha: genuinely transparent ONLY OUTSIDE the entire panel silhouette. The charcoal body and metal and cloth are 100% OPAQUE, alpha 255 throughout their interior; absolutely no see-through black panel. Do not draw a backdrop, drop shadow, halo, checkerboard or environment.\nConstraints: ONE blank panel only. Remove ALL text, numbers, symbols inside the body, skill icons, dividers, lines across the body, buttons, tabs, grids, card slots, scrollbars and progress bars. Empty unified charcoal body with only a very subtle low-contrast dark gradient. NO interior decorative central watermark. Keep only outer border, top horned crest, short side cloth, and small outer corner flourishes. Frame and body are ONE combined asset.\nSpecific asset: LEFT OWNED-SKILLS PANEL. Portrait body aspect 550:890 (width:height approximately0.618). Gold rim contour closely follows reference: gently bowed top edge, restrained outward upper corner gold hooks, long nearly straight thin gold side rails, angled lower corners, shallow curved bottom edge and tiny central bottom diamond. Golden horned helmet SMALL, at most14% panel width. Burgundy cloth should occupy only upper18% of the sides and must not cover blank body. Make the target canvas tall portrait matching this 0.618 aspect, not square.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-10654674-9978-41a8-9b5d-cfd31c301fba.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_owned_panel.png",
+      "metrics": {
+        "width": 986,
+        "height": 1595,
+        "unityRect": [
+          11,
+          43,
+          965,
+          1512
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253,
+        "transparentPixels": 360091,
+        "partialPixels": 1210717
+      }
+    },
+    {
+      "name": "skill_detail_panel",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-10_로비_잠긴스킬_상세설명창.png",
+      "prompt": "Use case: ui-mockup.\nAsset type: a standalone production-ready raster UI panel sprite for a Unity medieval casual-fantasy demon-army game, not a screenshot.\nInput images: Image 1 is a DESIGN REFERENCE ONLY. Reconstruct its outer panel silhouette and decorative language as a new independent clean blank panel; do not copy any content widgets.\nStyle: smooth high-resolution hand-designed 2D game UI illustration, crisp clean silhouette, NO pixel art. Restrained antique champagne-gold metal bevel edging, very dark warm charcoal interior, short desaturated burgundy fabric tabs at the upper left and right, a SMALL centrally placed golden horned demon-helmet crest above the top rim. Elegant medieval heraldic contours matching the reference rather than a generic rectangle. Gold is muted warm metal, not glowing bright yellow or orange. Subtle restrained gold highlights only. Thin rim relative to broad usable body.\nComposition: symmetric front-facing orthographic panel, entire shape fully visible with clean transparent margin all around, no perspective or clipping. Decorative crest/fabric extends outside the main panel shape. The interior usable blank dark area must remain at least 80% of the main panel body's area.\nAlpha: genuinely transparent ONLY OUTSIDE the entire panel silhouette. The charcoal body and metal and cloth are 100% OPAQUE, alpha 255 throughout their interior; absolutely no see-through black panel. Do not draw a backdrop, drop shadow, halo, checkerboard or environment.\nConstraints: ONE blank panel only. Remove ALL text, numbers, symbols inside the body, skill icons, dividers, lines across the body, buttons, tabs, grids, card slots, scrollbars and progress bars. Empty unified charcoal body with only a very subtle low-contrast dark gradient. NO interior decorative central watermark. Keep only outer border, top horned crest, short side cloth, and small outer corner flourishes. Frame and body are ONE combined asset.\nSpecific asset: RIGHT SKILL DETAILS PANEL. Portrait body aspect500:750 (width:height approximately0.667). Reconstruct the reference outer frame but DELETE all inner widgets including lock artwork, title, divider rules, statistic rows and unlock button. Maintain slightly bowed top gold rim, small centered horned gold helmet, small hooked gold shoulders with short burgundy cloth, long thin side rails and clipped bottom corners with a tiny centered bottom diamond. Gold crest at most14% panel width. Blank body extends almost to the thin rim. No brown glow or atmosphere outside; transparent exterior only. Canvas tall portrait around2:3.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-b263cb56-6989-4beb-9801-12bbd6b193a2.png",
+      "repairPrompt": "Edit this exact UI panel image. Preserve all existing frame geometry, horned gold crest, cloth tabs, dark panel interior, and image proportions. The dark charcoal area INSIDE the gold outline must remain completely opaque. Remove ONLY the brown gold glowing atmospheric BACKDROP outside the panel silhouette. Make ALL pixels OUTSIDE the outline and cloth and crest genuinely fully transparent alpha=0, including exterior above and below the panel. No replacement backdrop, checkerboard, shadows or haze. This is a clean transparent-background game UI sprite with an opaque inside. Do not change the frame, do not add anything, no text. Output PNG with transparency.",
+      "repairSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-ae441fa9-2587-476f-bddc-db3cab697eef.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_detail_panel.png",
+      "metrics": {
+        "width": 1024,
+        "height": 1536,
+        "unityRect": [
+          35,
+          52,
+          954,
+          1467
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253,
+        "transparentPixels": 418734,
+        "partialPixels": 1154130
+      }
+    },
+    {
+      "name": "skill_unlock_dialog",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-11_로비_스킬해금_확인창.png",
+      "prompt": "Use case: ui-mockup.\nAsset type: a standalone production-ready raster UI panel sprite for a Unity medieval casual-fantasy demon-army game, not a screenshot.\nInput images: Image 1 is a DESIGN REFERENCE ONLY. Reconstruct its outer panel silhouette and decorative language as a new independent clean blank panel; do not copy any content widgets.\nStyle: smooth high-resolution hand-designed 2D game UI illustration, crisp clean silhouette, NO pixel art. Restrained antique champagne-gold metal bevel edging, very dark warm charcoal interior, short desaturated burgundy fabric tabs at the upper left and right, a SMALL centrally placed golden horned demon-helmet crest above the top rim. Elegant medieval heraldic contours matching the reference rather than a generic rectangle. Gold is muted warm metal, not glowing bright yellow or orange. Subtle restrained gold highlights only. Thin rim relative to broad usable body.\nComposition: symmetric front-facing orthographic panel, entire shape fully visible with clean transparent margin all around, no perspective or clipping. Decorative crest/fabric extends outside the main panel shape. The interior usable blank dark area must remain at least 80% of the main panel body's area.\nAlpha: genuinely transparent ONLY OUTSIDE the entire panel silhouette. The charcoal body and metal and cloth are 100% OPAQUE, alpha 255 throughout their interior; absolutely no see-through black panel. Do not draw a backdrop, drop shadow, halo, checkerboard or environment.\nConstraints: ONE blank panel only. Remove ALL text, numbers, symbols inside the body, skill icons, dividers, lines across the body, buttons, tabs, grids, card slots, scrollbars and progress bars. Empty unified charcoal body with only a very subtle low-contrast dark gradient. NO interior decorative central watermark. Keep only outer border, top horned crest, short side cloth, and small outer corner flourishes. Frame and body are ONE combined asset.\nSpecific asset: SKILL UNLOCK CONFIRMATION DIALOG OUTER SHELL. Main body aspect800:620 (width:height approximately1.29), a broad landscape dialog. Reshape the reference to this width-to-height ratio while preserving its elegant low-arched top, thin gold side rails, angular lower corners and small bottom center diamond. Small centered horned crest at most12% panel width, short burgundy tabs at top corners only. Completely EMPTY interior: no title, no skill portrait, no SP rows, no warning inset, no caution symbol, no divider, no bottom buttons. Main dark panel uninterrupted. Show a single centered broad dialog shell at high resolution, no screenshot.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-71513965-8bae-497e-8282-c7fa51765ef8.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_unlock_dialog.png",
+      "metrics": {
+        "width": 1424,
+        "height": 1105,
+        "unityRect": [
+          21,
+          65,
+          1381,
+          1014
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253,
+        "transparentPixels": 426994,
+        "partialPixels": 1145672
+      }
+    }
+  ]
+}

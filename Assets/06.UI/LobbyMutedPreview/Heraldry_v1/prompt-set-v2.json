@@ -1,0 +1,109 @@
+{
+  "version": 2,
+  "date": "2026-10-05",
+  "scope": "Lobby reference refinement; existing gameplay remains unchanged. Built-in ImageGen. No desktop control.",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-9416c31f-4499-4e9b-b964-fb1184a206ca.png",
+  "assets": [
+    {
+      "key": "xp_track_v2",
+      "prompt": "Use case: ui-mockup. Create ONE production UI sprite, isolated on true transparent background. Reference image shows a medieval demon lobby; ignore ALL red hand-drawn annotations. Match ONLY the small XP track inside the upper left HUD: long straight horizontal 12:1 visible silhouette, clipped octagonal corners, thin antique muted brass border with a fine warm ivory edge, charcoal black opaque empty interior. Frame AND dark interior united as one sprite. Perfectly front-facing symmetric, smooth anti-aliased illustrated 2D. No red fill, no symbols, no text, no ticks, no extra end ornaments, no cloth, no glow, no gritty scratches. Entire silhouette visible. Fill most canvas width; transparent outside. This is a NEW clean slider track, not a whole HUD.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-a7def199-2dec-40bd-b038-8374da9d368e.png",
+      "target": "Sprites/xp_track_v2.png",
+      "sprite": "Sprites/xp_track_v2.asset"
+    },
+    {
+      "key": "xp_fill_v2",
+      "prompt": "Use case: ui-mockup. ONE isolated production game UI XP fill sprite on genuine transparent background. From reference image's top-left XP gauge ONLY (ignore red hand scribbles): a long thin 12:1 strip made of six adjoining right-facing chevron segments, with a clipped left starting edge and rightmost pointed chevron end. Color sequence muted crimson red #9c202c through #84222c to dark burgundy #531e28, slight flat 2D shading. Six LARGE equal chevrons, not tiny repeating diamonds/crosses. This asset contains ONLY the red/burgundy fill strip: NO outer metal border, NO black background, NO text, NO HUD, NO ornaments, NO glow, NO bevel texture. Clean high-resolution anti-aliased edges. Full silhouette centered occupies wide canvas width.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-c9f31903-5e98-4356-82c9-402007a038b0.png",
+      "target": "Sprites/xp_fill_v2.png",
+      "sprite": "Sprites/xp_fill_v2.asset"
+    },
+    {
+      "key": "menu_banner_v2",
+      "prompt": "Use case: ui-mockup. Reconstruct ONLY the top-right menu banner BODY in reference, excluding all red marker scribbles. ONE production sprite with true transparent outside, dark desaturated oxblood burgundy #32141b inset panel, broad dark bronze metal surround and thin muted gold bevel. Tall banner shield with straight vertical sides and a pronounced lower V point, tiny outward pointed metal tips at each bottom shoulder, slight burgundy cloth folded structure INSIDE rim. Very small sparse dark red arrow/diamond ornament near upper inside edge and bottom tip as reference. Reference proportions width:height about 0.62. Opaque body+border united. Leave middle completely empty for a separate hamburger icon later; NO text, no hamburger, no demon crest, no red annotations, no bright red, no yellow glow, no black rectangular background outside. Smooth bold simplified hand-painted medieval 2D, not pixelated.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-3d6db4b7-5dac-4b13-bc72-1606965c82e5.png",
+      "target": "Sprites/menu_banner_v2.png",
+      "sprite": "Sprites/menu_banner_v2.asset"
+    },
+    {
+      "key": "battle_button_v2",
+      "prompt": "Use case: ui-mockup. Create ONLY the battle-preparation button BODY from the reference image, no text or sword icon. Ignore red hand annotations. One horizontal medieval demon heraldic button, overall visible width:height about 3.8:1 INCLUDING ornaments. Main usable burgundy dark red plate width:height about 5.3:1, hexagonal clipped pointed ends, black outer stroke, medium antique brass-gold band and slim ivory highlight. Crucially a pair of gold curved upward horn shoulders at upper left and upper right, small angular demon-mask mounts at each far end, and short torn burgundy cloth tails hang BELOW the ends. Quiet dark red center with two small dark red 4-point star accents toward left/right inner thirds, huge blank center. Match reference shape and muted deep red, no curling scroll substitutes. Opaque background and frame integrated. True transparent outside, no words, no weapon icon, no gems, no neon, no red scribbles. Smooth high-res 2D, compact clean symmetric.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-4decdcef-d9f5-45ef-8f55-d6c5178211ac.png",
+      "target": "Sprites/battle_button_v2.png",
+      "sprite": "Sprites/battle_button_v2.asset"
+    },
+    {
+      "key": "medallion_v2",
+      "prompt": "Use case: ui-mockup. ONE blank circular lobby navigation button BODY on true transparent background. Match bottom buttons in reference, ignore red marker annotations. Exact round dark nearly-black slightly warm charcoal interior and substantial antique gold-bronze double-bevel ring. Four SMALL elegant compass-point metal ornaments at north/south/east/west. North and south diamond-tip pointed gold finials, east/west tiny angular points. Ring smooth clean and thick enough at small size, NOT hairy, NOT stippled, NOT ornate lace or tiny texture noise. 2D hand-painted broad simple shading, not glossy 3D. Interior entirely EMPTY to receive icon, gently lighter center only. Overall outline square1:1, no text, no icon, no cloth, no surrounding rectangle, no glow. Frame and opaque black interior one sprite.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b70729ac-e30e-4895-a619-50956cec80f1.png",
+      "target": "Sprites/medallion_v2.png",
+      "sprite": "Sprites/medallion_v2.asset"
+    },
+    {
+      "key": "icon_trophy_v2",
+      "prompt": "Use case: logo-brand. ONE standalone game UI pictogram on real transparent background. Reference image for exact silhouette style ONLY, ignore all red scribbles and all surroundings. Create a very simple upright trophy silhouette: broad hemispherical bowl with straight horizontal lip, two small curved loop handles, slim short stem, flat trapezoid pedestal. Match bottom-left ACHIEVEMENT symbol. Solid warm ivory #F1E7CE with at most a tiny cream highlight, smooth perfectly anti-aliased clean high resolution vector-like 2D. Absolutely no grain or speckles, no pixel art, no stair-stepping, no gold frame, no ring, no background, no text, no glow or shadow. Icon centered in square with 8% transparent margin; ONE icon ONLY.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-f9ffcf0c-a574-4ce9-bd9b-d00b8f838f18.png",
+      "target": "Sprites/icon_trophy_v2.png",
+      "sprite": "Sprites/icon_trophy_v2.asset"
+    },
+    {
+      "key": "icon_flame_v2",
+      "prompt": "Use case: logo-brand. ONE standalone game UI pictogram on real transparent background. Reference image for exact silhouette style ONLY, ignore all red scribbles and all surroundings. Create a compact upright flame: tall tapering single upper tongue bending right, two small lower side tongues, one central dark negative-space teardrop. Match the bottom TALENT icon. Bold simple shape, no curly snake. Solid warm ivory #F1E7CE with at most a tiny cream highlight, smooth perfectly anti-aliased clean high resolution vector-like 2D. Absolutely no grain or speckles, no pixel art, no stair-stepping, no gold frame, no ring, no background, no text, no glow or shadow. Icon centered in square with 8% transparent margin; ONE icon ONLY.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-36468793-110e-48d5-a776-71cb289bab9f.png",
+      "target": "Sprites/icon_flame_v2.png",
+      "sprite": "Sprites/icon_flame_v2.asset"
+    },
+    {
+      "key": "icon_swirl_v2",
+      "prompt": "Use case: logo-brand. ONE standalone game UI pictogram on real transparent background. Reference image for exact silhouette style ONLY, ignore all red scribbles and all surroundings. Create a compact magical spiral of THREE broad curved tapering ivory arms rotating into a tight center, with exactly one broad round outer curl. Match bottom SKILL SETTING symbol, not six thin spiky arms, not pinwheel, not star. Solid warm ivory #F1E7CE with at most a tiny cream highlight, smooth perfectly anti-aliased clean high resolution vector-like 2D. Absolutely no grain or speckles, no pixel art, no stair-stepping, no gold frame, no ring, no background, no text, no glow or shadow. Icon centered in square with 8% transparent margin; ONE icon ONLY.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-69f0eb40-f0b7-41f9-8489-29fb7fb05daf.png",
+      "target": "Sprites/icon_swirl_v2.png",
+      "sprite": "Sprites/icon_swirl_v2.asset"
+    },
+    {
+      "key": "icon_book_v2",
+      "prompt": "Use case: logo-brand. ONE standalone game UI pictogram on real transparent background. Reference image for exact silhouette style ONLY, ignore all red scribbles and all surroundings. Create an open book front view with two broad upright cream page blocks, simple thin charcoal separating spine and page-outline gaps, horizontal open base, no detailed page hatching. Match the bottom CODEX symbol. Solid warm ivory #F1E7CE with at most a tiny cream highlight, smooth perfectly anti-aliased clean high resolution vector-like 2D. Absolutely no grain or speckles, no pixel art, no stair-stepping, no gold frame, no ring, no background, no text, no glow or shadow. Icon centered in square with 8% transparent margin; ONE icon ONLY.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-7b60d0d0-81f7-42ca-aa79-fdcb3a200073.png",
+      "target": "Sprites/icon_book_v2.png",
+      "sprite": "Sprites/icon_book_v2.asset"
+    },
+    {
+      "key": "icon_swords_v2",
+      "prompt": "Use case: logo-brand. ONE standalone game UI pictogram on real transparent background. Reference image for exact silhouette style ONLY, ignore all red scribbles and all surroundings. Create two short straight broad-bladed swords crossed at exactly 90 degrees, their points facing upper-left and upper-right, hilts toward lower corners. Each has a very simple straight crossguard, small round pommel and one narrow dark blade groove. Match the battle-preparation icon in reference, bold flat ivory silhouette, not delicate thin fencing swords. Solid warm ivory #F1E7CE with at most a tiny cream highlight, smooth perfectly anti-aliased clean high resolution vector-like 2D. Absolutely no grain or speckles, no pixel art, no stair-stepping, no gold frame, no ring, no background, no text, no glow or shadow. Icon centered in square with 8% transparent margin; ONE icon ONLY.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-1078acb3-e5ac-4762-b024-c2b00dc93014.png",
+      "target": "Sprites/icon_swords_v2.png",
+      "sprite": "Sprites/icon_swords_v2.asset"
+    },
+    {
+      "key": "level_crest_banner_v2",
+      "prompt": "Use case: ui-mockup. ONE isolated small hanging heraldic banner production sprite. Match the very top-left banner attached to level bar in reference image ONLY, ignoring all red scribble annotations. Dark wine-red cloth pennant with folded dark top edge, antique muted bronze edging, three small torn pointed tails below. Gold simplified long-horned demon skull emblem centered, as reference, not human skull. Visible proportions width:height about 0.70. Smooth hand-painted high-resolution 2D, bold broad clean shading, desaturated burgundy, no letters/numbers, no UI bar, no glow. Complete banner with skull, unified opaque body, genuine transparent outside.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-0c0534d4-197c-40fa-826d-4fb7b73829b2.png",
+      "target": "Sprites/level_crest_banner_v2.png",
+      "sprite": "Sprites/level_crest_banner_v2.asset"
+    },
+    {
+      "key": "medallion_traits_v2",
+      "prompt": "Edit the supplied circular gold medieval UI medallion. Preserve exactly the gold rim, four small gold finials, silhouette, clean shading and size. Only change the dark interior disk into muted deep burgundy maroon #391C20, subtly colored and still dark, low saturation. Flat subtle radial illumination. Keep the center entirely blank, absolutely no icon, no text. Real transparent exterior. Gold rim unchanged, subdued antique metal, no new ornaments. Production game UI element.",
+      "sourceReference": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b70729ac-e30e-4895-a619-50956cec80f1.png",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-6a7574ef-11e4-4aff-a6df-e5b8cd52b659.png",
+      "target": "Sprites/medallion_traits_v2.png",
+      "sprite": "Sprites/medallion_traits_v2.asset"
+    },
+    {
+      "key": "medallion_skills_v2",
+      "prompt": "Edit the supplied circular gold medieval UI medallion. Preserve exactly the gold rim, four small gold finials, silhouette, clean shading and size. Only change the dark interior disk into muted midnight blue-purple #202332, subtly colored and still dark, low saturation. Flat subtle radial illumination. Keep the center entirely blank, absolutely no icon, no text. Real transparent exterior. Gold rim unchanged, subdued antique metal, no new ornaments. Production game UI element.",
+      "sourceReference": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b70729ac-e30e-4895-a619-50956cec80f1.png",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-a35631a2-db2d-4e1e-86b9-3e757143c07d.png",
+      "target": "Sprites/medallion_skills_v2.png",
+      "sprite": "Sprites/medallion_skills_v2.asset"
+    },
+    {
+      "key": "medallion_codex_v2",
+      "prompt": "Edit the supplied circular gold medieval UI medallion. Preserve exactly the gold rim, four small gold finials, silhouette, clean shading and size. Only change the dark interior disk into muted olive charcoal #27291F, subtly colored and still dark, low saturation. Flat subtle radial illumination. Keep the center entirely blank, absolutely no icon, no text. Real transparent exterior. Gold rim unchanged, subdued antique metal, no new ornaments. Production game UI element.",
+      "sourceReference": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b70729ac-e30e-4895-a619-50956cec80f1.png",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-836ebc25-4706-492a-b120-e30eee906305.png",
+      "target": "Sprites/medallion_codex_v2.png",
+      "sprite": "Sprites/medallion_codex_v2.asset"
+    }
+  ]
+}

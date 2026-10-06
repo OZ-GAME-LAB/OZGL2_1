@@ -1,0 +1,21 @@
+{
+  "method": "Alpha >= 200 binary mask, square 3px erosion (7x7 safe neighborhood), safe interior alpha set to 255; RGB and all other alpha values unchanged.",
+  "authorization": "Main agent relayed explicit user approval for closed internal alpha255 correction of currency panel and three skill button backgrounds.",
+  "originalsPreserved": true,
+  "dimensions": [1254, 1254],
+  "boundsConvention": "top-left origin; xMax/yMax exclusive",
+  "outputDirectory": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v5/Source",
+  "files": [
+    {"file": "skill_round_damage.png", "changedAlphaPixels": 796605, "beforeSafeAlphaRange": [250,254], "afterSafeAlphaRange": [255,255], "changedAlphaBounds": [118,96,1134,1128], "visibleAlpha128Bounds": [115,91,1137,1132], "rgbDifferences": 0, "outsideAndEdgeAlphaDifferences": 0, "sourceSha256": "F0B74C0CDF3457F1886A240FADE25F7D2E75881B7ED256ACEB679172262D6B7D", "finalSha256": "678711F19CF109DDC91F57F3E7652CC47D6AAD771F760ED9EC5BD4EAF789D693"},
+    {"file": "skill_round_buff.png", "changedAlphaPixels": 799763, "beforeSafeAlphaRange": [249,254], "afterSafeAlphaRange": [255,255], "changedAlphaBounds": [117,95,1136,1129], "visibleAlpha128Bounds": [114,88,1139,1132], "rgbDifferences": 0, "outsideAndEdgeAlphaDifferences": 0, "sourceSha256": "8237889B6B3021265FDE56410798A64A8E47B0E9DA63CF18EA590197065522C9", "finalSha256": "90EDB79379BB35A8BC975C8C68DD8FA8561B8F7DCFCAFF24CF41266981DED99E"},
+    {"file": "skill_round_debuff.png", "changedAlphaPixels": 799952, "beforeSafeAlphaRange": [250,254], "afterSafeAlphaRange": [255,255], "changedAlphaBounds": [117,95,1136,1129], "visibleAlpha128Bounds": [114,89,1139,1132], "rgbDifferences": 0, "outsideAndEdgeAlphaDifferences": 0, "sourceSha256": "736978DC324D520E3D2543D5FA74F088191641C24F209F6360DD47983C82665E", "finalSha256": "751643878509EA8E867A3CCB0CD765B801141CEFA19F58DA2D48EB86BE9D4A0D"},
+    {"file": "currency_medallion_opaque.png", "changedAlphaPixels": 602324, "beforeSafeAlphaRange": [250,254], "afterSafeAlphaRange": [255,255], "changedAlphaBounds": [195,54,1060,1110], "visibleAlpha128Bounds": [191,50,1063,1115], "rgbDifferences": 0, "outsideAndEdgeAlphaDifferences": 0, "sourceSha256": "0CCE813ACD5F54BB539FB561DFF51E78639B7531F3EB7B9070A9396A401DD296", "finalSha256": "A251801066D0221A17B4B174249091D5B64A06219DAE4B2B43031F05CC2A7AC0"}
+  ],
+  "skillPlacementSuggestion": {
+    "approximateCircleCenterTopLeft": [626,628],
+    "approximateOuterRadius": 512,
+    "sharedSpriteRectUnityBottomLeft": [108,116,1038,1056],
+    "circleCenterPivotWithinSharedRect": [0.499,0.483],
+    "warning": "Placement values are visual estimates; final size and radial ring alignment should be checked in Unity. Very low-alpha outer noise was intentionally preserved."
+  }
+}

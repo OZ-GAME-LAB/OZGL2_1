@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using OZGL2.Synergy;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,17 +17,26 @@ namespace OZGL2.UIFlow
         [SerializeField] private Text _waveText;
         [SerializeField] private Text _levelText;
         [SerializeField] private Text _timeText;
+        [SerializeField] private TMP_Text _remainingEnemyTextSdf;
         [SerializeField] private Text _costText;
         [SerializeField] private Text _rerollCostText;
         [SerializeField] private TMP_Text _costTextSdf;
+        [SerializeField] private TMP_Text _combatCostTextSdf;
         [SerializeField] private TMP_Text _rerollCostTextSdf;
         [SerializeField] private Image _experienceFill;
 
         [Header("적 예고 / 시너지 연결")]
         [SerializeField] private Text[] _enemyNames;
         [SerializeField] private Text[] _enemyCounts;
+        [SerializeField] private Image[] _enemyIcons;
         [SerializeField] private Text[] _synergyNames;
         [SerializeField] private Text[] _synergyThresholds;
+
+        [Header("시너지 깃발 표시 (프레임·아이콘과 분리)")]
+        [SerializeField] private Image[] _synergyLeftFlags;
+        [SerializeField] private Image[] _synergyRightFlags;
+        [SerializeField] private SynergyFlagStyle[] _synergyFlagStyles;
+        [SerializeField] private Color _neutralSynergyFlagColor = new Color32(155, 151, 143, 255);
 
         [Header("시너지 기준값 표시 색상 (발동 판정과 별개)")]
         [SerializeField] private Color _firstThresholdColor = new Color32(235, 220, 153, 255);
@@ -38,6 +48,7 @@ namespace OZGL2.UIFlow
         [SerializeField, Min(1)] private int _previewLevel = 20;
         [SerializeField, Range(0f, 1f)] private float _previewExperience = 0.6f;
         [SerializeField, Min(0f)] private float _previewRemainingSeconds = 42f;
+        [SerializeField, Min(0)] private int _previewRemainingEnemies;
         [SerializeField, Min(0)] private int _previewCost = 100;
         [SerializeField, Min(0)] private int _previewRerollCost = 100;
         [SerializeField] private EnemyPreview[] _previewEnemies =
@@ -57,6 +68,17 @@ namespace OZGL2.UIFlow
         private bool _usesElapsedTime;
 
         public int EnemySlotCount => Mathf.Max(ArrayLength(_enemyNames), ArrayLength(_enemyCounts));
+
+        // 기존 시너지 정의는 읽기만 하며, 씬별 깃발색만 별도로 보관한다.
+        [Serializable]
+        private sealed class SynergyFlagStyle
+        {
+            [SerializeField] private SynergyData _definition;
+            [SerializeField] private Color _color = Color.white;
+
+            public SynergyData Definition => _definition;
+            public Color FlagColor => _color;
+        }
 
         [Serializable]
         private sealed class EnemyPreview
@@ -118,6 +140,19 @@ namespace OZGL2.UIFlow
             RefreshView();
         }
 
+        // 새 HUD의 남은 용사 수만 연결한다. 기존 시간 표시와 결과용 경과 시간은 유지한다.
+        public void ConfigureRemainingEnemyText(TMP_Text remainingEnemyText)
+        {
+            _remainingEnemyTextSdf = remainingEnemyText;
+            RefreshView();
+        }
+
+        public void SetRemainingEnemyCount(int count)
+        {
+            _previewRemainingEnemies = Mathf.Max(0, count);
+            SetText(_remainingEnemyTextSdf, FormatNumber(_previewRemainingEnemies));
+        }
+
         public void SetWave(int wave, int totalWaves)
         {
             _previewTotalWaves = Mathf.Max(1, totalWaves);
@@ -174,9 +209,12 @@ namespace OZGL2.UIFlow
                 " / " + FormatNumber(totalWaves));
             SetText(_levelText, "LV. " + FormatNumber(Mathf.Max(1, _previewLevel)));
             SetText(_timeText, FormatTime(_previewRemainingSeconds, _usesElapsedTime));
+            SetText(_remainingEnemyTextSdf, FormatNumber(Mathf.Max(0, _previewRemainingEnemies)));
             SetText(_costText, FormatNumber(Mathf.Max(0, _previewCost)));
             SetText(_rerollCostText, FormatNumber(Mathf.Max(0, _previewRerollCost)));
             SetText(_costTextSdf, FormatNumber(Mathf.Max(0, _previewCost)));
+            // 두 화면 모두 같은 전달값을 읽으며, 표시 코드에서 별도 재화 잔액을 만들지 않는다.
+            SetText(_combatCostTextSdf, FormatNumber(Mathf.Max(0, _previewCost)));
             SetText(_rerollCostTextSdf, FormatNumber(Mathf.Max(0, _previewRerollCost)));
 
             if (_experienceFill != null)
@@ -195,14 +233,23 @@ namespace OZGL2.UIFlow
                 bool hasEnemy = enemy != null && !string.IsNullOrWhiteSpace(enemy.Name);
                 SetTextAt(_enemyNames, i, hasEnemy ? enemy.Name : string.Empty);
                 SetTextAt(_enemyCounts, i, hasEnemy ? "×" + FormatNumber(enemy.Count) : string.Empty);
+                // 이번 웨이브에 없는 병종의 예고 아이콘은 표시하지 않는다.
+                if (_enemyIcons != null && i < _enemyIcons.Length && _enemyIcons[i] != null)
+                    _enemyIcons[i].enabled = hasEnemy && enemy.Count > 0;
             }
 
-            int synergySlots = Mathf.Max(ArrayLength(_synergyNames), ArrayLength(_synergyThresholds));
+            int synergySlots = Mathf.Max(
+                Mathf.Max(ArrayLength(_synergyNames), ArrayLength(_synergyThresholds)),
+                Mathf.Max(_synergyLeftFlags != null ? _synergyLeftFlags.Length : 0,
+                    _synergyRightFlags != null ? _synergyRightFlags.Length : 0));
             for (int i = 0; i < synergySlots; i++)
             {
                 SynergyPreview synergy = _previewSynergies != null && i < _previewSynergies.Length
                     ? _previewSynergies[i] : null;
                 SetTextAt(_synergyNames, i, synergy != null ? synergy.Name : string.Empty);
+                Color flagColor = ResolveSynergyFlagColor(synergy != null ? synergy.Name : null);
+                SetFlagColorAt(_synergyLeftFlags, i, flagColor);
+                SetFlagColorAt(_synergyRightFlags, i, flagColor);
                 if (_synergyThresholds != null && i < _synergyThresholds.Length && _synergyThresholds[i] != null)
                 {
                     _synergyThresholds[i].supportRichText = true;
@@ -214,6 +261,30 @@ namespace OZGL2.UIFlow
                         : string.Empty);
                 }
             }
+        }
+
+        private Color ResolveSynergyFlagColor(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || _synergyFlagStyles == null)
+                return _neutralSynergyFlagColor;
+
+            SynergyFlagStyle match = null;
+            foreach (SynergyFlagStyle style in _synergyFlagStyles)
+            {
+                if (style == null || style.Definition == null ||
+                    !string.Equals(style.Definition.displayName, name, StringComparison.Ordinal)) continue;
+
+                // 기존 전달 API는 이름만 제공하므로 중복 이름을 임의의 직업으로 판정하지 않는다.
+                if (match != null) return _neutralSynergyFlagColor;
+                match = style;
+            }
+            return match != null ? match.FlagColor : _neutralSynergyFlagColor;
+        }
+
+        private static void SetFlagColorAt(Image[] flags, int index, Color color)
+        {
+            if (flags == null || index < 0 || index >= flags.Length || flags[index] == null) return;
+            if (flags[index].color != color) flags[index].color = color;
         }
 
         private void OnEnable() => RefreshView();

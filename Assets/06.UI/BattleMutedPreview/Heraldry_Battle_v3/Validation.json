@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-06",
+  "scope": "하단 full-bleed 배경, 메뉴 꼬리 배경, 여유 있는 시너지 본체/깃발 배치",
+  "scene": "Assets/00.Scenes/Builds/InGame.unity",
+  "generation": "built-in image_gen (PNG 직접 픽셀 수정 없음)",
+  "promptRecords": [
+    "BottomPanelGeneration.json",
+    "Source/MenuBannerNotchedV4Prompt.json",
+    "SynergyBodyGenerationPrompts.json"
+  ],
+  "assets": [
+    "Source/bottom_panel_fullbleed.png",
+    "Source/menu_banner_notched_v4.png",
+    "Source/synergy_body_roomy.png"
+  ],
+  "bottom": {
+    "size": [
+      1920,
+      241
+    ],
+    "position": [
+      0,
+      0
+    ],
+    "anchorMin": [
+      0,
+      0
+    ],
+    "anchorMax": [
+      1,
+      0
+    ],
+    "pivot": [
+      0.5,
+      0
+    ],
+    "imageType": "Sliced (기존 유지, 새 Sprite border=0)",
+    "onlySpriteChanged": true,
+    "border": "상단만; 좌우/하단 테두리 및 배경에 속한 깃발 없음",
+    "spriteRect": [
+      0,
+      51,
+      2172,
+      273
+    ]
+  },
+  "menu": {
+    "buttonRectPreserved": true,
+    "artRect": [
+      82,
+      112
+    ],
+    "tailBelowBar": true,
+    "tailPointerOpensMenu": true,
+    "existingIconAndEventsPreserved": true,
+    "tailShape": "양측 수직변 끝에서 중앙으로 올라오는 단일 ∧ 노치. W형 외곽 꺾임 없음",
+    "style": "매끈한 버건디 2D 음영과 얇은 앤티크 골드. 기존 햄버거 아이콘 별도 유지",
+    "spriteRect": [135, 130, 842, 1145],
+    "sprite": "Sprites/menu_banner_notched_v4.asset"
+  },
+  "synergy": {
+    "bodyRect": [
+      300,
+      104
+    ],
+    "previousBodyRect": [
+      312,
+      88
+    ],
+    "cornerDecorationFixedByNineSlice": true,
+    "rowPitch": 124,
+    "flagWidth": 24,
+    "flagTexturedBodyOverlap": "깃발 전체 폭의 약 20~38%, 본체 금속선 굴곡에 따라 다름; 기존보다 노출 확대",
+    "runtimeColorsPreserved": true,
+    "dedicatedPrefab": "Prefabs/SynergyTracker_InGame.prefab",
+    "instanceNames": ["Synergy_0", "Synergy_1", "Synergy_2", "Synergy_3"],
+    "externalDisplayReferencesReconnected": 16,
+    "duplicateChildren": 0,
+    "sharedPrefabModified": false
+  },
+  "validation": {
+    "consoleErrors": 0,
+    "playModeStopped": true,
+    "runInBackgroundRestoredFalse": true,
+    "userUnsavedBottomRectPreserved": true,
+    "sceneSaved": true,
+    "scriptChangesThisTurn": false,
+    "protectedFilesChanged": false,
+    "sixJobFlagColorChecksPassed": true,
+    "menuTailRaycastHit": "MenuBannerArt -> SettingsButton -> OpenPopup",
+    "resumeClosesMenu": true,
+    "actualCombatTransition": true,
+    "commonHudAndSynergyVisibleInCombat": true,
+    "timeScaleRestored": 1,
+    "localFontDependency": "기존 정책 유지: Git 제외 LocalStaging의 HeirofLightBold.ttf 필요"
+  },
+  "screenshot": "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v4_notched_palette_review.png",
+  "screenshotNote": "4개 시너지 표시만 미리보기 값으로 설정한 Game View. 실제 게임 데이터와 씬에는 저장하지 않음.",
+  "pending": null,
+  "actualCombatScreenshot": "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v4_actual_combat.png",
+  "unchangedSharedPrefabConsumers": [
+    "InGame_2",
+    "UI_Battle_MutedPreview",
+    "_Recovery/0"
+  ],
+  "commit": false
+}

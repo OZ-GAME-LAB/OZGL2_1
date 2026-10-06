@@ -1,0 +1,74 @@
+{
+  "version": 2,
+  "date": "2026-10-05",
+  "mode": "built-in image_gen",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-2cbd0d4c-f4a6-489e-8ade-4fdf70362ad3.png",
+  "notes": [
+    "원본PNGalpha보존; 직접픽셀수정없음",
+    "프롬프트별1차생성후단일수정편집1회시행",
+    "소용돌이흰잔여점샘플RGB255/alpha1~3확인. 실제렌더러에서확인필요",
+    "unityRect는alpha>8바운딩,bottom-left원점"
+  ],
+  "assets": [
+    {
+      "name": "icon_trophy_achievement_v2",
+      "width": 1199,
+      "height": 1312,
+      "unityRect": [
+        140,
+        132,
+        919,
+        1046
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-683f9d9e-89b4-4c24-9caa-e5e26d6955d1.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_trophy_achievement_v2.png",
+      "prompt": "Use case: precise-object-edit. Image1 is the exact source reference screenshot,1672x941. Extract and faithfully reconstruct ONLY the specified tiny UI symbol as a high-resolution independent transparent PNG. Do not design a new variant. Flat parchment-ivory and very pale warm sand two-tone minimal game UI silhouette, NO 3D, NO bevel, NO rendered shiny metal, NO glossy gold, NO heavy outline, NO pixel art, NO decoration outside the actual requested symbol. Genuine transparency outside the shape AND in any holes. Centered one complete symbol on square canvas, minimal 12 percent margin. No screenshot background, no circular badge, no button border, no text, no shadow, no watermark. Target: the small trophy at the top-left of screenshot, bounding box x90..149,y86..146. Preserve its delicate proportions: broad horizontal bowl top with thin subtly curved rim, bowl tapering down in a gentle round U, two small THIN open loop handles attached high at left and right, handle holes transparent, slender narrow central stem, small low flat pedestal. Overall full silhouette close to square. Bowl is the majority of cup body, stem not thick, handles never massive. Very flat pale ivory main fill with at most a discreet warm-sand narrow side plane, not an ornate realistic award. Reproduce THIS trophy only and remove EVERYTHING else from screenshot.",
+      "correction": {
+        "name": "icon_trophy_achievement_v2",
+        "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-0a0f4e95-77df-452f-bb58-d824bda3eb5e.png",
+        "prompt": "Use case: precise-object-edit. Edit this trophy icon ONLY. Preserve its ivory/sand flat minimal style, but correct proportions to a delicate medieval UI trophy: shorten cup BOWL to occupy50 percent total height, leave a much longer SLENDER STRAIGHT central stem about25 percent total height and a small low flat platform about12 percent total height. Bowl's wide rim should be THIN, not rounded pill. Both side handles must be THIN narrow loops abouthalf their currentstroke width, with open genuinely transparent holes. Rimwidth is60percentfullouterwidth. Pedestal width only30percentouterwidth. Overall heightslightlygreater thanwidth. Remove all stray white speckles inside handles and around edges. Clean solid precise antialiased silhouette, NO grain/no brush distressed edges. Real transparent exterior and handleholes, no background. No outlines, no bevel,no 3D,no shadows,no labels."
+      }
+    },
+    {
+      "name": "icon_tuning_v2",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        207,
+        47,
+        840,
+        1157
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-f5513f2a-fd76-4cb1-937f-b3142f73912a.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_tuning_v2.png",
+      "prompt": "Use case: precise-object-edit. Image1 is the exact source reference screenshot,1672x941. Extract and faithfully reconstruct ONLY the specified tiny UI symbol as a high-resolution independent transparent PNG. Do not design a new variant. Flat parchment-ivory and very pale warm sand two-tone minimal game UI silhouette, NO 3D, NO bevel, NO rendered shiny metal, NO glossy gold, NO heavy outline, NO pixel art, NO decoration outside the actual requested symbol. Genuine transparency outside the shape AND in any holes. Centered one complete symbol on square canvas, minimal 12 percent margin. No screenshot background, no circular badge, no button border, no text, no shadow, no watermark. Target: the flame-tipped spiral icon in bottom-middle card, bounding box x632..719,y700..807. The icon is a vertically elongated swirling flame: central single rounded curling spiral hole/open negative space, organic broad crescent curling inwards, several clean tapered outward flame tongues around lower and right perimeter, and notably one narrow elongated flame tail rising above upper-left then bending slightly to the right at its tip. Match screenshot flame profile and the longer upward left tail, not a generic circular pinwheel or standard loading swirl. Pale warm ivory fill, very faint sand accent on one or two short edges. Entire spiral/flame symbol only, all internal dark gaps become true transparent.",
+      "correction": {
+        "name": "icon_tuning_v2",
+        "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-075059c3-61cb-497c-be75-b64ec777b82f.png",
+        "prompt": "Use case: precise-object-edit. Clean up this exact pale ivory flame-spiral icon. Preserve silhouette, spiral winding, upper flame tail, proportions and flat two-tone parchment colors exactly. Change ONLY all stray white dust, residue, speckles in the spiral negative spaces and around outer edge: remove those to genuine transparent pixels. Interior holes and gaps must be CLEAN TRANSPARENT, exterior CLEAN TRANSPARENT. Razor clean smooth silhouette contours with appropriate anti-aliasing, no texture or distress. No background of any color. No additional symbol, border, circle, bevel, shine, text."
+      }
+    },
+    {
+      "name": "icon_back_arrow_v2",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        281,
+        189,
+        692,
+        846
+      ],
+      "cornerAlpha": 0,
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-01463eb0-0af8-4957-9760-017841ef9bb0.png",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_back_arrow_v2.png",
+      "prompt": "Use case: precise-object-edit. Image1 is the exact source reference screenshot,1672x941. Extract and faithfully reconstruct ONLY the specified tiny UI symbol as a high-resolution independent transparent PNG. Do not design a new variant. Flat parchment-ivory and very pale warm sand two-tone minimal game UI silhouette, NO 3D, NO bevel, NO rendered shiny metal, NO glossy gold, NO heavy outline, NO pixel art, NO decoration outside the actual requested symbol. Genuine transparency outside the shape AND in any holes. Centered one complete symbol on square canvas, minimal 12 percent margin. No screenshot background, no circular badge, no button border, no text, no shadow, no watermark. Target: the tiny solid BACK arrowhead inside top-right button, bounding box x1420..1445,y98..133. It is NOT a hollow '<' stroke. Reproduce a single SOLID FILLED left-pointing arrowhead, shaped like a triangle with a deep inward notch on its right side: FOUR sharp straight-edge vertices, approximately A=(15,50),B=(72,10),C=(55,50),D=(72,90) in a100x100 shape coordinate box. Concave chevron-like triangular shard, left sharp point, upper-right and lower-right sharp corners, central inward notch on right. Overall visible width:height about0.65. Flat pale ivory solid fill, no outlines, no rounded corners, no shaft, no gradient, no bevel, no circle, no text. One small visual-symbol asset enlarged cleanly with transparent exterior.",
+      "correction": {
+        "name": "icon_back_arrow_v2",
+        "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-29ad00f6-fda0-4ebb-b828-0b8130d5985e.png",
+        "prompt": "Use case: precise-object-edit. Keep exact four-vertex left arrowhead silhouette and ivory fill. Remove ALL white and colored stray pixels, dust, speckles and debris surrounding the icon and in its right-side notch. Only a single absolutely clean crisp solid four-vertex shape on true transparent PNG. Four clean straight edges, perfectly sharp corners. Pure flat warm ivory fill, no visible texture/grain, no stroke, no shadow,no noise,no bevel. Preserve silhouette otherwise. Exterior and notch absolutely transparent."
+      }
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "date": "2026-10-06",
+  "purpose": "Lobby/InGame 공통 메뉴 레퍼런스",
+  "generator": "built-in image_gen",
+  "approval": {
+    "scope": "MenuPopup 하위 시각 요소 및 각 원본 Prefab 메뉴만 수정. 기존 이벤트/설정창/팀원 코드 보존.",
+    "pixelCleanup": "사용자 승인: 잔여 픽셀·내부 알파만 보정"
+  },
+  "layout": {
+    "referenceResolution": [
+      1920,
+      1080
+    ],
+    "panel": [
+      650,
+      821.4083
+    ],
+    "button": [
+      444,
+      132
+    ],
+    "buttonCentersY": [
+      90,
+      -77,
+      -244
+    ],
+    "titleFont": "HeirofLightBold_SDF",
+    "labelFont": "HeirofLightRegular_SDF",
+    "titleSize": 60,
+    "labelSize": 42,
+    "icon": [
+      66,
+      66
+    ]
+  },
+  "assets": [
+    {
+      "name": "panel",
+      "generatedSource": "exec-1068d8df-c6e4-46f2-a4b8-47ebdcf2fdc7.png",
+      "source": "Source/panel.png",
+      "texture": "Textures/panel.png",
+      "sprite": "Sprites/panel.asset"
+    },
+    {
+      "name": "button_red",
+      "generatedSource": "exec-e44833f6-b631-484c-974f-76a8f31ab955.png",
+      "source": "Source/button_red.png",
+      "texture": "Textures/button_red.png",
+      "sprite": "Sprites/button_red.asset"
+    },
+    {
+      "name": "button_dark",
+      "generatedSource": "exec-55d81f9d-e556-402e-8b10-956d330cb101.png",
+      "source": "Source/button_dark.png",
+      "texture": "Textures/button_dark.png",
+      "sprite": "Sprites/button_dark.asset"
+    },
+    {
+      "name": "icon_back",
+      "generatedSource": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-c886b271-5f04-480a-a721-4c6b514c880e.png",
+      "source": "Source/icon_back.png",
+      "texture": "Textures/icon_back.png",
+      "sprite": "Sprites/icon_back.asset"
+    },
+    {
+      "name": "icon_gear",
+      "generatedSource": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-29ff6c65-0b6f-4db8-aae1-01906a314336.png",
+      "source": "Source/icon_gear.png",
+      "texture": "Textures/icon_gear.png",
+      "sprite": "Sprites/icon_gear.asset"
+    },
+    {
+      "name": "icon_exit",
+      "generatedSource": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-2f80ac43-64df-4693-a088-2ac97dc530d0.png",
+      "source": "Source/icon_exit.png",
+      "texture": "Textures/icon_exit.png",
+      "sprite": "Sprites/icon_exit.asset"
+    },
+    {
+      "name": "icon_lobby",
+      "generatedSource": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-579ad88d-cd54-4677-87c9-c6a9a789729a.png",
+      "source": "Source/icon_lobby.png",
+      "texture": "Textures/icon_lobby.png",
+      "sprite": "Sprites/icon_lobby.asset"
+    }
+  ],
+  "usage": {
+    "lobby": [
+      "돌아가기",
+      "설정",
+      "게임 종료"
+    ],
+    "battle": [
+      "돌아가기",
+      "설정",
+      "메인로비로"
+    ],
+    "lastIcon": {
+      "lobby": "icon_exit",
+      "battle": "icon_lobby"
+    }
+  },
+  "cleanup": {
+    "icons": "생성된 아이콘의 흰 잔여 픽셀과 작은 잡티만 알파 제거. 보존된 문양 RGB 유지. 투명 픽셀 RGB=0. 내부 고알파 픽셀=255.",
+    "panels": "가장자리 제외 내부 고알파 픽셀을 255로 보정. RGB와 바깥 투명 영역 유지.",
+    "spriteRect": "원본 PNG 여백은 Sprite.rect로 제외. 패널 종횡비 보존."
+  }
+}

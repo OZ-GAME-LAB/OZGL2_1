@@ -10,6 +10,14 @@ namespace OZGL2.InGame
     {
         [SerializeField] private StageDataSO[] _stages = Array.Empty<StageDataSO>();
 
+        public string GetDisplayName(string stageId)
+        {
+            if (_stages != null)
+                foreach (var source in _stages)
+                    if (source != null && source.StageId == stageId) return source.DisplayName;
+            return stageId ?? string.Empty;
+        }
+
         public IReadOnlyList<StageDefinition> CreateDefinitions()
         {
             if (_stages == null || _stages.Length == 0) throw new InvalidOperationException("Stage catalog is empty.");

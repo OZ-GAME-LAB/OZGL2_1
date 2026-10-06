@@ -1,0 +1,19 @@
+{
+  "dimensions": [1254, 1254],
+  "boundsConvention": "top-left origin, xMin/yMin inclusive, xMax/yMax exclusive",
+  "visibleAlphaThreshold": 128,
+  "files": [
+    {"file": "skill_round_damage.png", "visibleBounds": [115, 91, 1137, 1132], "alpha16Bounds": [114, 90, 1138, 1132], "allNonzeroAlphaBounds": [0, 41, 1154, 1254], "centerRgba": [26, 16, 19, 254]},
+    {"file": "skill_round_buff.png", "visibleBounds": [114, 88, 1139, 1132], "alpha16Bounds": [113, 87, 1140, 1133], "allNonzeroAlphaBounds": [0, 85, 1236, 1246], "centerRgba": [22, 20, 18, 254]},
+    {"file": "skill_round_debuff.png", "visibleBounds": [114, 89, 1139, 1132], "alpha16Bounds": [113, 88, 1140, 1133], "allNonzeroAlphaBounds": [110, 43, 1143, 1140], "centerRgba": [23, 18, 23, 254]}
+  ],
+  "interiorDiskTest": {"center": [627, 630], "radius": 350, "alphaMin": 253, "alphaMax": 254},
+  "circleApproximateCenter": [626, 628],
+  "circleApproximateDiameter": 1024,
+  "notes": [
+    "Three independently generated color variants are visually aligned, with visible edge discrepancy up to 3 pixels at 1254px source resolution.",
+    "Generated interior is nearly opaque but NOT alpha255. Do not report fully opaque.",
+    "Very low-alpha output noise exists outside main silhouette. No direct pixel cleanup performed.",
+    "Source PNGs preserved exactly. No Unity import, scene, prefab, C# or meta change was performed by art task."
+  ]
+}
