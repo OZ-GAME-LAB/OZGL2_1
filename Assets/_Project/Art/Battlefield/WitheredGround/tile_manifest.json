@@ -1,0 +1,666 @@
+{
+  "version": 5,
+  "stage": "ingame_unified_grass_edges",
+  "neighbors": {
+    "north": 1,
+    "east": 2,
+    "south": 4,
+    "west": 8
+  },
+  "tiles": [
+    {
+      "id": "grass_32_a",
+      "path": "Terrain/grass_32_a.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "E5246ADF520D3D3DE2D69C37D2ABAADDE0ACE11410EFD3A1BFE0E8EC79575E23"
+    },
+    {
+      "id": "grass_32_b",
+      "path": "Terrain/grass_32_b.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "4C698497B7070219ED57EF1CB02C12E55A155267D1DC6F4D787E1DD7F6D964E4"
+    },
+    {
+      "id": "grass_32_c",
+      "path": "Terrain/grass_32_c.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "8806B0C7C4C6B3F8D71BBB4139A056798D15934D5B85C45A84073052184D830F"
+    },
+    {
+      "id": "earth_32_a",
+      "path": "Terrain/earth_32_a.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "BE36C4182865C50D6DC431B6DFB4A1A715277C155750418A29E4E84C515020A5"
+    },
+    {
+      "id": "earth_32_b",
+      "path": "Terrain/earth_32_b.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "D890B1585566C37FC104BBDD981CFDF330F9A7D22269E423D28FF432E2D1F692"
+    },
+    {
+      "id": "earth_32_c",
+      "path": "Terrain/earth_32_c.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "E95B34A1877D0697D24DEE26FBDE134647D8022832E5541900E0ABD44DC94A35"
+    },
+    {
+      "id": "corrupted_32_a",
+      "path": "Terrain/corrupted_32_a.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "06BBBC886D4A6D16BE9895436833A5B470267135A2588D0D32AE8549A0D9B49E"
+    },
+    {
+      "id": "corrupted_32_b",
+      "path": "Terrain/corrupted_32_b.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "1FE095FF70FD3B903EAD7528499568F0ABC54630979203110454396958F9A070"
+    },
+    {
+      "id": "corrupted_32_c",
+      "path": "Terrain/corrupted_32_c.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "9D0FF3B2A4851F19CB747B68EA0AE624D1FFEA11A5D4C387EA5518000E1024A5"
+    },
+    {
+      "id": "earth_grass_32_m00",
+      "path": "Transitions/earth_grass_32_m00.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "67C6619E9741CCF86381F0AD92142CF4C0C7B9691C38A10CBA5B8318A6BD83EB"
+    },
+    {
+      "id": "earth_grass_32_m01",
+      "path": "Transitions/earth_grass_32_m01.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "E5DFAEA17A710A8493255877EEEA2A739D78223C2F351D1B05A8FE9AFFC867E9"
+    },
+    {
+      "id": "earth_grass_32_m02",
+      "path": "Transitions/earth_grass_32_m02.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "1CCDB4C82E0C3F0C30F0637997B1582494C821C30E5A5510E89385030E29C484"
+    },
+    {
+      "id": "earth_grass_32_m03",
+      "path": "Transitions/earth_grass_32_m03.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "F755C149652CAFFB446855A841A9633BE7A6DD437CF55E90E2B918AE768A780E"
+    },
+    {
+      "id": "earth_grass_32_m04",
+      "path": "Transitions/earth_grass_32_m04.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "E94587B6EBF61B5D9A7699AB2D7EAF3F9BF5797FD84BB810BB5F37808E3BF9F0"
+    },
+    {
+      "id": "earth_grass_32_m05",
+      "path": "Transitions/earth_grass_32_m05.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "3A9EF20BB21A2B4970FF3EB14FCCD16F26E1FCBF40C8E1FCE9B7AAB13B9C0F3F"
+    },
+    {
+      "id": "earth_grass_32_m06",
+      "path": "Transitions/earth_grass_32_m06.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "0DA1FB519C81C2737F407DFA00105D312F94A744F0D129ACE27C913123324DBE"
+    },
+    {
+      "id": "earth_grass_32_m07",
+      "path": "Transitions/earth_grass_32_m07.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "555F88425AC206B79A5C4359766811293E581C8815BA34861E8BD9B204EEAB05"
+    },
+    {
+      "id": "earth_grass_32_m08",
+      "path": "Transitions/earth_grass_32_m08.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "B8327CBC13F88ADCA8F9A3CF810E0473D1804FABD99B58B47924111D3E17E3D1"
+    },
+    {
+      "id": "earth_grass_32_m09",
+      "path": "Transitions/earth_grass_32_m09.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "E98826AE80E3C969B9E1C4304B736C7A4402F386D7BFD8461B4C07500869F877"
+    },
+    {
+      "id": "earth_grass_32_m10",
+      "path": "Transitions/earth_grass_32_m10.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "00DEC988E21BCF5F4F3165B90D0AA71B85F730D82A41D38D79D72C5A27D95A62"
+    },
+    {
+      "id": "earth_grass_32_m11",
+      "path": "Transitions/earth_grass_32_m11.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "2BE81B79D538C653DC80D7C6C027A3BD7BE4A883EDDFE6DC92532696625BE1F6"
+    },
+    {
+      "id": "earth_grass_32_m12",
+      "path": "Transitions/earth_grass_32_m12.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "A9DB5EAFE92EBFCFD0CDE4EC0894230456A9333EBA6EC3FB3F014E57D93C5696"
+    },
+    {
+      "id": "earth_grass_32_m13",
+      "path": "Transitions/earth_grass_32_m13.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "F62526B4B70E6C817C5135A6E4D0979869844DD379C7A42F47A5780648869A8D"
+    },
+    {
+      "id": "earth_grass_32_m14",
+      "path": "Transitions/earth_grass_32_m14.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "F0BA1F69CE8FF01AE5431791AEEBE19A6E9FA772EE8232BE58700A7836685177"
+    },
+    {
+      "id": "earth_grass_32_m15",
+      "path": "Transitions/earth_grass_32_m15.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "C0A518B5B29CC8D53E1907C19FCE9E3E8929FC2985A19892D477E3A85B8522E5"
+    },
+    {
+      "id": "corruption_overlay_32_m00",
+      "path": "Transitions/corruption_overlay_32_m00.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "5B646D3CE53D75022F81EB526D54CF7C97CB1B82D396CB477C0580DA802ADF4D"
+    },
+    {
+      "id": "corruption_overlay_32_m01",
+      "path": "Transitions/corruption_overlay_32_m01.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "BDB7345B351E45E7982C448F9646C504060EF959D76CBEF6063011AFF8FA95E6"
+    },
+    {
+      "id": "corruption_overlay_32_m02",
+      "path": "Transitions/corruption_overlay_32_m02.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "6B8BFC8FD06B415BA881D6695ADA2269270AE16A904677AD171972282147FA8A"
+    },
+    {
+      "id": "corruption_overlay_32_m03",
+      "path": "Transitions/corruption_overlay_32_m03.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "140AFC527935914B47A733980624A56407BB85957D7592FE47CA07103DEE0AC6"
+    },
+    {
+      "id": "corruption_overlay_32_m04",
+      "path": "Transitions/corruption_overlay_32_m04.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "644408104008A77EC478ACE339A6D2743A0A81F0306AD321D679459055CE66B8"
+    },
+    {
+      "id": "corruption_overlay_32_m05",
+      "path": "Transitions/corruption_overlay_32_m05.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "28BB500B2B2F1CC83817C8B2E42A853397B3DB04DCBA50995F6DBBD3B76607D2"
+    },
+    {
+      "id": "corruption_overlay_32_m06",
+      "path": "Transitions/corruption_overlay_32_m06.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "73490A1F7EAA25A9A6110C8754FFAD8A652AB1505689DB97F723AA36E6AF4462"
+    },
+    {
+      "id": "corruption_overlay_32_m07",
+      "path": "Transitions/corruption_overlay_32_m07.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "7BE8B1597F506668727B043A6AD636336E141B038FDF3382363CAD4D817C1FBC"
+    },
+    {
+      "id": "corruption_overlay_32_m08",
+      "path": "Transitions/corruption_overlay_32_m08.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "48375C738144A67E3420C9A6C500D3B3768B5592D67492208F693EE2029764B5"
+    },
+    {
+      "id": "corruption_overlay_32_m09",
+      "path": "Transitions/corruption_overlay_32_m09.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "8EACC2230314C4C24284679AF49028FC903A5C52118ADFA7B9381DE2A7F01F17"
+    },
+    {
+      "id": "corruption_overlay_32_m10",
+      "path": "Transitions/corruption_overlay_32_m10.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "28CF50E0E9DC847370DACC5207CB774FDF104A260F34832553B40EDBDB4DC59E"
+    },
+    {
+      "id": "corruption_overlay_32_m11",
+      "path": "Transitions/corruption_overlay_32_m11.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "80A012A0B2DCD3C8526B5263BB4EB5C0631DAC71998C964AB01C97EF218292F2"
+    },
+    {
+      "id": "corruption_overlay_32_m12",
+      "path": "Transitions/corruption_overlay_32_m12.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "310E512F65C1619A7A1C1D9DFD25DD59465B0D3847F5F8ED1888F0D2E6969866"
+    },
+    {
+      "id": "corruption_overlay_32_m13",
+      "path": "Transitions/corruption_overlay_32_m13.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "21814284FB598838575D8BCC87C96B7AD443223F7C53548E1681176CEE7848D0"
+    },
+    {
+      "id": "corruption_overlay_32_m14",
+      "path": "Transitions/corruption_overlay_32_m14.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "F769C487504B1FE9A338E6E2ACAAAFCA7C495A14D1AC6DA7FB7789466E8EE22C"
+    },
+    {
+      "id": "corruption_overlay_32_m15",
+      "path": "Transitions/corruption_overlay_32_m15.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "7F1B23264BF26B635B08F820179D3F41056BCC2CDE55A2A06D620D0A74AE2984"
+    },
+    {
+      "id": "fallen_hero_64_a",
+      "path": "Decorations/fallen_hero_64_a.png",
+      "width": 64,
+      "height": 64,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "AFFADD4EF9D248ECE9EB7FDF467A1480F8BD45A3838E4B5CC2BAB0D7C663F567"
+    },
+    {
+      "id": "fallen_hero_64_b",
+      "path": "Decorations/fallen_hero_64_b.png",
+      "width": 64,
+      "height": 64,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "B1AEE007C0B57F200BB4E8282A48E0C1B4B06126D1CCAC79C31943CAF8D69E7D"
+    },
+    {
+      "id": "skull_bones_64_a",
+      "path": "Decorations/skull_bones_64_a.png",
+      "width": 64,
+      "height": 64,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "946C9099BCE5F7669B1B8B83129E229775D6B2EC341871DC39118902E64C866E"
+    },
+    {
+      "id": "skull_bones_64_b",
+      "path": "Decorations/skull_bones_64_b.png",
+      "width": 64,
+      "height": 64,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "3D04B5AA071BE149F169665D76D595AED1B6A6DCAFB445217875C7112996EAD4"
+    },
+    {
+      "id": "trampled_grass_32_m00",
+      "path": "Transitions/trampled_grass_32_m00.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "4B7576E032F1AB06A9733BE5E60D430D7CC19D0E003084F58D1BF1818B3DF2F5"
+    },
+    {
+      "id": "trampled_grass_32_m01",
+      "path": "Transitions/trampled_grass_32_m01.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "DA2581A7E891CA64BFFBD5B28B673B364D7F0CCE2A91AE1B3DF0FC0279EC30F8"
+    },
+    {
+      "id": "trampled_grass_32_m02",
+      "path": "Transitions/trampled_grass_32_m02.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "365C1E03B6F4DE9F7FCA384CC554722BBBA425BC0F90D4F56955859D766093A5"
+    },
+    {
+      "id": "trampled_grass_32_m03",
+      "path": "Transitions/trampled_grass_32_m03.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "B52969CE6D365725F4AD67037E23D773B574547FE04E7B50D8D5D73887DA4A9E"
+    },
+    {
+      "id": "trampled_grass_32_m04",
+      "path": "Transitions/trampled_grass_32_m04.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "59056ED786C1A2E0EC9EF3C4FBFD67FD642CA9EECF9F30ABF1470722FC137BD3"
+    },
+    {
+      "id": "trampled_grass_32_m05",
+      "path": "Transitions/trampled_grass_32_m05.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "222C3BC04DEAB71E411FDBA8329E94A9C8618AFA25CBDCBD06BB80A941032FBD"
+    },
+    {
+      "id": "trampled_grass_32_m06",
+      "path": "Transitions/trampled_grass_32_m06.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "8E7D91FE6AA471F2CBCF1912F27D3236A7C17AA14966BE4C3B40F8B1055C0ECA"
+    },
+    {
+      "id": "trampled_grass_32_m07",
+      "path": "Transitions/trampled_grass_32_m07.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "2236135B00D567DB87F191164E0D6EA37C2AAF068C1621F6B92944573D5613FF"
+    },
+    {
+      "id": "trampled_grass_32_m08",
+      "path": "Transitions/trampled_grass_32_m08.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "9F616DE0578E0232CECFB8FFDD8A6D917321260DD76757365966F3A9DCF51BB2"
+    },
+    {
+      "id": "trampled_grass_32_m09",
+      "path": "Transitions/trampled_grass_32_m09.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "6156789B6FD0605D9AAF77BA1EFE16D2E159AE0237F02712CF6B66D408765AC2"
+    },
+    {
+      "id": "trampled_grass_32_m10",
+      "path": "Transitions/trampled_grass_32_m10.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "E3FD4D8BBB17DF30C1CB683F89003A1F55E058302B9838C262727BB199F9DE84"
+    },
+    {
+      "id": "trampled_grass_32_m11",
+      "path": "Transitions/trampled_grass_32_m11.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "8E21B54C331A4F13448669BDD47A8050EFD73443D130FFA62B08C8F44893AD74"
+    },
+    {
+      "id": "trampled_grass_32_m12",
+      "path": "Transitions/trampled_grass_32_m12.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "C3246E95062F8B18760DF91A457EC5ECA83D5F30E420BC605A2187537298BBDA"
+    },
+    {
+      "id": "trampled_grass_32_m13",
+      "path": "Transitions/trampled_grass_32_m13.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "7BAF6A88536BEE35CA27B0A864AAAF1FEB8D2818D0E99D06FFD724F213CA9658"
+    },
+    {
+      "id": "trampled_grass_32_m14",
+      "path": "Transitions/trampled_grass_32_m14.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "7328ABB3AB133732C854C1D00B687F7DB5CE5CAF28D8C04F6E709B23F992DD76"
+    },
+    {
+      "id": "trampled_grass_32_m15",
+      "path": "Transitions/trampled_grass_32_m15.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "22093841F362C4836AF4D3DBE9136DAE0F4E63F4EA5DB3F75F212C0F5948FA25"
+    },
+    {
+      "id": "camp_barrel_logs_32",
+      "path": "Decorations/camp_barrel_logs_32.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "C4ECE20E5973D379727FF4CFC34014585D0C3955BD127F0D12559142B2AC7828"
+    },
+    {
+      "id": "camp_crates_32",
+      "path": "Decorations/camp_crates_32.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "BD8278C30AD3BF83F75C4412632B69CC9D62C9C3C0346489E828D678DE1DE64A"
+    },
+    {
+      "id": "hero_tent_96x80",
+      "path": "Decorations/hero_tent_96x80.png",
+      "width": 96,
+      "height": 80,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "55DFD5F22EE13B7B9B5243EA05C477B4411029C0A264EAF0387870F6108C9E45"
+    },
+    {
+      "id": "grass_sparse_32_a",
+      "path": "Terrain/grass_sparse_32_a.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "8AAA55643D20C8316DA30FE42328C30347105A582E0AA0CA63A0EF70E65FC1A9"
+    },
+    {
+      "id": "grass_sparse_32_b",
+      "path": "Terrain/grass_sparse_32_b.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "FEA32FE1A110A0F59D31C379903DB6595EC54A27B72DAC8A5583C2CDD090C39C"
+    },
+    {
+      "id": "grass_sparse_32_c",
+      "path": "Terrain/grass_sparse_32_c.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": false,
+      "sha256": "A095E307EF2222F26FED5BC461711C5F2E8C5C1E0DC95CB036162FF09140A07C"
+    },
+    {
+      "id": "camp_approach_tiles",
+      "path": "Transitions/camp_approach_tiles_256x160.png",
+      "width": 256,
+      "height": 160,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "E7DB19F037900573A4B4E50DF571B6ED844349AA259E1E77823F1951666CA1AC",
+      "spriteMode": "Multiple",
+      "columns": 8,
+      "rows": 5,
+      "spriteWidth": 32,
+      "spriteHeight": 32,
+      "ordering": "left-to-right, bottom-to-top"
+    },
+    {
+      "id": "withered_tuft_32_a",
+      "path": "Decorations/withered_tuft_32_a.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "7792950DF3F80DC09E5FB00F1AF23DE733035FDE23358D7C61F25584604491E4"
+    },
+    {
+      "id": "withered_tuft_32_b",
+      "path": "Decorations/withered_tuft_32_b.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "4E37766EB16DE8D3A791690C744A8A4065A358D54AEE62323B2B35C7228ED563"
+    },
+    {
+      "id": "withered_tuft_32_c",
+      "path": "Decorations/withered_tuft_32_c.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "A5C101CC60731E5C12FCF6DB596CD649A25F8A98AA85CE2218C2FBF2F022C450"
+    },
+    {
+      "id": "withered_tuft_32_d",
+      "path": "Decorations/withered_tuft_32_d.png",
+      "width": 32,
+      "height": 32,
+      "ppu": 32,
+      "transparent": true,
+      "sha256": "D781FE0756F36AF674770470C59E29BCDCA388E2DAEA2438CBCF8B6E80DF3B61"
+    }
+  ]
+}

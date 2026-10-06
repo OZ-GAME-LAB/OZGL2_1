@@ -10,6 +10,8 @@ namespace OZGL2.Grid.UI
         [SerializeField] private Sprite _unclaimed;
         [SerializeField] private Sprite _available;
         [SerializeField] private Sprite _platform;
+        [SerializeField] private GridTerrainTileSetSO _terrainTiles;
+        public GridTerrainTileSetSO TerrainTiles => _terrainTiles;
         [SerializeField, ColorUsage(false, true)] private Color _unclaimedTint = Color.white;
         [SerializeField] private Color _availableTint = Color.white;
         [SerializeField] private Color _platformTint = Color.white;

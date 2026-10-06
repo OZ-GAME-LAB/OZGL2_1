@@ -67747,6 +67747,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6666700002}
   - component: {fileID: 6666700003}
+  - component: {fileID: 6666700005}
   m_Layer: 0
   m_Name: FontOverride
   m_TagString: Untagged
@@ -67783,6 +67784,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiFontOverride
   _font: {fileID: 12800000, guid: 3d42c3a42941d8c40a8f3eb008fe2aea, type: 3}
   _scanSeconds: 0.4
+--- !u!114 &6666700005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666700001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: add4d09917f358289f5f78053f1b94c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Tutorial.TutorialDirector
+  _kingPrefab: {fileID: 7784438773992661821, guid: e454046cbb79c8a45bd042d39355d3f8, type: 3}
+  _flipKing: 0
+  _charsPerSecond: 44
+  _dimAlpha: 0.62
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

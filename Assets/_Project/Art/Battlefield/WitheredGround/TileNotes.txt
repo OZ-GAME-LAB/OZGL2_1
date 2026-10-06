@@ -1,0 +1,97 @@
+시든 전장 타일 세트 / 2026-10-03 / InGame 전진 기지 연결 완료
+
+원본: 사용자가 확정한 soil_concept_final.png 시안에서 파생한 AI 제작 원화.
+제작: 내장 image_gen. 기존 SPUM 및 외부 유료 텍스처 픽셀을 포함하지 않음.
+원화·프롬프트·재현용 내보내기 도구: output/tile-review/withered-ground-75/ (검토용 로컬 파일).
+원화의 픽셀 중심을 샘플링하고 재질별 공통 팔레트로 내보냈음.
+Assets/00.Scenes/Builds/InGame.unity에 전용 OutdoorBattlefieldTheme/Config로 연결됨.
+기존 DemonCastleTheme와 InGame_2는 유지함.
+
+파일 구성 (PNG 72종)
+- Terrain/grass_32_a~c: 차분한 올리브색 지면 3종. 전체 배경과 미확장 영역. 시안에 맞춰 밝은 점과 잔노이즈를 줄임.
+- Terrain/grass_sparse_32_a~c: 무늬가 성긴 지면 3종. 좌표별 군락 밀도로 선택. 기본 지면과 같은 중간색 팔레트.
+- Terrain/earth_32_a~c: 다진 흙 3종. 확장된 빈 영역의 내부에만 사용.
+- Terrain/corrupted_32_a~c: 오염된 흙 3종. 연속 발판의 내부.
+- Transitions/earth_grass_32_m00~15: 흙만 표시하는 연결 경계 16종. 외곽은 투명하여 아래 배경 잔디가 보임. m15는 전체 불투명.
+- Transitions/trampled_grass_32_m00~15: 이전 눌린 잔디 진입로 16종. 현재 InGame 진입로 연결에서는 사용하지 않음.
+- Transitions/camp_approach_tiles_256x160: 불규칙한 세 갈래 진입 흔적. 연속 원화를 32x32 Sprite 40장으로 나눈 투명 아틀라스.
+- Transitions/corruption_overlay_32_m00~15: 흙 위에 덧씌우는 오염 경계 16종. 미연결 부분은 투명. m15는 내부용 전체 불투명.
+- Decorations/fallen_hero_64_a~b: 쓰러진 용사 장식 2종. 투명 64x64 캔버스.
+- Decorations/skull_bones_64_a~b: 해골과 뼈 장식 2종. 투명 64x64 캔버스.
+- Decorations/hero_tent_96x80: 용사 전진 기지 막사. 투명 96x80 캔버스.
+- Decorations/camp_crates_32, camp_barrel_logs_32: 보급 상자와 통·장작. 각각 투명 32x32 캔버스.
+- Decorations/withered_tuft_32_a~d: 높이·폭·기울기가 다른 시든 풀 군락 4종. 각각 투명 32x32 캔버스.
+
+좌표와 연결 규약
+- 바닥 및 경계: 32x32, 32 PPU, 셀당 1x1 월드 유닛을 기본으로 함.
+- 장식: 32 PPU. 시체·뼈 2x2, 막사 3x2.5, 보급품 1x1 월드 유닛. 실제 그림 크기는 투명 여백을 제외하면 더 작음.
+- Sprite Single / Full Rect / Point / Clamp / mipmap 없음 / 무압축 / sRGB. camp_approach 아틀라스만 Sprite Multiple.
+- mask = N(1) + E(2) + S(4) + W(8). 해당 방향에 같은 지형이 이어지면 비트를 설정.
+- N은 이미지 위쪽이며 Unity 그리드 좌표 (0,+1), E=(+1,0), S=(0,-1), W=(-1,0).
+- 예: m00=고립된 칸, m05=남북 연결, m10=동서 연결, m15=네 방향 내부.
+- 용사 진입부는 최대 배치 그리드 위쪽에만 표시. 같은 잔디 바탕을 유지하고 투명한 마른 흙·풀 흔적을 별도 레이어로 덧그림. 이동 경로나 충돌 규칙과 무관함.
+- 오염 경계는 먼저 그린 흙/잔디 경계 위에 별도 레이어로 표시할 것. 기본 흙을 오염 스프라이트 하나로 대체하면 투명 부분이 잔디로 보일 수 있음.
+- 흙 경계 아래에도 전체 배경 잔디가 있어야 함. InGame의 OutdoorBattlefieldPresentation(-200) 위에 흙(-100), 오염(-99)을 겹쳐 표시함. 잔디를 경계 PNG에 다시 넣지 않아야 미확장 영역과 같은 바탕이 이어짐.
+- 셀별 변형은 좌표 기준으로 고정 선택하여 카메라 이동이나 배치 갱신 때 무늬가 바뀌지 않도록 할 것.
+- 이 세트는 4방향 경계 16종이며, 대각선까지 구별하는 47종 RuleTile 세트는 아님. 대각선 접점은 작은 둥근 여백이 남는 자연 지면 표현임.
+- 배치 칸 안내선, 점유/불가/호버 표시는 PNG에 굽지 않았음. 기존 준비 표시 레이어에서 별도로 그릴 것.
+- 장식은 최대 배치 범위, 마왕의 중앙 하단 자리, 용사 주 이동 경로를 피해서 배치할 것.
+
+공유/사용
+- 신규 자체 제작 아트는 AGENTS.md에 따라 Assets/_Project/Art 아래 저장. 기존 98.ExternalAssets의 석재 샘플은 이동·삭제하지 않음.
+- PNG와 Unity가 생성한 .meta를 함께 관리. 기존 GUID 임의 재생성 금지.
+- scene이나 runtime 연결 코드에 output/ 경로를 참조하지 않을 것.
+- tile_manifest.json은 파일 목록과 연결 규약을 설명하는 제작 메타데이터. 런타임은 SO 참조와 GridTerrainPattern을 사용함.
+
+현재 단계의 확인 범위
+- 실제 PNG 32x32/64x64, 알파, 색상 팔레트, 16종 연결 방향 x 2종, 전체 배치 미리보기.
+- Unity 임포트 속성, Sprite 크기/PPU, .meta, Console 상태.
+- 실제 InGame 준비→전투→다음 준비, 카메라 전환, 전투 중 안내선 숨김을 검증함.
+- 별도 메모리 세션으로 발판 이동·확장 후 지면/오염 선택, 16방향 마스크 조합을 검증함.
+- 모든 난이도 완주, 재도전, 개별 화면비의 시각 검수는 이번 검증에 포함하지 않음.
+
+Inspector 설정
+- InGame/OutdoorBattlefield의 OutdoorBattlefieldPresentation: 게임 설정, 외형 SO, 메인 카메라 참조.
+- OutdoorBattlefieldConfig.asset: 잔디 군락 밀도, 장식 위치·크기, Approach Tiles/Origin/Columns/Opacity, 화면 여유, 타일 개수 상한.
+- WitheredGroundTiles.asset: 흙/오염 변형과 16종 경계, 준비 상태의 안내선 색·폭.
+- OutdoorBattlefieldTheme.asset: 위 타일 세트와 기존 UI용 대표 Sprite를 연결.
+- 화면 전체 지면은 Play 시 카메라에 맞추어 생성됨. 확장/배치 변경은 GridManager.LayoutChanged로 갱신.
+
+전진 기지 설정
+- 중앙 막사 (3.5, 8.6), 왼쪽 상자 (1.2, 7.85), 오른쪽 통·장작 (5.9, 7.65). 위치 단위는 그리드 셀.
+- 기존 세 스폰 지점 (0.5, 6.5), (3.5, 6.5), (6.5, 6.5)를 유지하고 장식은 그 뒤에 배치함.
+- 장식은 Collider 없이 SpriteRenderer로만 생성하며 배치/확장 규칙에 관여하지 않음.
+- 크기와 위치는 외형 SO에서 조절. 최대 배치 영역과 겹치는 장식은 생성 시 제외됨.
+- 흔적은 원점 (0,5), 가로 8칸, 세로 5칸의 고정 장식 타일. 배열은 왼쪽 아래부터 오른쪽으로, 다음 행은 위쪽으로 연결.
+- 원화 전체를 먼저 축소·공통 팔레트로 변환한 뒤 Sprite를 나누므로 경계에서 무늬가 끊기지 않음. 투명 알파를 보존하고 잔디와 별도로 렌더링함.
+- Approach Opacity로 길의 강도를 조절할 수 있음. 흙 확장 영역처럼 꽉 찬 바닥으로 보이지 않게 설정함.
+- 막사는 전투 카메라에서 보임. 준비 카메라는 배치 영역을 확대하므로 막사가 화면 밖에 있을 수 있음.
+- 새 장식 원화는 내장 image_gen으로 생성하고 투명도를 유지한 채 픽셀 크기에 맞춰 분리·축소함.
+- 원화·프롬프트·추출 도구·실행 검증: output/tile-review/hero-forward-camp-75/ (공유 필수 파일 아님).
+- InGame 전용 설정에 연결했으며 InGame_2의 별도 배경에는 자동 적용되지 않음.
+
+잔디 군락과 장식 배치 / 2026-10-03
+- 기존 장식 배열에 풀 군락 110개를 추가. 막사·보급품 3개와 해골·시체 6개를 합쳐 총 119개.
+- 풀은 0.7~1.25배 크기로 성긴 부분과 모인 부분을 섞어 배치. 배치 좌표를 SO에 저장하므로 매 실행이나 카메라 이동 때 다시 추첨하지 않음.
+- 풀 군락의 실제 Sprite 바운드가 최대 배치 그리드, 세 갈래 진입부, 막사·시체·해골과 겹치지 않도록 위치를 선택함. 중앙 하단 마왕 자리도 비워 둠.
+- 시체 위치: (-4.3,1.1), (10.8,3.7). 해골 위치: (-5.7,5.8), (9.4,7.8), (-2.2,-2.3), (11.6,0.2). 크기도 각각 다르게 설정.
+- 풀 군락도 기존 Decorations 항목에서 Sprite, Cell Position, Scale을 편집할 수 있음. 충돌체/게임 규칙 없이 배경 장식으로만 표시.
+- 바탕 6장의 기존 .meta와 GUID를 유지함. 흙 확장·오염 타일·세 갈래 진입부 원화는 유지.
+- 신규 스크립트 없이 기존 외형 SO와 Sprite만 변경. 씬/카메라/스폰 설정은 그대로 사용.
+- 원화·내장 이미지 생성 프롬프트·추출 도구·실행 검증: output/tile-review/grass-reference-75/.
+
+흙 외곽 잔디 통일 / 2026-10-03
+- 흙 경계 16장의 이전 잔디와 풀 그림을 제거하고 투명한 흙 레이어로 내보냄. 미확장 영역과 동일한 배경 잔디가 외곽에 그대로 보임.
+- 기존 흙 내부 3종의 팔레트와 4방향 연결 규약을 유지함. 흙 외곽은 불규칙한 픽셀 형태이며, 잔디가 있는 투명 부분은 그리드 판정에 영향을 주지 않음.
+- 기존 PNG 경로와 .meta/GUID 유지. 씬, SO 설정, 코드 변경 없이 적용.
+- 내장 image_gen 편집 원화·프롬프트·내보내기 도구·검증 기록: output/tile-review/earth-edge-unification-75/.
+
+준비 가독성과 시체 장식 조정 / 2026-10-03
+- WitheredGroundTiles의 Hover Border/Width로 호버 칸 전체 경계를 표시. 준비 단계에서만 보이며 그리드 밖·드래그·입력 차단·포인터 이탈·전투 전환 시 숨김.
+- 확장된 흙 가장자리에 잔디가 보이더라도 실제 칸 전체의 위치를 읽을 수 있음. 호버 테두리는 칸 위치 안내이며 배치 가능 판정은 기존 초록/빨강 미리보기를 따름.
+- Occupied Fill 알파 0.055, Occupied Border 알파 0.5와 폭 0.015625. 보라색 지면을 드러내면서 빨간 점유 표시를 유지. 배치 불가의 강한 빨강과 테두리는 유지함.
+- InGamePrototype의 InGamePhasePresentation > Terrain Style에 WitheredGroundTiles 연결. 미연결 씬은 기존 점유 표시 사용.
+- OutdoorBattlefieldConfig의 각 Decorations > Opacity에서 장식 대비를 조정. 시체 두 개만 0.85, 나머지는 1.
+- 시체 Scale은 a=0.92, b=0.84로 각각 기존 대비 20% 축소. 위치와 PNG/GUID 유지.
+- 입력·표현 계층에만 적용. 배치·교환·합성·확장·전투 규칙은 변경하지 않음.
+- 검증과 실제 화면: output/tile-review/preparation-readability-75/.

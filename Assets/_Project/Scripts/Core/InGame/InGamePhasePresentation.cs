@@ -15,6 +15,7 @@ namespace OZGL2.InGame
         [SerializeField] private InGamePrototypeBootstrap _bootstrap;
         [SerializeField] private GridPrototypeRunner _runner;
         [SerializeField] private InGameCameraTransition _camera;
+        [SerializeField] private GridTerrainTileSetSO _terrainStyle;
         private GridRunSession _session;
         private GridWorldPreparationView _preview;
         private readonly Dictionary<Renderer, bool> _hidden = new Dictionary<Renderer, bool>();
@@ -42,6 +43,7 @@ namespace OZGL2.InGame
         {
             if (_isExternalInputBlocked == isBlocked) return;
             _isExternalInputBlocked = isBlocked;
+            if (isBlocked) _preview?.SetHoveredCell(null);
             if (isBlocked && _session?.Grid != null && _session.Grid.HasSelection)
                 _session.Grid.CancelDrag();
             _runner?.RefreshControls();
@@ -60,6 +62,7 @@ namespace OZGL2.InGame
         {
             _generation++; _camera?.Cancel(); _busy = false; _startingBattle = false; _preparing = false;
             Error = null;
+            Surface?.Dispose();
             RestoreRenderers(); _preview?.Dispose(); _preview = null; _session = null; Surface = null;
             if (_runner != null) { _runner.Unbind(); _runner.ConfigureWorld(null, null, null); }
         }
@@ -74,14 +77,15 @@ namespace OZGL2.InGame
                 var config = _bootstrap.Config;
                 var mapping = new GridWorldMapping(config.GridWorldOrigin, Vector3.right * config.CellWorldSize, Vector3.up * config.CellWorldSize);
                 _preview = new GridWorldPreparationView(session.Grid, mapping, config.CellWorldSize,
-                    (id, star) => { var prefab = config.DemonArmyCatalog.FindPrefab(id, star); return prefab != null ? prefab.gameObject : null; }, transform);
+                    (id, star) => { var prefab = config.DemonArmyCatalog.FindPrefab(id, star); return prefab != null ? prefab.gameObject : null; }, transform, _terrainStyle);
                 // 배치 중 드래그하는 유닛의 사거리 표시용 (전투 프리팹의 statData.attackRange, 월드 단위 그대로).
                 _preview.RangeProvider = (id, star) =>
                 {
                     var prefab = config.DemonArmyCatalog.FindPrefab(id, star);
                     return prefab != null && prefab.statData != null ? prefab.statData.attackRange : 0f;
                 };
-                Surface = new GridWorldInputSurface(_camera.Camera, config.GridWorldOrigin, config.CellWorldSize, () => _preview?.Refresh());
+                Surface = new GridWorldInputSurface(_camera.Camera, config.GridWorldOrigin, config.CellWorldSize,
+                    () => _preview?.Refresh(), cell => _preview?.SetHoveredCell(cell), () => CanInteract);
                 _runner.ConfigureWorld(Surface, RequestBattle, () => CanInteract, () => Error ?? (_busy ? "Camera transitioning..." : null));
                 _runner.ConfigureRecovery(() => CanRetryCamera, () => RetryCamera(), () => ExitAfterCameraError());
                 _runner.Bind(session);
@@ -110,6 +114,7 @@ namespace OZGL2.InGame
         }
         private async void EnterPreparationAsync()
         {
+            _preview?.SetHoveredCell(null);
             int generation = ++_generation; _busy = true; _runner.RefreshControls();
             try { await _camera.FrameAsync(GetBounds(true), true); }
             catch (OperationCanceledException) { }
@@ -145,6 +150,7 @@ namespace OZGL2.InGame
         }
         private async void StartBattleAsync(bool skip)
         {
+            _preview?.SetHoveredCell(null);
             int generation = ++_generation; var session = _session; int round = session.NextRound;
             _busy = true; _startingBattle = true; _runner.RefreshControls();
             try

@@ -135,6 +135,7 @@ namespace OZGL2.Progression
         {
             PlayerPrefs.DeleteKey(KeySp);
             PlayerPrefs.DeleteKey(KeyMilestone);
+            PlayerPrefs.DeleteKey(KeyDrip);
             PlayerPrefs.DeleteKey(KeyEquip);
             foreach (var id in ids)
             {
