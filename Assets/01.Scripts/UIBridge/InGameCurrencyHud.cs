@@ -681,8 +681,8 @@ namespace OZGL2.UIBridge
         private void LayoutSummary(List<RewardRow> rows)
         {
             float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            float padX = 36f * s, padTop = 30f * s, padBottom = 30f * s, iconSize = 40f * s, gap = 12f * s, rowGap = 8f * s;
-            float titleSize = 25f * s, mainSize = 22f * s;
+            float padX = 30f * s, padTop = 26f * s, padBottom = 26f * s, iconSize = 36f * s, gap = 10f * s, rowGap = 8f * s;
+            float titleSize = 23f * s, mainSize = 19f * s;
 
             for (int i = _summaryContent.childCount - 1; i >= 0; i--) Destroy(_summaryContent.GetChild(i).gameObject);
 
@@ -947,32 +947,67 @@ namespace OZGL2.UIBridge
             }
         }
 
-        /// <summary>"이번 웨이브" 패널 바로 아래, 같은 왼쪽 끝과 폭에 맞춰 놓는다(웨이브 패널을 펼치면 함께 내려간다).</summary>
+        /// <summary>
+        /// 보상 패널을 "이번 웨이브" 패널 아래 왼쪽 줄에 놓는다. 폭은 가운데 손패 카드(왼쪽 끝)를 가리지 않게 좁게 고정한다.
+        /// 웨이브 패널은 이름이 바뀌어도 찾도록 제목 글자("이번 웨이브")로 찾고, 패널 안 그림 중 가장 아래·가장 왼쪽을 기준으로 삼는다.
+        /// </summary>
         private void PlaceSummaryUnderWavePanel()
         {
-            if (_wavePanel == null)
-                foreach (var rect in Resources.FindObjectsOfTypeAll<RectTransform>())
-                    if (rect.gameObject.scene.IsValid() && rect.name.StartsWith("WavePreviewPanel")) { _wavePanel = rect; break; }
+            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            if (_wavePanel == null || !_wavePanel.gameObject.activeInHierarchy) _wavePanel = FindWavePanel();
 
-            Vector2 topLeft = new Vector2(Screen.width * 0.03f, Screen.height * 0.72f); // 못 찾았을 때의 대략 위치
-            float width = Screen.width * 0.32f;
-            if (_wavePanel != null && _wavePanel.gameObject.activeInHierarchy)
+            Vector2 topLeft = new Vector2(Screen.width * 0.02f, Screen.height * 0.58f); // 못 찾았을 때의 대략 위치
+            if (_wavePanel != null)
             {
                 var canvas = _wavePanel.GetComponentInParent<Canvas>();
                 Camera cam = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.rootCanvas.worldCamera : null;
-                var corners = new Vector3[4];
-                _wavePanel.GetWorldCorners(corners);
-                Vector2 bl = RectTransformUtility.WorldToScreenPoint(cam, corners[0]);
-                Vector2 tr = RectTransformUtility.WorldToScreenPoint(cam, corners[2]);
-                topLeft = new Vector2(Mathf.Min(bl.x, tr.x), Mathf.Min(bl.y, tr.y) - 8f);
-                width = Mathf.Abs(tr.x - bl.x);
+                float left = float.MaxValue, bottom = float.MaxValue;
+                var gc = new Vector3[4];
+                foreach (var g in _wavePanel.GetComponentsInChildren<Graphic>(false))
+                {
+                    if (g == null || !g.enabled || g.color.a < 0.05f) continue;
+                    g.rectTransform.GetWorldCorners(gc);
+                    Vector2 a0 = RectTransformUtility.WorldToScreenPoint(cam, gc[0]), b0 = RectTransformUtility.WorldToScreenPoint(cam, gc[2]);
+                    if (Mathf.Abs(b0.x - a0.x) > Screen.width * 0.9f) continue; // 화면 전체를 덮는 막은 제외
+                    left = Mathf.Min(left, Mathf.Min(a0.x, b0.x));
+                    bottom = Mathf.Min(bottom, Mathf.Min(a0.y, b0.y));
+                }
+                if (left < float.MaxValue) topLeft = new Vector2(Mathf.Max(8f * s, left), bottom - 28f * s);
             }
+
+            float width = 380f * s;
             if (Mathf.Abs(width - _summaryMinWidth) > 1f)
             {
                 _summaryMinWidth = width;
                 _previewSignature = null; // 폭이 바뀌면 크기를 다시 계산
             }
             _summaryBox.anchoredPosition = topLeft;
+        }
+
+        private RectTransform FindWavePanel()
+        {
+            foreach (var rect in Resources.FindObjectsOfTypeAll<RectTransform>())
+                if (rect.gameObject.scene.IsValid() && rect.gameObject.activeInHierarchy && rect.name.StartsWith("WavePreviewPanel")) return rect;
+
+            RectTransform title = null;
+            foreach (var t0 in Resources.FindObjectsOfTypeAll<Text>())
+                if (t0.gameObject.scene.IsValid() && t0.gameObject.activeInHierarchy && t0.text != null && t0.text.Trim() == "이번 웨이브") { title = t0.rectTransform; break; }
+            if (title == null)
+                foreach (var t1 in Resources.FindObjectsOfTypeAll<TMP_Text>())
+                    if (t1.gameObject.scene.IsValid() && t1.gameObject.activeInHierarchy && t1.text != null && t1.text.Trim() == "이번 웨이브") { title = t1.rectTransform; break; }
+            if (title == null) return null;
+
+            // 제목에서 위로 올라가며, 화면에 비해 너무 크지 않은 가장 큰 덩어리를 패널로 본다
+            RectTransform best = title;
+            var cur = title;
+            while (cur.parent is RectTransform parent && parent.GetComponent<Canvas>() == null)
+            {
+                var corners = new Vector3[4];
+                parent.GetWorldCorners(corners);
+                if (Mathf.Abs(corners[2].x - corners[0].x) > Screen.width * 0.6f || Mathf.Abs(corners[2].y - corners[0].y) > Screen.height * 0.45f) break;
+                best = parent; cur = parent;
+            }
+            return best;
         }
 
         private void EnsureSummary()

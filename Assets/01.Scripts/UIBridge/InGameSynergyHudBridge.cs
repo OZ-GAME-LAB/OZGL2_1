@@ -39,6 +39,8 @@ namespace OZGL2.UIBridge
     public sealed class InGameSynergyHudBridge : MonoBehaviour
     {
         private const int Slots = 4;
+        private const float TrackerScale = 1.25f; // 오른쪽 시너지 목록이 작아 잘 안 보여서 키운다
+        private RectTransform _container;
         private const int ScanInterval = 5; // 프레임마다 확인하지 않아도 충분하다
 
         private UIBattleMutedPreviewView _view;
@@ -89,6 +91,29 @@ namespace OZGL2.UIBridge
             UpdateTooltip(_sync.Synergy);
         }
 
+        private void LateUpdate() => ScaleTracker();
+
+        /// <summary>시너지 목록 전체를 키우고, 화면 오른쪽(왼쪽) 밖으로 나가면 안쪽으로 당겨 놓는다.</summary>
+        private void ScaleTracker()
+        {
+            if (_container == null) return;
+            if (!Mathf.Approximately(_container.localScale.x, TrackerScale)) _container.localScale = new Vector3(TrackerScale, TrackerScale, 1f);
+            var canvas = _container.GetComponentInParent<Canvas>();
+            if (canvas == null || canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay) return; // 오버레이 캔버스에서는 월드 좌표 = 화면 픽셀
+            float minX = float.MaxValue, maxX = float.MinValue;
+            var corners = new Vector3[4];
+            for (int i = 0; i < Slots; i++)
+            {
+                if (_rows[i] == null || !_rows[i].activeInHierarchy) continue;
+                ((RectTransform)_rows[i].transform).GetWorldCorners(corners);
+                minX = Mathf.Min(minX, corners[0].x); maxX = Mathf.Max(maxX, corners[2].x);
+            }
+            if (maxX < minX) return;
+            float margin = 12f;
+            if (maxX > Screen.width - margin) _container.position += new Vector3(Screen.width - margin - maxX, 0f, 0f);
+            else if (minX < margin) _container.position += new Vector3(margin - minX, 0f, 0f);
+        }
+
         private void FindRows()
         {
             var byName = new Dictionary<string, Transform>();
@@ -98,6 +123,7 @@ namespace OZGL2.UIBridge
             {
                 if (!byName.TryGetValue("Synergy_" + i, out var row)) continue;
                 _rows[i] = row.gameObject;
+                if (_container == null) _container = row.parent as RectTransform;
                 foreach (var image in row.GetComponentsInChildren<Image>(true))
                     if (image.name == "Icon") { _icons[i] = image; break; }
             }
