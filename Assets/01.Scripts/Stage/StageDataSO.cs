@@ -10,6 +10,11 @@ namespace OZGL2.Stage
         [SerializeField] private string _stageId;
         [SerializeField] private List<RoundData> _rounds = new List<RoundData>();
 
+        [Header("난이도별 라운드 배율 (보통/어려움을 이 비율 차이로 구분)")]
+        [Tooltip("라운드 R의 HP배율 = 이 값^(R-1). 1에 가까울수록 완만, 클수록 라운드가 갈수록 가파르게 세짐.")]
+        [SerializeField] private float _hpMultiplierRate = RoundData.DefaultHpMultiplierRate;
+        [SerializeField] private float _attackMultiplierRate = RoundData.DefaultAttackMultiplierRate;
+
         public StageDefinition CreateSnapshot()
         {
             if (_rounds == null) throw new InvalidOperationException("Round list is missing.");
@@ -18,7 +23,7 @@ namespace OZGL2.Stage
             {
                 var round = _rounds[i];
                 if (round == null) throw new InvalidOperationException("Round entry is missing.");
-                rounds.Add(round.CreateSnapshot(i + 1));
+                rounds.Add(round.CreateSnapshot(i + 1, _hpMultiplierRate, _attackMultiplierRate));
             }
             return new StageDefinition(_stageId, rounds);
         }
