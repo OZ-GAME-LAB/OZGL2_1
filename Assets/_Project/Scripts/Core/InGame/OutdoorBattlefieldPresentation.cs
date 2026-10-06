@@ -13,6 +13,9 @@ namespace OZGL2.InGame
         private readonly Stack<SpriteRenderer> _spares = new Stack<SpriteRenderer>();
         private readonly List<Vector2Int> _outside = new List<Vector2Int>();
         private Transform _root;
+        private Transform _campRoot;
+        private string _stageId;
+        private int _tentCount;
         private Vector3 _origin;
         private float _cellSize;
         private Vector2Int _gridSize;
@@ -44,19 +47,48 @@ namespace OZGL2.InGame
             }
             foreach (var decoration in _appearance.Decorations)
             {
-                if (decoration == null || decoration.Sprite == null) continue;
-                // 장식이 최대 배치 범위를 덮는 설정 실수를 방지한다. 중앙 하단은 장식 데이터에서 비워 둔다.
-                var p = decoration.CellPosition;
-                var half = (Vector2)decoration.Sprite.bounds.size * decoration.Scale * 0.5f;
-                if (p.x + half.x >= -0.5f && p.x - half.x <= _gridSize.x - 0.5f &&
-                    p.y + half.y >= -0.5f && p.y - half.y <= _gridSize.y - 0.5f) continue;
-                var renderer = CreateRenderer("BattlefieldDecoration_" + decoration.Sprite.name, -190);
-                renderer.sprite = decoration.Sprite;
-                renderer.color = new Color(1f, 1f, 1f, decoration.Opacity);
-                renderer.transform.position = _origin + new Vector3(p.x, p.y) * _cellSize;
-                renderer.transform.localScale = Vector3.one * (_cellSize * decoration.Scale);
+                if (decoration != null) CreateDecoration(decoration, decoration.CellPosition, _root, "BattlefieldDecoration_");
             }
+            RefreshCamp();
             RefreshCoverage();
+        }
+
+        public void SetStage(string stageId)
+        {
+            _stageId = stageId;
+            if (_root != null) RefreshCamp();
+        }
+
+        private void RefreshCamp()
+        {
+            var tent = _appearance.CampTent;
+            if (tent == null || tent.Sprite == null) return;
+            int count = _appearance.GetTentCount(_stageId);
+            // 배치/전투/보상 알림과 재도전마다 같은 천막을 다시 생성하지 않는다.
+            if (_campRoot != null && _tentCount == count) return;
+            if (_campRoot != null) { _campRoot.gameObject.SetActive(false); Destroy(_campRoot.gameObject); }
+            _campRoot = new GameObject("DifficultyCamp").transform;
+            _campRoot.SetParent(_root, false);
+            _tentCount = count;
+            for (int i = 0; i < count; i++)
+                CreateDecoration(tent, _appearance.GetTentCell(i, count), _campRoot, "CampTent_");
+            foreach (var prop in _appearance.CampProps)
+                if (prop != null) CreateDecoration(prop, prop.CellPosition + _appearance.CampOffset, _campRoot, "CampProp_");
+        }
+
+        private void CreateDecoration(OutdoorBattlefieldConfigSO.Decoration decoration, Vector2 cell, Transform parent, string prefix)
+        {
+            if (decoration.Sprite == null) return;
+            // 천막도 공통 장식과 동일하게 최대 배치 범위를 침범하지 못한다.
+            var half = (Vector2)decoration.Sprite.bounds.size * decoration.Scale * 0.5f;
+            if (cell.x + half.x >= -0.5f && cell.x - half.x <= _gridSize.x - 0.5f &&
+                cell.y + half.y >= -0.5f && cell.y - half.y <= _gridSize.y - 0.5f) return;
+            var renderer = CreateRenderer(prefix + decoration.Sprite.name, -190);
+            renderer.transform.SetParent(parent, false);
+            renderer.sprite = decoration.Sprite;
+            renderer.color = new Color(1f, 1f, 1f, decoration.Opacity);
+            renderer.transform.position = _origin + new Vector3(cell.x, cell.y) * _cellSize;
+            renderer.transform.localScale = Vector3.one * (_cellSize * decoration.Scale);
         }
 
         // 준비/전투 카메라가 매 프레임 이동하므로 전환 도중에도 화면 모서리를 채워야 한다.
@@ -123,6 +155,7 @@ namespace OZGL2.InGame
         private void OnDisable()
         {
             if (_root != null) { _root.gameObject.SetActive(false); Destroy(_root.gameObject); }
+            _campRoot = null; _tentCount = 0;
             _root = null; _tiles.Clear(); _spares.Clear(); _outside.Clear(); _hasCoverage = false; _hasWarned = false;
         }
     }

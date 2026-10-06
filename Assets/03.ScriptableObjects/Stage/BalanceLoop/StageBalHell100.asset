@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: StageBalHell100
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Stage.StageDataSO
   _stageId: bal_hell_100
+  _displayName: "\uD5EC"
   _rounds:
   - _roundId: bal_hell_100_round_01
     _spawns:

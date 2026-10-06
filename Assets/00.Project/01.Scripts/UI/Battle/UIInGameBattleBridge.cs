@@ -130,7 +130,6 @@ namespace OZGL2.UIFlow
         {
             InGameRunResult result = _bootstrap != null ? _bootstrap.Result : null;
             if (result == null || !_bootstrap.TryRetryResult(result.RunId)) return false;
-            CloseResultPopupIfTop();
             return true;
         }
 
@@ -425,6 +424,9 @@ namespace OZGL2.UIFlow
             if (result == null)
             {
                 _shownResultRunId = null;
+                // 더미 UI 등 다른 진입점에서 재도전해도 결과 상태 해제와 화면을 동기화한다.
+                _popupController?.CloseResolvedPopup(_victoryPopup);
+                _popupController?.CloseResolvedPopup(_defeatPopup);
                 return;
             }
             if (_shownResultRunId == result.RunId || _popupController == null) return;
@@ -444,7 +446,7 @@ namespace OZGL2.UIFlow
                 : (int)result.Progress.EarnedExperience;
             view.SetState(isVictory ? eBattleResultState.VICTORY : eBattleResultState.DEFEAT);
             view.SetData(new BattleResultDisplayData(
-                result.Progress.StageId,
+                _bootstrap.Config?.StageCatalog?.GetDisplayName(result.Progress.StageId) ?? result.Progress.StageId,
                 _elapsedRunSeconds,
                 _killCount,
                 _maximumDeploymentCount,
@@ -453,13 +455,6 @@ namespace OZGL2.UIFlow
                 normalizedXp,
                 result.Level > _runStartLevel));
             _popupController.OpenPopup(popup);
-        }
-
-        private void CloseResultPopupIfTop()
-        {
-            if (_popupController == null) return;
-            if (_popupController.IsTopPopup(_victoryPopup) || _popupController.IsTopPopup(_defeatPopup))
-                _popupController.CloseConfirmedPopup();
         }
 
         private void RefreshElapsedTimeDisplay(bool force)
