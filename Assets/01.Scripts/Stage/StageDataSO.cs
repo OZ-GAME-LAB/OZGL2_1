@@ -8,7 +8,12 @@ namespace OZGL2.Stage
     public sealed class StageDataSO : ScriptableObject, IStageDataSource
     {
         [SerializeField] private string _stageId;
+        [SerializeField, Tooltip("UI 표시용 이름. 내부 ID와 저장 데이터에는 영향을 주지 않습니다.")]
+        private string _displayName;
         [SerializeField] private List<RoundData> _rounds = new List<RoundData>();
+
+        public string StageId => _stageId;
+        public string DisplayName => string.IsNullOrWhiteSpace(_displayName) ? _stageId : _displayName.Trim();
 
         public StageDefinition CreateSnapshot()
         {

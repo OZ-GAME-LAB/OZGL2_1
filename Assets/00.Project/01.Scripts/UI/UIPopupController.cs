@@ -46,22 +46,54 @@ namespace OZGL2.UIFlow
         public void CloseConfirmedPopup()
         {
             if (_openPopups.Count == 0) return;
-            int index = _openPopups.Count - 1;
+            ClosePopupAt(_openPopups.Count - 1);
+        }
+
+        /// <summary>소유 시스템이 완료한 팝업만 제거한다. 사용자 닫기 정책은 검사하지 않는다.</summary>
+        public bool CloseResolvedPopup(UIPopupPanel popup)
+        {
+            if (popup == null) return false;
+            int index = _openPopups.IndexOf(popup);
+            if (index < 0) return false;
+            ClosePopupAt(index);
+            return true;
+        }
+
+        private void ClosePopupAt(int index)
+        {
+            bool isTop = index == _openPopups.Count - 1;
             UIPopupPanel popup = _openPopups[index];
             GameObject previousSelection = _previousSelections[index];
+            // 중간 팝업을 제거해도 상위 팝업이 닫힐 때 삭제된 UI로 포커스가 돌아가지 않게 한다.
+            for (int i = index + 1; i < _previousSelections.Count; i++)
+                if (i == index + 1 || BelongsToPopup(_previousSelections[i], popup))
+                    _previousSelections[i] = previousSelection;
+            bool selectionRemoved = EventSystem.current != null &&
+                BelongsToPopup(EventSystem.current.currentSelectedGameObject, popup);
             _openPopups.RemoveAt(index);
             _previousSelections.RemoveAt(index);
             if (popup != null)
             {
-                popup.gameObject.SetActive(false);
                 popup.BindController(null);
+                popup.gameObject.SetActive(false);
             }
             if (_openPopups.Count > 0) _openPopups[_openPopups.Count - 1].SetInteractable(true);
-            else if (_screenGroup != null) _screenGroup.interactable = true;
-            if (EventSystem.current != null)
-                EventSystem.current.SetSelectedGameObject(previousSelection != null && previousSelection.activeInHierarchy ? previousSelection : null);
+            if (_screenGroup != null) _screenGroup.interactable = _openPopups.Count == 0;
+            if (EventSystem.current != null && (isTop || selectionRemoved))
+            {
+                GameObject selection = previousSelection;
+                if (!isTop && _openPopups.Count > 0)
+                {
+                    var first = _openPopups[_openPopups.Count - 1].FirstSelected;
+                    selection = first != null ? first.gameObject : null;
+                }
+                EventSystem.current.SetSelectedGameObject(selection != null && selection.activeInHierarchy ? selection : null);
+            }
             OpenCountChanged?.Invoke(_openPopups.Count);
         }
+
+        private static bool BelongsToPopup(GameObject selection, UIPopupPanel popup) =>
+            selection != null && popup != null && selection.transform.IsChildOf(popup.transform);
 
         private void Update()
         {
