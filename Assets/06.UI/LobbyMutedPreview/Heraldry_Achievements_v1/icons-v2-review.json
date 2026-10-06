@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-05",
+  "scope": "업적 화면의 트로피, 업적 9종, 뒤로가기 화살표만 재제작·교체. 기존 씬 배치·문구·업적 기능 유지.",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-2cbd0d4c-f4a6-489e-8ade-4fdf70362ad3.png",
+  "artDirection": "절제된 아이보리/탄 2색 평면 실루엣. 과한 금속 광택 제거. 검+월계, 성문, 가는 투구, 뿔 투구 2종, 해골+불꽃, 성장 화살표, 불꽃 소용돌이, 흉갑, 트로피, 채워진 화살촉.",
+  "generationRecords": [
+    "prompts-icons-a-v2.json",
+    "prompts-icons-b-v2.json",
+    "prompts-header-icons-v2.json"
+  ],
+  "cleanup": {
+    "authorization": "잔여 픽셀만 직접 보정후에도 주변 잔여 픽셀이 남거나, 이미지가 깨진다면 이미지 생성으로 수정.",
+    "method": "알파 1~8 잔여점 및 알파 9~63의 순백색 잔여점(R,G,B>245)만 알파 0으로 변경. RGB 및 알파 64 이상 본체·테두리는 변경하지 않음.",
+    "stats": [
+      {
+        "name": "first_defense",
+        "lowAlphaRemoved": 11475,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "first_gate",
+        "lowAlphaRemoved": 5950,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "veteran",
+        "lowAlphaRemoved": 6473,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "hunter_i",
+        "lowAlphaRemoved": 8280,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "hunter_ii",
+        "lowAlphaRemoved": 11910,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "giant_fall",
+        "lowAlphaRemoved": 11517,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "growth",
+        "lowAlphaRemoved": 6673,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "tuning",
+        "lowAlphaRemoved": 42462,
+        "whiteResidueRemoved": 37,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "ready",
+        "lowAlphaRemoved": 4368,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      {
+        "name": "trophy_achievement",
+        "lowAlphaRemoved": 25662,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1199,
+        "height": 1312
+      },
+      {
+        "name": "back_arrow",
+        "lowAlphaRemoved": 6638,
+        "whiteResidueRemoved": 0,
+        "rgbChanged": 0,
+        "bodyAlphaChanged": 0,
+        "remainingLowAlpha": 0,
+        "width": 1254,
+        "height": 1254
+      }
+    ],
+    "qa": "투명 PNG 미리보기는 알파 0의 RGB255 영역을 흰 점으로 표시하나 실제 Unity Game View에서는 투명하게 렌더됨. Game View에서 손잡이 구멍·소용돌이 틈·화살촉 외곽의 잔여점과 깨짐 없음 확인."
+  },
+  "scene": "Assets/00.Scenes/Builds/Lobby.unity",
+  "changedObjects": [
+    "Canvas_LobbyOverlays/Canvas_Achievements/CompletedBadge/Trophy",
+    "Canvas_LobbyOverlays/Canvas_Achievements/Back/Arrow",
+    "Canvas_LobbyOverlays/Canvas_Achievements/Back/ArrowGlyph (inactive)",
+    "Canvas_LobbyOverlays/Canvas_Achievements/AchievementCard_Template/Icon"
+  ],
+  "catalog": "AchievementCatalog.asset (_icon 9개만 변경)",
+  "preservation": {
+    "allOtherSerializedSceneObjectsExactlyUnchanged": true,
+    "achievementDataUnchanged": true,
+    "csharpUnchanged": true,
+    "csharpSha256": "20819B509148354F65378B684DF954DF12D834476D674CCA40C6020F4AC31F6D",
+    "sharedPrefabsUnchanged": true,
+    "projectSettingsUnchanged": true,
+    "packagesUnchanged": true,
+    "originalPngPreserved": true,
+    "sceneSavedInEditMode": true
+  },
+  "validation": {
+    "checks": 90,
+    "failures": [],
+    "completed": 2,
+    "total": 9,
+    "active": true,
+    "compiling": false
+  },
+  "console": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "reviewCapture": "Assets/98.ExternalAssets/00.LocalStaging/Heraldry_Achievements_Review_20261005/04_Icons_V2.png",
+  "notChecked": [
+    "Player 빌드",
+    "다른 화면비",
+    "물리 마우스 조작",
+    "실제 전투 업적 집계·저장"
+  ]
+}

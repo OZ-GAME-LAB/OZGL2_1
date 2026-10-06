@@ -1,0 +1,46 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-06",
+  "purpose": "Currency icon reference reproduction and flagless Panel_CurrentAmount background",
+  "outputFolder": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v4/Source",
+  "assets": [
+    {
+      "file": "currency_flame_reference.png",
+      "useCase": "background-extraction / style-transfer",
+      "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-604568e7-eb67-457b-99f8-861a08c570e6.png",
+      "initialPrompt": "Use case: background-extraction / style-transfer. Asset type: single production game UI currency flame icon, transparent PNG. Image 1 is the exact silhouette reference (a tiny screenshot), not a background to preserve. Recreate ONLY the ivory white fire glyph from that reference at high resolution with smooth clean non-pixel edges. Follow the silhouette closely: an elegant long slender S-curving tallest flame reaching upward, a smaller flick on the left shoulder, a tapering outward right flame, and a pointed small inner tongue rising from the low central bowl. The dark negative-space holes between the white flame branches MUST be genuine transparent cutouts, not black paint. Main body ivory-white like #F1E8D2, essentially flat solid fill, no orange/yellow fire, no bevel, no shaded blur, no glow. Center it on a genuinely transparent canvas with 12 percent margin, keep its narrow tall approx 0.65 width-to-height silhouette. No red frame, no black background, no ring, no text, no numbers, no extra motifs. This is a crisp small readable dark-medieval casual fantasy HUD symbol, not a realistic fire and not pixel art.",
+      "refinementPrompt": "Use case: precise-object-edit / background-extraction. Edit only the transparency of Image 1, keeping its precise curving flame silhouette and flat ivory fill. Remove ALL of the luminous glow, smoky halos, feathered shadow, and blurred alpha inside and outside this symbol. This is a HARD-EDGED FLAT PRINTED UI GLYPH, it emits no light. Every non-ivory pixel outside the solid silhouette AND every hollow gap between its flame branches must be 100 percent transparent. Its outer and inner boundaries are sharp, clean antialiased edges only. The large internal flame-shaped negative-space hole must be completely transparent. Preserve the exact overall slender flame geometry, all pointed tips, no new motifs. Use a single solid flat ivory #F1E8D2 shape. No gradient, no shading, no glowing, no shadow, no ambient light, no black fill, no background. Production transparent PNG for a small HUD icon. Preserve original ratio and composition.",
+      "generatedFile": "C:/Users/sudea/.codex/generated_images/01a10cac-7f36-7760-a7bf-2154690e7d99/exec-9e27b724-4d9e-4252-a63e-1b4d4f4cb5d8.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "suggestedSpriteRectBottomLeft": [
+        128,
+        113,
+        768,
+        1325
+      ],
+      "preserveAspect": true,
+      "validation": "Alpha inspection: outer background and internal negative-space hole are alpha 0. Nonzero RGB under alpha 0 appears as a glow in some raw previews but is transparent in Unity. Native generated alpha preserved."
+    },
+    {
+      "file": "currency_medallion_no_flags.png",
+      "useCase": "precise-object-edit",
+      "reference": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v2/Source/currency_medallion.png",
+      "prompt": "Use case: precise-object-edit. Asset type: transparent game UI currency medallion background. Image 1 is the edit target. Remove ONLY the two red cloth ribbon tails protruding at the lower LEFT of the circular medallion. Replace their entire former area with genuine alpha transparency. Preserve the round antique-gold metal rim, its thickness and shading, the dark burgundy softly shaded solid opaque interior, the gold top and bottom diamond ornaments, black outlines, exact front view, relative sizes, positions and all other details. Keep the same square 1280x1280 composition and preserve the existing circular rim diameter and center placement; do not enlarge or shrink it after removing the ribbons. The medallion interior remains fully opaque burgundy. No text, no icon, no number, no new decoration, no shadows outside the object. Outside the medallion must be genuinely transparent. Style remains the same smooth hand-painted non-pixel medieval casual fantasy UI, restrained clean gradients, not photoreal material.",
+      "generatedFile": "C:/Users/sudea/.codex/generated_images/01a10cac-7f36-7760-a7bf-2154690e7d99/exec-78b3e6f5-6166-4e92-8b07-dc3868e98b47.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "suggestedSpriteRectBottomLeft": [
+        158,
+        70,
+        907,
+        1137
+      ],
+      "validation": "Both reference and output are 1254x1254. Top/bottom diamond and circular rim placement preserved. Reusing old SpriteRect preserves rendered circle alignment, leaving the old ribbon footprint transparent. Center alpha 252 is unchanged from source. No direct pixel edits."
+    }
+  ]
+}

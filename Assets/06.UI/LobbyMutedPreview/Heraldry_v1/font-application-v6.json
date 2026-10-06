@@ -1,0 +1,23 @@
+{
+  "version": 6,
+  "date": "2026-10-05",
+  "request": "Warhaven 메뉴 가독성 피드백에 따라 빛의 계승자 폰트로 교체",
+  "scope": [
+    "Canvas_Lobby",
+    "Canvas_LobbyOverlays/MenuPopup",
+    "Canvas_LobbyOverlays/SettingsPopup"
+  ],
+  "replaces": "NEXON_Warhaven Regular / Bold only",
+  "fonts": {
+    "folder": "Assets/98.ExternalAssets/00.LocalStaging/01.Font/02.SDF_File",
+    "headingRegular": "HeirofLightRegular_SDF.asset",
+    "headingBold": "HeirofLightBold_SDF.asset",
+    "bodyUnchanged": "NEXON_Lv2_Gothic_SDF.asset"
+  },
+  "changedTextCount": 20,
+  "layoutFit": { "target": "Canvas_LobbyOverlays/SettingsPopup/Panel/Title", "heightBefore": 76, "heightAfter": 88, "reason": "HeirofLight at size 58 requires 83.35px line height; font size retained." },
+  "preservedTextCount": 120,
+  "callbacksUnchanged": 240,
+  "sharingPackage": "Assets/98.ExternalAssets/00.LocalStaging/Lobby_Fonts_HeirofLight_20261005.unitypackage",
+  "notes": "Original fonts, images, gameplay, other screen interiors and shared prefab sources unchanged. Existing font sizes and weights retained. Scene instance overrides only. Old SDF assets/package preserved; use this new package for the current HeirofLight + Gothic scene."
+}

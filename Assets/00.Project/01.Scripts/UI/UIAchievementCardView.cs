@@ -20,6 +20,10 @@ namespace OZGL2.UIFlow
         private Image[] _segments;
         [SerializeField] private Color _inProgressColor = new Color32(140, 76, 73, 255);
         [SerializeField] private Color _completedColor = new Color32(220, 204, 172, 255);
+        [SerializeField, Tooltip("상태 문구에 별도 색상을 사용합니다. 끄면 기존처럼 진행 막대 색상을 따릅니다.")]
+        private bool _hasStatusColorOverrides;
+        [SerializeField] private Color _inProgressTextColor = new Color32(231, 218, 190, 255);
+        [SerializeField] private Color _completedTextColor = new Color32(224, 183, 108, 255);
 
         public string EntryId { get; private set; } = string.Empty;
         public int CurrentProgress { get; private set; }
@@ -48,7 +52,10 @@ namespace OZGL2.UIFlow
             SetText(_descriptionText, hasEntry ? entry.Description : string.Empty);
             SetText(_progressText, hasEntry ? $"{CurrentProgress} / {Target}" : string.Empty);
             SetText(_completedText, !hasEntry ? string.Empty : IsCompleted ? "달성" : "진행 중");
-            if (_completedText != null) _completedText.color = stateColor;
+            if (_completedText != null)
+                _completedText.color = _hasStatusColorOverrides
+                    ? (IsCompleted ? _completedTextColor : _inProgressTextColor)
+                    : stateColor;
 
             SetFill(_progressFill, ProgressRatio, stateColor);
             if (_progressDividers != null)

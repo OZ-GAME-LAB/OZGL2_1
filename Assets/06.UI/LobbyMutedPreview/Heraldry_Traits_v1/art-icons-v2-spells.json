@@ -1,0 +1,180 @@
+{
+  "version": 2,
+  "purpose": "기존 Spells 특성 아이콘의 형태를 유지하면서 도트 없는 고해상도 아이보리 UI 아이콘으로 재제작.",
+  "tool": "built-in image_gen",
+  "outputPolicy": "각 아이콘 별도 호출. 생성 원본을 그대로 복사했으며 알파/픽셀 후처리 없음.",
+  "referencePolicy": "TreeArt_v1의 각 기존 개별 PNG를 직접 확인하고 그 PNG를 생성 참조로 사용. GENERATION.md의 형태 설명만 참고하고 pixel/chroma 지시는 미적용.",
+  "validation": "생성 결과를 육안으로 확인. PNG 크기 및 alpha > 8 bounding rectangle을 읽기 전용 검사. Unity import, scene and meta changes excluded.",
+  "icons": [
+    {
+      "name": "Icon_Spells_AdditionalCommand",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-fe7a9a27-0a49-4ed8-861d-a3c0dfcf10fb.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_AdditionalCommand.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AdditionalCommand.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: THREE military command SPEARHEADS on straight vertical short shafts, central spear taller than identical left/right spears. Broad tapered lanceheadwithsmall side barbs, small diamond knob directly below each blade, narrowstraight shaft. Same original nonfan uprightparallelarrangement.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        316,
+        236,
+        622,
+        807
+      ],
+      "cornerAlpha": 0,
+      "originalName": "AdditionalCommand"
+    },
+    {
+      "name": "Icon_Spells_Acceleration",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-5aa8882a-68c7-4a92-b726-72c3996cc679.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_Acceleration.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_Acceleration.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: Simple classic HOURGLASS identical to reference: short thin horizontal top and bottom bars, narrow inward curving glasssides crossing in center, two warm-ivory sandtriangles inside, transparent glassvoids. Thin clear overallprofile, no large metalhousing.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        358,
+        256,
+        538,
+        745
+      ],
+      "cornerAlpha": 0,
+      "originalName": "Acceleration"
+    },
+    {
+      "name": "Icon_Spells_MagicPenetration",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-2705caea-431e-40f1-a9c1-23341bfa1589.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_MagicPenetration.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_MagicPenetration.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: THREE jagged magical lances piercing UPWARD in a fan formation: tall straight center spear, left and right shorter jagged pointed lances angled slightly outward. Preserve exact original composition, all three taper down toward bottom center, NOT mundane military spear shafts.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        285,
+        159,
+        684,
+        933
+      ],
+      "cornerAlpha": 0,
+      "originalName": "MagicPenetration"
+    },
+    {
+      "name": "Icon_Spells_LegionShout",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-c6d5dd86-8d0e-4c6d-81af-df97b31e57e0.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_LegionShout.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_LegionShout.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: One military standard on a vertical LEFT pole with pointed spearhead finial, small poleknobs near the cloth attachments. A cream cloth flag attached to its RIGHT waves and ends with two trailing swallowtail points, preserve the original folds/shape. Short pole extends below flag. No emblem or letters on cloth.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        344,
+        274,
+        633,
+        775
+      ],
+      "cornerAlpha": 0,
+      "originalName": "LegionShout"
+    },
+    {
+      "name": "Icon_Spells_DemonPower",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-aced4239-d43e-4e8b-9035-e56459402e2c.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_DemonPower.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_DemonPower.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: Three gracefully swirling broad arcane crescent arms rotate around a small separate four-point STAR exactly at center. Preserve original sophisticated three-arm swirling vortex layout and curled ends, transparent gaps between arms. NOT plain circular spiral, not flame.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        225,
+        217,
+        806,
+        844
+      ],
+      "cornerAlpha": 0,
+      "originalName": "DemonPower"
+    },
+    {
+      "name": "Icon_Spells_AreaDominion",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-d7f34fa0-ce4a-410b-8a23-9760ff7d68f3.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_AreaDominion.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_AreaDominion.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: THREE simple frontal HUMAN UPPER BODY silhouettes, central human taller, two smaller figures left and right. Round heads separated by small neck, simple shoulders and visibly short arms extending alongside torsos. Preserve actual human silhouettes from source, NOT chess pawns or robe shapes.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        207,
+        336,
+        838,
+        623
+      ],
+      "cornerAlpha": 0,
+      "originalName": "AreaDominion"
+    },
+    {
+      "name": "Icon_Spells_RuinEssence",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-2c763234-0b18-429d-8242-ab2eaf38a251.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_RuinEssence.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_RuinEssence.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: Compact sharp magical starburst: four long axis-aligned tapered rays (north/south longer, east/west shorter), shorter fine diagonal rays between them, and a small transparent 4-point diamond/star hole in its CENTER. Keep the original symmetrical narrow proportions. It is not a solid explosive blob.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        281,
+        220,
+        692,
+        817
+      ],
+      "cornerAlpha": 0,
+      "originalName": "RuinEssence"
+    },
+    {
+      "name": "Icon_Spells_PreciseSpell",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-6e4cc491-162c-448b-9589-c1e9a4b8081c.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_PreciseSpell.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_PreciseSpell.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: Magical targeting crosshair: an intrinsic circular ring, four narrow extended compass-axis spikes, and a central hollow four-pointed curved diamond star. Keep the original ring-to-star overlap arrangement and transparent spaces. Its intrinsic circle is part of the icon, not an added UI frame.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        165,
+        164,
+        923,
+        941
+      ],
+      "cornerAlpha": 0,
+      "originalName": "PreciseSpell"
+    },
+    {
+      "name": "Icon_Spells_SwiftSpell",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-bfe4857a-b3c1-4cf4-bd5e-198d8c673976.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_SwiftSpell.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_SwiftSpell.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: One elegant right-leaning FEATHER/WING with tapered upward-right tip, cream centralcurvedquill, about six clearly separated feather barbs pointing upper-right. Several short horizontal speed dashes extend to the LEFT behind its lower half. Preserve reference distinct feather silhouette and orientation, no bird body.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        253,
+        256,
+        810,
+        737
+      ],
+      "cornerAlpha": 0,
+      "originalName": "SwiftSpell"
+    },
+    {
+      "name": "Icon_Spells_TimeDistortion",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-0d22c8c7-ea32-42dd-aca5-14c6179ed2bb.png",
+      "oldreference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Spells/Icon_Spells_TimeDistortion.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Spells_TimeDistortion.png",
+      "prompt": "Use case: style-transfer. Image1 is the EXACT OLD ICON design to preserve, NOT a style reference for pixel art. Redraw this one icon as a clean smooth high-resolution 2D vector-like bitmap, preserving its distinctive symbol, number of components, overall silhouette, proportions, orientation and internal holes. Replace ALL staircase pixel edges with smooth carefully antialiased geometric contours. Do NOT invent an unrelated symbol. Flat warm ivory #E9DFC7 fill with a very thin charcoal outline and only tiny weakbeige accents. NO 3D, NO realistic material, NO brushwork, NO texture/no grain, NO strong gradients, NO shadows/glow, NO chunky bevel, NO pixelart, NO letters/numbers, NO surrounding frame or background. Transparent exterior and all gaps, genuinealphaPNG. Exactly ONE complete centered symbol, its longestaxis70–75percent of squarecanvas; clean empty margins. Must read at64–100px. Original darkcolor outside/insideopenings is transparent, not a backdrop to retain. Subject-specific shape: A winding circular VORTEX SPIRAL with three tapered windlike arcs curving toward a tight small central curl, preserving the original spiral direction and slightly open interruptedcircle. NOT an eye, no star in center, no flame tail, no arrows. Keep distinctive sharp taperedouterends.",
+      "width": 1254,
+      "height": 1254,
+      "unityRect": [
+        265,
+        255,
+        748,
+        770
+      ],
+      "cornerAlpha": 0,
+      "originalName": "TimeDistortion"
+    }
+  ]
+}

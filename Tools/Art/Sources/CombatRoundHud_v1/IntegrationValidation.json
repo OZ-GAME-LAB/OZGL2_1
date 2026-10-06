@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-06",
+  "scene": "Assets/00.Scenes/Builds/InGame.unity",
+  "finalArtDirectory": "Assets/06.UI/BattleMutedPreview/Heraldry_Battle_v5",
+  "generationRecord": "Generation.json",
+  "finalAlphaRecord": "AlphaNormalization.json",
+  "sourceValidationScope": "Validation.json describes unmodified generated sources, not the alpha-corrected final Unity textures.",
+  "changes": [
+    "Currency and three category backgrounds: approved closed-interior alpha normalization only; RGB and exterior/edge alpha unchanged.",
+    "Combat currency display connected to the same SetCost input as preparation. No separate balance or reward calculation added.",
+    "Scene-only round skill frame, equipped icon/name, hourglass/seconds and radial cooldown; three configured slots and up to five runtime slots.",
+    "Inactive Plate was the old Button target. Active transparent root Images now provide hit targets, without enabling visual raycasts.",
+    "UICombatSkillSlotView optional name/hourglass references preserve behavior when unassigned in other scenes."
+  ],
+  "passed": [
+    "Unity script compilation and Console error query: zero errors.",
+    "InGame preparation startup and combat wave 2 reached.",
+    "EventSystem raycast finds actual slot; pointer-down dispatch enters fireball aiming.",
+    "Actual SkillManager targeted cast succeeds and immediate duplicate cast is blocked by cooldown.",
+    "EventSystem pointer-down dispatch casts Iron Skin and Time Stop; original cooldowns 25 and 40 seconds retained.",
+    "Time Stop at approximately 8/40 seconds displays hourglass, 8 and 20-percent radial fill.",
+    "Cooldown reset restores original skill icons and hides hourglasses.",
+    "Five runtime slots have independent names/icons and successful center raycasts; no scene runtime clones saved.",
+    "Temporary SetCost(137, existingRerollCost) updates preparation and combat texts to 137, then original value restored. This is display synchronization, not kill reward integration.",
+    "Saved edit-mode scene has all new UI references assigned and zero missing-script components.",
+    "Equipment save string unchanged. Six snapshotted Mawang/Skill progression keys restored after test. Play Mode stopped and runInBackground restored.",
+    "InGame_2, teammate gameplay code, shared prefabs, tiles, ProjectSettings and Packages remain unchanged."
+  ],
+  "notCompleted": [
+    "Live kill currency integration: explicitly deferred because user withheld permission to modify teammate InGameCurrencyHud. Do not describe displayed balance as live kill currency.",
+    "Physical mouse drag to field and release end-to-end remains a manual Play Mode check. Pointer-down/aim and actual targeted cast were validated separately.",
+    "Existing missing DemonCastle tile art is outside this request and was not changed."
+  ],
+  "screenshotsInIgnoredLocalStaging": [
+    "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v6_preparation.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v6_combat_reference_cooldown_8.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v6_combat_five_skills.png"
+  ],
+  "furtherPortCandidatesNotApplied": [
+    "InGameSoulAbsorb: experience absorption presentation; first reconcile its XP fill replacement with new HUD.",
+    "InGameStorageDropHint: storage drag/drop hints matched to current art.",
+    "InGameCardSizing: reward card sizing/dim/hand hover together with card UI work."
+  ],
+  "doNotBlindlyPort": [
+    "InGameSkillCooldownFx expects original icon-enabled state and conflicts with hourglass swapping.",
+    "InGameSkillBarScale and InGameUiPolish force previous layout/style.",
+    "UiFontOverride changes fonts; InGameReleaseView duplicates phase ownership."
+  ]
+}

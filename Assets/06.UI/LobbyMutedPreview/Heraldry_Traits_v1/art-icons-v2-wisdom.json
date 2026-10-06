@@ -1,0 +1,86 @@
+{
+  "mode": "built-in image_gen",
+  "pixel_postprocessing": false,
+  "icons": [
+    {
+      "name": "Insight",
+      "label": "통찰",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_Insight.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: a human head profile facing left with a curled brain spiral inside. This is the trait '통찰'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-5583aa75-9d07-45bd-8323-d88546b93d08.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Insight.png"
+    },
+    {
+      "name": "DeepInsight",
+      "label": "심층 통찰",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_DeepInsight.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: a wide open wise eye with concentric iris, pupil and short vertical and diagonal rays. This is the trait '심층 통찰'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-964862e8-d4ff-4bfa-8b60-8d2d531e989f.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_DeepInsight.png"
+    },
+    {
+      "name": "Plunder",
+      "label": "약탈",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_Plunder.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: a compact closed medieval treasure chest with arched lid, simple straps and central lock. This is the trait '약탈'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-eb6fc0cd-f0c7-4167-9ae5-c517cba10cc3.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Plunder.png"
+    },
+    {
+      "name": "FastGrowth",
+      "label": "속성 성장",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_FastGrowth.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: a compact upward flame with a teardrop negative-space inner flame. This is the trait '속성 성장'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-465c10fc-3720-4ee1-b46c-48949fd87b82.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_FastGrowth.png"
+    },
+    {
+      "name": "ExperienceCrystal",
+      "label": "숙련의 결정",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_ExperienceCrystal.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: a tall faceted crystal with one dark negative-space facet. This is the trait '숙련의 결정'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-6f2c4971-b101-4706-bc84-54864b0341c5.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_ExperienceCrystal.png"
+    },
+    {
+      "name": "Teaching",
+      "label": "가르침",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_Teaching.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: an ancient unrolled vertical parchment scroll with rolled top and bottom and a few short horizontal abstract inscription bars. This is the trait '가르침'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-de142386-82ba-4fe9-af1d-53d18c8726f7.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Teaching.png"
+    },
+    {
+      "name": "Expansion",
+      "label": "규모 확장",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_Expansion.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: three adjacent unfolded banner-like wall sections expanding horizontally, tallest in the middle. This is the trait '규모 확장'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-4147dc47-576f-493e-9f4e-d5d65475fc30.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_Expansion.png"
+    },
+    {
+      "name": "EfficientFormation",
+      "label": "효율 편성",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_EfficientFormation.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: four broad outward-facing directional arrows in an orthogonal cross with an open square gap at center. This is the trait '효율 편성'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-d3bc1bda-f953-4d7e-bcb1-bbfd2bb0a8c5.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_EfficientFormation.png"
+    },
+    {
+      "name": "GreatArmy",
+      "label": "대군세",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_GreatArmy.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: three clearly armored helmeted soldiers in a close military formation, middle figure taller. This is the trait '대군세'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-5670a568-4221-43e6-bb67-59234131bc8a.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_GreatArmy.png"
+    },
+    {
+      "name": "RulerWisdom",
+      "label": "지배자의 지혜",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Wisdom/Icon_Wisdom_RulerWisdom.png",
+      "prompt": "Use case: style-transfer. Asset type: individual trait icon for a medieval demon-lord fantasy game UI.\nInput image 1 is the original icon, a composition and semantic reference only. Redraw it as a smooth NON-PIXEL high resolution icon, not an enlarged pixel sprite. Keep its specific silhouette, major internal gaps, orientation and symbolic meaning.\nSubject: a regal five-point crown with thin cross-like finials and a wide ornamented base. This is the trait '지배자의 지혜'.\nStyle: clean flat vector-like 2D emblem, warm ivory (#E9DFC7), thin charcoal contour, at most very subtle beige two-tone shading. Match a cohesive antique heraldic UI glyph set. Confident flowing antialiased curves and clean angular points. Broad readable shapes at 64 to 100 pixels.\nComposition: ONE isolated icon centered in square canvas, occupying about 70–75% of canvas with generous transparent padding.\nBackground: genuine alpha transparency including internal holes.\nAvoid: pixel art, pixel stair steps, blocky raster edges, 3D, metallic rendering, photographic or painted texture, shine, glow, extra ornaments, outer frame, medallion, badge, background, text, letters, numbers, shadow outside the symbol, watermark. Do not add new objects.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-6a55bdaf-4ddb-40ab-ae59-653498f2ceaf.png",
+      "destination": "Assets/06.UI/LobbyMutedPreview/Heraldry_Traits_v1/Icons_v2/Icon_Wisdom_RulerWisdom.png"
+    }
+  ]
+}

@@ -55,6 +55,10 @@ namespace OZGL2.UIFlow
         private int _maximumDeploymentCount;
         private string _shownEnemyStageId;
         private int _shownEnemyRound;
+        private string _remainingEnemyRunId;
+        private int _remainingEnemyRound;
+        private int _remainingEnemyTotal;
+        private readonly HashSet<long> _countedHeroDeaths = new HashSet<long>();
 
         public void Configure(
             UIPageGroup pageGroup,
@@ -197,6 +201,7 @@ namespace OZGL2.UIFlow
             RefreshPage();
             RefreshHud();
             RefreshEnemyPreview();
+            RefreshRemainingEnemyCount();
             RefreshTimer();
             RefreshStartButton();
             RefreshAugmentPopup();
@@ -306,6 +311,39 @@ namespace OZGL2.UIFlow
                     return unit.statData.displayName;
             }
             return heroId;
+        }
+
+        private void RefreshRemainingEnemyCount()
+        {
+            string runId = _bootstrap?.GridSession?.RunId;
+            int roundNumber = _bootstrap?.Stage?.CurrentRoundNumber ?? 0;
+            RoundDefinition round = _bootstrap?.CurrentRoundDefinition;
+            if (string.IsNullOrEmpty(runId) || roundNumber <= 0 || round == null)
+            {
+                _remainingEnemyRunId = null;
+                _remainingEnemyRound = 0;
+                _remainingEnemyTotal = 0;
+                _countedHeroDeaths.Clear();
+                _hudView?.SetRemainingEnemyCount(0);
+                return;
+            }
+
+            if (_remainingEnemyRunId != runId || _remainingEnemyRound != roundNumber)
+            {
+                _remainingEnemyRunId = runId;
+                _remainingEnemyRound = roundNumber;
+                _remainingEnemyTotal = 0;
+                _countedHeroDeaths.Clear();
+                foreach (HeroSpawnDefinition spawn in round.Spawns)
+                {
+                    if (spawn == null) continue;
+                    _remainingEnemyTotal = (int)Math.Min(int.MaxValue,
+                        (long)_remainingEnemyTotal + Math.Max(0, spawn.Count));
+                }
+            }
+
+            // 아직 스폰되지 않은 용사도 포함한다. 승패 집계 밖의 보스 증원은 제외한다.
+            _hudView?.SetRemainingEnemyCount(Mathf.Max(0, _remainingEnemyTotal - _countedHeroDeaths.Count));
         }
 
         private void RefreshTimer()
@@ -456,6 +494,16 @@ namespace OZGL2.UIFlow
         private void HandleHeroKilled(UnitBase hero, int reward)
         {
             if (_hasStartedRunTimer && !_hasFrozenRunTimer) _killCount++;
+
+            if (hero == null || _bootstrap == null || _bootstrap.Stage == null ||
+                _bootstrap.Stage.State != eStageState.COMBAT || hero.Side != UnitSide.Hero ||
+                !hero.transform.IsChildOf(_bootstrap.transform) ||
+                !hero.TryGetComponent(out PooledHero pooledHero) || !pooledHero.IsLeased) return;
+
+            RefreshRemainingEnemyCount();
+            // OnHeroKilled는 풀의 사망 처리보다 먼저 발생하므로 IsDead로 검사하지 않는다.
+            if (_remainingEnemyRound > 0 && _countedHeroDeaths.Add(pooledHero.LeaseId))
+                _hudView?.SetRemainingEnemyCount(Mathf.Max(0, _remainingEnemyTotal - _countedHeroDeaths.Count));
         }
 
         private void SubscribeXp()

@@ -1,0 +1,14 @@
+{
+  "name": "codex_star",
+  "mode": "built-in image_gen",
+  "prompt": "Use case: ui-mockup.\nAsset type: ONE isolated rarity / upgrade star sprite for a medieval-fantasy unit codex, transparent PNG.\nImage 1 is STYLE REFERENCE only. Look at the small warm gold five-point stars in the card headers. Generate only one new enlarged star icon, not the screen or card.\nSubject: one regular upright five-point star, symmetrical around vertical center, crisp tips, balanced concave valleys, completely solid opaque interior. Simple muted warm antique-gold face, pale golden upper-left facets and slightly deeper ochre lower-right facets, very subtle restrained two-tone planar variation. Flat illustrative 2D icon, smooth anti-aliased high-resolution non-pixel contours. No strong metallic shine.\nComposition: centered full star on a square canvas, approx 75 percent visual occupancy with transparent margin on all sides. Legible when shown at 28px in UI.\nBackground: genuine transparent alpha outside the star, perfectly clean empty space, no plate.\nAvoid: pixel art, 3D rendering, realistic metal texture, thick bevel, extra stars, sparkle, glow, light rays, drop shadow, frame, badge, border ornament, text, number, watermark, checkerboard background.",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-12_로비_도감_성급선택.png",
+  "sourcefullpath": "C:\\Users\\sudea\\.codex\\generated_images\\01a10b26-3de0-73a2-8a2a-8602f27422da\\exec-72adc87e-bf2e-42dd-b7ce-ba079e9cf72e.png",
+  "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Sprites/codex_star.png",
+  "pixelPostprocessing": false,
+  "qa": {
+    "dimensions": "1254x1254",
+    "silhouette": "정면 오각별, 가운데 정렬, 사방 여백, 장식/문자/프레임 없음",
+    "pixelPostprocessing": false
+  }
+}

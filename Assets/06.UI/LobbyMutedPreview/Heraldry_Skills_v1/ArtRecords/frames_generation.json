@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-05",
+  "method": "Built-in imagegen; generated PNG bytes copied unchanged. Sprite bounds measured from alpha without pixel changes.",
+  "categoryRules": {
+    "damage": "muted red",
+    "buff": "antique gold",
+    "debuff": "muted violet",
+    "iconFace": "shared ivory"
+  },
+  "assets": [
+    {
+      "asset": "Sprites/skill_frame_damage.png",
+      "prompt": "Use case: ui-mockup. Generate a single production UI sprite for the middle equipped-skill medallion in Image 1 (STYLE REFERENCE ONLY), not a complete screen. Centered round medallion, circle is perfectly round, compact antique gold horned demon crest sitting at 12 o'clock, small faceted gold diamond terminals at 3,6,9 o'clock. Muted burgundy reddish copper INNER ring, antique gold OUTER metal rim, dark near-black burgundy fully opaque interior. Clear smooth illustrated medieval casual demon-heraldry, same reference style, subdued gold not bright yellow, 2-3 crisp painted shading planes, no pixelation, no glossy plastic. NO skill glyph inside, NO text, NO label plate, NO chain, NO additional elements. Blank interior usable 68% of circle diameter. Combined frame+background sprite, no translucent holes in central plate. Transparent exterior only; true alpha cutout no black rectangular backdrop. Entire circular body centered (x=50%,y=53%) with tiny top crest, compact 5% padding. 1024x1024 square.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b5334a28-3581-4681-bdb3-6a7e03861e69.png"
+    },
+    {
+      "asset": "Sprites/skill_frame_buff.png",
+      "prompt": "Use case: precise-object-edit. Image1 edit target. Preserve exact round medallion shape, horns/crest proportions, gold outside rim, terminal size, shading and transparent exterior. Change ONLY inner red rim to muted antique brass-gold (#BB994B), central dark burgundy plate to fully opaque almost-black warm brown. No other changes. No text/label/glyph. Retain perfect circular interior. UI equipped buff skill slot.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-a2af1356-e8e0-45da-8252-2eb732cfd6c5.png"
+    },
+    {
+      "asset": "Sprites/skill_frame_debuff.png",
+      "prompt": "Use case: precise-object-edit. Image1 edit target. Preserve exact round medallion shape, horns/crest proportions, gold outside rim, terminal size, shading and transparent exterior. Change ONLY inner red rim to desaturated violet metal (#83519A), central dark burgundy plate to fully opaque almost-black muted purple. No other changes. No text/label/glyph. Retain perfect circular interior. UI equipped debuff skill slot.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-96c1f667-938b-4ae3-8b6b-5dc7471bdd80.png"
+    },
+    {
+      "asset": "Sprites/skill_card_damage.png",
+      "prompt": "Use case: ui-mockup. Image1 STYLE REFERENCE for the small square skill cards in the left inventory panel. Output ONE isolated square blank skill card background+border sprite. Thin clean desaturated dark copper-red (#A5403F) border, short inward rounded notch at four corners, near black burgundy FULLY OPAQUE inner panel, very subtle radial vignette. Straight parallel edges, symmetrical 1:1 square. Smooth illustrated medieval heraldry videogame UI, tasteful understated shading, no pixelation. Border about 2% of card width, very large usable empty central area. NO TEXT, no skill icon, no skull, no horns, no tabs, no decorative diamond at top, no multiple cards. Frame AND background combined. True alpha transparency ONLY outside the square silhouette, small 4% margin. 1024x1024.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-904442c0-c263-44fe-9505-7a4c876d61cf.png"
+    },
+    {
+      "asset": "Sprites/skill_card_buff.png",
+      "prompt": "Use case: ui-mockup. Image1 STYLE REFERENCE for the small square skill cards in the left inventory panel. Output ONE isolated square blank skill card background+border sprite. Thin clean muted brass-gold (#BB994B) border, short inward rounded notch at four corners, near black warm brown FULLY OPAQUE inner panel, very subtle radial vignette. Straight parallel edges, symmetrical 1:1 square. Smooth illustrated medieval heraldry videogame UI, tasteful understated shading, no pixelation. Border about 2% of card width, very large usable empty central area. NO TEXT, no skill icon, no skull, no horns, no tabs, no decorative diamond at top, no multiple cards. Frame AND background combined. True alpha transparency ONLY outside the square silhouette, small 4% margin. 1024x1024.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-434f43d9-98cf-41ce-b986-8718e9a7fc42.png"
+    },
+    {
+      "asset": "Sprites/skill_card_debuff.png",
+      "prompt": "Use case: ui-mockup. Image1 STYLE REFERENCE for the small square skill cards in the left inventory panel. Output ONE isolated square blank skill card background+border sprite. Thin clean muted violet metal (#83519A) border, short inward rounded notch at four corners, near black violet FULLY OPAQUE inner panel, very subtle radial vignette. Straight parallel edges, symmetrical 1:1 square. Smooth illustrated medieval heraldry videogame UI, tasteful understated shading, no pixelation. Border about 2% of card width, very large usable empty central area. NO TEXT, no skill icon, no skull, no horns, no tabs, no decorative diamond at top, no multiple cards. Frame AND background combined. True alpha transparency ONLY outside the square silhouette, small 4% margin. 1024x1024.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-420b62e5-ef1e-4d0b-894f-23cb26707a28.png"
+    },
+    {
+      "asset": "Sprites/skill_card_selected.png",
+      "prompt": "Use case: ui-mockup. Image1 STYLE REFERENCE for the small square skill cards in the left inventory panel. Output ONE isolated square blank skill card background+border sprite. Thin clean warm antique GOLD selection border, a tiny faceted gold corner scroll only in each of the four corners border, short inward rounded notch at four corners, near black brown FULLY OPAQUE inner panel, very subtle radial vignette. Straight parallel edges, symmetrical 1:1 square. Smooth illustrated medieval heraldry videogame UI, tasteful understated shading, no pixelation. Border about 2% of card width, very large usable empty central area. NO TEXT, no skill icon, no skull, no horns, no tabs, no decorative diamond at top, no multiple cards. Frame AND background combined. True alpha transparency ONLY outside the square silhouette, small 4% margin. 1024x1024.",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-de92b911-5ae0-4396-92ad-c1ec6aea3b03.png"
+    }
+  ]
+}

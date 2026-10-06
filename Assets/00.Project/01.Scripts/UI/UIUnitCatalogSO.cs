@@ -18,6 +18,8 @@ namespace OZGL2.UIFlow
             [SerializeField] private string _displayName;
             [SerializeField, TextArea(2, 6)] private string _description;
             [SerializeField] private Sprite _portrait;
+            [SerializeField, Tooltip("선택 사항. 마왕군은 1~3성 순서, 인간군은 외형 순서. 비워두면 기존 Portrait를 사용한다.")]
+            private Sprite[] _portraitVariants = Array.Empty<Sprite>();
             [SerializeField] private eUnitCodexFaction _faction;
             [SerializeField] private bool _defaultUnlocked;
 
@@ -25,8 +27,17 @@ namespace OZGL2.UIFlow
             public string DisplayName => _displayName ?? string.Empty;
             public string Description => _description ?? string.Empty;
             public Sprite Portrait => _portrait;
+            public IReadOnlyList<Sprite> PortraitVariants => _portraitVariants ?? Array.Empty<Sprite>();
+            public int AppearanceCount => _portraitVariants != null && _portraitVariants.Length > 0 ? _portraitVariants.Length : 1;
             public eUnitCodexFaction Faction => _faction;
             public bool DefaultUnlocked => _defaultUnlocked;
+
+            public Sprite GetPortrait(int appearanceIndex)
+            {
+                if (_portraitVariants == null || appearanceIndex < 0 || appearanceIndex >= _portraitVariants.Length)
+                    return _portrait;
+                return _portraitVariants[appearanceIndex] != null ? _portraitVariants[appearanceIndex] : _portrait;
+            }
         }
 
         [SerializeField] private Entry[] _entries = Array.Empty<Entry>();

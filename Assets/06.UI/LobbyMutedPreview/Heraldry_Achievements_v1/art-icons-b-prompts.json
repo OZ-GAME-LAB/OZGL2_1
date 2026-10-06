@@ -1,0 +1,35 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-05",
+  "use_case": "ui-mockup",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-02_로비_업적창.png",
+  "transparent_background": true,
+  "pixel_modifications": "none; original generated alpha preserved",
+  "assets": [
+    {
+      "file": "icon_hunter_i.png",
+      "prompt": "Use case: ui-mockup. Production transparent PNG achievement icon for a medieval casual fantasy game. ONE isolated symbol, not a full UI or illustration. Front-facing symmetric clean silhouette. Smooth high-resolution anti-aliased raster, NOT pixel art. Cream ivory / pale antique gold body, warm restrained tan shallow bevel shading, broad flat surfaces, extremely simple small-icon geometry, no fine texture. The only dark areas are clean open negative spaces and a very thin restrained dark outer edge. Neutral lighting. Square canvas, icon centered, full silhouette visible, moderate clear exterior margin (about 12%). Real alpha transparency everywhere outside the icon and in open holes. No text, number, letter, label, circular frame, medallion, ornamental badge, card, banner, backdrop, cast shadow, glow, particles, checkerboard, photograph, realistic 3D render, extra objects. Subject: a very simple front-view horned medieval helmet symbol. Two smooth curved horns arch outward and upward from the temples, tapering sharply; low domed crown with no spike. The face has two sharp black open eye slits angled gently down toward the center, separated by a narrow central nose ridge. Two long tapered cheek plates converge into a long V-shaped chin point with a slim vertical open gap. Compact, slightly taller than wide, instantly readable stern helmet, no face or teeth. Keep the forehead and plates very plain with only subtle broad bevel lighting.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b26-836d-7dd1-a5ce-b042b23887d4/exec-ce9c3900-1da9-4147-a0e8-48a1931414f6.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_hunter_i.png"
+    },
+    {
+      "file": "icon_giant_fall.png",
+      "prompt": "Use case: ui-mockup. Production transparent PNG achievement icon for a medieval casual fantasy game. ONE isolated symbol, not a full UI or illustration. Front-facing symmetric clean silhouette. Smooth high-resolution anti-aliased raster, NOT pixel art. Cream ivory / pale antique gold body, warm restrained tan shallow bevel shading, broad flat surfaces, extremely simple small-icon geometry, no fine texture. The only dark areas are clean open negative spaces and a very thin restrained dark outer edge. Neutral lighting. Square canvas, icon centered, full silhouette visible, moderate clear exterior margin (about 12%). Real alpha transparency everywhere outside the icon and in open holes. No text, number, letter, label, circular frame, medallion, ornamental badge, card, banner, backdrop, cast shadow, glow, particles, checkerboard, photograph, realistic 3D render, extra objects. Subject: one broad horned skull face symbol, meaning defeat of a giant. A wide rounded forehead, two smooth thick upward sweeping horns, two clean angular open eye sockets, tiny inverted triangular open nose, compact pointed fang-like lower teeth, strong symmetric frontal silhouette. Two tiny stylized flames flank the lower jaw, one at each lower side, visually part of this single emblem. Broad simple ivory-gold shapes and shallow tan bevel, not scary realistic bone texture, no body.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b26-836d-7dd1-a5ce-b042b23887d4/exec-1ed2deb7-a516-45a8-824b-fa37f3a37b2f.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_giant_fall.png"
+    },
+    {
+      "file": "icon_ready.png",
+      "prompt": "Use case: ui-mockup. Production transparent PNG achievement icon for a medieval casual fantasy game. ONE isolated symbol, not a full UI or illustration. Front-facing symmetric clean silhouette. Smooth high-resolution anti-aliased raster, NOT pixel art. Cream ivory / pale antique gold body, warm restrained tan shallow bevel shading, broad flat surfaces, extremely simple small-icon geometry, no fine texture. The only dark areas are clean open negative spaces and a very thin restrained dark outer edge. Neutral lighting. Square canvas, icon centered, full silhouette visible, moderate clear exterior margin (about 12%). Real alpha transparency everywhere outside the icon and in open holes. No text, number, letter, label, circular frame, medallion, ornamental badge, card, banner, backdrop, cast shadow, glow, particles, checkerboard, photograph, realistic 3D render, extra objects. Subject: a simple medieval breastplate chest armor silhouette with two small shoulder plates. Open round neck, shallow V seam below collarbone, tapered waist, pointed lower hem, one vertical center division and only two broad chest planes. No helmet, no arms or body, no straps, no studs, no filigree. Clear chunky breastplate geometry reads immediately as equipment, width approximately same as height. A plain elegant ivory-gold armor pictogram.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b26-836d-7dd1-a5ce-b042b23887d4/exec-4f3101d7-4dd9-4979-8f9b-cc23ed2c057a.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_ready.png"
+    },
+    {
+      "file": "icon_hunter_ii.png",
+      "prompt": "Use case: precise-object-edit. Input image is the edit target: this transparent ivory-gold horned helmet game achievement icon. Make the tier II version. Preserve its front-facing symmetry, cream ivory and pale antique gold coloring, subtle tan bevel lighting, exact eye openings, nose ridge, V-shaped split cheek plates, smooth horn shapes, and genuinely transparent background. Add only two tiny detached four-pointed spear-like star ornaments, one flanking the lower left cheek and one flanking the lower right cheek, matching the helmet's ivory-gold material. Add a small simple pointed ivory-gold diamond crest on the center crown to indicate stronger tier. Keep it one clean readable achievement emblem, full silhouette visible on a square canvas with about 10% margins. The central helmet remains dominant; side stars are only one sixth of helmet height. No circular framing, no text or number, no painted scenery, no outer shadow, no glow, no particles, no pixel art, no elaborate ornament, no checkerboard. Real transparent alpha preserved including eye openings and exterior.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b26-836d-7dd1-a5ce-b042b23887d4/exec-770d168f-ae4a-4933-9c6f-d1e751557759.png",
+      "edit_reference": "C:/Users/sudea/.codex/generated_images/01a10b26-836d-7dd1-a5ce-b042b23887d4/exec-ce9c3900-1da9-4147-a0e8-48a1931414f6.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_hunter_ii.png"
+    }
+  ]
+}

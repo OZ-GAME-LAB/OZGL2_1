@@ -1,0 +1,27 @@
+{
+  "task": "Codex discovered-count badge",
+  "date": "2026-10-05",
+  "method": "Built-in image_gen, one call. PNG copied unchanged without pixel or alpha processing.",
+  "name": "codex_count_badge",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-12_로비_도감_성급선택.png",
+  "prompt": "Use case: ui-mockup.\nAsset type: one independent transparent PNG UI sprite for the codex discovered-unit count.\nImage1 is STYLE AND SHAPE REFERENCE: reproduce ONLY the small horizontal badge at bottomleft that currently contains 발견3/6. Omit all text and digits. Do not generate the rest of the screenshot.\nSubject: ONE horizontally elongated nearblack warm-charcoal opaque badge with thin muted antique champagne-gold carved metal frame, little pointed goldtips at left and right, small clipped corners. Tiny symmetrical gold diamond ornaments centered on upper and lower edge, only about5percentofbadgeheight. The reference's restrained angular medieval casual-fantasy metal language. Broad uninterrupted completelyemptyblackinterior. Smooth highresolution2D, no pixelart, no heavy3Dlighting.\nProportions: visible WHOLE badge silhouette exactWIDTH:HEIGHT approximately270:79 (3.42:1). This is a low horizontal badge. For example1440pixelswide by420pixelshigh centered on a1536x512landscapetransparentcanvas, withsmalltransparentmargins. Keep the interiorabout85percentofbodyheight. Frame thin about8pixels when1440pixelswide, not thickhardware.\nTransparency: genuinely transparentonlyOUTSIDE silhouette. All innercharcoal pixels and goldframe opaque alpha255. Frame and fillcombinedinoneasset.\nNOtext, numbers, icons, heraldiccrest, horns, banners, ribbons, scrollbar, progressbar, internaldividerlines, portrait, unit, star, arrows, glow, shadow, backdrop, checkerboard, extraobjects. Oneblankcountbadgeonly.",
+  "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-f9de92fe-345c-4039-9e8f-116615351bc8.png",
+  "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Sprites/codex_count_badge.png",
+  "metrics": {
+    "width": 2038,
+    "height": 771,
+    "unityRect": [
+      55,
+      190,
+      1926,
+      421
+    ],
+    "cornerAlpha": 0,
+    "centerAlpha": 254
+  },
+  "notes": [
+    "Actual alpha>8 shape ratio1926/421=4.575, wider than requested270/79=3.418.",
+    "Exteriorcorneralpha0 and charcoalcenteralpha254.",
+    "No text or icons baked in; small top/bottom fittings and pointedsidegoldcorners retained."
+  ]
+}

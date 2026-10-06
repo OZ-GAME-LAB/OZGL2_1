@@ -17,6 +17,7 @@ namespace OZGL2.UIFlow
         [Header("공유 분류 스타일 / 표시 연결")]
         [SerializeField] private UISkillCategoryStyleSO _categoryStyle;
         [SerializeField] private Image _icon;
+        [SerializeField] private TMP_Text _skillNameText;
         [SerializeField] private Image _slotTint;
         [SerializeField, Range(0f, 1f)] private float _slotTintStrength = 1f;
         [SerializeField] private Image _frame;
@@ -25,6 +26,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Sprite _debuffFrame;
 
         [Header("쿨다운 표시 연결")]
+        [SerializeField] private Image _cooldownIcon;
         [SerializeField] private Image _cooldownTrack;
         [SerializeField] private Image _cooldownFill;
         [SerializeField] private Image[] _cooldownTicks = Array.Empty<Image>();
@@ -122,6 +124,12 @@ namespace OZGL2.UIFlow
                 _icon.material = iconMaterial;
             }
 
+            if (_skillNameText != null)
+            {
+                _skillNameText.raycastTarget = false;
+                _skillNameText.text = hasSkill ? entry.DisplayName : string.Empty;
+            }
+
             if (_slotTint != null)
             {
                 _slotTint.raycastTarget = false;
@@ -167,6 +175,19 @@ namespace OZGL2.UIFlow
             // double로 먼저 나눠 유효한 극단값 사이에서도 float 나눗셈의 오버플로를 피한다.
             float ratio = safeDuration > 0f
                 ? Mathf.Clamp01((float)Math.Min(1d, (double)safeRemaining / safeDuration)) : 0f;
+
+            // 새 쿨다운 아이콘을 연결한 화면에서만 기존 스킬 아이콘과 교대한다.
+            bool showCooldownIcon = _cooldownIcon != null && _cooldownIcon.sprite != null &&
+                hasSkill && ratio > 0f;
+            if (_cooldownIcon != null)
+            {
+                _cooldownIcon.raycastTarget = false;
+                _cooldownIcon.material = null;
+                _cooldownIcon.color = new Color32(248, 242, 235, 255);
+                _cooldownIcon.enabled = showCooldownIcon;
+            }
+            if (_icon != null)
+                _icon.enabled = hasSkill && _icon.sprite != null && !showCooldownIcon;
 
             if (_cooldownTrack != null)
             {

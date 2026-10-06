@@ -1,0 +1,88 @@
+{
+  "task": "Additional skill UI sprites",
+  "date": "2026-10-05",
+  "method": "Built-in image_gen, independent generation and one targeted revision per asset. Selected generated PNG bytes copied without image/alpha postprocessing.",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-08_로비_스킬세팅_전체.png",
+  "notes": [
+    "skill_chain_ring center and corners have alpha0; complete circular chain without medallions.",
+    "Actual alpha>8 aspect ratios: chain1.0146, statrow7.06, tab4.37. Generated row/tab ratios still wider than desired6:1 and3:1 despite revision; use runtime sizing or9-slice if appropriate.",
+    "row and tab have generated centeralpha253 rather than255. Alpha preserved as requested."
+  ],
+  "assets": [
+    {
+      "name": "skill_chain_ring",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-08_로비_스킬세팅_전체.png",
+      "prompt": "Use case: ui-mockup. Asset type: isolated transparent PNG sprite for a Unity medieval casual fantasy UI.\nImage 1 is STYLE REFERENCE ONLY: match the thin antique-gold chain behind the three equipped skill medallions in the center of the reference. Generate ONLY that chain, as a complete perfectly circular ring, with no medallions.\nA single delicate continuous loop of small interlocked oval gold chain links seen directly front-on. Circle diameter 80% of the square canvas. Very thin chain line: roughly 12 pixels thickness on a 1024x1024 canvas, around 1.5% of circle diameter. Smooth high resolution illustrated 2D metal, subdued antique champagne gold with restrained small bevel highlights and dark thin edging. The ring must be a mathematically round circle, not oval, all links similar size.\nGenuinely transparent background. BOTH the inside of the ring and all outside space must be completely transparent alpha0. Every hole between chain links must be transparent too. Only the chain itself has visible pixels. No opaque disk, no central background, no shadow, no glow, no cloth, no jewels, no spikes, no medallions, no symbols, no text, no frame. Exactly one chain loop, not two concentric loops. No pixel art or 3D render. Fully visible centered silhouette.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-c1d99920-35de-4643-ade8-61870afb5265.png",
+      "revisionPrompt": "Edit only chain thickness in this ring UI asset. Keep the exact same centered circular path, same diameter, same full transparent exterior and transparent center. Reduce ALL chain links to ONE THIRD their current thickness and size; replace each large link with approximately three much smaller delicate links following the same circle path, so the overall continuous chain stroke is only12pixels thick on a1024pixel square. The current heavy jewelry chain is much too thick. This must read as a very slender decorative chain line behind skill icons, not a necklace. Subdued antique gold simple2D smalllinks, no bulky3D shine. Keep perfect circle geometry, no medallions, no text, no other objects, completely transparent all non-chain areas.",
+      "revisedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-fecd40f5-e445-49a1-991e-3b1c88bd7e0c.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_chain_ring.png",
+      "selectedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-fecd40f5-e445-49a1-991e-3b1c88bd7e0c.png",
+      "metrics": {
+        "path": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-fecd40f5-e445-49a1-991e-3b1c88bd7e0c.png",
+        "width": 1254,
+        "height": 1254,
+        "unityRect": [
+          107,
+          114,
+          1041,
+          1026
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 0,
+        "transparentPixels": 1489525,
+        "partialPixels": 82738
+      }
+    },
+    {
+      "name": "skill_stat_row",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-08_로비_스킬세팅_전체.png",
+      "prompt": "Use case: ui-mockup. Asset type: standalone blank information-row PNG sprite for a Unity medieval casual fantasy UI.\nImage 1 is STYLE REFERENCE ONLY: match the slim horizontal black-and-antique-gold statistic rows beneath the skill description on the right. Make a NEW empty row, no text or icons.\nSubject: one horizontal rectangular bar with visible silhouette width:height EXACTLY about6:1, a very thin muted antique champagne-gold metal rim and fully opaque near-black warm charcoal inner background. Tiny inward-curving concave corner cuts only. Straight long upper/lower edges, nearly straight short ends, symmetric. Clean smooth 2D illustrated gameUI, restrained metal bevel, no bright yellow, minimal subtle gradient inside. Rim thickness around1.5% of bar height. Large blank usable inner area.\nComposition: center this single 6:1 bar on a landscape canvas about3:1, with transparent blank margin above and below so the bar is not made taller. No extra rows, no panels.\nAlpha: genuinely transparent ONLY OUTSIDE the bar silhouette; solid internal background alpha255 and opaque rim. Frame and fill are ONE combined asset.\nNO text, labels, icons, numbers, dividers, inner rules, ornaments, horns, cloth, diamonds, arrows, scrolls, buttons, glow, shadows, watermark, checkerboard. Empty bar only.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-3992958d-7e29-40b0-9bb7-b76d3e7817ea.png",
+      "revisionPrompt": "Edit only the proportions of this empty gold-rim black UI bar. Keep the same design, same corner shapes, same muted gold border and opaque black fill, same transparent exterior. The VISIBLE PANEL SHAPE must be EXACTLY6times as wide as its height, not10times. Set visible panel rectangle dimensions to1800pixels wide by300pixels high in a landscape1800x600canvas with appropriate transparent margin all around. Increase the bar height until visible6:1 aspect; do not keep its current superthin proportions. Keep the border thin: single gold edge at most5pixels thick, no text or icons or decoration. Empty inner black opaque area, transparent outside only.",
+      "revisedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-00d57be2-cbb4-4b70-a0b1-b548bb302885.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_stat_row.png",
+      "selectedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-00d57be2-cbb4-4b70-a0b1-b548bb302885.png",
+      "metrics": {
+        "path": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-00d57be2-cbb4-4b70-a0b1-b548bb302885.png",
+        "width": 2172,
+        "height": 724,
+        "unityRect": [
+          91,
+          224,
+          1991,
+          282
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253,
+        "transparentPixels": 1011177,
+        "partialPixels": 558085
+      }
+    },
+    {
+      "name": "skill_tab",
+      "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-08_로비_스킬세팅_전체.png",
+      "prompt": "Use case: ui-mockup. Asset type: standalone blank category-tab PNG sprite for a Unity medieval casual fantasy UI.\nImage 1 is STYLE REFERENCE ONLY: match the small unselected category tabs beneath the owned-skills heading at left, the black tabs reading 딜/버프/디버프 in the reference. Generate only ONE empty unselected tab with none of those letters.\nTab silhouette aspect ratio3:1. Subdued antique champagne-gold VERY THIN border enclosing a completely opaque near-black warm charcoal background, small concave inward-rounded corner notches, straight horizontal edges. Restrained dark-metal slight bevel, no thick raised hardware, crisp smooth high-resolution2D gameUI, notpixel. No glow or vivid yellow. Broad empty fill for runtime text. Rim around2% of tab height. Symmetrical front-on shape, fully visible with transparent small margins.\nAlpha: outside silhouette genuinely transparent alpha0, inside fill and rim alpha255. Fill and outline combined into one image.\nNo text, numbers, symbols, icons, red fill, horns, cloth, decorative ends, jewels, diamonds, arrows, interior lines, gradients brighter than darkcharcoal, shadow, background, checkerboard. One simple blank tab only.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-b0bb27e0-a784-4a1f-bceb-ee812d2f199e.png",
+      "revisionPrompt": "Edit only the proportions of this empty gold-rim black category tab. Keep same design, same concave smallcorner shapes, same muted gold and opaque black fill, same transparent exterior. The VISIBLE TAB SHAPE must be EXACTLY3times as wide as its height, not5times. Example visible silhouette900pixels wide by300pixels high, centered on a roughly1000x400transparent canvas. Increase the tab height until visible3:1 aspect. Reduce concavecorners to smallcurves withradius8% tabheight, nothugecurves. Keep goldedge thin4pixels at900pixelwidth. Absolutely no text, icons, ornaments orbackground. Oneblanktabonly.",
+      "revisedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-11cb084a-81f8-4f4c-8b3f-902a7d7d3db6.png",
+      "output": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_tab.png",
+      "selectedSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-11cb084a-81f8-4f4c-8b3f-902a7d7d3db6.png",
+      "metrics": {
+        "path": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-11cb084a-81f8-4f4c-8b3f-902a7d7d3db6.png",
+        "width": 2172,
+        "height": 724,
+        "unityRect": [
+          87,
+          147,
+          1999,
+          457
+        ],
+        "cornerAlpha": 0,
+        "centerAlpha": 253,
+        "transparentPixels": 665146,
+        "partialPixels": 906673
+      }
+    }
+  ]
+}

@@ -15,6 +15,8 @@ namespace OZGL2.UIFlow
         [SerializeField] private TMP_Text _detailNextDescription;
         [SerializeField] private Image _detailIcon;
         [SerializeField] private TMP_Text _pointsLabel;
+        [SerializeField, Tooltip("새 특성 화면의 제목 구분과 LP 단위 표시를 사용합니다. 끄면 기존 문구를 유지합니다.")]
+        private bool _useHeraldryTextLayout;
         [SerializeField] private TMP_Text _detailLevel;
         [SerializeField] private TMP_Text _detailStatus;
         [SerializeField] private TMP_Text _upgradeCost;
@@ -85,13 +87,17 @@ namespace OZGL2.UIFlow
         public void ShowEffectComparison(int rank, int maxRank, string currentEffect, string nextEffect)
         {
             if (_detailDescription != null)
-                _detailDescription.text = "(현재) " + rank + "p :\n" + currentEffect;
+                _detailDescription.text = _useHeraldryTextLayout
+                    ? "<b>현재 효과</b>\n\n" + currentEffect
+                    : "(현재) " + rank + "p :\n" + currentEffect;
             if (_detailNextDescription != null)
             {
                 _detailNextDescription.color = _selectedFrame != null ? _selectedFrame.LockedNameColor : new Color32(155, 150, 146, 255);
-                _detailNextDescription.text = rank < maxRank
-                    ? "(다음 레벨) " + (rank + 1) + "p :\n" + nextEffect
-                    : "(다음 레벨)\n최대 레벨입니다.";
+                _detailNextDescription.text = _useHeraldryTextLayout
+                    ? "<b>다음 레벨</b>\n\n" + (rank < maxRank ? nextEffect : "최대 레벨입니다.")
+                    : rank < maxRank
+                        ? "(다음 레벨) " + (rank + 1) + "p :\n" + nextEffect
+                        : "(다음 레벨)\n최대 레벨입니다.";
             }
         }
 
@@ -103,7 +109,8 @@ namespace OZGL2.UIFlow
 
         public void SetAvailablePoints(int points)
         {
-            if (_pointsLabel != null) _pointsLabel.text = "보유 포인트  " + Mathf.Max(0, points);
+            if (_pointsLabel != null)
+                _pointsLabel.text = "보유 포인트  " + Mathf.Max(0, points) + (_useHeraldryTextLayout ? " LP" : string.Empty);
         }
 
         public void ShowSelection(UITraitFrameView frame)

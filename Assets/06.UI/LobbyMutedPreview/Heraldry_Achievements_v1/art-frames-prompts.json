@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "date": "2026-10-05",
+  "mode": "built-in image_gen",
+  "reference": "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_Image_Set/1-02_로비_업적창.png",
+  "notes": [
+    "생성된 PNG alpha를 변조하지 않고 원본 그대로 복사했습니다.",
+    "unityRect는 alpha > 8 픽셀 바운딩을 bottom-left 원점으로 나타냅니다.",
+    "프롬프트는 완전 불투명 내부를 요청했지만 실제 centerAlpha는253~254로 확인됐습니다.",
+    "스프라이트 임포트, UI 연결, 메타 생성은 부모 에이전트가 Unity Editor에서 담당합니다."
+  ],
+  "assets": [
+    {
+      "name": "achievement_card",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_card.png",
+      "prompt": "Use case: precise-object-edit. Image1 is edit target: existing empty achievement card sprite. Preserve its style, color, corner hook design, thin gold bevel and empty opaque dark interior. Change ONLY aspect ratio: current card is far too wide/short. Make the actual card silhouette exactly 2.62:1 by INCREASING THE VERTICAL HEIGHT roughly45percent. Long straight vertical side sections must be visibly taller; do not make the gold stroke or small corner hooks thick or stretched. Use a1536x768 landscape canvas and a centered visible card rectangle about1400px WIDE by535px HIGH. Complete symmetrical card frame fits the canvas. Dark interior expands vertically, remains completely opaque near-black with faint dark-brown smooth texture. Exterior genuine transparent alpha. No text, no icons, no progress bar, no new decoration. Reference card must comfortably fit three text rows and a progress bar in its right area when used at550x210; current ultra-short aspect is wrong. Again EXACT outer card shape width-to-height2.62:1, NOT4:1.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-cd0804a7-96d7-490d-8f05-fbf79b1bc397.png",
+      "canvas": [
+        1774,
+        887
+      ],
+      "unityRect": [
+        58,
+        156,
+        1658,
+        579
+      ],
+      "centerAlpha": 253,
+      "firstPrompt": "Use case: ui-mockup. Asset type: SINGLE shippable 2D medieval fantasy achievement CARD BACKGROUND sprite.\nImage 1 is visual style reference only. Recreate the small black achievement card frame visible in the reference, stripped of ALL its content. Exactly ONE wide rectangular card, visible silhouette aspect ratio 2.62:1. Delicate narrow antique warm gold beveled border with thin dark outer keyline, long perfectly straight horizontal and vertical edges, subtly clipped corners with small restrained curling gothic gold corner hooks very close to the reference. Corners project minimally, no large finials. Border-and-background together as a single image. The interior is completely FILLED, solid opaque near-black charcoal, extremely subtle dark brown-to-black gradient, very smooth faint painted leather impression. Inside 85 percent is empty usable dark space. Brightness and saturation low, antique gold muted not yellow. Casual medieval fantasy cel shaded high-resolution UI asset, clean readable curves, broad subtle metallic planes, non-pixel. Perfectly front-facing, symmetrical, entire silhouette visible, centered on a wide genuine TRANSPARENT canvas, minimal 4 percent outside margin. Important: NO text, NO symbols, NO icons, NO divider, NO progress bar, NO badge, NO cloth, NO skull, NO glows, NO sparkles, NO gems, NO background scene, NO checkerboard. Only exterior transparent; the entire dark panel interior must be alpha255 and completely opaque.",
+      "firstSource": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-1834ce96-8faa-4488-a6b2-80c8b50a6bf4.png"
+    },
+    {
+      "name": "achievement_title",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_title.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE shippable 2D medieval fantasy achievement TITLE PLAQUE sprite.\nImage 1 is visual style reference only. Recreate ONLY the central top header shape from the reference, without text. One wide dark oxblood and near-black rectangular title panel with flat bottom gold edge and a gently arched undulating top gold edge, finely beveled muted antique gold trim. Small centered gold horned helmet crest rises above the top border, black and muted burgundy horns, crest height only about one third of total asset height. At each side a short tattered deep burgundy hanging banner, thin and understated. Tiny gold diamond motif at bottom center and two tiny discreet inset gold diamond decorations near the left and right ends of the empty panel. Large center must stay empty for runtime heading. Visible overall silhouette WIDTH 3x total HEIGHT. Match reference classic gothic heraldic-but-casual fantasy silhouette, simple polished hand-painted cel shading, crisp high-resolution nonpixel edges, restrained saturation. Complete border and solid opaque dark background integrated. Center the whole complete silhouette on a wide genuine TRANSPARENT canvas, modest outside margin. No text, no letters, no words, no background scene, no extra symbols inside central space, no glow, no elaborate excessive scrollwork. Only exterior transparency, dark panel interior fully opaque alpha255.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-4ddb12da-a5fc-4dc2-9f68-17e1c469a82f.png",
+      "canvas": [
+        2172,
+        724
+      ],
+      "unityRect": [
+        98,
+        58,
+        1976,
+        606
+      ],
+      "centerAlpha": 253
+    },
+    {
+      "name": "achievement_badge",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_badge.png",
+      "prompt": "Use case: ui-mockup. Asset type: SINGLE shippable 2D medieval fantasy achievement COMPLETION COUNTER PLATE sprite.\nImage 1 is visual style reference only. Recreate ONLY the top-left completed-achievements counter background, WITHOUT trophy or letters or numbers. Exactly one horizontal near-black charcoal counter bar with fine antique gold bevel outline, elegantly pointed beveled cap on RIGHT, and a larger round gold-rimmed dark medallion overlapping the LEFT. The round medallion is empty dark interior for a separate icon. Medallion has tiny north/south gold diamond finials and simple small side corner hooks, not oversized. Behind the circle, two thin short dark-burgundy torn fabric tails hang below left and right. Overall visible WIDTH to HEIGHT ratio 2.7:1. Long bar leaves ample blank room for runtime text, bar height approximately45percent of full artwork height including tails. Match the attached reference muted gold and oxblood/charcoal color hierarchy, clean casual medieval heraldry painted cel-shaded finish, crisp non-pixel edges, subtle controlled metal bevels, no noise. Background and border integrated fully opaque. Front-facing complete silhouette centered on a wide genuine transparent canvas with minimal outside margins. NO trophy, NO icon, NO text, NO letters, NO numbers, NO progress gauge, NO scene, NO checkerboard, NO glowing gold, NO bright colors. Only exterior transparent, medallion and bar interiors completely opaque alpha255.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-8a810219-5dec-4d68-9067-ceec4c2ecf90.png",
+      "canvas": [
+        2060,
+        763
+      ],
+      "unityRect": [
+        60,
+        69,
+        1936,
+        632
+      ],
+      "centerAlpha": 253
+    },
+    {
+      "name": "achievement_progress_track",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_progress_track.png",
+      "prompt": "Use case: ui-mockup. Asset type: ONE small medieval fantasy UI empty progress gauge track.\nStyle reference: attached achievement-screen screenshot, specifically its very thin gold-edged horizontal gauges. Generate ONLY one empty thin long black progress-bar track, not a card, no text. Actual visible object must be fourteen times as wide as tall (14:1). Straight flat horizontal edges, very short slanted hexagonal caps at both ends. Extremely thin subdued antique gold bevel border and fine dark outer keyline, smooth completely opaque charcoal-black interior. Frame and background together integrated in one PNG, no detached pieces. Empty middle ready for a separate red fill layered later in Unity. Clean stylized handpainted medieval metal, crisp high-resolution edges, not pixel. Centered on a transparent wide canvas, extra blank transparent space above and below is acceptable to preserve the correct ultra-thin 14:1 OBJECT. No fill, no red segment, no ticks, no arrows, no icons, no words, no jewels, no diamond ornaments, no handles, no bright glow, no noisy texture. Actual transparent exterior only; interior black must be fully opaque alpha255.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-0979e5bf-7ed9-431e-b819-2aeba5b538ad.png",
+      "canvas": [
+        1483,
+        1061
+      ],
+      "unityRect": [
+        24,
+        494,
+        1434,
+        75
+      ],
+      "centerAlpha": 254
+    },
+    {
+      "name": "achievement_back",
+      "finalPath": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_back.png",
+      "prompt": "Use case: ui-mockup. Asset type: ONE shippable 2D medieval fantasy UI BACK BUTTON BACKGROUND sprite.\nImage 1 is style and shape reference: recreate only the small upper-right burgundy Back button. No text and no icon. A horizontal deep dark oxblood-red button, smoothly shaded almost black-burgundy edges and muted wine center. Thin subdued antique warm gold beveled outline around a long simple 6-sided rectangular plate with short angled arrowhead-like end caps; tiny angular gold wing corners at either end, restrained and close to the screenshot. Full visible button object WIDTH-to-HEIGHT3.7:1. Simple clear silhouette, not a huge ornate bar. One integrated image with solid completely opaque burgundy interior and gold border. Perfect front-facing view, symmetric, entire silhouette visible centered on genuine transparent canvas. High-resolution casual medieval heraldic cel-shaded finish, warm quiet gold metallic planes, no pixel art, no excessive shine. The middle must be EMPTY for separate runtime arrow and text. NO words, NO letters, NO arrow icon, NO horn, NO helmet, NO skull, NO crest, NO fabric banners, NO gems, NO sparkles, NO background scenery, NO checkerboard. Only exterior transparent, interior alpha255 fully opaque.",
+      "source": "C:/Users/sudea/.codex/generated_images/01a10b25-eb9c-7102-b9fe-ee65697e00db/exec-6d655d74-2761-4ab5-ace3-823a24a5bbfc.png",
+      "canvas": [
+        2089,
+        753
+      ],
+      "unityRect": [
+        47,
+        168,
+        1995,
+        432
+      ],
+      "centerAlpha": 253
+    }
+  ]
+}

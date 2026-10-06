@@ -1,0 +1,31 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-94f58e6f-5e0c-4c94-8033-cd06c20ef41c.png",
+  "assets": [
+    {
+      "asset": "synergy_body.png",
+      "dimensions": [2064, 762],
+      "visible_alpha_threshold": 8,
+      "visible_bounds_top_left": [48, 93, 1968, 550],
+      "suggested_sprite_rect_unity_with_padding": [44, 115, 1976, 558],
+      "center_rgba": [20, 20, 19, 253],
+      "original_output": "C:/Users/sudea/.codex/generated_images/01a10c5d-b471-78d0-9302-56a8136b2783/exec-aeb86b92-21b6-44e7-81aa-44ab313b3435.png",
+      "prompt": "Use case: precise-object-edit\nInput image is the current isolated blank game UI plaque. Change ONLY its proportions: make this plaque considerably TALLER relative to its width so the OPAQUE VISIBLE PLAQUE SILHOUETTE, measured from leftmost curl to rightmost curl and topmost gold to bottommost gold, is 3.3:1 WIDTH:HEIGHT, not 5:1. Target outer painted bounds approximately 1500 pixels wide and 455 pixels high, centered on a transparent canvas, or equivalent same 3.3:1 ratio. The interior should be taller for a two-line compact synergy UI with a large icon. Keep exactly this modest curled border style, smooth non-pixel rendering, antique golden metal and opaque dark charcoal interior. Keep rim thickness modest, do not make it chunkier. Preserve truly transparent exterior and completely opaque interior. Do not add any flag, ribbon, horn, skull, badge, icon, text, line or ornaments. One blank plaque only, entire silhouette visible.",
+      "revision_of": {
+        "original_output": "C:/Users/sudea/.codex/generated_images/01a10c5d-b471-78d0-9302-56a8136b2783/exec-47bb6ff5-9091-46cb-bf5c-0a66c887705c.png",
+        "prompt": "Use case: stylized-concept\nAsset type: isolated production-ready 2D game UI sprite, transparent PNG\nInput images: Image 1 is a STYLE AND SHAPE reference showing four compact synergy rows. Use just the plaque shape and subtle curled gold border of one row, NOT the overall screenshot.\nPrimary request: create ONE empty, wide horizontal compact synergy plaque. Front-facing orthographic. Opaque very dark charcoal almost-black interior, combined with a modest antique-gold metal rim. Shape approximately 3.3 times wider than tall. Straight long horizontal top and bottom edges, with restrained small curls at the four corners like the reference. Thin metal rim with soft muted ivory-gold highlights, dark brown recessed edges, crisp dark outline. The plaque remains mostly rectangular, slightly rounded inner corners. Huge uninterrupted empty black interior for a future UI icon and two lines of text.\nComposition: one plaque centered and occupying most of a wide canvas, entire silhouette visible, even modest transparent padding. Symmetric left/right, no perspective tilt.\nStyle: polished hand-painted casual medieval dark-fantasy UI, non-pixel, clean smooth outlines, subdued saturation. Match reference border thickness, small curl scale, black fill and antique gold hue. Do NOT add elaborate ornament.\nConstraints: background outside the plaque must be genuinely transparent. The interior MUST be opaque black/charcoal, not a transparent hole. Absolutely no ribbons, fabric, flags, horns, skull, emblem, crown, icon, text, letters, numbers, divider lines, diamonds, watermark, backdrop, multiple panels, glow or drop shadow outside the sprite. Only one opaque blank plaque with its integrated metal border."
+      }
+    },
+    {
+      "asset": "synergy_flag_tint.png",
+      "dimensions": [1060, 1484],
+      "visible_alpha_threshold": 8,
+      "visible_bounds_top_left": [399, 183, 260, 1117],
+      "suggested_sprite_rect_unity_with_padding": [395, 180, 268, 1125],
+      "center_rgba": [207, 204, 202, 253],
+      "tint_note": "Near-neutral grayscale cloth; RGB channel difference is at most 10 in opaque content. Original generated alpha retained. No pixel edits.",
+      "original_output": "C:/Users/sudea/.codex/generated_images/01a10c5d-b471-78d0-9302-56a8136b2783/exec-24671763-dad2-4752-8554-614c343d3811.png",
+      "prompt": "Use case: stylized-concept\nAsset type: isolated production-ready tintable 2D game UI fabric sprite, transparent PNG\nInput images: Image 1 is STYLE AND SHAPE reference. Focus only on the NARROW hanging cloth strips at the left and right sides of each synergy row. Ignore the panel, gold border, text and icons.\nPrimary request: create ONE single narrow vertical cloth side pennant like the strip at the left edge of the reference. It will be placed behind a separate plaque and reused mirrored at its right edge. One narrow straight hanging ribbon with opaque cloth, a subtly folded vertical edge, and two asymmetric pointed tails split by a shallow V notch at the bottom. Cloth silhouette height about 3.5 times its width. Top flat and plain; NO pole, no fitting, no pin, no metal. The ribbon is not waving sideways: hangs mostly straight down. Crisp dark outline, subtle fold shadows and simple broad highlight.\nColor palette: strictly grayscale, neutral near-white fabric main surface and light gray fold shadows with dark charcoal outline. Absolutely no beige, gold or colored pixels. This asset must accept Unity Image.color multiplicative tint: broad near-white face, readable darker fold on one side. Do not turn the ribbon black.\nStyle: polished smooth hand-painted casual medieval dark-fantasy UI, matching the reference cloth construction, not pixel art, no photorealism.\nComposition: ONLY ONE pennant centered on true transparent background, entire object visible, modest transparent padding. No plaque, text, icon, border-frame, emblem, badge, pole, gold hardware, background scene, glow, shadow outside sprite or other objects. Cloth opaque; background transparent."
+    }
+  ]
+}

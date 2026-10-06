@@ -11,8 +11,8 @@ namespace OZGL2.UIBridge
 {
     /// <summary>
     /// 로비 UI(희수 파트: 레벨 HUD·특성 트리·스킬 세팅)를 실제 계정 시스템(MawangLevel·TraitTree·SkillTreeStore)에 잇는다.
-    /// UI 씬·프리팹·스크립트는 하나도 고치지 않고, 씬이 로드될 때 UI 컴포넌트를 찾아 같은 오브젝트에
-    /// 바인더를 붙인다. 바인더의 OnEnable이 UI 컴포넌트의 OnEnable보다 늦게 돌기 때문에,
+    /// 씬이 로드될 때 UI 컴포넌트를 찾아 같은 오브젝트에 계정 바인더를 붙인다.
+    /// 바인더의 OnEnable이 UI 컴포넌트의 OnEnable보다 늦게 돌기 때문에,
     /// 화면을 열 때마다 UI가 만드는 임시 모델을 실제 모델로 다시 갈아 끼운다.
     /// </summary>
     public static class LobbyUiBridge
@@ -145,13 +145,17 @@ namespace OZGL2.UIBridge
         private UILobbyCollectionState _unlockState;
         private readonly Dictionary<string, string> _realIdByEntryId = new Dictionary<string, string>();
         private readonly Dictionary<string, int> _indexByEntryId = new Dictionary<string, int>();
+        private readonly Dictionary<string, SkillData> _realDataByEntryId = new Dictionary<string, SkillData>();
+        private readonly Dictionary<string, int> _unlockCosts = new Dictionary<string, int>();
+        private TraitTree _capacityTraits;
         private bool _applying;
+        private bool _isUnlocking;
 
         private void OnEnable()
         {
             _preview = GetComponent<UISkillLoadoutPreview>();
             if (_preview == null) return;
-            // 카탈로그·해금 상태는 UI가 공개하지 않는 필드라 리플렉션으로 읽는다(UI 파일 무수정).
+            // 기존 카탈로그·해금 상태의 직렬화 계약을 유지하며 리플렉션으로 읽는다.
             _catalog = typeof(UISkillLoadoutPreview).GetField("_catalog", Private)?.GetValue(_preview) as UISkillPreviewCatalogSO;
             _unlockState = typeof(UISkillLoadoutPreview).GetField("_unlockState", Private)?.GetValue(_preview) as UILobbyCollectionState;
             if (_catalog == null || _unlockState == null)
@@ -160,6 +164,17 @@ namespace OZGL2.UIBridge
                 return;
             }
             BuildMap();
+            if (_preview.UsesHeraldryLayout)
+            {
+                var sync = FindFirstObjectByType<RealSynergySync>();
+                var traits = FindFirstObjectByType<UITraitProgressionController>(FindObjectsInactive.Include);
+                _capacityTraits = sync != null && sync.Traits != null ? sync.Traits : traits != null && traits.Tree != null
+                    ? traits.Tree : new TraitTree(Resources.LoadAll<TraitData>("Traits"));
+                _capacityTraits.Changed += PushAccountState;
+                SkillTreeStore.Changed += OnAccountChanged;
+                _preview.UnlockRequested += OnUnlockRequested;
+                PushAccountState();
+            }
             SyncUnlocks();
             ApplyStoredLoadout();
             _preview.SaveRequested += OnSaveRequested;
@@ -167,7 +182,15 @@ namespace OZGL2.UIBridge
 
         private void OnDisable()
         {
-            if (_preview != null) _preview.SaveRequested -= OnSaveRequested;
+            if (_preview != null)
+            {
+                _preview.SaveRequested -= OnSaveRequested;
+                _preview.UnlockRequested -= OnUnlockRequested;
+            }
+            SkillTreeStore.Changed -= OnAccountChanged;
+            if (_capacityTraits != null) _capacityTraits.Changed -= PushAccountState;
+            _capacityTraits = null;
+            _isUnlocking = false;
         }
 
         /// <summary>스킬창 준비 여부 — 화면이 한 번도 열리지 않았으면 카탈로그를 아직 못 읽었다.</summary>
@@ -176,7 +199,7 @@ namespace OZGL2.UIBridge
         /// <summary>저장된 해금 상태를 화면에 다시 반영한다(디버그 패널에서 해금을 바꾼 뒤 호출).</summary>
         public void ResyncUnlocks()
         {
-            if (IsReady) SyncUnlocks();
+            if (IsReady) { PushAccountState(); SyncUnlocks(); }
         }
 
         /// <summary>지금 화면 슬롯에 놓인 스킬의 실제 id 목록(아직 저장 전 편집 상태 포함).</summary>
@@ -193,15 +216,22 @@ namespace OZGL2.UIBridge
         {
             _realIdByEntryId.Clear();
             _indexByEntryId.Clear();
-            var realByName = new Dictionary<string, string>();
+            _realDataByEntryId.Clear();
+            _unlockCosts.Clear();
+            var realByName = new Dictionary<string, SkillData>();
             foreach (var data in Resources.LoadAll<SkillData>("Skills"))
-                if (data != null) realByName[data.displayName] = data.skillId;
+                if (data != null && !string.IsNullOrWhiteSpace(data.displayName) && !string.IsNullOrWhiteSpace(data.skillId)) realByName[data.displayName] = data;
             for (int i = 0; i < _catalog.Entries.Count; i++)
             {
                 var entry = _catalog.Entries[i];
                 if (entry == null || string.IsNullOrWhiteSpace(entry.Id)) continue;
                 _indexByEntryId[entry.Id] = i;
-                if (realByName.TryGetValue(entry.DisplayName, out var realId)) _realIdByEntryId[entry.Id] = realId;
+                if (realByName.TryGetValue(entry.DisplayName, out var realData))
+                {
+                    _realIdByEntryId[entry.Id] = realData.skillId;
+                    _realDataByEntryId[entry.Id] = realData;
+                    _unlockCosts[entry.Id] = new SkillRuntime(realData).UnlockCost;
+                }
                 else Debug.LogWarning("스킬 세팅 연동: '" + entry.DisplayName + "'에 대응하는 SkillData를 찾지 못했습니다.", this);
             }
         }
@@ -223,7 +253,8 @@ namespace OZGL2.UIBridge
             var desired = new List<string>(); // 카탈로그 entry id
             void Add(string entryId)
             {
-                if (desired.Count < UiSlotCount && !desired.Contains(entryId)) desired.Add(entryId);
+                int capacity = _preview.UsesHeraldryLayout ? _preview.SlotCapacity : UiSlotCount;
+                if (desired.Count < capacity && !desired.Contains(entryId)) desired.Add(entryId);
             }
 
             // 저장한 적이 없는 신규 계정에게만 기본 스킬(화염구)을 보여 준다. 저장한 뒤에는 저장된 목록 그대로.
@@ -262,6 +293,39 @@ namespace OZGL2.UIBridge
             foreach (var entryId in entryIds)
                 if (_realIdByEntryId.TryGetValue(entryId, out var realId)) realIds.Add(realId);
             SkillTreeStore.SetEquipped(realIds);
+        }
+
+        private void PushAccountState()
+        {
+            if (_preview == null || !_preview.UsesHeraldryLayout) return;
+            int capacity = 3 + (_capacityTraits != null ? _capacityTraits.BuildModifiers().ExtraSkillSlots : 0);
+            _preview.SetAccountState(SkillTreeStore.SkillPoints, capacity, _unlockCosts);
+        }
+
+        private void OnAccountChanged()
+        {
+            if (!isActiveAndEnabled || !IsReady || _preview == null || !_preview.UsesHeraldryLayout) return;
+            PushAccountState();
+            SyncUnlocks(); // 장착 draft/committed에는 저장 구성을 다시 덮어쓰지 않는다.
+        }
+
+        private void OnUnlockRequested(string entryId)
+        {
+            if (_isUnlocking || !isActiveAndEnabled || _preview == null || !_preview.UsesHeraldryLayout) return;
+            _isUnlocking = true;
+            bool succeeded = false;
+            string message = "현재 해금할 수 없는 스킬입니다.";
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(entryId) && _realDataByEntryId.TryGetValue(entryId, out var data))
+                    succeeded = SkillTreeStore.TryUnlock(data, out message);
+                OnAccountChanged();
+            }
+            finally
+            {
+                _isUnlocking = false;
+                _preview.CompleteUnlock(succeeded, succeeded ? "스킬 잠금이 해제되었습니다." : message);
+            }
         }
     }
 }

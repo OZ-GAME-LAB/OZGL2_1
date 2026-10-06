@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-06",
+  "scene": "Assets/00.Scenes/Builds/InGame.unity",
+  "scope": "재화 불꽃·깃발 제거, 하단 테두리 보강 및 대기/전투 통일, 미사용 시간 표시 제거와 병사 투구 적용",
+  "generation": "built-in image_gen; 생성 알파 보존, PNG 직접 픽셀 보정 없음",
+  "prompts": ["Source/CurrencyGenerationPrompts.json", "BottomPanelGeneration.json"],
+  "currency": {
+    "panel": "Sprites/currency_medallion_no_flags.asset",
+    "panelSpriteRect": [158, 70, 907, 1137],
+    "panelRectPreserved": [198, 248],
+    "leftFlagsRemoved": 2,
+    "flame": "Sprites/currency_flame_reference.asset",
+    "flameSpriteRect": [128, 113, 768, 1325],
+    "flameRect": [58, 82],
+    "flameTopLeft": [73, 61],
+    "flamePreserveAspect": true,
+    "valueLayoutAndBindingPreserved": true
+  },
+  "bottom": {
+    "sharedSprite": "Sprites/bottom_panel_fullbleed_thicker.asset",
+    "spriteRect": [0, 54, 2172, 273],
+    "preparationObject": "Canvas_Preparation/BottomNobleBackground",
+    "combatObject": "Canvas_Combat/BottomSkillBackground",
+    "combatObjectNamePreservedForExistingSkillBarCode": true,
+    "bothSizes": [1920, 241],
+    "bothAnchoredPositions": [0, 0],
+    "bothAnchorMin": [0, 0],
+    "bothAnchorMax": [1, 0],
+    "centralMetalThicknessRatio": 1.5,
+    "brightGoldCoreRatioRange": [1.8, 2.2],
+    "thicknessNote": "생성 결과는 균일한 1.5배가 아님. 중앙 금속 전체 기준 8→12px이며 밝은 금색 부분은 더 두껍게 생성됨.",
+    "leftRightBottomBorder": false,
+    "flags": false
+  },
+  "timerCleanup": {
+    "removedInGameObjects": [
+      "Canvas_GetReady/BattleHUD/RemainingTimeText",
+      "Canvas_GetReady/BattleHUD/Legacy_ElapsedTime (자식 Label 포함)"
+    ],
+    "timeTextReference": "None (instance ID 0, Missing 아님)",
+    "renamedIcon": "TimerIcon -> RemainingHeroIcon",
+    "helmetSprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/icon_veteran_v2.asset",
+    "remainingHeroCountPreserved": true,
+    "runtimeElapsedTimeAndResultTrackingPreserved": true,
+    "sharedViewTimeApiPreservedForOtherScenes": true
+  },
+  "checks": {
+    "preparationScreenshot": "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v5_preparation_final.png",
+    "combatScreenshot": "Assets/98.ExternalAssets/00.LocalStaging/BattleHeraldryReview/v5_combat_final.png",
+    "actualCombatTransition": true,
+    "combatBackgroundMeasuredSize": [1920, 241],
+    "combatSkillSlotsActive": true,
+    "displayedRemainingHeroes": 3,
+    "runtimeElapsedSecondsObserved": 34.964016,
+    "consoleErrors": 0,
+    "missingUiScripts": 0,
+    "playModeStopped": true,
+    "timeScaleRestored": 1,
+    "runInBackgroundRestored": false,
+    "newOrModifiedCsThisTurn": false,
+    "sharedPrefabOrInGame2OrTileChanges": false
+  },
+  "commit": false
+}
