@@ -54,7 +54,6 @@ namespace OZGL2.UIFlow
         [Header("Heraldry 계정 UI — 기존 화면은 비활성 유지")]
         [SerializeField] private bool _useHeraldryLayout;
         [SerializeField] private TMP_Text _availableSp;
-        [SerializeField] private TMP_Text _equippedCount;
         [SerializeField] private TMP_Text[] _equippedNames;
         [SerializeField] private TMP_Text _ownedCount;
         [SerializeField] private Image _detailFrame;
@@ -474,8 +473,7 @@ namespace OZGL2.UIFlow
             if (_saveButton != null) _saveButton.interactable = _catalog != null && HasChanges;
             if (_useHeraldryLayout)
             {
-                if (_availableSp != null) _availableSp.text = "남은 SP  " + (_hasAccountState ? _skillPoints.ToString() : "—");
-                if (_equippedCount != null) _equippedCount.text = EquippedCount + " / " + SlotCapacity;
+                if (_availableSp != null) _availableSp.text = "보유 SP  " + (_hasAccountState ? _skillPoints.ToString() : "—");
                 if (_ownedCount != null)
                 {
                     int total = 0;

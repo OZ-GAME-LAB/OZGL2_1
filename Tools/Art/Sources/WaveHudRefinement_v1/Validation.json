@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-06",
+  "status": "applied_saved_validated",
+  "unityVersion": "6000.3.22f1",
+  "approvedScope": {
+    "scene": "Assets/00.Scenes/Builds/InGame_UIIntegration.unity",
+    "prefab": "Assets/06.UI/LobbyMutedPreview/Overlays/Prefabs/Canvas_LobbyOverlays.prefab",
+    "displayCode": "Assets/00.Project/01.Scripts/UI/UISkillLoadoutPreview.cs",
+    "artRoot": "Assets/06.UI/BattleMutedPreview/WaveHudRefinement_v1",
+    "excludedBackup": "Assets/98.ExternalAssets/00.LocalStaging/UI_Cleanup_Backups/20261006_WaveHudRefinement_01",
+    "confirmation": "새 웨이브 프레임·전용 토글·보유 SP 문구 및 내부 알파 보정을 사용자 승인 후 적용·저장"
+  },
+  "appliedLayout": {
+    "waveViewportPanelFrame": {
+      "width": 592,
+      "oldHeight": 242,
+      "newHeight": 290
+    },
+    "contentOffsets": {
+      "TitleY": [-49, -73],
+      "HeaderLineY": [-94, -118],
+      "EnemySlotY": [-103, -127],
+      "enemyCount": 3
+    },
+    "waveToggle": {
+      "size": [66, 66],
+      "anchoredPosition": [506, -32],
+      "existingSeparateArrowSize": [38, 38],
+      "arrowAndDisclosureConnectionsPreserved": true
+    },
+    "skillSpText": {
+      "before": "남은 SP",
+      "after": "보유 SP",
+      "fontSizePreserved": 28,
+      "runtimeStringChanges": 1,
+      "prefabTextChanges": 1,
+      "lobbySceneFileChanged": false
+    }
+  },
+  "assets": [
+    {
+      "source": "Tools/Art/Sources/WaveHudRefinement_v1/wave_frame_roomy_generated.png",
+      "texture": "Assets/06.UI/BattleMutedPreview/WaveHudRefinement_v1/Textures/wave_frame_roomy.png",
+      "sprite": "Assets/06.UI/BattleMutedPreview/WaveHudRefinement_v1/Sprites/wave_frame_roomy.asset",
+      "dimensions": [1793, 877],
+      "spriteRect": [24.0, 16.5928955, 1745.0, 854.8142],
+      "spriteGuid": "be876a9960eb71f4a899cd86aeffaecf",
+      "safeInteriorPixels": 1168625,
+      "changedAlphaPixels": 1168625,
+      "beforeSafeAlphaRange": [249, 254],
+      "afterSafeAlphaRange": [255, 255],
+      "rgbDifferences": 0,
+      "outsideAndEdgeAlphaDifferences": 0,
+      "sourceSha256": "41D6E0E929C135693CF1CBC11BC6755C207FA3DCF045723615C612DB68273490",
+      "finalSha256": "FB5F5984B901CD719738C6F3ABA83253604B54D8DCA2CB3CFD0829B8E310A236"
+    },
+    {
+      "source": "Tools/Art/Sources/WaveHudRefinement_v1/wave_toggle_dedicated_generated.png",
+      "texture": "Assets/06.UI/BattleMutedPreview/WaveHudRefinement_v1/Textures/wave_toggle_dedicated.png",
+      "sprite": "Assets/06.UI/BattleMutedPreview/WaveHudRefinement_v1/Sprites/wave_toggle_dedicated.asset",
+      "dimensions": [1254, 1254],
+      "spriteRect": [152.5, 166.0, 948.0, 948.0],
+      "spriteGuid": "fbdde4aff6a7775469d2f955b5329e7e",
+      "safeInteriorPixels": 503523,
+      "changedAlphaPixels": 503523,
+      "beforeSafeAlphaRange": [250, 254],
+      "afterSafeAlphaRange": [255, 255],
+      "rgbDifferences": 0,
+      "outsideAndEdgeAlphaDifferences": 0,
+      "sourceSha256": "940AD3D0DB97AFC0BF7BB52DE460F8A4785EE6656A0B207CE0FFD60EC2715F56",
+      "finalSha256": "BD7C8CF6CEC256E74DC98A2ECE4A134C9250FC05B0735708AE816AA2ADB6AF01"
+    }
+  ],
+  "importSettings": {
+    "textureType": "Default",
+    "npotScale": "None",
+    "compression": "Uncompressed",
+    "mipmaps": false,
+    "maxTextureSize": 2048,
+    "filterMode": "Bilinear",
+    "wrapMode": "Clamp",
+    "alphaIsTransparency": true,
+    "spriteMeshType": "FullRect",
+    "pixelsPerUnit": 100,
+    "metaFilesGeneratedByUnity": true
+  },
+  "validation": {
+    "method": "Unity MCP 및 공식 Editor API; 실제 UI Button 콜백과 Play Mode 표시 상태 검증",
+    "battlePlayChecks": {
+      "passed": 41,
+      "failed": [],
+      "coverage": [
+        "새 프레임·토글 참조와 크기·내용 여백 유지",
+        "펼침·접힘·빠른 반전·일시정지 중 동작",
+        "Arrow 회전과 CanvasGroup 입력 상태 복원",
+        "실행 중 스프라이트가 다른 코드에 덮어써지지 않음"
+      ]
+    },
+    "lobbyPlayChecks": {
+      "passed": 20,
+      "failed": [],
+      "coverage": [
+        "실제 스킬 세팅 버튼으로 열기·닫기·재열기",
+        "실제 보유 SP 및 표시 전용 0·7·123·미연결 상태 문구",
+        "원래 표시 상태 복원",
+        "실제 SP·장착 목록·milestone·drip 변경 없음"
+      ]
+    },
+    "finalConsoleErrors": 0,
+    "finalConsoleWarnings": 0,
+    "waveSubtreeMissingScripts": 0,
+    "waveSubtreeMissingReferences": [],
+    "centralTextureAlphaRange": [255, 255],
+    "nonTargetSceneComponentChangesAtApply": 0,
+    "getReadyPrefabModificationsComparedAfterPlay": 384,
+    "getReadyPrefabModificationDifferencesAfterPlay": 0,
+    "integrationFileBytesUnchangedAfterPlay": true,
+    "lobbyFileBytesUnchangedAfterPlay": true,
+    "finalEditorScene": "InGame_UIIntegration",
+    "finalEditorMode": "Edit Mode",
+    "finalSceneDirty": false,
+    "notChecked": [
+      "Game View 캡처와 실제 마우스·키보드 조작",
+      "16:9 이외 화면 비율",
+      "Player Build"
+    ]
+  },
+  "scopeAudit": {
+    "independentReadOnlyReview": true,
+    "teamCodeChanged": false,
+    "otherBattleScenesChanged": false,
+    "battleSharedPrefabsChanged": false,
+    "projectSettingsChanged": false,
+    "packagesChanged": false,
+    "unresolvedMergeFiles": 0,
+    "spriteGuidFileIdAndTextureReferencesMatched": true,
+    "gitDiffCheck": "Unity가 생성한 빈 value: 후행 공백 1개만 있음; Scene 텍스트 직접 수정하지 않음",
+    "transientDiagnostics": "새 폴더 AssetDatabase 인식 및 일회성 검사 API 사용 오류는 수정 후 재검증. 최종 Play 세션 Console 오류·경고 0개.",
+    "commitCreated": false
+  }
+}

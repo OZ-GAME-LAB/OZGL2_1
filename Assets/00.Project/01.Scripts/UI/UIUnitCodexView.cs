@@ -83,7 +83,7 @@ namespace OZGL2.UIFlow
                 for (int index = 0; index < _factionButtons.Length; index++)
                     if (_factionButtons[index] != null) _factionButtons[index].SetChosen(index == _faction);
 
-            if (_pageText != null) _pageText.text = $"발견 {UnlockedCount} / {VisibleCount}";
+            if (_pageText != null) _pageText.text = $"발견된 유닛 {UnlockedCount} / {VisibleCount}";
             if (_emptyText != null)
             {
                 _emptyText.text = "등록된 유닛이 없습니다.";

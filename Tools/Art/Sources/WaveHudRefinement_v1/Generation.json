@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-06",
+  "mode": "built-in image_gen",
+  "targetScene": "Assets/00.Scenes/Builds/InGame_UIIntegration.unity",
+  "status": "applied_saved_validated",
+  "assets": [
+    {
+      "file": "wave_frame_roomy_generated.png",
+      "prompt": "Use case: precise-object-edit. This is the edit TARGET. Keep the same horned skull, gold curls, muted red flags, thin metallic trim, dark solid opaque black interior and smooth nonpixel style. Change ONLY the layout to give significantly more vertical blank room. IMPORTANT ART outer bounding box must be width1720 height840, ratio2.05:1, not 2.4:1. Full PNG canvas1792x896, margin36px sides and28px top/bottom. Preserve dimensions of crest and corner curls and exact gold stroke width: do not vertically stretch any decorations. Lengthen the left and right straight vertical sides and burgundy cloth by110px, lowering the entire unchanged bottom gold trim by110px and filling the new middle with opaque dark charcoal. Make the central black interior taller, not extra transparent padding. Fit the art comfortably to the canvas at these outer dimensions, same widths. No text, icons, dividers, backdrop, glow or extra ornaments. Clean true transparent outside. Opaque interior alpha255.",
+      "initialPrompt": "Use case: precise-object-edit. Production Unity transparent raster UI sprite. Image 1 is the existing wave frame edit target; Image 2 is the approved HUD style reference. Recreate ONLY the blank 'current wave' panel frame from Image 1, matching its hand-painted crisp 2D dark-fantasy heraldry, warm antique gold beveled metal, small horned gold skull at top center and muted burgundy cloth pennants at both sides, opaque charcoal/black interior. Main requested edit: expand blank interior VERTICALLY at top and bottom with equal extra breathing room. Final visible asset outer width:height must be exactly 592:290 (2.0414:1), wider landscape frame, not square, no vertical stretching of skull or curls or borders. Generate 1792x896 PNG canvas, framing the art with a small 10px clean transparent margin, fit proportions to 592x290 on screen. Keep top crest compact; enlarge empty interior rather than ornaments. Gold line width should be narrow and consistent (about 3 screen px when shown at width592); not a thick slab, not exaggerated broad highlights. Bottom and top frame curves and corner scrolls remain elegant, same theme; cloth subdued dark wine red, not vivid red. The central interior is solid opaque dark charcoal, not alpha/translucent. No text, no unit icons, no dividers, no arrows, no numerals, no background scenery, no glow, no drop shadows outside, no white halo, no extra ornaments. True transparent PNG outside the panel; preserve smooth anti-aliased outer contour. This is one standalone blank panel only, no collage.",
+      "targetSize": [
+        592,
+        290
+      ]
+    },
+    {
+      "file": "wave_toggle_dedicated_generated.png",
+      "prompt": "Use case: ui-mockup. Production Unity dedicated WAVE EXPAND/COLLAPSE BUTTON blank frame sprite, not a reroll button. Image 1 (HUD bar) provides antique gold metal palette and THIN beveled line thickness; Image 2 (approved HUD) shows the small pointed oval medallion immediately to the right of WAVE label. Create ONLY a new standalone front-facing button background to display at66x66 Unity units. Nearly circular dark charcoal disk with subtle pointed diamond tips at twelve and six o'clock, left/right rounded. Thin narrow antique gold rim, equivalent about2.3px on a66px button (~3.5% of width), equal apparent stroke width to adjacent top bar metal trim. Gold and black hand-painted smooth2D dark-fantasy heraldic look, crisp minimal bevel matching other UI, low saturation, not flatSVG, not pixel art. Absolutely NO CURL SCROLLS or ornamental lugs, NO rereoll/refresh shapes, NO skull, NO flags, NO arrow icon: central chevron is a separate existing Unity Image. Empty center filled entirely opaque black-charcoal. Center shape symmetry and simple rim make readable at66px. Square1024x1024 transparentPNG canvas, art centered with uniform24px transparent margin, visible art width=height. No文字/text/numbers, no halo, no external shadow, no glow, no background. Output only one blank button frame.",
+      "targetSize": [
+        66,
+        66
+      ]
+    }
+  ],
+  "constraints": [
+    "팀원 코드·다른 전투 씬·전투 공용 프리팹 유지",
+    "화살표는 기존 별도 Image 유지",
+    "게임 계산·저장 규칙 유지",
+    "사용자 승인에 따라 닫힌 내부 알파만 255로 보정; RGB·외곽 투명도·안티앨리어싱 유지"
+  ]
+}
