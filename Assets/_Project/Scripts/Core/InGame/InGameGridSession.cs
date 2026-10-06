@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OZGL2.Grid;
+using OZGL2.Progression;
+using OZGL2.UIBridge;
 using OZGL2.Stage;
 using OZGL2.Stage.Prototype;
 
@@ -21,6 +23,13 @@ namespace OZGL2.InGame
             token.ThrowIfCancellationRequested();
             if (Session != null) throw new InvalidOperationException("Create a new adapter for each run.");
             Session = new GridRunSession(context.RunId, _definition, GridFusionPolicy.CanFuse);
+            // 저장된 판을 이어하는 경우: 깬 웨이브 수와 마왕성 배치·증강을 되돌린 뒤 준비를 연다
+            var resume = RunResume.Active;
+            if (resume != null && resume.stageId == context.StageId)
+            {
+                RunSnapshotCodec.Restore(resume, Session, RunResume.Catalog);
+                RunSnapshotCodec.RestoreAugments(resume, OZGL2.Synergy.RealCombatBootstrap.EnsureInitialized()?.Augments);
+            }
             Session.Grid.Changed += Notify;
             Notify();
             return Task.CompletedTask;

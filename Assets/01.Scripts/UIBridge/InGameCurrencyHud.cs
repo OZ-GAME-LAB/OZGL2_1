@@ -55,6 +55,7 @@ namespace OZGL2.UIBridge
         private TMP_Text _rerollCostLabel;
         private float _pulse;
         private int _balance;
+        private int _resumeToken = -1;
         private int _rerollCount;
         private string _rerollRequestId;
         private bool _pushed;
@@ -120,6 +121,12 @@ namespace OZGL2.UIBridge
                 _stage = stage;
                 _balance = _startAmount;
                 _pushed = false;
+            }
+            // 저장된 판을 이어하면 저장된 재화로 시작한다(판마다 한 번만)
+            if (_resumeToken != OZGL2.Progression.RunResume.Token && stage != null && stage.Progress != null)
+            {
+                _resumeToken = OZGL2.Progression.RunResume.Token;
+                if (OZGL2.Progression.RunResume.Active != null) _balance = OZGL2.Progression.RunResume.Active.currency;
             }
             TrackClearBonus(stage);
             TrackRewardRequest();
@@ -286,7 +293,7 @@ namespace OZGL2.UIBridge
                 Debug.LogWarning("리롤 실패: 보상 후보를 바꿀 방법을 찾지 못했습니다(StageGridRewards 구조가 바뀌었을 수 있음).", this);
                 return false;
             }
-            setter.Invoke(rewards, new object[] { source.Draw(run.Grid.CanExpand) });
+            setter.Invoke(rewards, new object[] { source.Draw(run.Grid.GetPlaceableExpansionShapes()) });
             return true;
         }
 
@@ -1081,7 +1088,8 @@ namespace OZGL2.UIBridge
         private bool TryRefreshCloneWidget()
         {
             if (_cloneFailed) return false;
-            if (_combatClone == null)
+            if (_combatClone == null && TryUseDesignedCombatWidget()) { }
+            else if (_combatClone == null)
             {
                 if (_pulseTarget == null) return false;
                 var bridge = FindFirstObjectByType<UIInGameBattleBridge>(FindObjectsInactive.Include);
@@ -1123,6 +1131,27 @@ namespace OZGL2.UIBridge
         }
 
         private Vector3 _cloneBaseScale = Vector3.one;
+
+        /// <summary>
+        /// 희수가 전투 화면(Canvas_Combat)에 미리 만들어 둔 재화 표시(Currency_Combat: 틀·불꽃·숫자)를 쓴다. 꺼져 있는 채로 씬에 있으므로 켜서 숫자만 채운다.
+        /// 준비 화면 아이콘을 복제해 월드 좌표로 옮기던 방식은 캔버스가 달라 자리가 어긋났다 — 전투 화면에 정해 둔 자리(왼쪽 아래)를 그대로 따른다.
+        /// </summary>
+        private bool TryUseDesignedCombatWidget()
+        {
+            foreach (var rect in Resources.FindObjectsOfTypeAll<RectTransform>())
+            {
+                if (rect == null || rect.name != "Currency_Combat" || !rect.gameObject.scene.IsValid()) continue;
+                var text = rect.GetComponentInChildren<TMP_Text>(true);
+                if (text == null) continue;
+                rect.gameObject.SetActive(true);
+                foreach (var graphic in rect.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+                _combatClone = rect;
+                _cloneText = text;
+                _cloneBaseScale = rect.localScale;
+                return true;
+            }
+            return false;
+        }
 
         private void RefreshCombatWidget(StageManager stage)
         {

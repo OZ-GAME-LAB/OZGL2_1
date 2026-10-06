@@ -344,8 +344,8 @@ namespace OZGL2.UIFlow
                     id,
                     eBattleHandCardKind.LAND_SLOT,
                     "배치 영역 확장",
-                    areaTitle: "웨이브 보상",
-                    footprint: CreateDisplayFootprint(_manager.Definition.Expansion, 0, false));
+                    areaTitle: "웨이브 보상 · " + (option.ExpansionShape ?? _manager.Definition.Expansion).Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸",
+                    footprint: CreateDisplayFootprint(option.ExpansionShape ?? _manager.Definition.Expansion, 0, false));
             }
 
             UIUnitCatalogSO.Entry catalogEntry = FindUnitCatalogEntry(option.Unit.Id);

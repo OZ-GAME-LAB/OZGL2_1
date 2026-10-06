@@ -216,15 +216,33 @@ namespace OZGL2.Grid
             if (moving != null) result.ExceptWith(moving.GetCells());
             return result;
         }
+        // 이번에 놓으려는 확장 조각(보상에서 뽑힌 모양). 없으면 기본 조각.
+        private FootprintDefinition _pendingExpansion;
+        public FootprintDefinition PendingExpansionShape => _pendingExpansion ?? Definition.Expansion;
+        private FootprintDefinition CurrentExpansionShape =>
+            IsExpansionDrag && _selectedId != null ? (FindExpansion(_selectedId)?.Footprint ?? PendingExpansionShape) : PendingExpansionShape;
+
+        public bool CanExpandWith(FootprintDefinition shape)
+        {
+            shape = shape ?? Definition.Expansion;
+            for (int y = 0; y < Definition.MaximumSize.y; y++)
+                for (int x = 0; x < Definition.MaximumSize.x; x++)
+                    for (int rotation = 0; rotation < 4; rotation++)
+                        if (GridPlacementRules.ValidateExpansion(Definition, _floor, shape.GetCells(new Vector2Int(x, y), rotation)) == ePlacementFailure.NONE) return true;
+            return false;
+        }
+        /// <summary>지금 바닥에 실제로 놓을 수 있는 확장 조각 모양들(보상 후보를 뽑을 때 쓴다).</summary>
+        public IReadOnlyList<FootprintDefinition> GetPlaceableExpansionShapes()
+        {
+            var result = new List<FootprintDefinition>();
+            foreach (var shape in Definition.ExpansionShapes) if (CanExpandWith(shape)) result.Add(shape);
+            return result.AsReadOnly();
+        }
         public bool CanExpand
         {
             get
             {
-                for (int y = 0; y < Definition.MaximumSize.y; y++)
-                    for (int x = 0; x < Definition.MaximumSize.x; x++)
-                        for (int rotation = 0; rotation < 4; rotation++)
-                            if (GridPlacementRules.ValidateExpansion(Definition, _floor,
-                                Definition.Expansion.GetCells(new Vector2Int(x, y), rotation)) == ePlacementFailure.NONE) return true;
+                foreach (var shape in Definition.ExpansionShapes) if (CanExpandWith(shape)) return true;
                 return false;
             }
         }
@@ -233,11 +251,12 @@ namespace OZGL2.Grid
             var result = new HashSet<Vector2Int>();
             var remaining = GetRemainingFloor();
             bool moving = IsExpansionDrag && _selectedId != null;
+            var frontierShape = CurrentExpansionShape;
             for (int y = 0; y < Definition.MaximumSize.y; y++)
                 for (int x = 0; x < Definition.MaximumSize.x; x++)
                     for (int rotation = 0; rotation < 4; rotation++)
                     {
-                        var cells = Definition.Expansion.GetCells(new Vector2Int(x, y), rotation);
+                        var cells = frontierShape.GetCells(new Vector2Int(x, y), rotation);
                         var failure = moving ? GridPlacementRules.ValidateExpansionMove(Definition, remaining, cells) :
                             GridPlacementRules.ValidateExpansion(Definition, remaining, cells);
                         if (failure == ePlacementFailure.NONE)
@@ -245,15 +264,33 @@ namespace OZGL2.Grid
                     }
             return new List<Vector2Int>(result).AsReadOnly();
         }
+        /// <summary>
+        /// 저장된 판을 이어할 때만 쓴다. 아직 준비를 열기 전(WAITING)에 바닥·확장·발판·유닛을 통째로 되돌린다.
+        /// </summary>
+        internal void RestoreState(IEnumerable<Vector2Int> floor, IEnumerable<ExpansionPlacement> expansions,
+            IEnumerable<BlockPlacement> blocks, IEnumerable<UnitPlacement> units, eGridPhase phase = eGridPhase.WAITING)
+        {
+            if (_isNotifying || Phase != eGridPhase.WAITING) throw new InvalidOperationException("State can only be restored before preparation.");
+            _floor.Clear(); _floor.UnionWith(floor);
+            _expansions.Clear(); _expansions.AddRange(expansions);
+            _blocks.Clear(); _blocks.AddRange(blocks);
+            _units.Clear(); _units.AddRange(units);
+            _pendingExpansion = null;
+            UpdateFloorView();
+            // 보상을 고르기 전에 멈춘 판은 "전투가 끝난 직후" 상태(BATTLE)로 되돌려 보상 단계가 그대로 이어지게 한다
+            if (phase == eGridPhase.BATTLE) Phase = eGridPhase.BATTLE;
+            Notify(true);
+        }
         internal bool TryAllowPreparation(bool canSkip)
         {
             if (_isNotifying || HasPendingStorage || (Phase != eGridPhase.REWARD && Phase != eGridPhase.WAITING)) return false;
             _canSkipPreparation = canSkip;
             Phase = eGridPhase.PREPARATION; Notify(); return true;
         }
-        internal bool TryAcceptExpansionReward()
+        internal bool TryAcceptExpansionReward(FootprintDefinition shape = null)
         {
-            if (_isNotifying || HasPendingStorage || Phase != eGridPhase.REWARD || !CanExpand) return false;
+            if (_isNotifying || HasPendingStorage || Phase != eGridPhase.REWARD || !CanExpandWith(shape)) return false;
+            _pendingExpansion = shape;
             RequiresExpansionPlacement = true; Notify(); return true;
         }
         internal bool TryAcceptUnitReward(UnitPlacement unit, BlockPlacement block, Action onCommitted)
@@ -334,7 +371,7 @@ namespace OZGL2.Grid
             if (!HasSelection) return Array.Empty<Vector2Int>();
             var draggedUnit = DragKind == eGridDragKind.UNIT ? FindUnit(_selectedId) : null;
             var shape = draggedUnit != null ? draggedUnit.Definition.GetFootprint(draggedUnit.StarLevel) :
-                IsExpansionDrag ? Definition.Expansion : FindBlock(_selectedId).Footprint;
+                IsExpansionDrag ? CurrentExpansionShape : FindBlock(_selectedId).Footprint;
             return shape.GetCells(_previewAnchor, _previewRotation, _previewIsMirrored);
         }
         public ePlacementFailure GetPreviewFailure()
@@ -378,7 +415,8 @@ namespace OZGL2.Grid
                 }
                 else
                 {
-                    _expansions.Add(new ExpansionPlacement(Guid.NewGuid().ToString("N"), Definition.Expansion, _previewAnchor, _previewRotation));
+                    _expansions.Add(new ExpansionPlacement(Guid.NewGuid().ToString("N"), PendingExpansionShape, _previewAnchor, _previewRotation));
+                    _pendingExpansion = null;
                     RequiresExpansionPlacement = false;
                 }
                 foreach (var cell in GetPreviewCells()) _floor.Add(cell);

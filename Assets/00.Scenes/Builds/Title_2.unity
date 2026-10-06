@@ -434,6 +434,8 @@ GameObject:
   - component: {fileID: 7770000002}
   - component: {fileID: 7770000003}
   - component: {fileID: 7770000004}
+  - component: {fileID: 7770000005}
+  - component: {fileID: 7770000006}
   m_Layer: 0
   m_Name: TitleScreen
   m_TagString: Untagged
@@ -494,6 +496,34 @@ MonoBehaviour:
   _tmpFont: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
   _replaceExisting: 0
   _scanSeconds: 0.4
+--- !u!114 &7770000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7770000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d44ca7accc4525887e7482f54af1341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.SceneBgm
+  _clip: {fileID: 8300000, guid: 3858b391ef4699543b00a0eabc73477e, type: 3}
+  _volume: 0.1
+--- !u!114 &7770000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7770000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2021bd558a25f26b805dadd85cc095d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiTextFit
+  _minScale: 0.55
+  _scanSeconds: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

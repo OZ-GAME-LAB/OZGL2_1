@@ -49,7 +49,7 @@ namespace OZGL2.UIBridge
         private RectTransform _starsRoot;
         private GameObject _settingsPanel, _confirmPanel;
         private TMP_Text _volumeLabel, _tutorialLabel;
-        private TMP_Text _fullscreenLabel;
+        private TMP_Text _fullscreenLabel, _bgmLabel, _sfxLabel;
         private bool _fullscreenOn;
         private readonly List<(RectTransform rt, CanvasGroup group, Vector2 end, float delay)> _intro = new List<(RectTransform, CanvasGroup, Vector2, float)>();
         private float _tutorialLabelResetAt;
@@ -126,6 +126,7 @@ namespace OZGL2.UIBridge
             if (_starting || _settingsPanel == null) return;
             _fullscreenOn = Screen.fullScreen;
             RefreshFullscreenLabel();
+            RefreshAudioLabels();
             _settingsPanel.SetActive(true);
         }
 
@@ -133,6 +134,24 @@ namespace OZGL2.UIBridge
         {
             if (_fullscreenLabel == null) return;
             _fullscreenLabel.text = _fullscreenOn ? "켜짐" : "꺼짐";
+        }
+
+        private void RefreshAudioLabels()
+        {
+            if (_bgmLabel != null) _bgmLabel.text = GameAudioSettings.BgmEnabled ? "켜짐" : "꺼짐";
+            if (_sfxLabel != null) _sfxLabel.text = GameAudioSettings.SfxEnabled ? "켜짐" : "꺼짐";
+        }
+
+        private void ToggleBgm()
+        {
+            GameAudioSettings.SetBgm(!GameAudioSettings.BgmEnabled);
+            RefreshAudioLabels();
+        }
+
+        private void ToggleSfx()
+        {
+            GameAudioSettings.SetSfx(!GameAudioSettings.SfxEnabled);
+            RefreshAudioLabels();
         }
 
         private void CloseSettings()
@@ -597,23 +616,23 @@ namespace OZGL2.UIBridge
             r.anchorMin = r.anchorMax = new Vector2(0.5f, 0.5f); r.sizeDelta = new Vector2(width, 2f); r.anchoredPosition = new Vector2(0f, y);
         }
 
-        /// <summary>설정 창: 소리 크기 슬라이더, 전체화면 켜짐/꺼짐, 마왕 설명 다시 보기. 줄마다 제목은 왼쪽, 조절은 오른쪽에 같은 선으로 맞춘다.</summary>
+        /// <summary>설정 창: 소리 크기 슬라이더, 배경음악·효과음 켜짐/꺼짐, 전체화면 켜짐/꺼짐, 마왕 설명 다시 보기. 줄마다 제목은 왼쪽, 조절은 오른쪽에 같은 선으로 맞춘다.</summary>
         private void BuildSettings(RectTransform root)
         {
             var dim = NewImage("SettingsDim", root, null, new Color(0f, 0f, 0f, 0.66f));
             Stretch(dim.rectTransform);
             _settingsPanel = dim.gameObject;
-            var panel = MakeFlatPanel(dim.rectTransform, new Vector2(920f, 620f), "설정", 320f);
+            var panel = MakeFlatPanel(dim.rectTransform, new Vector2(920f, 840f), "설정", 320f);
             Color line = new Color(Cream.r, Cream.g, Cream.b, 0.22f);
             const float left = -400f, rowW = 780f;
 
             // 소리 크기
-            PlaceLabel(panel, "소리 크기", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 130f), new Vector2(260f, 60f));
+            PlaceLabel(panel, "소리 크기", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 240f), new Vector2(260f, 60f));
             var sliderGo = new GameObject("VolumeSlider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             sliderGo.transform.SetParent(panel, false);
             sliderGo.GetComponent<Image>().color = Color.clear; // 누를 수 있는 영역을 넓힌다
             var sr = (RectTransform)sliderGo.transform;
-            sr.anchorMin = sr.anchorMax = new Vector2(0.5f, 0.5f); sr.sizeDelta = new Vector2(330f, 56f); sr.anchoredPosition = new Vector2(100f, 130f);
+            sr.anchorMin = sr.anchorMax = new Vector2(0.5f, 0.5f); sr.sizeDelta = new Vector2(330f, 56f); sr.anchoredPosition = new Vector2(100f, 240f);
             var bar = NewImage("Bar", sr, null, new Color(Cream.r, Cream.g, Cream.b, 0.28f));
             bar.raycastTarget = false;
             bar.rectTransform.anchorMin = new Vector2(0f, 0.5f); bar.rectTransform.anchorMax = new Vector2(1f, 0.5f);
@@ -633,23 +652,31 @@ namespace OZGL2.UIBridge
             slider.minValue = 0f; slider.maxValue = 1f;
             slider.transition = Selectable.Transition.None;
             slider.navigation = new Navigation { mode = Navigation.Mode.None };
-            _volumeLabel = PlaceLabel(panel, string.Empty, 40f, Gold, TextAlignmentOptions.Right, new Vector2(340f, 130f), new Vector2(140f, 60f));
+            _volumeLabel = PlaceLabel(panel, string.Empty, 40f, Gold, TextAlignmentOptions.Right, new Vector2(340f, 240f), new Vector2(140f, 60f));
             slider.SetValueWithoutNotify(AudioListener.volume);
             _volumeLabel.text = Mathf.RoundToInt(AudioListener.volume * 100f) + "%";
             slider.onValueChanged.AddListener(SetVolume);
-            Hairline(panel, 75f, rowW, line);
+            Hairline(panel, 185f, rowW, line);
 
-            // 전체화면
-            PlaceLabel(panel, "전체화면", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 20f), new Vector2(260f, 60f));
-            _fullscreenLabel = MakeButton(panel, "꺼짐", new Vector2(320f, 20f), new Vector2(170f, 62f), 36f, false, ToggleFullscreen);
+            // 배경음악 / 효과음
+            PlaceLabel(panel, "배경음악", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 130f), new Vector2(260f, 60f));
+            _bgmLabel = MakeButton(panel, "켜짐", new Vector2(320f, 130f), new Vector2(170f, 62f), 36f, false, ToggleBgm);
+            Hairline(panel, 75f, rowW, line);
+            PlaceLabel(panel, "효과음", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 20f), new Vector2(260f, 60f));
+            _sfxLabel = MakeButton(panel, "켜짐", new Vector2(320f, 20f), new Vector2(170f, 62f), 36f, false, ToggleSfx);
             Hairline(panel, -35f, rowW, line);
 
-            // 마왕의 설명 다시 보기
-            PlaceLabel(panel, "마왕의 설명", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, -90f), new Vector2(260f, 60f));
-            _tutorialLabel = MakeButton(panel, "다시 보기", new Vector2(290f, -90f), new Vector2(230f, 62f), 34f, false, ResetTutorial);
+            // 전체화면
+            PlaceLabel(panel, "전체화면", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, -90f), new Vector2(260f, 60f));
+            _fullscreenLabel = MakeButton(panel, "꺼짐", new Vector2(320f, -90f), new Vector2(170f, 62f), 36f, false, ToggleFullscreen);
             Hairline(panel, -145f, rowW, line);
 
-            MakeButton(panel, "닫기", new Vector2(0f, -226f), new Vector2(320f, 72f), 40f, true, CloseSettings);
+            // 마왕의 설명 다시 보기
+            PlaceLabel(panel, "마왕의 설명", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, -200f), new Vector2(260f, 60f));
+            _tutorialLabel = MakeButton(panel, "다시 보기", new Vector2(290f, -200f), new Vector2(230f, 62f), 34f, false, ResetTutorial);
+            Hairline(panel, -255f, rowW, line);
+
+            MakeButton(panel, "닫기", new Vector2(0f, -336f), new Vector2(320f, 72f), 40f, true, CloseSettings);
             _settingsPanel.SetActive(false);
         }
 

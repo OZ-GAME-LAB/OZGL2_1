@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 863b991ff26d530428f3aa4f0eed16e5, type: 3}
   m_Name: GridSettings
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Grid.GridSettingsSO
-  _initialSize: {x: 4, y: 3}
-  _maximumSize: {x: 8, y: 5}
+  _initialSize: {x: 6, y: 4}
+  _maximumSize: {x: 10, y: 6}
   _expansionId: floor_domino
   _expansionCells:
   - {x: 0, y: 0}

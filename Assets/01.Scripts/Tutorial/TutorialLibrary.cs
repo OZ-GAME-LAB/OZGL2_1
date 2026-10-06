@@ -79,6 +79,8 @@ namespace OZGL2.Tutorial
             new TutorialStep("저 '이번 웨이브'를 보거라. 이번에 쳐들어올 용사들이다. 30웨이브를 모두 막아내면 짐의 승리니라!", "wave"),
             new TutorialStep("그 아래 '이번 라운드 보상'을 보거라. 이번 웨이브를 막아내면 받을 것이 미리 적혀 있다. 재화는 용사를 잡을 때와 클리어할 때 얻고, SP는 스킬을 해금하는 데 쓰느니라.", "reward"),
             new TutorialStep("이 칸들이 마왕성이다. 용사들은 위에서 내려와 짐을 노린다. 막으려면 마왕군을 배치해야 하느니라.", "grid"),
+            new TutorialStep("마우스 휠을 굴리면 화면을 확대하고 축소할 수 있다. 마왕군이 작게 보이면 가까이 당겨 보거라."),
+            new TutorialStep("마우스 오른쪽 버튼을 누른 채 끌면 맵을 둘러볼 수 있다. Home 키를 누르면 원래 화면으로 돌아오느니라."),
             new TutorialStep("아래에 마왕군 카드가 있다. 이 카드를 끌어다 칸 위에 놓으면 마왕군이 배치되느니라.", "hand"),
             TutorialStep.WaitPlace("직접 해 보거라! 카드를 끌어다 칸 위에 놓아 보거라.", "hand"),
             new TutorialStep("잘했다! 잘못 놓았으면 마왕군을 카드 쪽으로 다시 끌어 보관할 수 있다.", "hand"),
@@ -93,7 +95,7 @@ namespace OZGL2.Tutorial
             new TutorialStep("용사를 잡으면 재화도 얻는다. 재화는 보상 카드를 다시 뽑는 리롤에 쓰거라.", "currency"),
             new TutorialStep("위쪽의 배속 버튼으로 전투를 빠르게 돌릴 수도 있다. 자, 용사들을 막아 보거라!", null, true));
 
-        public static readonly TutorialSequence WaveResult = new TutorialSequence("waveresult", "웨이브 결과", "ingame", false, true,
+        public static readonly TutorialSequence WaveResult = new TutorialSequence("waveresult", "웨이브 결과", "ingame", false, false,
             new TutorialStep("웨이브 클리어! 이 창은 방금 끝난 웨이브의 결과다.", "result.title", true),
             new TutorialStep("'획득 경험치'는 용사를 쓰러뜨린 만큼 쌓인다. 아래 막대가 가득 차면 짐이 레벨업하고, 레벨업으로 얻는 포인트는 로비의 특성에 쓰느니라.", "result.xp"),
             TutorialStep.Press("'확인'을 누르면 보상을 고르러 간다. 눌러 보거라!", "result.confirm"));
@@ -111,6 +113,11 @@ namespace OZGL2.Tutorial
             new TutorialStep("이번 웨이브에는 보스가 온다! 체력이 매우 높으니 스킬을 아껴 두고, 마왕군을 든든히 세워 두거라.", "wave", true));
 
         // 도움말(?)에서만 다시 보는 것 ───────────────────────────────
+
+        public static readonly TutorialSequence View = new TutorialSequence("topic.view", "화면 확대와 이동", "ingame", false, true,
+            new TutorialStep("마우스 휠을 굴리면 화면을 확대하고 축소할 수 있다. 가리킨 곳으로 다가가느니라."),
+            new TutorialStep("마우스 오른쪽 버튼(또는 휠 버튼)을 누른 채 끌면 맵을 둘러볼 수 있다. 너무 멀리까지는 볼 수 없다."),
+            new TutorialStep("Home 키를 누르면 언제든 원래 화면으로 돌아온다. 웨이브가 바뀌면 화면도 알아서 제자리로 돌아오느니라."));
 
         public static readonly TutorialSequence Synergy = new TutorialSequence("topic.synergy", "시너지", "ingame", false, true,
             new TutorialStep("같은 직업을 3명 모으면 1단계, 5명 모으면 2단계 시너지가 발동한다.", "synergy"),
@@ -198,7 +205,7 @@ namespace OZGL2.Tutorial
 
         /// <summary>자동 설명 + 도움말 목록 순서.</summary>
         public static readonly TutorialSequence[] All =
-            { Intro, Battle, WaveResult, Reward, Augment, Synergy, Levels, Unlock, Boss, LobbyTour, LobbyAchievements, LobbyTraits, LobbySkills, LobbyCodex };
+            { Intro, Battle, WaveResult, Reward, Augment, Synergy, Levels, View, Unlock, Boss, LobbyTour, LobbyAchievements, LobbyTraits, LobbySkills, LobbyCodex };
 
         public static TutorialSequence Find(string id)
         {

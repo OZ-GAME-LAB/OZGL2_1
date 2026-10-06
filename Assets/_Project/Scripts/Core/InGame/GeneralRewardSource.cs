@@ -16,6 +16,8 @@ namespace OZGL2.InGame
         public eGeneralRewardKind Kind { get; }
         public UnitDefinition Unit { get; }
         public FootprintDefinition Block { get; }
+        /// <summary>영역 확장 보상일 때 이번에 뽑힌 조각 모양(없으면 기본 조각).</summary>
+        public FootprintDefinition ExpansionShape { get; private set; }
         public int StarLevel => 1;
         public GeneralRewardOption(UnitDefinition unit, FootprintDefinition block)
         {
@@ -26,6 +28,7 @@ namespace OZGL2.InGame
         }
         private GeneralRewardOption() { Kind = eGeneralRewardKind.EXPANSION; }
         public static GeneralRewardOption CreateExpansion() => new GeneralRewardOption();
+        public static GeneralRewardOption CreateExpansion(FootprintDefinition shape) => new GeneralRewardOption { ExpansionShape = shape };
     }
 
     public sealed class UnitRewardEntry
@@ -74,7 +77,27 @@ namespace OZGL2.InGame
         private List<UnitRewardEntry> GetEligible()
             => _entries.FindAll(entry => entry.Weight > 0 && _unlocks.IsUnlocked(entry.Option.Unit.Id));
 
-        public IReadOnlyList<GeneralRewardOption> Draw(bool canExpand)
+        /// <summary>영역 확장을 놓을 수 있는 조각 모양 목록을 받아 그중 하나를 뽑아 확장 후보로 낸다(작은 조각이 더 자주 나온다).</summary>
+        public IReadOnlyList<GeneralRewardOption> Draw(IReadOnlyList<FootprintDefinition> expansionShapes)
+            => DrawCore(expansionShapes != null && expansionShapes.Count > 0, expansionShapes);
+
+        public IReadOnlyList<GeneralRewardOption> Draw(bool canExpand) => DrawCore(canExpand, null);
+
+        private FootprintDefinition PickShape(IReadOnlyList<FootprintDefinition> shapes)
+        {
+            double total = 0;
+            foreach (var shape in shapes) total += ShapeWeight(shape);
+            double roll = _random.NextDouble() * total;
+            foreach (var shape in shapes)
+            {
+                roll -= ShapeWeight(shape);
+                if (roll < 0) return shape;
+            }
+            return shapes[shapes.Count - 1];
+        }
+        private static double ShapeWeight(FootprintDefinition shape) => shape.Cells.Count <= 2 ? 3 : shape.Cells.Count == 3 ? 2 : 1;
+
+        private IReadOnlyList<GeneralRewardOption> DrawCore(bool canExpand, IReadOnlyList<FootprintDefinition> shapes)
         {
             var eligible = GetEligible();
             if (eligible.Count == 0) throw new InvalidOperationException("No unlocked unit with positive reward weight.");
@@ -97,7 +120,7 @@ namespace OZGL2.InGame
                 result.Add(remaining[selected].Option);
                 remaining.RemoveAt(selected);
             }
-            if (canExpand) result.Add(GeneralRewardOption.CreateExpansion());
+            if (canExpand) result.Add(shapes != null ? GeneralRewardOption.CreateExpansion(PickShape(shapes)) : GeneralRewardOption.CreateExpansion());
             return result.AsReadOnly();
         }
     }

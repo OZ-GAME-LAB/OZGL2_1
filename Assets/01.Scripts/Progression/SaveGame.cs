@@ -89,6 +89,9 @@ namespace OZGL2.Progression
             new TraitTree(Resources.LoadAll<TraitData>("Traits")).ResetAll();
             UnitUnlockStore.ResetAll();
             StageClearStore.ResetAll();
+            AchievementStore.ResetAll();
+            StageRecordStore.ResetAll();
+            RunSaveStore.ClearAll();
             TutorialStore.ResetAll();
 
             PlayerPrefs.DeleteKey(KeySavedAt);
