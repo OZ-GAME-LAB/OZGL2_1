@@ -37,7 +37,9 @@ namespace OZGL2.UIBridge
             bool hasLobbyUi = UnityEngine.Object.FindFirstObjectByType<LobbyLevelHudBinder>(FindObjectsInactive.Include) != null
                               || UnityEngine.Object.FindFirstObjectByType<LobbyTraitBinder>(FindObjectsInactive.Include) != null
                               || UnityEngine.Object.FindFirstObjectByType<LobbySkillLoadoutBinder>(FindObjectsInactive.Include) != null;
-            if (hasLobbyUi && (Application.isEditor || Debug.isDebugBuild)
+            // 타이틀 씬에서도 쓸 수 있게 한다(마왕 튜토리얼 초기화·SP·해금 확인용)
+            bool isTitle = SceneManager.GetActiveScene().name.StartsWith("Title");
+            if ((hasLobbyUi || isTitle) && (Application.isEditor || Debug.isDebugBuild)
                 && UnityEngine.Object.FindFirstObjectByType<LobbyDebugPanel>() == null)
                 new GameObject("LobbyUiDebug").AddComponent<LobbyDebugPanel>();
         }

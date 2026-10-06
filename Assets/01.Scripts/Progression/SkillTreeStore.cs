@@ -14,6 +14,7 @@ namespace OZGL2.Progression
     {
         private const string KeySp = "OZGL2.Skill.SP";
         private const string KeyMilestone = "OZGL2.Skill.Milestone";
+        private const string KeyDrip = "OZGL2.Skill.Drip";
         private const string KeyEquip = "OZGL2.Skill.Equip";
         private const string KeyUnlockPrefix = "OZGL2.Skill.Unlock.";
 
@@ -30,25 +31,38 @@ namespace OZGL2.Progression
             set { PlayerPrefs.SetInt(KeyMilestone, value); PlayerPrefs.Save(); }
         }
 
+        /// <summary>SP를 잘게 나눠 주는 간격(라운드). 이 라운드를 클리어할 때마다 +1.</summary>
+        public const int DripEveryRounds = 2;
+
+        /// <summary>지금까지 받은 "잘게 나눠 주는 SP" 단계 수 (라운드 / DripEveryRounds).</summary>
+        public static int HighestDripStep
+        {
+            get => PlayerPrefs.GetInt(KeyDrip, 0);
+            set { PlayerPrefs.SetInt(KeyDrip, value); PlayerPrefs.Save(); }
+        }
+
+        /// <summary>지금 이 라운드를 클리어하면 받게 될 SP — 잘게 나눠 주는 몫(2라운드마다 +1) + 10단위 마일스톤 몫(단계 수 + 보너스).</summary>
+        public static int PreviewForRound(int round, int perMilestoneBonus = 0)
+        {
+            int granted = 0;
+            for (int k = HighestDripStep + 1; k <= round / DripEveryRounds; k++) granted += 1;
+            for (int k = HighestMilestone + 1; k <= round / 10; k++) granted += k + Mathf.Max(0, perMilestoneBonus);
+            return granted;
+        }
+
         /// <summary>
-        /// 라운드 도달 시 호출. 아직 안 받은 10단위 마일스톤마다 (단계 수 + perMilestoneBonus)만큼 SP 지급.
-        /// perMilestoneBonus = 특성 "지배자의 지혜". 지급한 총 SP 반환.
+        /// 라운드 클리어 시 호출. 아직 안 받은 몫을 지급한다: ① DripEveryRounds(2)라운드마다 +1 ② 10단위 마일스톤마다 (단계 수 + perMilestoneBonus).
+        /// perMilestoneBonus = 특성 "지배자의 지혜". 같은 몫을 재도전으로 다시 받지는 않는다. 지급한 총 SP 반환.
         /// </summary>
         public static int GrantForRound(int round, int perMilestoneBonus = 0)
         {
-            int stage = round / 10;
-            int granted = 0;
-            for (int k = HighestMilestone + 1; k <= stage; k++)
-            {
-                granted += k + Mathf.Max(0, perMilestoneBonus); // R10:+1, R20:+2, R30:+3 … (+보너스)
-            }
-
+            int granted = PreviewForRound(round, perMilestoneBonus);
             if (granted > 0)
             {
                 SkillPoints += granted;
-                HighestMilestone = stage;
+                HighestDripStep = Mathf.Max(HighestDripStep, round / DripEveryRounds);
+                HighestMilestone = Mathf.Max(HighestMilestone, round / 10);
             }
-
             return granted;
         }
 
@@ -87,6 +101,7 @@ namespace OZGL2.Progression
         {
             PlayerPrefs.DeleteKey(KeySp);
             PlayerPrefs.DeleteKey(KeyMilestone);
+            PlayerPrefs.DeleteKey(KeyDrip);
             PlayerPrefs.DeleteKey(KeyEquip);
             foreach (var id in ids)
             {

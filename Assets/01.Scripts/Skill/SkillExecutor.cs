@@ -303,6 +303,7 @@ namespace OZGL2.Skill
             {
                 var cast = SpawnVfx(d.castVfx, from, Quaternion.identity, d.vfxIsUi);
                 ScaleAreaVfx(cast, radius);
+                ApplyRecolor(cast, d.vfxRecolor);
                 AutoDestroy(cast);
             }
 
@@ -320,6 +321,7 @@ namespace OZGL2.Skill
                     // 연쇄 하나하나가 더 크고 확실하게 보이도록 살짝 키워서 스폰.
                     var fx = SpawnVfx(d.perTargetVfx, next.Position, Quaternion.identity, d.vfxIsUi);
                     if (fx != null) fx.transform.localScale *= 1.6f;
+                    ApplyRecolor(fx, d.vfxRecolor); // 색 교체가 지정돼 있으면(연쇄 번개: 노랑) 번개 이미지 색조를 바꾼다
                     AutoDestroy(fx);
                 }
                 else { Arc(cursor, next.Position, new Color(1f, 0.95f, 0.45f)); StartCoroutine(ExpandFade(next.Position, 0.8f, new Color(1f, 0.95f, 0.4f), 0.22f, false)); }

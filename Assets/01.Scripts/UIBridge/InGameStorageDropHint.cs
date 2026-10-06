@@ -22,6 +22,8 @@ namespace OZGL2.UIBridge
     {
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         private const string TrayName = "storage-tray";
+        /// <summary>손패 드롭 영역 위쪽으로 더 받아 주는 높이(1080p 기준 px) — 카드 위쪽에 놓아도 보관되게 해서 "어디까지가 보관함인지" 헷갈리지 않게 한다.</summary>
+        private const float ExtendUp = 110f;
 
         private GridPrototypeRunner _runner;
         private UIBattleCardHandView _hand;
@@ -30,6 +32,9 @@ namespace OZGL2.UIBridge
         private VisualElement _tray;
         private bool _traySyncFailed;
         private float _nextTraySync;
+        private bool _wasDragging, _lastHot;
+        private float _doneUntil;
+        private Image _arrow;
 
         private Canvas _overlay;
         private RectTransform _box;
@@ -45,8 +50,17 @@ namespace OZGL2.UIBridge
             SyncLegacyTray();
 
             bool dragging = IsDraggingPlacedItem();
+            if (_wasDragging && !dragging && _lastHot) _doneUntil = Time.unscaledTime + 0.7f;
+            _wasDragging = dragging;
             if (!dragging)
             {
+                if (Time.unscaledTime < _doneUntil && _overlay != null)
+                {
+                    _overlay.enabled = true;
+                    UpdateDone();
+                    return;
+                }
+                _lastHot = false;
                 if (_overlay != null && _overlay.enabled) _overlay.enabled = false;
                 return;
             }
@@ -102,7 +116,8 @@ namespace OZGL2.UIBridge
             Camera cam = _handCanvas != null && _handCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? _handCanvas.worldCamera : null;
             Vector2 bl = RectTransformUtility.WorldToScreenPoint(cam, corners[0]);
             Vector2 tr = RectTransformUtility.WorldToScreenPoint(cam, corners[2]);
-            rect = Rect.MinMaxRect(Mathf.Min(bl.x, tr.x), Mathf.Min(bl.y, tr.y), Mathf.Max(bl.x, tr.x), Mathf.Max(bl.y, tr.y));
+            float extend = ExtendUp * Mathf.Max(0.8f, Screen.height / 1080f);
+            rect = Rect.MinMaxRect(Mathf.Min(bl.x, tr.x), Mathf.Min(bl.y, tr.y), Mathf.Max(bl.x, tr.x), Mathf.Max(bl.y, tr.y) + extend);
             return rect.width > 1f && rect.height > 1f;
         }
 
@@ -172,7 +187,32 @@ namespace OZGL2.UIBridge
             var font = FindKoreanFont("보관함에놓으면보관돼요여기로드래그");
             _label = CreateText(boxGo.transform, "Label", font, 30f, new Vector2(0f, 8f));
             _subLabel = CreateText(boxGo.transform, "SubLabel", font, 20f, new Vector2(0f, -26f));
+            _arrow = CreateArrow(boxGo.transform);
             _overlay.enabled = false;
+        }
+
+        private static Image CreateArrow(Transform parent)
+        {
+            const int n = 48;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    // 아래를 가리키는 삼각형: 위쪽(y가 클수록)이 넓다
+                    float half = Mathf.Lerp(0f, n * 0.5f - 2f, y / (float)(n - 1));
+                    float a = Mathf.Clamp01(half - Mathf.Abs(x + 0.5f - n * 0.5f) + 0.5f);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+                }
+            tex.Apply();
+            var go = new GameObject("Arrow", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(44f, 36f);
+            var img = go.GetComponent<Image>();
+            img.sprite = Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+            img.raycastTarget = false;
+            return img;
         }
 
         private static TMP_Text CreateText(Transform parent, string name, TMP_FontAsset font, float size, Vector2 offset)
@@ -194,6 +234,7 @@ namespace OZGL2.UIBridge
 
         private static TMP_FontAsset FindKoreanFont(string sample)
         {
+            if (UiFontOverride.Current != null) return UiFontOverride.Current; // 씬 전체 폰트(던파 비트체)가 있으면 그것을 쓴다
             foreach (var font in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
                 if (font != null && font.HasCharacters(sample, out _, true, true)) return font;
             return null;
@@ -219,6 +260,28 @@ namespace OZGL2.UIBridge
             _subLabel.text = hot ? "마우스를 놓으세요" : "여기로 드래그해서 보관";
             _label.color = hot ? new Color(1f, 0.97f, 0.8f) : new Color(0.9f, 0.96f, 1f);
             _subLabel.color = _label.color;
+            _lastHot = hot;
+            if (_arrow != null)
+            {
+                _arrow.enabled = !hot;
+                _arrow.color = _label.color;
+                _arrow.rectTransform.anchoredPosition = new Vector2(0f, 62f + Mathf.Sin(Time.unscaledTime * 8f) * 8f);
+            }
+        }
+
+        /// <summary>보관함 위에서 놓은 직후 잠깐 보이는 "보관했어요" 확인 표시.</summary>
+        private void UpdateDone()
+        {
+            if (!TryGetScreenRect(out var rect)) { _overlay.enabled = false; return; }
+            float k = Mathf.Clamp01((_doneUntil - Time.unscaledTime) / 0.7f);
+            _box.anchoredPosition = rect.position;
+            _box.sizeDelta = rect.size;
+            _fill.color = new Color(0.35f, 0.9f, 0.5f, 0.45f * k);
+            _outline.effectColor = new Color(0.7f, 1f, 0.75f, k);
+            _label.text = "보관했어요";
+            _subLabel.text = string.Empty;
+            _label.color = new Color(0.9f, 1f, 0.92f, k);
+            if (_arrow != null) _arrow.enabled = false;
         }
     }
 }
