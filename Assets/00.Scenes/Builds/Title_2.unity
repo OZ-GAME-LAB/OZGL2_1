@@ -472,6 +472,12 @@ MonoBehaviour:
   _gameTitle: "\uC6A9\uC0AC \uB54C\uBB38\uC5D0 \uB808\uBCA8\uC5C5"
   _logo: {fileID: 21300000, guid: e587d6e08f1f51d5ab5ca2500a5650e9, type: 3}
   _fadeSeconds: 0.45
+  _panelFrame: {fileID: 21300000, guid: 1b68ba64fa429ee498402de0628edd40, type: 3}
+  _namePlate: {fileID: 21300000, guid: 75e2578879be6474284a6a28f2b22772, type: 3}
+  _startBanner: {fileID: 21300000, guid: 1c003be26d0a8dc4db2e77e5ddf19cef, type: 3}
+  _cornerDiamond: {fileID: 21300000, guid: ff7ec2d8e5286554c8997ce56fa4162f, type: 3}
+  _titleOrnament: {fileID: 21300000, guid: 15f239b3bd2ba1e46b68fd26506b3e8c, type: 3}
+  _swordsIcon: {fileID: 21300000, guid: 90dfc9bd6f2c43642aee89bb1b8eda62, type: 3}
 --- !u!114 &7770000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -484,7 +490,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41fdbee43e74577387588d5d1389e23b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiFontOverride
-  _font: {fileID: 12800000, guid: 3d42c3a42941d8c40a8f3eb008fe2aea, type: 3}
+  _font: {fileID: 0}
+  _tmpFont: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
+  _replaceExisting: 0
   _scanSeconds: 0.4
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
