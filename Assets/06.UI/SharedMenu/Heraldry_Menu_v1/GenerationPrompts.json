@@ -1,0 +1,40 @@
+{
+  "mode": "Built-in image_gen",
+  "base": [
+    [
+      "panel",
+      "Use case: precise-object-edit. Input image is the exact visual reference for an ornate medieval casual dark-fantasy Unity menu. Produce ONLY its outer menu panel as an isolated production PNG sprite. Preserve the reference's black/dark charcoal opaque panel, thick shaded warm antique gold angular frame, horned gold demon-helmet crest centered at top, two dark burgundy cloth banners hanging at upper sides, bottom diamond gold finial. Preserve exact drawn style and wide-to-tall panel silhouette, not pixel art, no photorealism. Remove ALL three inset buttons, their frames, their icons, ALL Korean lettering. Keep the header divider line with tiny center hollow diamond and two small header diamonds; leave empty space between those two diamonds for live '메뉴' text. Below divider is one continuous clean opaque dark interior where real buttons will be overlaid in Unity. Actual alpha transparency ONLY outside silhouette; interior must be fully opaque, no checkerboard, no black rectangle outside. Frame fills image with small even 3% transparent margin, panel visible silhouette width:height approximately 0.79. No added flourishes, no text, no button outlines, no watermark. Match reference warm gold and deep red, avoid overbright yellow."
+    ],
+    [
+      "button_red",
+      "Use case: precise-object-edit. Input image is style/shape reference. Produce exactly ONE isolated EMPTY dark burgundy menu button from the reference: the red rounded-chamfered wide rectangular button with inward-curved clipped corners and shaded antique gold beveled trim. Take shape of the return/exit buttons; remove ALL text and icons, keep uniform fully opaque deep red interior with subtle dark gradient. Exact reference hand-painted crisp medieval casual dark fantasy style, not pixel art, no glow. Visual button width:height 3.25:1. Transparent background outside button, small even margins. Single button only, no surrounding panel, no crest, no ribbons, no diamonds, no labels. Gold trim thickness and corner proportions match supplied reference."
+    ],
+    [
+      "button_dark",
+      "Use case: precise-object-edit. Input image is style/shape reference. Produce exactly ONE isolated EMPTY charcoal menu button matching the middle settings button in reference: the black dark charcoal wide rectangular button with inward-curved clipped corners and shaded antique gold beveled trim. Remove ALL text and cogwheel icon. Keep fully opaque almost black charcoal interior with subtle dark gradient. Exact reference hand-painted crisp medieval casual dark fantasy style, not pixel art, no glow. Visual button width:height 3.25:1. Transparent background outside button, small even margins. Single button only, no surrounding panel, no crest, no ribbons, no diamonds, no labels. Gold trim thickness and corner proportions match supplied reference."
+    ]
+  ],
+  "icons": [
+    [
+      "icon_back",
+      "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-55b11b42-10d4-49fe-8560-790d3a790a48.png",
+      "Use case: precise-object-edit. Production Unity UI icon. Reference is design guidance: isolate only the requested ivory symbol, redraw precisely matching its clean bold silhouette. Large centered symbol, small even padding, genuine transparent background and transparent holes. Warm ivory #F5E8C9 body, extremely subtle shading only, sharp clean antialiased edges, fully opaque symbol. No border frame, no buttons, no text, no glow, no shadows outside, NO extra specks or texture flecks. Not pixel art. Requested symbol: the thick straight LEFT arrow on the return button, with a horizontal shaft and simple broad arrowhead, just like reference first button. Not a chevron, not curved."
+    ],
+    [
+      "icon_gear",
+      "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-55b11b42-10d4-49fe-8560-790d3a790a48.png",
+      "Use case: precise-object-edit. Production Unity UI icon. Reference is design guidance: isolate only the requested ivory symbol, redraw precisely matching its clean bold silhouette. Large centered symbol, small even padding, genuine transparent background and transparent holes. Warm ivory #F5E8C9 body, extremely subtle shading only, sharp clean antialiased edges, fully opaque symbol. No border frame, no buttons, no text, no glow, no shadows outside, NO extra specks or texture flecks. Not pixel art. Requested symbol: the 8-tooth settings cogwheel on the middle button, simple even square teeth and circular fully transparent hole in center."
+    ],
+    [
+      "icon_exit",
+      "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-55b11b42-10d4-49fe-8560-790d3a790a48.png",
+      "Use case: precise-object-edit. Production Unity UI icon. Reference is design guidance: isolate only the requested ivory symbol, redraw precisely matching its clean bold silhouette. Large centered symbol, small even padding, genuine transparent background and transparent holes. Warm ivory #F5E8C9 body, extremely subtle shading only, sharp clean antialiased edges, fully opaque symbol. No border frame, no buttons, no text, no glow, no shadows outside, NO extra specks or texture flecks. Not pixel art. Requested symbol: the open door with an arrow pointing LEFT, exactly like exit button at bottom of reference. One upright partly open door at right, outlined doorframe behind on left, short leftward exit arrow. Small transparent doorknob hole."
+    ],
+    [
+      "icon_lobby",
+      "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-e151720f-d9d0-4f28-b690-91a3794b4b15.png",
+      "Use case: precise-object-edit. Production Unity UI icon. Reference is design guidance: isolate only the requested ivory symbol, redraw precisely matching its clean bold silhouette. Large centered symbol, small even padding, genuine transparent background and transparent holes. Warm ivory #F5E8C9 body, extremely subtle shading only, sharp clean antialiased edges, fully opaque symbol. No border frame, no buttons, no text, no glow, no shadows outside, NO extra specks or texture flecks. Not pixel art. Requested symbol: the small medieval castle gate at left side of reference button. Two square crenellated side towers, central peaked roof with small diamond-shaped hole, wide arched doorway negative space. Match reference simplified castle silhouette exactly. ONLY ivory castle, not burgundy or gold frame."
+    ]
+  ],
+  "cleanup": "Use case: background-extraction. Edit target: supplied cream game UI symbol. Remove EVERY stray white speck, cloudy patch and distressed pixels outside the actual cream symbol and inside all cut-out holes. Re-render as a pristine, sharp solid warm ivory silhouette with subtle cream shading. Preserve the exact main silhouette geometry, orientation, number of parts and proportions. Entire background and holes must be absolutely transparent, no debris, no noise, no fringe, no grunge, no background colored pixels. Smooth clean anti-aliased outline. Opaque cream shape only. No text, no new details."
+}

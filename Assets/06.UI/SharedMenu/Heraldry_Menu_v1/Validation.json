@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-06",
+  "verified": [
+    "추가 승인 후 InGame 메뉴 인스턴스에만 시작 비활성 override 저장. 공유 Prefab root 활성 상태 유지",
+    "새 Play 시작에서 메뉴 비활성, 팝업 스택 0 확인. 메뉴 열면 1, 돌아가기 후 0 및 activeSelf/activeInHierarchy=false 확인",
+    "캡처 없이 InGame 메뉴 열기/닫기, 설정 왕복, 메인로비 이동, Lobby 메뉴·설정 왕복 재검증: Console 오류·경고 0",
+    "두 공통 메뉴 Prefab에서 Missing Script 0, 끊어진 Inspector 참조 0, 이미지·폰트·아이콘 참조 정상",
+    "Unity Play Mode 진입 가능, 메뉴 참조 누락 0",
+    "Lobby 메뉴 열기, 설정 열기/뒤로, 돌아가기 후 기본 버튼 입력 복구",
+    "InGame 실제 Raycast 경로 메뉴 열기/돌아가기/설정 왕복",
+    "메인로비로 실제 버튼 클릭으로 Assets/00.Scenes/Builds/Lobby.unity 이동",
+    "이동 후 InGamePrototypeBootstrap/InGameRunHost 활성 객체 0",
+    "메뉴 패치 직후 InGame 메뉴 외 컴포넌트 3064개 변경 0. 최종 저장에서 Canvas_Popups Shader Channels 0→25는 TMP가 자동 추가한 렌더링 값임을 별도 확인.",
+    "프리팹 메뉴 외 변경: 기존 코드 기본값 직렬화만 추가, 설정창/이벤트 연결 유지"
+  ],
+  "limitations": [
+    "기존 Lobby 게임 종료는 비활성·외부 종료 이벤트 미연결 상태를 보존",
+    "MCP ScreenshotUtility.cs:197 화면 캡처에서 PlayerLoop 재진입 오류 1건. 게임 코드 예외는 확인되지 않음",
+    "하드웨어 마우스/빌드 실행 미검증",
+    "MCP 패키지의 PlayerLoop 재진입 오류는 ScreenshotUtility.CaptureCompositedAfterFrame:197의 EditorApplication.Step 호출 경로에서 발생. 패키지는 수정하지 않았으며 새 회귀에서는 해당 캡처 경로를 사용하지 않음",
+    "메뉴 HeirofLightRegular_SDF/Bold_SDF는 Git 제외 LocalStaging 참조. 다른 팀원 checkout에는 동일 GUID 폰트·SDF·meta 세트가 필요함. 임의 이동/강제추적하지 않음",
+    "현재 미해결 Git 충돌·충돌 마커 없음. Scene 2개와 Prefab 2개를 다른 팀원이 동시에 편집하면 향후 병합 충돌 가능",
+    "InGame_2 및 UI_Battle_MutedPreview에는 메뉴 root 비활성 override가 없어 보존된 Prefab active=true를 상속함. 시작부터 메뉴가 표시될 위험이 남으며 두 씬은 승인 범위 밖이므로 수정하지 않음",
+    "Play 시작/취소로 기존 게임의 실행 기록 저장 가능"
+  ],
+  "preserved": [
+    "SettingsPopup 내부",
+    "Currency",
+    "InGame_2 원본",
+    "모든 C# 코드",
+    "ProjectSettings",
+    "Packages",
+    "기존 Popup_BattleMenu.prefab root 활성 변경"
+  ],
+  "evidence": [
+    "Assets/98.ExternalAssets/00.LocalStaging/MenuUnifiedReview/Lobby_Menu_Unified.png",
+    "Assets/98.ExternalAssets/00.LocalStaging/MenuUnifiedReview/InGame_Menu_Unified-1.png"
+  ]
+}
