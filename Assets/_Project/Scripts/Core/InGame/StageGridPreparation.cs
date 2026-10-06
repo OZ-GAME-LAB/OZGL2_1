@@ -14,6 +14,13 @@ namespace OZGL2.InGame
         private readonly UnitDefinition _initialUnit;
         private readonly FootprintDefinition _initialBlock;
         private readonly Vector2Int _anchor;
+
+        /// <summary>
+        /// true 면 첫 라운드에 기본 유닛을 칸에 미리 깔지 않고 보관함 카드로 지급해, 플레이어가 직접 끌어다 놓게 한다(튜토리얼용).
+        /// 기본값(false)이면 기존처럼 미리 배치한다. 실행 전에 바꾸는 값이며 실행 중에는 읽기만 한다.
+        /// </summary>
+        public static bool InitialAsCard { get; set; }
+
         public StageGridPreparation(InGameGridSession session, UnitDefinition unit, FootprintDefinition block, Vector2Int anchor)
         { _session = session; _initialUnit = unit; _initialBlock = block; _anchor = anchor; }
 
@@ -27,7 +34,10 @@ namespace OZGL2.InGame
             try
             {
                 if (request.RoundNumber == 1)
-                    PlaceInitial(session, _initialUnit, _initialBlock, _anchor);
+                {
+                    if (InitialAsCard) GrantInitialCard(session, _initialUnit, _initialBlock);
+                    else PlaceInitial(session, _initialUnit, _initialBlock, _anchor);
+                }
                 else if (!session.TryAllowPreparation(request.RunId, request.RoundNumber, request.CanSkip))
                     throw new InvalidOperationException("Grid rejected the next preparation request.");
                 using (token.Register(() => completion.TrySetCanceled())) await completion.Task;
@@ -35,6 +45,17 @@ namespace OZGL2.InGame
                 if (session.Deployment == null) throw new InvalidOperationException("Battle deployment was not captured.");
             }
             finally { session.Grid.Changed -= changed; }
+        }
+
+        /// <summary>기본 유닛과 발판을 칸에 놓지 않고 보관함에만 넣은 채 준비 단계를 연다. 유닛은 카드로 보이고, 놓는 것은 플레이어가 한다.</summary>
+        public static void GrantInitialCard(GridRunSession session, UnitDefinition unit, FootprintDefinition block)
+        {
+            if (session.NextRound != 1 || session.Grid.Units.Count != 0 || session.Grid.Blocks.Count != 0)
+                throw new InvalidOperationException("Initial card requires a fresh grid session.");
+            session.Grid.AddBlock(session.RunId + ":initial_block", block.Id, block);
+            session.Grid.AddUnit(session.RunId + ":initial_unit", unit);
+            if (!session.TryAllowPreparation(session.RunId, 1, false))
+                throw new InvalidOperationException("Initial preparation could not start.");
         }
 
         public static void PlaceInitial(GridRunSession session, UnitDefinition unit, FootprintDefinition block, Vector2Int anchor)

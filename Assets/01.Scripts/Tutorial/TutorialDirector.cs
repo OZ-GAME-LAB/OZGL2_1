@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using OZGL2.Grid;
 using OZGL2.InGame;
 using OZGL2.Stage;
 using OZGL2.UIBridge;
@@ -25,6 +26,11 @@ namespace OZGL2.Tutorial
     {
         [SerializeField] private GameObject _kingPrefab;
         [SerializeField, Tooltip("마왕이 말풍선 반대쪽을 보고 있으면 켜서 좌우를 뒤집는다")] private bool _flipKing = false;
+        [Header("희수 UI 조각(대화창 꾸미기)")]
+        [SerializeField, Tooltip("말풍선 프레임(Frame_WavePreview_Flat, 9분할)")] private Sprite _frameSprite;
+        [SerializeField, Tooltip("이름표(Frame_SynergyNameplate_Flat, 9분할)")] private Sprite _nameplateSprite;
+        [SerializeField, Tooltip("모서리 마름모(Ornament_Diamond_Flat)")] private Sprite _cornerSprite;
+        [SerializeField, Tooltip("이름표 양옆 장식(Ornament_WaveTitle_Flat)")] private Sprite _titleOrnamentSprite;
         [SerializeField, Min(10f)] private float _charsPerSecond = 44f;
 
         private const BindingFlags Priv = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -50,12 +56,21 @@ namespace OZGL2.Tutorial
         // 화면 요소
         private Canvas _canvas, _helpCanvas;
         private RectTransform _dialog, _portraitRect, _bubble, _nameTag, _hint, _helpButton, _topicPanel;
+        private Image _shadow, _frameImage, _headerLine;
+        private RectTransform[] _corners = new RectTransform[4];
+        private RectTransform[] _titleOrnaments = new RectTransform[2];
+        private RectTransform _tail, _progressFill;
+        private float _popStart;
         private Image _blocker, _arrow;
         private RawImage _portraitImage;
-        private TMP_Text _body, _counter, _skipLabel;
-        private GameObject _skipButton, _topicCatcher;
+        private TMP_Text _body, _counter, _hintText;
+        private GameObject _topicCatcher;
+        private float _hintTextWidth;
         private TMP_FontAsset _font;
-        private bool _dialogAtTop;
+        private bool _dialogAtTop, _dockLeft;
+        private bool _arrowActive;
+        private Rect _arrowRect;
+        private float _stepStartedAt;
         private Vector2 _fitSize = new Vector2(600f, 200f);
         private int _fitScreenHeight;
         private float _showAlpha;
@@ -74,6 +89,13 @@ namespace OZGL2.Tutorial
         private string SceneKey => IsLobby ? "lobby" : "ingame";
 
         private float S => Mathf.Max(0.8f, Screen.height / 1080f);
+
+        private void Awake()
+        {
+            // 게임 시작 설명(intro)을 아직 안 봤으면 첫 라운드에 기본 마왕군을 미리 깔지 않고 카드로 지급해 직접 놓아 보게 한다.
+            // 한 번 본 뒤나 설명을 끈 경우, 로비에서는 원래대로 미리 배치한다.
+            StageGridPreparation.InitialAsCard = !IsLobby && !TutorialStore.AutoDisabled && !TutorialStore.Seen(TutorialLibrary.Intro.Id);
+        }
 
         // ───────────── 외부에서 부르기
 
@@ -113,6 +135,12 @@ namespace OZGL2.Tutorial
         private void WatchGame()
         {
             if (IsLobby) { WatchLobby(); return; }
+            // 웨이브 결과창이 떠 있으면(상태가 바뀌지 않아도) 그 설명을 한 번 한다
+            if (!TutorialStore.AutoDisabled && !TutorialStore.Seen(TutorialLibrary.WaveResult.Id))
+            {
+                var results = FindFirstObjectByType<InGameWaveResultPresenter>(FindObjectsInactive.Include);
+                if (results != null && results.Pending != null) Enqueue(TutorialLibrary.WaveResult, 0.6f);
+            }
             var stage = _bootstrap != null ? _bootstrap.Stage : null;
             if (stage == null) { _lastState = eStageState.IDLE; return; }
             var state = stage.State;
@@ -191,7 +219,8 @@ namespace OZGL2.Tutorial
         private void ShowStep()
         {
             var step = _seq.Steps[_index];
-            _body.text = step.Text;
+            _popStart = Time.unscaledTime; // 말풍선이 톡 튀어나오는 연출 시작
+            _body.text = Highlight(step.Text);
             _body.maxVisibleCharacters = 0;
             FitBubble();
             _body.ForceMeshUpdate();
@@ -201,6 +230,7 @@ namespace OZGL2.Tutorial
             _clickedAt = -1f;
             _releasedAt = -1f;
             _hadTarget = false;
+            _stepStartedAt = Time.unscaledTime;
             Debug.Log("[튜토리얼] " + _seq.Id + " " + (_index + 1) + "/" + _seq.Steps.Length + " (" + step.Kind + (string.IsNullOrEmpty(step.Target) ? "" : ", 대상 " + step.Target) + ")");
             if (step.Emphasis) _portrait.Gesture();
         }
@@ -212,6 +242,18 @@ namespace OZGL2.Tutorial
             if (_typed < _totalChars) { _typed = _totalChars; return; } // 타이핑 중이면 한 번에 다 보여 준다
             NextStep();
         }
+
+        private static void AddShadowTo(TMP_Text text)
+        {
+            if (text.GetComponent<Shadow>() != null) return;
+            var shadow = text.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.75f);
+            shadow.effectDistance = new Vector2(2f, -2f);
+        }
+
+        /// <summary>작은따옴표로 묶인 말('업적', '뒤로' 등)은 금빛으로 강조한다(따옴표는 빼고).</summary>
+        private static string Highlight(string text) =>
+            System.Text.RegularExpressions.Regex.Replace(text, "'([^']+)'", "<color=#FFD27A>$1</color>");
 
         private void NextStep()
         {
@@ -256,26 +298,32 @@ namespace OZGL2.Tutorial
             else _body.maxVisibleCharacters = _totalChars;
 
             _showAlpha = Mathf.MoveTowards(_showAlpha, 1f, Time.unscaledDeltaTime * 4f);
+            if (_progressFill != null) _progressFill.anchorMax = new Vector2(Mathf.Clamp01((_index + 1f) / _seq.Steps.Length), 1f);
 
             // 강조 대상: 화면을 칠하지 않고 화살표로 가리킨다
             var step = _seq.Steps[_index];
             Rect target = default;
-            bool has = !string.IsNullOrEmpty(step.Target) && TryGetTarget(step.Target, out target);
+            string targetKey = step.Target;
+            if (step.Kind == StepKind.WaitPlace && GridSession != null && GridSession.Grid.HasSelection) targetKey = "grid"; // 카드를 끌고 있으면 놓을 칸을 가리킨다
+            bool has = !string.IsNullOrEmpty(targetKey) && TryGetTarget(targetKey, out target);
             UpdateArrow(has, target);
             DriveStep(step, has, target);
             if (_seq == null) return;
 
-            // 강조 대상이 화면 아래쪽이면 대화창을 위로 옮긴다
-            if (has) _dialogAtTop = target.center.y < Screen.height * 0.5f;
-            else _dialogAtTop = false;
+            // 강조 대상과 화살표를 가리지 않는 모서리에 대화창을 놓는다
+            ChoosePlacement(has, target);
             LayoutDialog();
 
             // 말하는 동안 마왕이 살짝 들썩이고, "다음" 표시는 위아래로 까딱인다
             bool talking = _typed < _totalChars;
             float pulse = talking ? Mathf.Abs(Mathf.Sin(Time.unscaledTime * 14f)) : 0f;
             _portraitRect.localScale = Vector3.one * (1f + pulse * 0.012f);
-            _hint.gameObject.SetActive(!talking && current.Kind == StepKind.Talk);
-            _hint.anchoredPosition = new Vector2(-34f * S, 30f * S + Mathf.Sin(Time.unscaledTime * 6f) * 5f * S);
+            bool showHint = !talking && current.Kind == StepKind.Talk;
+            _hint.gameObject.SetActive(showHint);
+            _hintText.gameObject.SetActive(showHint);
+            // 삼각형은 안내 글 왼쪽에서 글 쪽(오른쪽)을 가리키며 까딱인다
+            _hint.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            _hint.anchoredPosition = new Vector2(-(48f * S + _hintTextWidth + 28f * S) + Mathf.Sin(Time.unscaledTime * 6f) * 5f * S, 44f * S);
 
             var group = _dialog.GetComponent<CanvasGroup>();
             if (group != null) group.alpha = _showAlpha;
@@ -297,38 +345,80 @@ namespace OZGL2.Tutorial
             }
 
             _blocker.raycastTarget = false;
+            if (step.Kind == StepKind.WaitPlace)
+            {
+                // 카드를 끌어야 하니 아무것도 막지 않는다. 칸에 마왕군이 놓이면 다음으로.
+                SetGates(false, default);
+                if (GridSession != null && GridSession.Grid.PlacedCount > 0 && Time.unscaledTime - _stepStartedAt > 0.5f) NextStep();
+                return;
+            }
             if (step.Kind == StepKind.Click)
             {
-                if (hasTarget) { float pad = 8f * S; SetGates(true, Rect.MinMaxRect(target.xMin - pad, target.yMin - pad, target.xMax + pad, target.yMax + pad)); }
+                // 눌러도 되는 구역: 칸이 많은 목록은 목록 전체(HoleTarget), 아니면 강조한 칸
+                Rect hole = target;
+                bool hasHole = hasTarget;
+                if (!string.IsNullOrEmpty(step.HoleTarget) && TryGetTarget(step.HoleTarget, out var holeRect)) { hole = holeRect; hasHole = true; }
+                if (hasHole) { float pad = 8f * S; SetGates(true, Rect.MinMaxRect(hole.xMin - pad, hole.yMin - pad, hole.xMax + pad, hole.yMax + pad)); }
                 else SetGates(false, default);
 
                 if (step.Popup == "@page")
                 {
                     // 하단 메뉴 단추: 누르면 업적·특성·스킬·도감 화면으로 넘어가며 로비 메뉴(단추)가 화면에서 사라진다.
                     // 단추가 사라지는 순간 바로 그 화면에서 설명을 시작한다(누른 위치로 판단하지 않는다).
-                    if (hasTarget) _hadTarget = true;
-                    else if (_hadTarget && _clickedAt < 0f) _clickedAt = Time.unscaledTime;
+                    if (TryGetOverlay(out var overlay))
+                    {
+                        // 새 로비: 로비 위에 화면이 올라온다(하단 메뉴는 그대로 있다) → 오버레이가 열렸는지로 판단
+                        if (overlay.IsOpen && _clickedAt < 0f) _clickedAt = Time.unscaledTime;
+                    }
+                    else
+                    {
+                        if (hasTarget) _hadTarget = true;
+                        else if (_hadTarget && _clickedAt < 0f) _clickedAt = Time.unscaledTime;
+                    }
                     if (_clickedAt > 0f && Time.unscaledTime - _clickedAt > 0.15f) NextStep();
 
-                    // 눌렀는데도 화면이 바뀌지 않는 단추라면 잠시 뒤 그냥 넘어간다(튜토리얼이 멈추지 않게)
-                    var m = Mouse.current;
-                    if (hasTarget && m != null && m.leftButton.wasReleasedThisFrame && _gateHole.Contains(m.position.ReadValue())) _releasedAt = Time.unscaledTime;
-                    if (_releasedAt > 0f && Time.unscaledTime - _releasedAt > 1.2f && hasTarget) NextStep();
+                    // 새 로비는 화면이 정말 열려야만 넘어간다(열리지 않았는데 로비 위에서 설명하지 않도록). 옛 로비만 시간 안전장치를 둔다.
+                    if (!TryGetOverlay(out _))
+                    {
+                        var m = Mouse.current;
+                        if (hasTarget && m != null && m.leftButton.wasReleasedThisFrame && _gateHole.Contains(m.position.ReadValue())) _releasedAt = Time.unscaledTime;
+                        if (_releasedAt > 0f && Time.unscaledTime - _releasedAt > 1.2f && hasTarget) NextStep();
+                    }
                     return;
                 }
 
-                // 창이 열리지 않는 단추(업적): 단추 구역에서 눌렀다 떼면 넘어간다
+                // 그 구역에서 눌렀다 떼면 넘어간다. 지정한 창(예: 특성 설명창)이 열려도 넘어간다.
                 var mouse = Mouse.current;
-                if (hasTarget && mouse != null && mouse.leftButton.wasReleasedThisFrame && _gateHole.Contains(mouse.position.ReadValue()))
+                if (hasHole && mouse != null && mouse.leftButton.wasReleasedThisFrame && _gateHole.Contains(mouse.position.ReadValue()))
                     _clickedAt = Time.unscaledTime;
-                if (_clickedAt > 0f && Time.unscaledTime - _clickedAt > 0.25f) NextStep();
+                if (_clickedAt < 0f && !string.IsNullOrEmpty(step.Popup) && IsPopupOpen(step.Popup)) _clickedAt = Time.unscaledTime;
+                if (_clickedAt > 0f && Time.unscaledTime - _clickedAt > 0.3f) NextStep();
+
+                // 눌러 볼 칸을 못 찾으면 튜토리얼이 멈추지 않게 잠시 뒤 넘어간다
+                if (!hasHole && Time.unscaledTime - _stepStartedAt > 4f)
+                {
+                    Debug.LogWarning("[튜토리얼] 눌러 볼 대상을 찾지 못해 넘어갑니다: " + step.Target);
+                    NextStep();
+                }
                 return;
             }
 
             // 창 닫기: 막지 않는다
             SetGates(false, default);
-            bool back = step.Popup == "@page" ? LobbyMenuVisible() : !IsPopupOpen(step.Popup);
+            bool back = step.Popup == "@page" ? (TryGetOverlay(out var openOverlay) ? !openOverlay.IsOpen : LobbyMenuVisible()) : !IsPopupOpen(step.Popup);
             if (back) NextStep();
+        }
+
+        private GridRunSession GridSession => _bootstrap != null ? _bootstrap.GridSession : null;
+
+        private UILobbyOverlayView _overlay;
+
+        /// <summary>새 로비의 화면 관리자(특성·스킬·도감·업적을 로비 위에 올리는 곳). 옛 로비에는 없다.</summary>
+        private bool TryGetOverlay(out UILobbyOverlayView overlay)
+        {
+            if (_overlay == null) _overlay = Object.FindFirstObjectByType<UILobbyOverlayView>(FindObjectsInactive.Include);
+            overlay = _overlay;
+            return overlay != null;
         }
 
         /// <summary>로비 메인 화면(하단 메뉴)이 보이는가. 다른 화면(업적·특성·스킬·도감)이 열려 있으면 사라진다.</summary>
@@ -389,6 +479,7 @@ namespace OZGL2.Tutorial
             {
                 _arrow.enabled = false;
                 _arrowShown = false;
+                _arrowActive = false;
                 return;
             }
             float s = S;
@@ -428,6 +519,9 @@ namespace OZGL2.Tutorial
             rt.localRotation = Quaternion.Euler(0f, 0f, rotation);
             _arrow.enabled = true;
             _arrow.color = new Color(1f, 1f, 1f, _showAlpha);
+            float halfW = (rotation == 90f ? length : length * 0.62f) * 0.5f, halfH = (rotation == 90f ? length * 0.62f : length) * 0.5f;
+            _arrowRect = Rect.MinMaxRect(_arrowPos.x - halfW, _arrowPos.y - halfH, _arrowPos.x + halfW, _arrowPos.y + halfH);
+            _arrowActive = true;
         }
 
         private static Sprite MakeArrowSprite()
@@ -473,7 +567,7 @@ namespace OZGL2.Tutorial
         {
             float s = S;
             _fitScreenHeight = Screen.height;
-            float padX = 44f * s, padTop = 62f * s, padBottom = 40f * s;
+            float padX = 44f * s, padTop = 84f * s, padBottom = 58f * s; // 아래쪽에는 건너뛰기 단추 자리
             _body.fontSize = 34f * s;
             _body.alignment = TextAlignmentOptions.TopJustified;
             _body.textWrappingMode = TextWrappingModes.Normal;
@@ -481,7 +575,7 @@ namespace OZGL2.Tutorial
 
             float maxW = Mathf.Min(Screen.width * 0.46f, 860f * s);
             float oneLine = _body.GetPreferredValues(_body.text, 100000f, 0f).x;
-            float textW = Mathf.Clamp(oneLine, 420f * s, maxW - 2f * padX);
+            float textW = Mathf.Clamp(oneLine, 520f * s, maxW - 2f * padX);
             float textH = _body.GetPreferredValues(_body.text, textW, 0f).y;
             _fitSize = new Vector2(textW + 2f * padX, Mathf.Max(textH + padTop + padBottom, 168f * s));
 
@@ -489,7 +583,60 @@ namespace OZGL2.Tutorial
             rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
             rt.offsetMin = new Vector2(padX, padBottom);
             rt.offsetMax = new Vector2(-padX, -padTop);
-            _counter.fontSize = 22f * s;
+            _counter.fontSize = 20f * s;
+        }
+
+        /// <summary>대화창(마왕 + 말풍선)이 차지하는 두 구역. 마왕은 모서리, 말풍선은 마왕 안쪽 옆.</summary>
+        private void DialogRects(bool top, bool left, out Rect portrait, out Rect bubble)
+        {
+            float s = S, w = Screen.width, h = Screen.height;
+            float p = 520f * s, margin = 16f * s, yEdge = 24f * s;
+            float px = left ? margin : w - margin - p;
+            float py = top ? h - yEdge * 0.2f - p : -yEdge * 0.2f;
+            portrait = new Rect(px, py, p, p);
+            float bw = _fitSize.x, bh = _fitSize.y;
+            float bx = left ? margin + p * 0.68f : w - (margin + p * 0.68f) - bw;
+            float by = top ? h - (yEdge + 8f * s) - bh : yEdge + 8f * s;
+            bubble = new Rect(bx, by, bw, bh);
+        }
+
+        private static float OverlapArea(Rect a, Rect b)
+        {
+            float x = Mathf.Min(a.xMax, b.xMax) - Mathf.Max(a.xMin, b.xMin);
+            float y = Mathf.Min(a.yMax, b.yMax) - Mathf.Max(a.yMin, b.yMin);
+            return x > 0f && y > 0f ? x * y : 0f;
+        }
+
+        /// <summary>
+        /// 가리킬 대상(과 화살표)이 있으면, 네 모서리 중 그것을 가장 덜 가리는 곳에 대화창을 놓는다.
+        /// 순서는 오른쪽 아래(기본) → 오른쪽 위 → 왼쪽 아래 → 왼쪽 위. 현재 자리가 이미 안 가리면 그대로 둔다(흔들림 방지).
+        /// </summary>
+        private void ChoosePlacement(bool has, Rect target)
+        {
+            if (!has) { _dialogAtTop = false; _dockLeft = false; return; }
+            float s = S;
+            var avoidTarget = Rect.MinMaxRect(target.xMin - 12f * s, target.yMin - 12f * s, target.xMax + 12f * s, target.yMax + 12f * s);
+            float Cost(bool top, bool left)
+            {
+                DialogRects(top, left, out var portrait, out var bubble);
+                // 마왕 그림은 가장자리가 비어 있으니 가운데 부분만 센다
+                var king = new Rect(portrait.x + portrait.width * 0.18f, portrait.y + portrait.height * 0.04f, portrait.width * 0.64f, portrait.height * 0.9f);
+                float cost = OverlapArea(king, avoidTarget) + OverlapArea(bubble, avoidTarget);
+                if (_arrowActive) cost += OverlapArea(king, _arrowRect) + OverlapArea(bubble, _arrowRect);
+                return cost;
+            }
+            var candidates = new[] { (false, false), (true, false), (false, true), (true, true) };
+            float current = Cost(_dialogAtTop, _dockLeft);
+            if (current <= 1f) return;
+            float best = float.MaxValue;
+            (bool top, bool left) pick = (_dialogAtTop, _dockLeft);
+            foreach (var c in candidates)
+            {
+                float cost = Cost(c.Item1, c.Item2);
+                if (cost < best - 1f) { best = cost; pick = c; }
+            }
+            _dialogAtTop = pick.top;
+            _dockLeft = pick.left;
         }
 
         private void LayoutDialog()
@@ -499,28 +646,104 @@ namespace OZGL2.Tutorial
             float portraitSize = 520f * s, margin = 16f * s;
             float yEdge = 24f * s;
 
-            // 마왕은 화면 오른쪽, 말풍선은 마왕 왼쪽
+            // 마왕은 모서리, 말풍선은 마왕 안쪽 옆. 왼쪽에 있을 땐 그림을 뒤집어 말풍선 쪽을 보게 한다
+            float anchorX = _dockLeft ? 0f : 1f, side = _dockLeft ? 1f : -1f;
             float anchorY = _dialogAtTop ? 1f : 0f;
             foreach (var rt in new[] { _portraitRect, _bubble })
             {
-                rt.anchorMin = rt.anchorMax = new Vector2(1f, anchorY);
-                rt.pivot = new Vector2(1f, anchorY);
+                rt.anchorMin = rt.anchorMax = new Vector2(anchorX, anchorY);
+                rt.pivot = new Vector2(anchorX, anchorY);
             }
+            _portraitImage.uvRect = (_dockLeft ^ _flipKing) ? new Rect(1f, 0f, -1f, 1f) : new Rect(0f, 0f, 1f, 1f);
             _portraitRect.sizeDelta = new Vector2(portraitSize, portraitSize);
-            _portraitRect.anchoredPosition = new Vector2(-margin, -yEdge * 0.2f);
+            _portraitRect.anchoredPosition = new Vector2(side * margin, -yEdge * 0.2f);
             _bubble.sizeDelta = _fitSize;
-            _bubble.anchoredPosition = new Vector2(-(margin + portraitSize * 0.68f), _dialogAtTop ? -(yEdge + 8f * s) : yEdge + 8f * s);
+            _bubble.anchoredPosition = new Vector2(side * (margin + portraitSize * 0.68f), _dialogAtTop ? -(yEdge + 8f * s) : yEdge + 8f * s);
 
-            // 이름표는 말풍선 왼쪽 위 모서리에 걸쳐 놓는다
+            // 프레임의 테두리 두께를 해상도 배율에 맞춘다(그림 한 칸 = 화면 한 칸 × 배율)
+            if (_frameImage != null) _frameImage.pixelsPerUnitMultiplier = 1f / s;
+
+            // 머리: 이름(상자 없이 글자만) 아래로 금빛 머리줄
+            float nameRowH = 54f * s;
             _nameTag.anchorMin = _nameTag.anchorMax = new Vector2(0f, 1f);
             _nameTag.pivot = new Vector2(0f, 0.5f);
-            _nameTag.sizeDelta = new Vector2(150f * s, 54f * s);
-            _nameTag.anchoredPosition = new Vector2(30f * s, 0f);
+            _nameTag.sizeDelta = new Vector2(220f * s, nameRowH);
+            _nameTag.anchoredPosition = new Vector2(46f * s, -(nameRowH * 0.5f + 14f * s));
+            foreach (var o in _titleOrnaments) if (o != null) o.gameObject.SetActive(false);
+            if (_headerLine != null)
+            {
+                var hr = _headerLine.rectTransform;
+                hr.anchorMin = new Vector2(0f, 1f); hr.anchorMax = new Vector2(1f, 1f); hr.pivot = new Vector2(0.5f, 1f);
+                hr.offsetMin = new Vector2(30f * s, 0f); hr.offsetMax = new Vector2(-30f * s, 0f);
+                hr.sizeDelta = new Vector2(-60f * s, 2f * s);
+                hr.anchoredPosition = new Vector2(0f, -(nameRowH + 18f * s));
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                var c = _corners[i];
+                if (c == null) continue;
+                bool right = (i & 1) == 1, top = (i & 2) == 2;
+                c.anchorMin = c.anchorMax = new Vector2(right ? 1f : 0f, top ? 1f : 0f);
+                c.pivot = new Vector2(0.5f, 0.5f);
+                c.sizeDelta = new Vector2(26f * s, 26f * s);
+                c.anchoredPosition = new Vector2(right ? -2f * s : 2f * s, top ? -2f * s : 2f * s);
+            }
 
-            // 쪽 번호는 오른쪽 위, "다음" 표시는 오른쪽 아래(상자 안쪽)
-            var cr = _counter.rectTransform;
-            cr.sizeDelta = new Vector2(160f * s, 34f * s);
-            cr.anchoredPosition = new Vector2(-34f * s, -16f * s);
+            // 아래 줄 오른쪽: 넘기는 방법 안내(Space · 화면 클릭). 왼쪽의 삼각형이 이 글을 가리킨다
+            float rowY = 26f * s + 18f * s;
+            var ht = _hintText.rectTransform;
+            ht.anchorMin = ht.anchorMax = new Vector2(1f, 0f); ht.pivot = new Vector2(1f, 0.5f);
+            ht.sizeDelta = new Vector2(360f * s, 34f * s);
+            ht.anchoredPosition = new Vector2(-48f * s, rowY);
+            _hintText.fontSize = 22f * s;
+            _hintText.alignment = TextAlignmentOptions.MidlineRight;
+            _hintTextWidth = _hintText.GetPreferredValues(_hintText.text, 10000f, 0f).x;
+            _hint.sizeDelta = new Vector2(26f * s, 22f * s);
+
+            // 말풍선 그림자, 마왕 쪽으로 뾰족한 말꼬리, 나타날 때 살짝 커지는 연출(마왕 쪽 모서리를 기준으로)
+            float pad = 46f * s;
+            var sr = _shadow.rectTransform;
+            sr.anchorMin = sr.anchorMax = new Vector2(anchorX, anchorY);
+            sr.pivot = new Vector2(anchorX, anchorY);
+            sr.sizeDelta = _fitSize + new Vector2(2f * pad, 2f * pad);
+            Vector2 bp = _bubble.anchoredPosition;
+            sr.anchoredPosition = new Vector2(bp.x + (anchorX > 0.5f ? pad : -pad), bp.y + (anchorY < 0.5f ? -pad : pad));
+            float pop = Mathf.LerpUnclamped(0.9f, 1f, EaseOutBack(Mathf.Clamp01((Time.unscaledTime - _popStart) / 0.3f)));
+            _bubble.localScale = Vector3.one * pop;
+            sr.localScale = Vector3.one * pop;
+            _tail.anchorMin = _tail.anchorMax = new Vector2(_dockLeft ? 0f : 1f, 0.5f);
+            _tail.pivot = new Vector2(0.5f, 0.5f);
+            _tail.sizeDelta = new Vector2(30f * s, 36f * s);
+            _tail.anchoredPosition = new Vector2(side * -1f * 12f * s, 0f);
+            _tail.localRotation = Quaternion.Euler(0f, 0f, _dockLeft ? -90f : 90f);
+
+            // 진행 막대(몇 번째 말인지): 말풍선 바로 아래의 얇은 금빛 줄
+            var pr = (RectTransform)_progressFill.parent;
+            pr.anchorMin = new Vector2(0f, 0f); pr.anchorMax = new Vector2(1f, 0f); pr.pivot = new Vector2(0.5f, 1f);
+            pr.offsetMin = new Vector2(30f * s, 0f); pr.offsetMax = new Vector2(-30f * s, 0f);
+            pr.sizeDelta = new Vector2(-60f * s, 5f * s);
+            pr.anchoredPosition = new Vector2(0f, -4f * s);
+        }
+
+        private static float EaseOutBack(float x)
+        {
+            const float c1 = 1.70158f, c3 = c1 + 1f;
+            return 1f + c3 * Mathf.Pow(x - 1f, 3f) + c1 * Mathf.Pow(x - 1f, 2f);
+        }
+
+        private static Sprite MakeGlowSprite()
+        {
+            const int n = 128;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            float r = n * 0.5f;
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(r, r)) / r;
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Pow(Mathf.Clamp01(1f - d), 2f)));
+                }
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
         }
 
         // ───────────── 화면 만들기
@@ -540,7 +763,7 @@ namespace OZGL2.Tutorial
             go.transform.SetParent(transform, false);
             _canvas = go.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvas.sortingOrder = 150; // 로비 팝업·인게임 결과창(100)보다 위
+            _canvas.sortingOrder = 400; // 인게임 결과창(100)보다 위, 새 로비의 특성·스킬·도감·업적 화면(200~211)보다도 위 — 낮으면 그 화면 뒤에 가려진다
             go.AddComponent<GraphicRaycaster>();
 
             // 화면 전체를 덮는 입력 막: 어디를 눌러도 다음 말로 넘어가고, 뒤의 UI는 눌리지 않는다
@@ -576,17 +799,19 @@ namespace OZGL2.Tutorial
             _portraitImage.raycastTarget = false;
             _portraitRect = _portraitImage.rectTransform;
 
+            _shadow = NewImage("BubbleShadow", _dialog, MakeGlowSprite(), new Color(0f, 0f, 0f, 0.6f));
+            _shadow.raycastTarget = false;
+
             var bubbleImage = NewImage("Bubble", _dialog, null, new Color(0.07f, 0.05f, 0.09f, 0.96f));
             bubbleImage.raycastTarget = false;
             _bubble = bubbleImage.rectTransform;
-            var frameSprite = Spr("Frame_CostPlate");
+            var frameSprite = _frameSprite != null ? _frameSprite : Spr("Frame_WavePreview_Flat") ?? Spr("Frame_CostPlate");
             if (frameSprite != null)
             {
-                var frame = NewImage("Frame", _bubble, frameSprite, Color.white);
-                frame.type = Image.Type.Sliced;
-                frame.pixelsPerUnitMultiplier = 2.4f;
-                frame.raycastTarget = false;
-                Stretch(frame.rectTransform);
+                _frameImage = NewImage("Frame", _bubble, frameSprite, Color.white);
+                _frameImage.type = Image.Type.Sliced;
+                _frameImage.raycastTarget = false;
+                Stretch(_frameImage.rectTransform);
             }
 
             _body = NewText("Body", _bubble, 34f, new Color(0.97f, 0.94f, 0.87f), TextAlignmentOptions.TopLeft);
@@ -597,39 +822,66 @@ namespace OZGL2.Tutorial
             bodyRt.anchorMin = Vector2.zero; bodyRt.anchorMax = Vector2.one;
             bodyRt.offsetMin = new Vector2(40f, 38f); bodyRt.offsetMax = new Vector2(-40f, -52f);
 
-            var tagImage = NewImage("NameTag", _bubble, Spr("Frame_CostPlate"), new Color(0.45f, 0.1f, 0.14f, 1f));
-            if (Spr("Frame_CostPlate") != null) { tagImage.type = Image.Type.Sliced; tagImage.pixelsPerUnitMultiplier = 3f; }
+            var plateSprite = _nameplateSprite != null ? _nameplateSprite : Spr("Frame_SynergyNameplate_Flat") ?? Spr("Frame_CostPlate");
+            var tagImage = NewImage("NameTag", _bubble, plateSprite, plateSprite == _nameplateSprite || plateSprite == null ? Color.white : new Color(0.45f, 0.1f, 0.14f, 1f));
+            if (plateSprite != null) tagImage.type = Image.Type.Sliced;
             tagImage.raycastTarget = false;
             _nameTag = tagImage.rectTransform;
-            var nameText = NewText("Name", _nameTag, 30f, new Color(1f, 0.9f, 0.55f), TextAlignmentOptions.Center);
+            var nameText = NewText("Name", _nameTag, 34f * S, new Color(1f, 0.9f, 0.55f), TextAlignmentOptions.Center);
             nameText.text = "마왕";
+            nameText.alignment = TextAlignmentOptions.MidlineLeft;
+            AddShadowTo(nameText);
+            tagImage.enabled = false; // 이름표 상자는 없애고 글자만 둔다
+            nameText.enableAutoSizing = true; nameText.fontSizeMin = 16f * S; nameText.fontSizeMax = 34f * S;
             Stretch(nameText.rectTransform);
+            nameText.rectTransform.offsetMin = new Vector2(14f * S, 6f * S); nameText.rectTransform.offsetMax = new Vector2(-14f * S, -6f * S);
 
             _counter = NewText("Counter", _bubble, 22f, new Color(0.7f, 0.66f, 0.6f), TextAlignmentOptions.Right);
-            var cr = _counter.rectTransform;
-            cr.anchorMin = cr.anchorMax = new Vector2(1f, 1f); cr.pivot = new Vector2(1f, 1f);
-            cr.sizeDelta = new Vector2(160f, 34f); cr.anchoredPosition = new Vector2(-34f, -16f);
+            _counter.gameObject.SetActive(false); // 남은 쪽 수(n / N)는 보이지 않게 한다
 
             var hintImage = NewImage("Hint", _bubble, MakeTriangle(), new Color(1f, 0.86f, 0.45f, 1f));
             hintImage.raycastTarget = false;
             _hint = hintImage.rectTransform;
             _hint.anchorMin = _hint.anchorMax = new Vector2(1f, 0f);
             _hint.pivot = new Vector2(0.5f, 0.5f);
-            _hint.sizeDelta = new Vector2(34f, 28f);
+            _hint.sizeDelta = new Vector2(26f, 22f);
+            _hintText = NewText("HintText", _bubble, 22f * S, new Color(0.93f, 0.87f, 0.75f, 0.95f), TextAlignmentOptions.MidlineRight);
+            _hintText.text = "Space · 화면 클릭: 다음";
+            _hintText.raycastTarget = false;
 
-            // 건너뛰기
-            var skip = NewImage("Skip", go.transform, Spr("Frame_CostPlate"), new Color(0.2f, 0.12f, 0.16f, 0.9f));
-            if (Spr("Frame_CostPlate") != null) { skip.type = Image.Type.Sliced; skip.pixelsPerUnitMultiplier = 3.4f; }
-            var skipRt = skip.rectTransform;
-            skipRt.anchorMin = skipRt.anchorMax = new Vector2(1f, 1f); skipRt.pivot = new Vector2(1f, 1f);
-            skipRt.sizeDelta = new Vector2(170f, 56f); skipRt.anchoredPosition = new Vector2(-30f, -120f);
-            var skipButton = skip.gameObject.AddComponent<Button>();
-            skipButton.onClick.AddListener(End);
-            _skipLabel = NewText("Label", skipRt, 24f, new Color(0.95f, 0.9f, 0.8f), TextAlignmentOptions.Center);
-            _skipLabel.text = "건너뛰기";
-            Stretch(_skipLabel.rectTransform);
-            _skipButton = skip.gameObject;
-            skipRt.localScale = Vector3.one * S;
+            // 말풍선 꾸밈(희수 UI 조각): 이름표 아래 금빛 머리줄, 네 모서리 마름모, 이름표 양옆 장식
+            var headerImage = NewImage("HeaderLine", _bubble, null, new Color(1f, 0.82f, 0.42f, 0.6f));
+            headerImage.raycastTarget = false;
+            _headerLine = headerImage;
+            var cornerSprite = _cornerSprite != null ? _cornerSprite : Spr("Ornament_Diamond_Flat");
+            if (cornerSprite != null)
+                for (int i = 0; i < 4; i++)
+                {
+                    var d = NewImage("Corner" + i, _bubble, cornerSprite, Color.white);
+                    d.raycastTarget = false;
+                    _corners[i] = d.rectTransform;
+                }
+            var ornSprite = _titleOrnamentSprite != null ? _titleOrnamentSprite : Spr("Ornament_WaveTitle_Flat");
+            if (ornSprite != null)
+                for (int i = 0; i < 2; i++)
+                {
+                    var o = NewImage("NameOrnament" + i, _bubble, ornSprite, Color.white);
+                    o.raycastTarget = false;
+                    _titleOrnaments[i] = o.rectTransform;
+                }
+
+            // 말꼬리(마왕 쪽으로 뾰족)와 진행 막대
+            var tailImage = NewImage("Tail", _bubble, MakeTriangle(), new Color(0.07f, 0.05f, 0.09f, 0.96f));
+            tailImage.raycastTarget = false;
+            _tail = tailImage.rectTransform;
+            tailImage.transform.SetAsFirstSibling();
+            var barBg = NewImage("Progress", _bubble, null, new Color(1f, 1f, 1f, 0.12f));
+            barBg.raycastTarget = false;
+            var barFill = NewImage("Fill", barBg.rectTransform, null, new Color(1f, 0.82f, 0.42f, 0.95f));
+            barFill.raycastTarget = false;
+            _progressFill = barFill.rectTransform;
+            _progressFill.anchorMin = new Vector2(0f, 0f); _progressFill.anchorMax = new Vector2(0f, 1f); _progressFill.pivot = new Vector2(0f, 0.5f);
+            _progressFill.offsetMin = Vector2.zero; _progressFill.offsetMax = Vector2.zero;
 
             _canvas.enabled = false;
             EnsureHelp();
@@ -748,12 +1000,12 @@ namespace OZGL2.Tutorial
             if (key.StartsWith("popup.close:")) return RectOfPopupClose(key.Substring("popup.close:".Length), out rect);
             switch (key)
             {
-                case "wave": return RectOfNamed(new[] { "WavePreviewPanel" }, out rect);
+                case "wave": return RectOfNamed(new[] { "WavePreviewPanel", "WaveText" }, out rect);
                 case "start": return RectOfNamed(new[] { "Button_BattleStart" }, out rect);
                 case "reroll": return RectOfNamed(new[] { "Button_Reroll" }, out rect);
-                case "currency": return RectOfNamed(new[] { "Currency", "CombatCurrency" }, out rect);
+                case "currency": return RectOfNamed(new[] { "Currency", "Currency_Combat", "CombatCurrency" }, out rect);
                 case "xp": return RectOfNamed(new[] { "ExperienceTrack", "ExperienceFillSoul" }, out rect);
-                case "synergy": return RectOfNamed(new[] { "Synergy_0", "Synergy_1", "Synergy_2", "Synergy_3" }, out rect, true);
+                case "synergy": return RectOfNamed(new[] { "SynergyTracker_InGame", "Synergy_0", "Synergy_1", "Synergy_2", "Synergy_3" }, out rect, true);
                 case "skills": return RectOfSkillSlots(out rect);
                 case "hand": return RectOfHand(out rect);
                 case "grid": return RectOfGrid(out rect);
@@ -766,6 +1018,31 @@ namespace OZGL2.Tutorial
                 case "skillpoints": return RectOfNamed(new[] { "SkillPoints" }, out rect);
                 case "slots": return RectOfNamed(new[] { "Slot_1", "Slot_2", "Slot_3" }, out rect, true);
                 case "codexlist": return RectOfNamed(new[] { "UnitScroll" }, out rect);
+                case "reward": return RectOfUnder("ClearRewardPreview", new[] { "Box" }, out rect);
+                case "result.title": return RectOfUnder("Popup_WaveResult", new[] { "Outcome" }, out rect);
+                case "result.xp": return RectOfUnder("Popup_WaveResult", new[] { "Experience", "XpTrack" }, out rect);
+                case "result.confirm": return RectOfUnder("Popup_WaveResult", new[] { "Confirm" }, out rect);
+                case "codex.stars": return RectOfPicked(n => n == "Stars", "Viewport", out rect);
+                case "codex.next": return RectOfPicked(n => n == "NextAppearance", "Viewport", out rect);
+                case "ach.count": return RectOfUnder("Canvas_Achievements", new[] { "CompletedBadge", "CompletedCount" }, out rect);
+                case "ach.list": return RectOfUnder("Canvas_Achievements", new[] { "Viewport" }, out rect);
+                case "codex.factions": return RectOfUnder("Canvas_UnitCodex", new[] { "Faction_0", "Faction_1" }, out rect);
+                case "codex.list": return RectOfUnder("Canvas_UnitCodex", new[] { "Viewport" }, out rect);
+                case "codex.count": return RectOfUnder("Canvas_UnitCodex", new[] { "DiscoveredCount" }, out rect);
+                case "trait.points": return RectOfNamed(new[] { "PointsFrame", "Points" }, out rect);
+                case "trait.tree": return RectOfNamed(new[] { "TraitTreeViewport", "TraitTreeScroll" }, out rect);
+                case "trait.node": return RectOfPicked(n => n.StartsWith("Trait_") && n.EndsWith("_A1"), "TraitTreeViewport", out rect);
+                case "trait.detail": return RectOfNamed(new[] { "SelectedTraitDetail" }, out rect);
+                case "trait.recenter": return RectOfNamed(new[] { "Recenter" }, out rect);
+                case "trait.reset": return RectOfNamed(new[] { "ResetTraits" }, out rect);
+                case "skill.level": return RectOfNamed(new[] { "AccountStatus" }, out rect);
+                case "skill.equipped": return RectOfNamed(new[] { "EquippedTitle", "EquippedSlot_0", "EquippedSlot_1", "EquippedSlot_2" }, out rect, true);
+                case "skill.category": return RectOfNamed(new[] { "Category_0", "Category_1", "Category_2", "Category_3" }, out rect, true);
+                case "skill.grid": return RectOfNamed(new[] { "OwnedSkillsPanel" }, out rect);
+                case "skill.card": return RectOfPicked(n => n.StartsWith("SkillCard_"), "SkillGrid", out rect);
+                case "skill.detail": return RectOfNamed(new[] { "SkillDetailPanel" }, out rect);
+                case "skill.buttons": return RectOfNamed(new[] { "Equip", "Unequip" }, out rect, true);
+                case "skill.save": return RectOfNamed(new[] { "Save" }, out rect);
                 case "btn.achievement": return RectOfNamed(new[] { "ReservedButton" }, out rect);
                 case "btn.traits": return RectOfNamed(new[] { "TraitsButton" }, out rect);
                 case "btn.skills": return RectOfNamed(new[] { "SkillsButton" }, out rect);
@@ -810,15 +1087,54 @@ namespace OZGL2.Tutorial
             return any;
         }
 
+        /// <summary>열려 있는 화면(screen) 안에서 이름이 같은 요소를 찾는다. 화면마다 'Viewport' 같은 이름이 겹쳐서 화면 이름으로 범위를 좁힌다.</summary>
+        private static bool RectOfUnder(string screen, string[] names, out Rect rect)
+        {
+            rect = default;
+            bool any = false;
+            foreach (var root in Resources.FindObjectsOfTypeAll<RectTransform>())
+            {
+                if (root == null || root.name != screen || !root.gameObject.scene.IsValid() || !root.gameObject.activeInHierarchy) continue;
+                foreach (var rt in root.GetComponentsInChildren<RectTransform>(false))
+                    foreach (var n in names)
+                        if (rt.name == n) Union(ref rect, ref any, ScreenRectOf(rt));
+                if (any) return true;
+            }
+            return any;
+        }
+
+        /// <summary>
+        /// 조건에 맞는 칸 중 하나를 고른다(특성 칸·스킬 카드처럼 같은 모양이 여러 개일 때).
+        /// 뷰포트 안에 보이는 것 가운데 뷰포트 왼쪽 위에 가장 가까운 것 — 순서가 매 프레임 같아야 화살표가 흔들리지 않는다.
+        /// </summary>
+        private static bool RectOfPicked(System.Func<string, bool> match, string viewportName, out Rect rect)
+        {
+            rect = default;
+            bool hasView = RectOfNamed(new[] { viewportName }, out var view);
+            Vector2 corner = hasView ? new Vector2(view.xMin, view.yMax) : new Vector2(0f, Screen.height);
+            float best = float.MaxValue;
+            bool found = false;
+            foreach (var rt in Resources.FindObjectsOfTypeAll<RectTransform>())
+            {
+                if (rt == null || !rt.gameObject.scene.IsValid() || !rt.gameObject.activeInHierarchy || !match(rt.name)) continue;
+                var r = ScreenRectOf(rt);
+                if (r.width < 1f || r.height < 1f) continue;
+                if (hasView && !view.Contains(r.center)) continue;
+                float d = (r.center - corner).sqrMagnitude;
+                if (d < best) { best = d; rect = r; found = true; }
+            }
+            return found;
+        }
+
         /// <summary>열려 있는 창 안의 닫기 단추(CloseButton)를 찾는다.</summary>
         private static bool RectOfPopupClose(string popupName, out Rect rect)
         {
             rect = default;
             if (popupName == "@page")
             {
-                // 화면 전체 페이지의 '뒤로' 단추 — 이름이 CloseButton인 것 중 지금 보이는 것
+                // 화면 전체 페이지의 '뒤로' 단추 — 옛 로비는 CloseButton, 새 로비(특성·스킬·도감·업적)는 Back 이라는 이름이다
                 foreach (var rt in Resources.FindObjectsOfTypeAll<RectTransform>())
-                    if (rt != null && rt.name == "CloseButton" && rt.gameObject.scene.IsValid() && rt.gameObject.activeInHierarchy)
+                    if (rt != null && (rt.name == "CloseButton" || rt.name == "Back") && rt.gameObject.scene.IsValid() && rt.gameObject.activeInHierarchy)
                     {
                         var r = ScreenRectOf(rt);
                         if (r.width > 1f) { rect = r; return true; }
