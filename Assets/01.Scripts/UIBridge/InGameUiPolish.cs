@@ -19,6 +19,9 @@ namespace OZGL2.UIBridge
     [DefaultExecutionOrder(1000)]
     public sealed class InGameUiPolish : MonoBehaviour
     {
+        [SerializeField, Tooltip("손패 카드의 특성(직업 시너지)·보유 스킬(사거리·공속) 설명을 채운다")] private bool _fillCardInfo = true;
+        [SerializeField, Tooltip("카드의 성급 숫자를 별 개수로 바꾼다(희수 UI의 별 배지를 쓰면 끈다)")] private bool _starRows = false;
+        [SerializeField, Tooltip("웨이브 아이콘·펼침 단추 모양을 손본다(희수 UI를 그대로 쓰면 끈다)")] private bool _polishWaveHud = false;
         [SerializeField] private Sprite _waveIcon;
         [SerializeField] private Color _titleColor = new Color(0.95f, 0.84f, 0.5f, 1f);
         [SerializeField] private Color _bodyColor = new Color(0.96f, 0.93f, 0.86f, 1f);
@@ -29,6 +32,7 @@ namespace OZGL2.UIBridge
         private static readonly FieldInfo FTitle = CardType.GetField("_titleText", Priv), FRank = CardType.GetField("_rankText", Priv),
             FTraitT = CardType.GetField("_traitTitleText", Priv), FTraitD = CardType.GetField("_traitDescriptionText", Priv),
             FSkillT = CardType.GetField("_skillTitleText", Priv), FSkillD = CardType.GetField("_skillDescriptionText", Priv);
+        private static readonly FieldInfo FAreaT = CardType.GetField("_areaTitleText", Priv), FAreaD = CardType.GetField("_areaDescriptionText", Priv);
         private static readonly FieldInfo FToggle = typeof(UIWavePreviewDisclosure).GetField("_toggleButton", Priv);
 
         private InGamePrototypeBootstrap _bootstrap;
@@ -42,14 +46,14 @@ namespace OZGL2.UIBridge
 
         private void LateUpdate()
         {
-            WatchToggleClick();
-            if (FRank != null)
+            if (_polishWaveHud) WatchToggleClick();
+            if (_starRows && FRank != null)
                 foreach (var card in FindObjectsByType<UIBattlePreparationCardView>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                     ShowRankStars(card);
             if (Time.unscaledTime < _next) return;
-            _next = Time.unscaledTime + 0.2f;
-            PolishCards();
-            if (!_hudFixed) PolishHud();
+            _next = Time.unscaledTime + 0.05f;
+            if (_fillCardInfo) PolishCards();
+            if (_polishWaveHud && !_hudFixed) PolishHud();
         }
 
         // ───────────── 손패 카드 설명
@@ -68,7 +72,7 @@ namespace OZGL2.UIBridge
             {
                 var title = (FTitle.GetValue(card) as Text)?.text;
                 string unitId = UnitIdByName(title);
-                if (unitId == null) continue; // 유닛 카드가 아니면(배치 영역 확장 등) 건드리지 않는다
+                if (unitId == null) { PolishLandCard(card, title); continue; } // 유닛 카드가 아니면 배치 카드(발판·영역 확장)
 
                 int star = 1;
                 int.TryParse((FRank.GetValue(card) as Text)?.text, out star);
@@ -91,11 +95,56 @@ namespace OZGL2.UIBridge
 
                 card.SetTrait(traitTitle, traitDesc);
                 card.SetSkill(skillTitle, skillDesc);
-                Style(FTraitT.GetValue(card) as Text, _titleColor, 14, 30);
-                Style(FTraitD.GetValue(card) as Text, _bodyColor, 12, 28);
-                Style(FSkillT.GetValue(card) as Text, _titleColor, 14, 30);
-                Style(FSkillD.GetValue(card) as Text, _bodyColor, 12, 28);
+                // 칸 크기가 서로 달라 칸마다 글자가 알아서 커지고 줄어들던 것을 같은 크기로 통일한다(칸을 넘칠 때만 줄어든다)
+                Style(FTraitT.GetValue(card) as Text, _titleColor, TitleSize, TextAnchor.MiddleCenter);
+                Style(FTraitD.GetValue(card) as Text, _bodyColor, BodySize, TextAnchor.MiddleLeft);
+                Style(FSkillT.GetValue(card) as Text, _titleColor, TitleSize, TextAnchor.MiddleCenter);
+                Style(FSkillD.GetValue(card) as Text, _bodyColor, BodySize, TextAnchor.MiddleLeft);
             }
+        }
+
+        private const string ExpansionTitle = "배치 영역 확장";
+
+        /// <summary>카드의 영역 제목("웨이브 보상 · 3칸" / "바닥 +3칸")에서 이번에 늘어나는 칸 수를 읽는다. 없으면 기본 조각의 칸 수.</summary>
+        private static int ExpansionCells(UIBattlePreparationCardView card, OZGL2.Grid.GridManager grid)
+        {
+            var text = (FAreaT?.GetValue(card) as Text)?.text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                var m = System.Text.RegularExpressions.Regex.Match(text, "(\\d+)칸");
+                if (m.Success && int.TryParse(m.Groups[1].Value, out int n) && n > 0) return n;
+            }
+            return grid.Definition.Expansion.Cells.Count;
+        }
+
+        /// <summary>
+        /// 배치 카드 두 종류의 역할을 카드 안에서 분명히 알려 준다.
+        /// - 「배치 영역 확장」(웨이브 보상 3택 중 하나): 마왕성 바닥 자체를 넓힌다 → 몇 칸 늘고, 지금 몇 칸이며, 최대가 몇 칸인지.
+        /// - 발판 카드(유닛을 고르면 함께 오는 것): 그 유닛이 설 바닥 조각 → 칸 위에 놓은 뒤 유닛을 올리는 것.
+        /// </summary>
+        private void PolishLandCard(UIBattlePreparationCardView card, string title)
+        {
+            if (FAreaT == null || FAreaD == null) return;
+            var grid = _bootstrap != null && _bootstrap.GridSession != null ? _bootstrap.GridSession.Grid : null;
+            string areaTitle, body;
+            if (title == ExpansionTitle || title == "발판 확장")
+            {
+                if (grid == null) return;
+                int add = ExpansionCells(card, grid);
+                int floor = 0; foreach (var _ in grid.FloorCells) floor++;
+                int max = grid.Definition.MaximumSize.x * grid.Definition.MaximumSize.y;
+                areaTitle = "바닥 +" + add + "칸";
+                body = "마왕성 바닥 자체를 넓혀서 발판과 유닛을 더 놓을 수 있어요.\n지금 " + floor + "칸 → " + Mathf.Min(max, floor + add) + "칸  (최대 " + max + "칸)\n고르면 초록 칸에 끌어다 놓아요.";
+            }
+            else
+            {
+                if (title != "배치 발판") card.SetTitle("배치 발판");
+                areaTitle = "유닛이 설 자리";
+                body = "이 모양의 바닥 조각이에요.\n영역 위에 먼저 놓고, 그 위에 유닛을 올리세요.\n(이미 놓은 발판과 이어서 놓아야 해요)";
+            }
+            card.SetAreaDescription(areaTitle, body);
+            Style(FAreaT.GetValue(card) as Text, _titleColor, TitleSize - 2, TextAnchor.MiddleCenter);
+            Style(FAreaD.GetValue(card) as Text, _bodyColor, BodySize, TextAnchor.MiddleLeft);
         }
 
         /// <summary>
@@ -196,7 +245,10 @@ namespace OZGL2.UIBridge
             return null;
         }
 
-        private static void Style(Text text, Color color, int minSize, int maxSize)
+        // 카드 설계 좌표(폭 640 기준)의 글자 크기
+        private const int TitleSize = 26, BodySize = 21;
+
+        private static void Style(Text text, Color color, int size, TextAnchor align)
         {
             if (text == null) return;
             text.color = color;
@@ -204,9 +256,9 @@ namespace OZGL2.UIBridge
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
             text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = minSize;
-            text.resizeTextMaxSize = maxSize;
-            text.alignment = TextAnchor.MiddleLeft;
+            text.resizeTextMinSize = Mathf.RoundToInt(size * 0.6f);
+            text.resizeTextMaxSize = size;
+            text.alignment = align;
             text.fontStyle = FontStyle.Normal;
         }
 

@@ -111,6 +111,7 @@ namespace OZGL2.InGame
                 _config.Validate(_selectedSource.CreateSnapshot());
                 _phasePresentation?.ValidateSetup();
                 _waveResultPresenter?.ValidateSetup();
+                OZGL2.Progression.RunResume.Catalog = _config.Catalog;
                 _runSynergy = RealCombatBootstrap.EnsureInitialized();
                 _runSynergy.BeginRun();
                 _runSynergy.SetExternalSkillUiActive(_usesExternalSkillUi);

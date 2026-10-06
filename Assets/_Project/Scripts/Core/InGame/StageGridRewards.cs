@@ -24,7 +24,7 @@ namespace OZGL2.InGame
             if (_applied.Contains(request.RequestId)) return;
             if (Pending != null) throw new InvalidOperationException("Another reward is pending.");
             var session = _session.Require(request.RunId);
-            var candidates = _source.Draw(session.Grid.CanExpand);
+            var candidates = _source.Draw(session.Grid.GetPlaceableExpansionShapes());
             var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             Action changed = () =>
             {
@@ -56,10 +56,10 @@ namespace OZGL2.InGame
         public bool TryChooseExpansion(string requestId)
         {
             if (!CanSelect(requestId)) return false;
-            bool isOffered = false;
-            foreach (var candidate in Candidates) if (candidate.Kind == eGeneralRewardKind.EXPANSION) isOffered = true;
-            if (!isOffered) return false;
-            return _session.Require(Pending.RunId).TryChooseExpansion(Pending.RunId, requestId);
+            GeneralRewardOption offered = null;
+            foreach (var candidate in Candidates) if (candidate.Kind == eGeneralRewardKind.EXPANSION) offered = candidate;
+            if (offered == null) return false;
+            return _session.Require(Pending.RunId).TryChooseExpansion(Pending.RunId, requestId, offered.ExpansionShape);
         }
         public bool TrySelect(string requestId, int option)
         {

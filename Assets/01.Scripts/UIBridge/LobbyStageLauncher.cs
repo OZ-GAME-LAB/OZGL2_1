@@ -38,6 +38,7 @@ namespace OZGL2.UIBridge
             if (!StageClearStore.IsDifficultyUnlocked((int)difficulty))
             {
                 Debug.Log("[난이도] 잠긴 난이도입니다: " + StageClearStore.LockedHint((int)difficulty));
+                Sfx.Play(SfxId.UiError);
                 return;
             }
             string stageId = FindStageId(difficulty);

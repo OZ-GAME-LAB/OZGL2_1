@@ -1,3 +1,5 @@
+using OZGL2.InGame;
+using OZGL2.Stage;
 using OZGL2.Tutorial;
 using TMPro;
 using UnityEngine;
@@ -33,6 +35,8 @@ namespace OZGL2.UIBridge
         private TutorialDirector _tutorial;
         private float _selectorX, _punch;
         private int _lastScreenHeight;
+        private InGamePrototypeBootstrap _bootstrap;
+        private bool _inCombat, _applyPending;
 
         private float S => Mathf.Max(0.8f, Screen.height / 1080f);
 
@@ -51,6 +55,7 @@ namespace OZGL2.UIBridge
 
             if (_tutorial == null) _tutorial = FindFirstObjectByType<TutorialDirector>();
             bool talking = _tutorial != null && _tutorial.IsPlaying;
+            if (!UpdateCombatVisibility(talking)) return;
             var kb = Keyboard.current;
             if (!talking && kb != null && kb.spaceKey.wasPressedThisFrame) Choose(_chosen == 0 ? 1 : 0);
 
@@ -69,6 +74,36 @@ namespace OZGL2.UIBridge
                 foreach (var icon in _icons[i]) icon.color = c;
                 _labels[i].color = active ? Ink : _hover[i] ? Color.white : new Color(0.85f, 0.80f, 0.72f);
             }
+        }
+
+        /// <summary>
+        /// 배속 막대는 전투 중에만 보인다. 배치·보상·결과 화면에서는 숨기고 배속을 1배로 돌려 놓는다(정지로 끝났다면 다음 전투는 1배로 시작).
+        /// 다음 전투가 시작되면 고른 배속을 다시 적용한다. 마왕 설명으로 멈춰 있는 동안에는 설명이 끝난 뒤에 적용한다.
+        /// </summary>
+        private bool UpdateCombatVisibility(bool talking)
+        {
+            if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+            var stage = _bootstrap != null ? _bootstrap.Stage : null;
+            bool combat = stage != null && stage.State == eStageState.COMBAT;
+            if (combat != _inCombat)
+            {
+                _inCombat = combat;
+                if (combat) _applyPending = true;
+                else
+                {
+                    if (_chosen == 0) _chosen = 1;
+                    _selectorX = SegmentCenterX(_chosen);
+                    Time.timeScale = 1f;
+                    _applyPending = false;
+                }
+            }
+            if (_inCombat && _applyPending && !talking)
+            {
+                Time.timeScale = Speeds[_chosen];
+                _applyPending = false;
+            }
+            if (_canvas != null && _canvas.enabled != _inCombat) _canvas.enabled = _inCombat;
+            return _inCombat;
         }
 
         private void Choose(int index)

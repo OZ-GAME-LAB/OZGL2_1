@@ -54,8 +54,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9e4274e381ea3c240af8808fef072832, type: 3}
   - {fileID: 21300000, guid: c81bc56e380d2de479e1ab58fbdf3d96, type: 3}
   - {fileID: 21300000, guid: 66f0efe675ebe5445b444fece791e89b, type: 3}
-  _preparationGuide: {r: 0.8, g: 0.75, b: 0.58, a: 0.12}
-  _guideWidth: 0.015625
+  _preparationGuide: {r: 0.09, g: 0.07, b: 0.03, a: 0.8}
+  _guideWidth: 0.03125
   _hoverBorder: {r: 0.95, g: 0.88, b: 0.65, a: 0.85}
   _hoverBorderWidth: 0.03125
   _occupiedFill: {r: 1, g: 0.12, b: 0.18, a: 0.055}

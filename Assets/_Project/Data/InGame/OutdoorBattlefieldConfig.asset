@@ -489,16 +489,16 @@ MonoBehaviour:
     _opacity: 1
   _campTent:
     _sprite: {fileID: 21300000, guid: 82cd344b644b22f4fa4fd7c3ebd1a0c1, type: 3}
-    _cellPosition: {x: 3.5, y: 8.6}
+    _cellPosition: {x: 4.5, y: 9.6}
     _scale: 1
     _opacity: 1
   _campProps:
   - _sprite: {fileID: 21300000, guid: fb63e29ee674442439d6606be7548c2e, type: 3}
-    _cellPosition: {x: 1.2, y: 7.85}
+    _cellPosition: {x: 2.2, y: 8.85}
     _scale: 1
     _opacity: 1
   - _sprite: {fileID: 21300000, guid: 04c9b398228fa294285ce633cfdfe067, type: 3}
-    _cellPosition: {x: 5.9, y: 7.65}
+    _cellPosition: {x: 6.9, y: 8.65}
     _scale: 1
     _opacity: 1
   _campLayouts:

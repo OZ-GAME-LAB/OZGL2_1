@@ -1153,8 +1153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameDemonKing
   _prefab: {fileID: 7784438773992661821, guid: e454046cbb79c8a45bd042d39355d3f8, type: 3}
-  _scale: 1.5
-  _cellOffset: {x: 0, y: -0.4}
+  _scale: 1.8
+  _cellOffset: {x: 0, y: -0.75}
   _sortingOrderBoost: 5
 --- !u!4 &906624509
 Transform:
@@ -2910,6 +2910,110 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1026836388417468519, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1026836388417468519, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1151225343357173643, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1151225343357173643, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1440865793275396323, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1440865793275396323, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1770643092234240201, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1770643092234240201, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 2136493264761804475, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 2136493264761804475, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 2922495015117056779, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 2922495015117056779, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 4676022259440007834, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 4676022259440007834, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 5034298291498363003, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 5034298291498363003, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 5118153508303639459, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 5118153508303639459, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 6960638255439372063, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 6960638255439372063, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 7192443490330342834, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 7192443490330342834, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 8480459191699926567, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 8480459191699926567, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 9011663051290304583, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 9011663051290304583, guid: fe99ecd1e215939439665b8d4007c5d0, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7156,6 +7260,110 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas_BattleDefeat
       objectReference: {fileID: 0}
+    - target: {fileID: 454450918794516410, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 454450918794516410, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1076914238851340762, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1076914238851340762, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1166042220463475759, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1166042220463475759, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1398098968505083522, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 1398098968505083522, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 3682464001110639367, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 3682464001110639367, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 3817215716881017406, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 3817215716881017406, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 3901040422373102054, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 3901040422373102054, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 6589018852775318166, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 6589018852775318166, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 6917766289869093246, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 6917766289869093246, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 7740766940532029780, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 7740766940532029780, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 7951234102890655526, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 7951234102890655526, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 8937346586667353622, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 8937346586667353622, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 9060717187680027130, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
+    - target: {fileID: 9060717187680027130, guid: 99d702acc8c1d2b4b9c7550c30a06c0d, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5462661849431804795, guid: 00c475c4a8d2f4446a441e90443561c1, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10187,7 +10395,7 @@ PrefabInstance:
     - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _waveResultPresenter
       value: 
-      objectReference: {fileID: 982950677}
+      objectReference: {fileID: 0}
     - target: {fileID: 8204448387257716529, guid: 6681132ce2a6971459706f9cb14eaa58, type: 3}
       propertyPath: _combatParticipants.Array.size
       value: 2
@@ -10545,6 +10753,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2039519396}
   - component: {fileID: 2039519395}
+  - component: {fileID: 2039519397}
   m_Layer: 0
   m_Name: OutdoorBattlefield
   m_TagString: Untagged
@@ -10552,6 +10761,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &2039519397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2039519394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6110b628788c9bf48aa2b4a4ff5ec286, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.OutdoorBattlefieldStageBinding
+  _bootstrap: {fileID: 8701223948942012780}
+  _presentation: {fileID: 2039519395}
 --- !u!114 &2039519395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10565,7 +10788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.InGame.OutdoorBattlefieldPresentation
   _gameConfig: {fileID: 11400000, guid: 0c4893f6da987cf4ab6177ee12f39140, type: 2}
-  _appearance: {fileID: 11400000, guid: f4df27ec7451529f97b196db11661af2, type: 2}
+  _appearance: {fileID: 11400000, guid: 6b1bead1d081fea489c360189d83c259, type: 2}
   _camera: {fileID: 979777110}
 --- !u!4 &2039519396
 Transform:
@@ -10598,6 +10821,18 @@ GameObject:
   - component: {fileID: 6666600023}
   - component: {fileID: 6666600024}
   - component: {fileID: 6666600025}
+  - component: {fileID: 6666600026}
+  - component: {fileID: 6666600027}
+  - component: {fileID: 6666600028}
+  - component: {fileID: 6666600029}
+  - component: {fileID: 6666600030}
+  - component: {fileID: 6666600031}
+  - component: {fileID: 6666600032}
+  - component: {fileID: 6666600033}
+  - component: {fileID: 6666600034}
+  - component: {fileID: 6666600035}
+  - component: {fileID: 6666600036}
+  - component: {fileID: 6666600037}
   m_Layer: 0
   m_Name: ReleaseMode
   m_TagString: Untagged
@@ -10705,9 +10940,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61e0ffbdc1e650ac87444a663afad0fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameCampLayout
-  _tentSprite: {fileID: 21300000, guid: 82cd344b644b22f4fa4fd7c3ebd1a0c1, type: 3}
-  _cratesSprite: {fileID: 21300000, guid: fb63e29ee674442439d6606be7548c2e, type: 3}
-  _barrelSprite: {fileID: 21300000, guid: 04c9b398228fa294285ce633cfdfe067, type: 3}
+  _battlefield: {fileID: 11400000, guid: 6b1bead1d081fea489c360189d83c259, type: 2}
 --- !u!114 &6666600025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10720,6 +10953,193 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c77140a5f8d59128047eb9deba51dd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameClearRecorder
+--- !u!114 &6666600026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27e76c0ddba7512986ddfd9e830b7293, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.AudioSettingsWire
+--- !u!114 &6666600027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9df86993b15510d94c5c437d0d96aba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.AchievementTracker
+--- !u!114 &6666600028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdc45e98bea25d1690912c65d0254c03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameCameraControl
+  _closestScale: 0.4
+  _farthestScale: 1.15
+  _wheelStep: 0.28
+  _follow: 18
+  _panRange: 0.4
+  _panSpeed: 0.4
+--- !u!114 &6666600029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b55fac510e7f526e8678fc9b5c412756, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameWavePanelScale
+  _scale: 0.72
+--- !u!114 &6666600030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f86d248bff153eb8f4688ee87686350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameRunSaver
+--- !u!114 &6666600031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2021bd558a25f26b805dadd85cc095d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiTextFit
+  _minScale: 0.55
+  _scanSeconds: 0.5
+--- !u!114 &6666600032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96194258f8225b3cac08c8a74d1a93e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameUiPolish
+  _fillCardInfo: 1
+  _starRows: 0
+  _polishWaveHud: 0
+  _waveIcon: {fileID: 0}
+  _titleColor: {r: 0.95, g: 0.84, b: 0.5, a: 1}
+  _bodyColor: {r: 0.96, g: 0.93, b: 0.86, a: 1}
+  _toggleColor: {r: 0.42, g: 0.13, b: 0.16, a: 1}
+--- !u!114 &6666600033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f6a0681bdf85238953ee2f16c75caf4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameCastleWall
+  _buildSheet: {fileID: 2800000, guid: 389be3483ef26ae4886e2b0a97fdaff1, type: 3}
+  _decorSheet: {fileID: 2800000, guid: 029030ab7555c8c4e95178103a2328f6, type: 3}
+  _wallWidth: 90
+  _wallDepth: 30
+  _towerOffset: 7.6
+  _wallTop: -1.55
+  _gateScale: 0.55
+  _bannerScale: 0.55
+  _sortingOrder: -188
+--- !u!114 &6666600034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b117eaaf38a590ba6ee144e30a2b5a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameKingCastFx
+  _core: {r: 1, g: 0.8, b: 0.38, a: 1}
+  _edge: {r: 0.86, g: 0.32, b: 1, a: 1}
+  _intensity: 1.3
+  _punch: 0.16
+  _sortingOrder: 1015
+--- !u!114 &6666600035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06ea0134890b57819a8f4207ce6be38a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameBattlefieldDecor
+  _decorSheet: {fileID: 2800000, guid: 029030ab7555c8c4e95178103a2328f6, type: 3}
+  _bones:
+  - {fileID: 21300000, guid: 1aecdce45af34c64cb913fad92c4e7cb, type: 3}
+  - {fileID: 21300000, guid: f110daafff7eab743b2d0b1e94ab47fd, type: 3}
+  - {fileID: 21300000, guid: 881ef5058ad398c458bd10c191245a14, type: 3}
+  - {fileID: 21300000, guid: 35f45eda35657f14c8777f19760eddb5, type: 3}
+  _density: 1
+--- !u!114 &6666600036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4c4aa24a1015b88b72cde61058cc2f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGamePlacementGuide
+  _fillOrder: -73
+  _borderOrder: -72
+  _borderWidth: 0.09
+--- !u!114 &6666600037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c0976962761529a8355469ec73bd0e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameExpansionCard
+  _cardPrefab: {fileID: 3450306415444347675, guid: 333d2abe63068254c99998e000e8b7f4, type: 3}
+  _heightRatio: 0.34
+  _centerY: 0.3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

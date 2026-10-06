@@ -23,6 +23,19 @@ namespace OZGL2.Skill
         [Tooltip("피해 판정에 더하는 여유. 0이면 조준 사거리 표시(반경)와 정확히 일치 — 예전 0.35는 표시보다 넓게 맞아서 0으로 맞춤")]
         [SerializeField] private float _hitMargin = 0f;
         [SerializeField] private bool _playSfx = false;
+        [Header("궁극기 연출 (유성우·절대영도·심판)")]
+        [Tooltip("궁극기 흩뿌림 이펙트 하나의 크기 배율(예전 0.6 은 작아서 밋밋했다)")]
+        [SerializeField] private float _ultimateFlourishScale = 1.7f;
+        [Tooltip("궁극기 흩뿌림 개수 배율")]
+        [SerializeField] private float _ultimateFlourishCountScale = 2f;
+        [Tooltip("이펙트 하나 터뜨리는 간격(초) 최소/최대 — 클수록 오래 이어진다")]
+        [SerializeField] private Vector2 _ultimateFlourishGap = new Vector2(0.07f, 0.16f);
+        [Tooltip("절대영도 총 피해 배율(얼린 동안 35% + 깨지는 순간 65%)")]
+        [SerializeField] private float _ultimateTotalDamageScale = 2f;
+        [Tooltip("유성우: 운석 한 발이 주는 피해 = 스킬 피해 × 이 값(운석은 연출 시간 동안 연달아 떨어진다)")]
+        [SerializeField] private float _meteorDropScale = 0.8f;
+        [Tooltip("심판: 벼락 한 번이 주 대상에게 주는 피해 = 스킬 피해 × 이 값(주변은 절반)")]
+        [SerializeField] private float _judgmentStrikeScale = 1f;
 
         private SkillManager _manager;
         private ITargetProvider _enemies;
@@ -127,6 +140,17 @@ namespace OZGL2.Skill
             if (d.flourishVfx != null && d.flourishCount > 0)
             {
                 StartCoroutine(Flourish(d, radius, p));
+            }
+
+            // 맵 전체 궁극기: 연출(번쩍이는 이펙트)이 이어지는 동안 피해도 계속 준다.
+            // 예전엔 한 번(또는 2초 안)에 끝나서 연출이 길어질수록 "이펙트만 나오고 안 아픈" 구간이 생겼다.
+            if (d.category == SkillCategory.Ultimate && IsMapWide(radius) && HasFlourish(d))
+            {
+                // 세 궁극기는 같은 "광역 피해"가 아니라 각자 다른 방식으로 피해를 준다
+                if (d.effectType == SkillEffectType.Stun) StartCoroutine(UltimateFreeze(d, power, radius, p));      // 절대영도: 얼렸다가 깨뜨린다
+                else if (d.barrageCount > 1) StartCoroutine(UltimateMeteors(d, power));                              // 유성우: 용사 머리 위로 운석이 연달아 떨어진다
+                else StartCoroutine(UltimateJudgment(d, power));                                                    // 심판: 한 명씩 벼락으로 내리친다
+                return;
             }
 
             switch (d.effectType)
@@ -497,6 +521,172 @@ namespace OZGL2.Skill
             return new Vector3(c.x + Random.Range(-w, w), c.y + Random.Range(-h, h), 0f);
         }
 
+        /// <summary>궁극기 연출이 이어지는 시간(초) — Flourish 가 이펙트를 다 터뜨리는 데 걸리는 시간과 같다.</summary>
+        private float UltimateVisualSeconds(SkillData d)
+        {
+            float count = d.flourishCount * _ultimateFlourishCountScale;
+            return Mathf.Max(d.duration, count * (_ultimateFlourishGap.x + _ultimateFlourishGap.y) * 0.5f);
+        }
+
+        private void LiveEnemies(List<IDamageable> into)
+        {
+            into.Clear();
+            foreach (var e in _enemies.All)
+            {
+                if (e == null || (e is Object gone && gone == null) || e.IsDead) continue;
+                into.Add(e);
+            }
+        }
+
+        private static void Shuffle<T>(List<T> list)
+        {
+            for (int k = list.Count - 1; k > 0; k--) { int j = Random.Range(0, k + 1); (list[k], list[j]) = (list[j], list[k]); }
+        }
+
+        // ───────────── 유성우: 용사 머리 위로 운석이 연달아 떨어진다(맞은 자리 주변까지 피해)
+
+        private IEnumerator UltimateMeteors(SkillData d, float power)
+        {
+            float seconds = UltimateVisualSeconds(d);
+            int drops = Mathf.Clamp(Mathf.RoundToInt(seconds / 0.13f), 20, 80);
+            var order = new List<IDamageable>();
+            int cursor = 0;
+            for (int i = 0; i < drops; i++)
+            {
+                if (cursor >= order.Count) { LiveEnemies(order); Shuffle(order); cursor = 0; }
+                if (order.Count > 0)
+                {
+                    var target = order[cursor++];
+                    if (target != null && !(target is Object gone && gone == null) && !target.IsDead)
+                        StartCoroutine(MeteorFall(d, power * _meteorDropScale, target.Position + (Vector3)(Random.insideUnitCircle * 0.5f)));
+                }
+                yield return new WaitForSeconds(seconds / drops);
+            }
+        }
+
+        private IEnumerator MeteorFall(SkillData d, float power, Vector3 point)
+        {
+            var fire = CodeFireball(point + new Vector3(2.2f, 9f, 0f));
+            Vector3 from = fire.transform.position;
+            for (float t = 0f; t < 0.24f; t += Time.deltaTime)
+            {
+                fire.transform.position = Vector3.Lerp(from, point, t / 0.24f);
+                yield return null;
+            }
+            Destroy(fire);
+            Impact(d, power, point, 1.7f);
+        }
+
+        // ───────────── 절대영도: 모두 얼려 세우고(정지), 얼어 있는 동안 서리 피해, 풀리는 순간 깨뜨린다
+
+        private IEnumerator UltimateFreeze(SkillData d, float power, float radius, Vector3 point)
+        {
+            float seconds = UltimateVisualSeconds(d);
+            float freeze = Mathf.Max(1f, d.duration);
+            float budget = power * _ultimateTotalDamageScale;
+            StunHit(d, radius, point);
+            var targets = new List<IDamageable>();
+            LiveEnemies(targets);
+            foreach (var e in targets) StartCoroutine(FrostMark(e, freeze));
+
+            // 얼어 있는 동안: 서리 피해(총 피해의 35%)
+            float tick = 0.5f;
+            int ticks = Mathf.Max(1, Mathf.RoundToInt(freeze / tick));
+            for (int i = 0; i < ticks; i++)
+            {
+                LiveEnemies(targets);
+                foreach (var e in targets) e.TakeDamage(budget * 0.35f / ticks);
+                yield return new WaitForSeconds(freeze / ticks);
+            }
+            // 풀리는 순간: 얼음이 깨지며 한 번에 큰 피해(총 피해의 65%)
+            LiveEnemies(targets);
+            foreach (var e in targets)
+            {
+                e.TakeDamage(budget * 0.65f);
+                StartCoroutine(ExpandFade(e.Position, 1.6f, new Color(0.75f, 0.95f, 1f), 0.45f, true));
+                StartCoroutine(ExpandFade(e.Position, 0.9f, new Color(0.4f, 0.75f, 1f), 0.3f, false));
+            }
+            // 남은 연출 동안: 찬 기운이 남아 느려진다
+            for (float t = freeze; t < seconds; t += 0.5f)
+            {
+                LiveEnemies(targets);
+                foreach (var e in targets) (e as IStatusReceiver)?.ApplySlow(0.45f, 1f);
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+
+        /// <summary>얼어 있는 용사 위에 얼음빛 판과 고리를 따라붙여 보여 준다.</summary>
+        private IEnumerator FrostMark(IDamageable target, float seconds)
+        {
+            var disc = Code(Disc(), new Color(0.55f, 0.85f, 1f, 0.45f), target.Position, 1.5f, 19);
+            var ring = Code(Ring(), new Color(0.85f, 0.97f, 1f, 0.9f), target.Position, 1.7f, 20);
+            for (float t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                if (target == null || (target is Object gone && gone == null) || target.IsDead) break;
+                float pulse = 1f + 0.08f * Mathf.Sin(t * 10f);
+                disc.transform.position = ring.transform.position = target.Position;
+                disc.transform.localScale = Vector3.one * 1.5f * pulse;
+                ring.transform.localScale = Vector3.one * 1.7f * pulse;
+                yield return null;
+            }
+            Destroy(disc); Destroy(ring);
+        }
+
+        // ───────────── 심판: 한 명씩 하늘에서 내리치는 벼락(한 방이 아주 아프다)
+
+        private IEnumerator UltimateJudgment(SkillData d, float power)
+        {
+            float seconds = UltimateVisualSeconds(d);
+            int strikes = Mathf.Clamp(Mathf.RoundToInt(seconds / 0.45f), 8, 24);
+            var order = new List<IDamageable>();
+            int cursor = 0;
+            for (int i = 0; i < strikes; i++)
+            {
+                if (cursor >= order.Count) { LiveEnemies(order); Shuffle(order); cursor = 0; }
+                if (order.Count > 0)
+                {
+                    var target = order[cursor++];
+                    if (target != null && !(target is Object gone && gone == null) && !target.IsDead)
+                        yield return StartCoroutine(JudgmentStrike(d, target, power * _judgmentStrikeScale));
+                }
+                yield return new WaitForSeconds(Mathf.Max(0.05f, seconds / strikes - 0.35f));
+            }
+        }
+
+        private IEnumerator JudgmentStrike(SkillData d, IDamageable target, float power)
+        {
+            // 0.35초 예고(금빛 고리가 조여 든다) → 벼락
+            Vector3 point = target.Position;
+            var tele = Code(Ring(), new Color(1f, 0.9f, 0.45f, 0.9f), point, 2.4f, 21);
+            for (float t = 0f; t < 0.35f; t += Time.deltaTime)
+            {
+                tele.transform.localScale = Vector3.one * Mathf.Lerp(2.4f, 0.8f, t / 0.35f);
+                yield return null;
+            }
+            Destroy(tele);
+            if (target != null && !(target is Object gone && gone == null) && !target.IsDead) point = target.Position;
+
+            // 주 대상은 전부, 주변은 절반 피해
+            _enemyBuf.Clear();
+            _enemies.QueryInRadius(point, 1.4f, _enemyBuf);
+            foreach (var e in _enemyBuf) e.TakeDamage(ReferenceEquals(e, target) ? power : power * 0.5f);
+
+            var bolt = Code(Disc(), new Color(1f, 0.97f, 0.75f, 1f), point + Vector3.up * 5f, 1f, 23);
+            bolt.transform.localScale = new Vector3(0.45f, 11f, 1f);
+            var glow = Code(Disc(), new Color(1f, 0.82f, 0.3f, 0.55f), point + Vector3.up * 5f, 1f, 22);
+            glow.transform.localScale = new Vector3(1.4f, 11f, 1f);
+            StartCoroutine(ExpandFade(point, 1.5f, new Color(1f, 0.85f, 0.35f), 0.4f, false));
+            StartCoroutine(ExpandFade(point, 2.2f, new Color(1f, 1f, 0.8f), 0.3f, true));
+            var boltSr = bolt.GetComponent<SpriteRenderer>(); var glowSr = glow.GetComponent<SpriteRenderer>();
+            for (float t = 0f; t < 0.22f; t += Time.deltaTime)
+            {
+                float k = 1f - t / 0.22f;
+                boltSr.color = new Color(1f, 0.97f, 0.75f, k); glowSr.color = new Color(1f, 0.82f, 0.3f, 0.55f * k);
+                yield return null;
+            }
+            Destroy(bolt); Destroy(glow);
+        }
+
         private IEnumerator Flourish(SkillData d, float radius, Vector3 center)
         {
             // 유성우·절대영도·심판처럼 radius=99(맵 전체) 스킬은 예전엔 6칸으로 좁게 캡해서 화면 한
@@ -506,13 +696,17 @@ namespace OZGL2.Skill
             // 큰 이펙트 하나 대신 "작은 이펙트가 맵 전체에서 난리 치는" 느낌을 내야 함. 그래서 개별
             // 크기는 줄이고(0.6배), 터지는 간격은 짧게 잡아서 짧은 시간에 우르르 쏟아지게 한다.
             float spread = Mathf.Min(radius, _vfxMaxRadius);
-            for (int i = 0; i < d.flourishCount; i++)
+            // 궁극기는 더 크고 더 많이, 더 오래 이어서 화면을 가득 채운다(예전엔 작은 이펙트가 2초 안에 지나갔다)
+            bool ultimate = d.category == SkillCategory.Ultimate;
+            int count = ultimate ? Mathf.RoundToInt(d.flourishCount * _ultimateFlourishCountScale) : d.flourishCount;
+            float scale = ultimate ? _ultimateFlourishScale : 0.6f;
+            for (int i = 0; i < count; i++)
             {
                 Vector3 p = IsMapWide(radius) ? RandomScreenPoint(center, spread) : center + (Vector3)(Random.insideUnitCircle * spread);
                 var fx = SpawnVfx(d.flourishVfx, p, Quaternion.identity, d.vfxIsUi);
-                if (fx != null) fx.transform.localScale *= 0.6f;
+                if (fx != null) fx.transform.localScale *= scale * (ultimate ? Random.Range(0.85f, 1.3f) : 1f);
                 AutoDestroy(fx);
-                yield return new WaitForSeconds(Random.Range(0.03f, 0.08f));
+                yield return new WaitForSeconds(ultimate ? Random.Range(_ultimateFlourishGap.x, _ultimateFlourishGap.y) : Random.Range(0.03f, 0.08f));
             }
         }
 

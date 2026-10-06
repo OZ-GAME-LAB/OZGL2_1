@@ -50,10 +50,18 @@ namespace OZGL2.UIBridge
             SyncLegacyTray();
 
             bool dragging = IsDraggingPlacedItem();
+            if (dragging) NeutralizeLegacyTrayCards();
+            TrackStoreFallback(dragging);
             if (_wasDragging && !dragging && _lastHot) _doneUntil = Time.unscaledTime + 0.7f;
             _wasDragging = dragging;
             if (!dragging)
             {
+                if (Time.unscaledTime < _failUntil)
+                {
+                    EnsureOverlay();
+                    if (_overlay != null) { _overlay.enabled = true; UpdateFail(); }
+                    return;
+                }
                 if (Time.unscaledTime < _doneUntil && _overlay != null)
                 {
                     _overlay.enabled = true;
@@ -161,6 +169,100 @@ namespace OZGL2.UIBridge
         }
 
         private bool _traySyncApplied;
+
+        // ───────────── 보관함에 놓으면 반드시 보관되게 한다
+
+        /// <summary>
+        /// 옛 보관함(눈에 안 보이는 UI Toolkit 트레이)은 놓는 순간 "그 자리에 있는 옛 카드"를 먼저 찾아 합성을 시도한다.
+        /// 옛 카드는 손패와 위치가 달라서, 손패 위에 놓았는데 보이지 않는 카드와 겹치면 (성급이 다르면) 합성 실패로 드래그가 취소되어
+        /// 보관이 안 되거나 엉뚱한 유닛과 합쳐졌다. 끌고 있는 동안 옛 카드의 합성 대상 정보를 비워 둬서 항상 "보관"으로만 처리되게 한다.
+        /// </summary>
+        private void NeutralizeLegacyTrayCards()
+        {
+            if (_tray == null || _tray.panel == null) return;
+            foreach (var card in _tray.Children())
+                if (card.userData != null) card.userData = null;
+        }
+
+        private string _heldId;
+        private eGridDragKind _heldKind;
+        private float _fallbackAt = -1f;
+        private string _fallbackId;
+        private eGridDragKind _fallbackKind;
+
+        /// <summary>
+        /// 좌표 맞춤이 어긋나거나 옛 보관함이 놓음을 못 받은 경우를 위한 안전장치.
+        /// 보관함 표시 영역 위에서 마우스를 놓았는데 그 유닛이 아직 전장에 놓여 있으면, 놓은 다음 프레임에 직접 보관한다.
+        /// </summary>
+        private void TrackStoreFallback(bool dragging)
+        {
+            var manager = _runner != null ? _runner.Manager : null;
+            if (manager == null) return;
+            var mouse = Mouse.current;
+            if (dragging)
+            {
+                _heldId = manager.SelectedId;
+                _heldKind = manager.DragKind;
+            }
+            bool released = mouse != null && mouse.leftButton.wasReleasedThisFrame;
+            if (released && !string.IsNullOrEmpty(_heldId) && TryGetScreenRect(out var rect) && rect.Contains(mouse.position.ReadValue()))
+            {
+                _fallbackId = _heldId; _fallbackKind = _heldKind;
+                _fallbackAt = Time.unscaledTime + 0.1f; // 옛 보관함의 처리가 끝난 뒤에 확인한다
+            }
+            if (released || (!dragging && !manager.HasSelection)) _heldId = null;
+
+            if (_fallbackAt < 0f || Time.unscaledTime < _fallbackAt) return;
+            _fallbackAt = -1f;
+            if (manager.Phase != eGridPhase.PREPARATION || manager.HasPendingStorage) return;
+            bool stillPlaced = false;
+            if (_fallbackKind == eGridDragKind.UNIT)
+            { foreach (var unit in manager.Units) if (unit.InstanceId == _fallbackId) stillPlaced = unit.IsPlaced; }
+            else if (_fallbackKind == eGridDragKind.BLOCK)
+            { foreach (var block in manager.Blocks) if (block.InstanceId == _fallbackId) stillPlaced = block.IsPlaced; }
+            if (!stillPlaced || manager.HasSelection) return;
+            bool began = _fallbackKind == eGridDragKind.UNIT ? manager.BeginUnitDrag(_fallbackId) : manager.BeginBlockDrag(_fallbackId);
+            if (!began) return;
+            var failure = manager.GetTrayDropFailure();
+            if (failure != ePlacementFailure.NONE)
+            {
+                manager.CancelDrag();
+                ShowFail(failure);
+                return;
+            }
+            if (!manager.DropToTray() && !manager.HasPendingStorage) manager.CancelDrag();
+            else if (manager.HasPendingStorage) ShowFail(ePlacementFailure.STORAGE_PENDING);
+        }
+
+        private float _failUntil;
+        private string _failText = string.Empty;
+
+        /// <summary>보관할 수 없을 때 이유를 보관함 자리에 잠깐 알려 준다(말없이 되돌아가면 안 되는 건지 버그인지 알 수 없다).</summary>
+        private void ShowFail(ePlacementFailure failure)
+        {
+            switch (failure)
+            {
+                case ePlacementFailure.DISCONNECTED: _failText = "이 발판을 빼면 다른 칸이 끊겨서 보관할 수 없어요"; break;
+                case ePlacementFailure.CANNOT_STORE_EXPANSION: _failText = "확장 영역은 보관할 수 없어요"; break;
+                case ePlacementFailure.STORAGE_PENDING: _failText = "보관함이 가득 찼어요. 버릴 카드를 골라 주세요"; break;
+                default: _failText = "지금은 보관할 수 없어요"; break;
+            }
+            _failUntil = Time.unscaledTime + 1.6f;
+        }
+
+        private void UpdateFail()
+        {
+            if (!TryGetScreenRect(out var rect)) { _overlay.enabled = false; return; }
+            float k = Mathf.Clamp01((_failUntil - Time.unscaledTime) / 0.4f);
+            _box.anchoredPosition = rect.position;
+            _box.sizeDelta = rect.size;
+            _fill.color = new Color(0.9f, 0.3f, 0.28f, 0.4f * k);
+            _outline.effectColor = new Color(1f, 0.6f, 0.55f, k);
+            _label.text = _failText;
+            _subLabel.text = string.Empty;
+            _label.color = new Color(1f, 0.92f, 0.9f, k);
+            if (_arrow != null) _arrow.enabled = false;
+        }
 
         // ───────────── 드롭 존 표시 (uGUI 오버레이)
 

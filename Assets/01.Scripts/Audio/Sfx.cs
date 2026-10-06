@@ -18,6 +18,10 @@ public static class Sfx
     /// <summary>옵션 화면 등에서 쓸 런타임 마스터 볼륨(0~1). 카탈로그 masterVolume과 곱해진다.</summary>
     public static float MasterVolume { get; set; } = 1f;
     public static bool Muted { get; set; }
+    /// <summary>배경음악만 끈다(설정 창의 배경음악 토글). Muted 와 별개.</summary>
+    public static bool BgmMuted { get; set; }
+    /// <summary>효과음만 끈다(설정 창의 효과음 토글). Muted 와 별개.</summary>
+    public static bool SfxMuted { get; set; }
 
     // 에디터 도메인 리로드 비활성 환경에서도 이전 플레이의 시간 기록/캐시가 남지 않게 초기화.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -29,6 +33,8 @@ public static class Sfx
         _lastClipIndex = null;
         MasterVolume = 1f;
         Muted = false;
+        BgmMuted = false;
+        SfxMuted = false;
     }
 
     private static SfxCatalogSO Catalog
@@ -48,7 +54,7 @@ public static class Sfx
     public static void PlayBattleBgm()
     {
         SfxCatalogSO catalog = Catalog;
-        if (Muted || catalog == null || catalog.battleBgm == null)
+        if (Muted || BgmMuted || catalog == null || catalog.battleBgm == null)
         {
             return;
         }
@@ -60,7 +66,7 @@ public static class Sfx
 
     public static void Play(SfxId id)
     {
-        if (Muted)
+        if (Muted || SfxMuted)
         {
             return;
         }

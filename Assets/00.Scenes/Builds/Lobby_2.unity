@@ -111590,6 +111590,11 @@ GameObject:
   - component: {fileID: 6666700005}
   - component: {fileID: 6666700006}
   - component: {fileID: 6666700007}
+  - component: {fileID: 6666700008}
+  - component: {fileID: 6666700009}
+  - component: {fileID: 6666700010}
+  - component: {fileID: 6666700011}
+  - component: {fileID: 6666700012}
   m_Layer: 0
   m_Name: TutorialBridge
   m_TagString: Untagged
@@ -111672,6 +111677,73 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0a5c975842653ee932471f8fcb0236c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.LobbyDifficultyLock
+--- !u!114 &6666700008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666700001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d44ca7accc4525887e7482f54af1341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.SceneBgm
+  _clip: {fileID: 8300000, guid: 3858b391ef4699543b00a0eabc73477e, type: 3}
+  _volume: 0.1
+--- !u!114 &6666700009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666700001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27e76c0ddba7512986ddfd9e830b7293, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.AudioSettingsWire
+--- !u!114 &6666700010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666700001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4912a5a27dcc5f94920ea34340f2018d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.AchievementLobbySync
+  _catalog: {fileID: 11400000, guid: 398f469122144104994c603ce9832bf7, type: 2}
+  _state: {fileID: 0}
+  _interval: 0.5
+--- !u!114 &6666700011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666700001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c31a106a294533591bd66d33a62c658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.LobbyRecordBridge
+--- !u!114 &6666700012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666700001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2021bd558a25f26b805dadd85cc095d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiTextFit
+  _minScale: 0.55
+  _scanSeconds: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace OZGL2.Grid
 {
@@ -23,6 +24,15 @@ namespace OZGL2.Grid
         {
             if (string.IsNullOrWhiteSpace(runId)) throw new ArgumentException("External run ID required.");
             RunId = runId; Grid = new GridManager(definition, canFuse);
+        }
+        /// <summary>저장된 판을 이어한다. 이미 깬 웨이브 수와 배치를 되돌린다(준비를 열기 전에 한 번만 호출).</summary>
+        public void RestoreProgress(int completedRounds, bool awaitingReward, IEnumerable<Vector2Int> floor, IEnumerable<ExpansionPlacement> expansions,
+            IEnumerable<BlockPlacement> blocks, IEnumerable<UnitPlacement> units)
+        {
+            if (IsEnded || CompletedRounds != 0) throw new InvalidOperationException("Only a fresh session can be restored.");
+            // 보상을 고르기 전이면 "방금 그 웨이브를 막 이긴" 상태로 둔다(전투 종료 처리가 보상 단계를 열어 준다)
+            Grid.RestoreState(floor, expansions, blocks, units, awaitingReward ? eGridPhase.BATTLE : eGridPhase.WAITING);
+            CompletedRounds = Math.Max(0, awaitingReward ? completedRounds - 1 : completedRounds);
         }
         private bool CanHandle(string runId) => !IsEnded && !_isChanging && runId == RunId;
         public bool TryAllowPreparation(string runId, int round, bool canSkip)
@@ -58,10 +68,10 @@ namespace OZGL2.Grid
         }
         private bool CanChooseReward(string runId, string rewardId) => CanHandle(runId) &&
             !Grid.HasPendingStorage && rewardId != null && rewardId == PendingRewardId && !_hasResolvedReward && Grid.Phase == eGridPhase.REWARD;
-        public bool TryChooseExpansion(string runId, string rewardId)
+        public bool TryChooseExpansion(string runId, string rewardId, FootprintDefinition shape = null)
         {
-            if (!CanChooseReward(runId, rewardId) || !Grid.CanExpand) return false;
-            return ApplyReward(rewardId, () => Grid.TryAcceptExpansionReward());
+            if (!CanChooseReward(runId, rewardId) || !Grid.CanExpandWith(shape)) return false;
+            return ApplyReward(rewardId, () => Grid.TryAcceptExpansionReward(shape));
         }
         public bool TryChooseUnit(string runId, string rewardId, UnitDefinition definition, FootprintDefinition shape)
         {

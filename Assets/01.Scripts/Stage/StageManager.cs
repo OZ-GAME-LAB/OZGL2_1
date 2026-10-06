@@ -74,13 +74,49 @@ namespace OZGL2.Stage
                     ?? throw new InvalidOperationException("Stage data source returned null.");
                 TotalRounds = stage.Rounds.Count;
                 _runProgress = new StageRunProgress(stage);
+                // 저장된 판이 있으면 그 웨이브까지는 이미 깬 것으로 두고 다음 웨이브부터 시작한다(배치·증강은 세션이 되돌린다)
+                var resume = OZGL2.Progression.RunResume.Begin(stage.StageId, stage.Rounds.Count);
+                int startIndex = 0;
+                if (resume != null)
+                {
+                    for (int number = 1; number <= resume.clearedRounds; number++)
+                    {
+                        _runProgress.BeginRound(number);
+                        _runProgress.RecordRound(number, new RoundResult(eBattleResult.VICTORY, 0));
+                    }
+                    startIndex = resume.clearedRounds;
+                    ClearedRoundCount = resume.clearedRounds;
+                }
                 _snapshot = _runProgress.CreateSnapshot();
                 SetState(eStageState.INITIALIZING);
                 await _session.BeginAsync(new StageRunContext(_snapshot.RunId, stage.StageId), cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 await SaveProgressAsync(cancellationToken);
 
-                for (int index = 0; index < stage.Rounds.Count; index++)
+                // 보상을 고르기 전에 멈춘 판이면, 다음 웨이브 준비에 들어가기 전에 못 받은 보상을 먼저 받는다
+                if (resume != null && resume.rewardStage > 0)
+                {
+                    var done = stage.Rounds[resume.clearedRounds - 1];
+                    CurrentRoundNumber = resume.clearedRounds;
+                    if (resume.rewardStage == 1)
+                    {
+                        SetState(eStageState.GENERAL_REWARD);
+                        await _rewards.SelectGeneralRewardAsync(_runProgress.CreateRewardRequest(eRewardKind.GENERAL), done.RewardId, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    _runProgress.MarkRewardApplied(eRewardKind.GENERAL);
+                    await SaveProgressAsync(cancellationToken);
+                    if (done.IsBossRound)
+                    {
+                        SetState(eStageState.AUGMENT);
+                        await _rewards.SelectAugmentAsync(_runProgress.CreateRewardRequest(eRewardKind.AUGMENT), done.AugmentWeights, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        _runProgress.MarkRewardApplied(eRewardKind.AUGMENT);
+                        await SaveProgressAsync(cancellationToken);
+                    }
+                }
+
+                for (int index = startIndex; index < stage.Rounds.Count; index++)
                 {
                     CurrentRoundNumber = index + 1;
                     _runProgress.BeginRound(CurrentRoundNumber);
