@@ -534,3 +534,5 @@ MonoBehaviour:
     _silverWeight: 0
     _goldWeight: 0
     _platinumWeight: 100
+  _hpMultiplierRate: 1.036
+  _attackMultiplierRate: 1.024

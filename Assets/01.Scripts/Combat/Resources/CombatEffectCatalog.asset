@@ -18,3 +18,13 @@ MonoBehaviour:
   saintCastEffect: {fileID: 2109265670193391445, guid: 576198ea9dedc445fa23b00f1a129ab2, type: 3}
   slowEffect: {fileID: 627165214748452005, guid: 72059c37aa41d4fb3a5424520a156393, type: 3}
   effectScale: 0.5
+  hitEffectScaleMultiplier: 0.5
+  hitEffectAlpha: 0.5
+  showDamageNumbers: 1
+  damageNumberFontSize: 3
+  heroDamageColor: {r: 1, g: 0.95, b: 0.6, a: 1}
+  demonArmyDamageColor: {r: 1, g: 0.4, b: 0.4, a: 1}
+  healNumberColor: {r: 0.4, g: 1, b: 0.45, a: 1}
+  damageNumberHeightRatio: 0.55
+  damageNumberRiseDistance: 0.5
+  damageNumberDuration: 0.7

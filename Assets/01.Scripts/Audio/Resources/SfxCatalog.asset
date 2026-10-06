@@ -1,0 +1,189 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a59edebb899e40d39883e38400a4944e, type: 3}
+  m_Name: SfxCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::SfxCatalogSO
+  masterVolume: 1
+  battleBgm: {fileID: 8300000, guid: 4273b30b276fa524f8a9b5dd929ef3b5, type: 3}
+  bgmVolume: 0.1
+  entries:
+  - label: BattleStart
+    id: 0
+    clips: []
+    volume: 1.0
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 0.5
+  - label: BossAppear
+    id: 1
+    clips:
+    - {fileID: 8300000, guid: 0594c5962072ffa439bcfe63fb6ab327, type: 3}
+    volume: 1.0
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 1.0
+  - label: AttackMelee
+    id: 2
+    clips:
+    - {fileID: 8300000, guid: 3ff91dd30c92b2448a1d50753d0d6b00, type: 3}
+    - {fileID: 8300000, guid: 2da4d37bdde69074fae56e2192655567, type: 3}
+    - {fileID: 8300000, guid: d64eb9b9171fae141a12f5e9ecd4af4b, type: 3}
+    volume: 0.6
+    pitchRange: {x: 0.9, y: 1.1}
+    minInterval: 0.06
+  - label: ShootArrow
+    id: 3
+    clips:
+    - {fileID: 8300000, guid: c57f5ec8394487745a314df0a08264fb, type: 3}
+    volume: 0.6
+    pitchRange: {x: 0.95, y: 1.1}
+    minInterval: 0.06
+  - label: CastMagic
+    id: 4
+    clips: []
+    volume: 0.7
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.1
+  - label: Hit
+    id: 5
+    clips:
+    - {fileID: 8300000, guid: ad15e51aabc684041a322950a6830acc, type: 3}
+    - {fileID: 8300000, guid: c46c62b431c86be428472b57789f13a1, type: 3}
+    - {fileID: 8300000, guid: 5ab71c32bb020304fa7371647130378e, type: 3}
+    volume: 0.5
+    pitchRange: {x: 0.9, y: 1.1}
+    minInterval: 0.04
+  - label: Heal
+    id: 6
+    clips:
+    - {fileID: 8300000, guid: f2e14b48189658d4e9daf91bd68e1761, type: 3}
+    volume: 0.5
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 0.15
+  - label: DeathHero
+    id: 7
+    clips:
+    - {fileID: 8300000, guid: 314465546fa81464ca39fe25fd922a00, type: 3}
+    volume: 0.6
+    pitchRange: {x: 0.9, y: 1.1}
+    minInterval: 0.05
+  - label: DeathAlly
+    id: 8
+    clips:
+    - {fileID: 8300000, guid: 0f491067fa8985740a8878b7b11f3e0a, type: 3}
+    volume: 0.7
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.1
+  - label: LevelUp
+    id: 9
+    clips:
+    - {fileID: 8300000, guid: 25b841967ee3524459339e7c83183bde, type: 3}
+    volume: 0.8
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 0.5
+  - label: Victory
+    id: 10
+    clips:
+    - {fileID: 8300000, guid: e7fd4177a76fd0447b695dfb60e8cf10, type: 3}
+    - {fileID: 8300000, guid: 66aee2f271e5390418262cab38a620be, type: 3}
+    - {fileID: 8300000, guid: a699a87c361e58c40ae9083a0b3ec489, type: 3}
+    - {fileID: 8300000, guid: 374c786e9aca8a249828875a2ed008d5, type: 3}
+    volume: 1.0
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 1.0
+  - label: Defeat
+    id: 11
+    clips:
+    - {fileID: 8300000, guid: b8be1a79e0e32f54591256ec5a8e010f, type: 3}
+    - {fileID: 8300000, guid: 62aacb542f803654b9737f383bea98d8, type: 3}
+    volume: 1.0
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 1.0
+  - label: HitMagic
+    id: 12
+    clips:
+    - {fileID: 8300000, guid: 8985df7f984c83041a06c96b2a307ce9, type: 3}
+    volume: 0.5
+    pitchRange: {x: 0.9, y: 1.1}
+    minInterval: 0.08
+  - label: RoundClear
+    id: 13
+    clips:
+    - {fileID: 8300000, guid: 78d43e0c883d6b84ca16970fcbce930f, type: 3}
+    volume: 1.0
+    pitchRange: {x: 1.0, y: 1.0}
+    minInterval: 0.5
+  - label: UiHover
+    id: 14
+    clips: []
+    volume: 0.3
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.05
+  - label: UiClick
+    id: 15
+    clips: []
+    volume: 0.7
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - label: UiCancel
+    id: 16
+    clips:
+    - {fileID: 8300000, guid: fe0512c041563334ebdf70a0a4047c1e, type: 3}
+    volume: 0.7
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - label: UiError
+    id: 17
+    clips:
+    - {fileID: 8300000, guid: 655be69784c5e5e4fbe98ff13f309950, type: 3}
+    volume: 0.7
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.15
+  - label: UnitPlace
+    id: 18
+    clips:
+    - {fileID: 8300000, guid: 95c1bdb2c93933b49b94598a4099bf46, type: 3}
+    volume: 0.8
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - label: UnitReturn
+    id: 19
+    clips:
+    - {fileID: 8300000, guid: 026c0f1a4fbf9f342b0e9c56f27d9692, type: 3}
+    volume: 0.8
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.05
+  - label: UnitGain
+    id: 20
+    clips:
+    - {fileID: 8300000, guid: 3906b684e141523478d8e2fb3a70c08b, type: 3}
+    volume: 0.7
+    pitchRange: {x: 0.95, y: 1.05}
+    minInterval: 0.1
+  - label: Fusion
+    id: 21
+    clips:
+    - {fileID: 8300000, guid: 4fc443061fd4438d808207ed27db0e4c, type: 3}
+    volume: 0.1
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.2
+  - label: RewardOpen
+    id: 22
+    clips: []
+    volume: 0.8
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.3
+  - label: RewardPick
+    id: 23
+    clips:
+    - {fileID: 8300000, guid: 8d5a6a836dcfd254c9ffc97dba1a901e, type: 3}
+    volume: 0.8
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.2

@@ -122,30 +122,81 @@ namespace OZGL2.Stage
                 }
             }
         }
+        /// <summary>true면 직업별로 몰아서 내보내지 않고 모든 직업을 비율대로 섞어서 한 줄로 내보낸다(보스는 맨 마지막).</summary>
+        private static readonly bool InterleaveSpawns = true;
+
+        private readonly struct SpawnSlot
+        {
+            public readonly string HeroId;
+            public readonly float IntervalSeconds;
+            public SpawnSlot(string heroId, float intervalSeconds) { HeroId = heroId; IntervalSeconds = intervalSeconds; }
+        }
+
+        /// <summary>
+        /// 라운드의 스폰 목록을 실제로 내보낼 순서로 펼친다. 시트 순서(전사 전부 → 방패병 전부 → …)는 근접이 먼저 다 죽고
+        /// 원거리가 뒤에 한꺼번에 몰려 오는 흐름을 만들어서, 직업별 수를 균등한 간격으로 섞는다(예: 6:4면 A B A B A A B A B A ...).
+        /// 각 항목의 k번째 개체에 (k+0.5)/수량 위치를 주고 그 위치 순으로 정렬하는 방식이라 항상 같은 결과가 나온다.
+        /// </summary>
+        private static List<SpawnSlot> BuildSpawnOrder(RoundDefinition round)
+        {
+            var slots = new List<SpawnSlot>();
+            if (!InterleaveSpawns)
+            {
+                foreach (var entry in round.Spawns)
+                    for (int index = 0; index < entry.Count; index++) slots.Add(new SpawnSlot(entry.HeroId, entry.IntervalSeconds));
+                return slots;
+            }
+
+            var mixed = new List<(float position, int entryIndex, int index, SpawnSlot slot)>();
+            var tail = new List<SpawnSlot>();
+            int entryNumber = 0;
+            foreach (var entry in round.Spawns)
+            {
+                bool isBoss = entry.HeroId.IndexOf("BOSS", StringComparison.OrdinalIgnoreCase) >= 0;
+                for (int index = 0; index < entry.Count; index++)
+                {
+                    var slot = new SpawnSlot(entry.HeroId, entry.IntervalSeconds);
+                    if (isBoss) tail.Add(slot);
+                    else mixed.Add(((index + 0.5f) / entry.Count, entryNumber, index, slot));
+                }
+                entryNumber++;
+            }
+
+            mixed.Sort((a, b) =>
+            {
+                int byPosition = a.position.CompareTo(b.position);
+                if (byPosition != 0) return byPosition;
+                int byEntry = a.entryIndex.CompareTo(b.entryIndex);
+                return byEntry != 0 ? byEntry : a.index.CompareTo(b.index);
+            });
+            foreach (var item in mixed) slots.Add(item.slot);
+            slots.AddRange(tail);
+            return slots;
+        }
+
         private async Task SpawnAsync(RoundDefinition round, CancellationToken token)
         {
             float previousInterval = 0;
             int spawnIndex = 0;
-            foreach (var entry in round.Spawns)
-                for (int index = 0; index < entry.Count; index++)
+            foreach (var slot in BuildSpawnOrder(round))
+            {
+                if (previousInterval > 0)
+                    await Task.Delay(TimeSpan.FromSeconds(previousInterval), token);
+                token.ThrowIfCancellationRequested();
+                var lease = _pool.Rent(slot.HeroId, _spawnPositions[spawnIndex], _deathHandler, _returnHandler, _faultHandler);
+                spawnIndex = (spawnIndex + 1) % _spawnPositions.Length;
+                if (round.HpMultiplier != 1f || round.AttackMultiplier != 1f)
                 {
-                    if (previousInterval > 0)
-                        await Task.Delay(TimeSpan.FromSeconds(previousInterval), token);
-                    token.ThrowIfCancellationRequested();
-                    var lease = _pool.Rent(entry.HeroId, _spawnPositions[spawnIndex], _deathHandler, _returnHandler, _faultHandler);
-                    spawnIndex = (spawnIndex + 1) % _spawnPositions.Length;
-                    if (round.HpMultiplier != 1f || round.AttackMultiplier != 1f)
-                    {
-                        var unit = lease.Hero.GetComponent<UnitBase>();
-                        if (unit != null) unit.ApplyRoundDifficultyMultiplier(round.HpMultiplier, round.AttackMultiplier);
-                    }
-                    _leased.Add(lease.LeaseId, lease);
-                    _alive.Add(lease.LeaseId, lease);
-                    _experience.Add(lease.LeaseId, _pool.GetExperience(entry.HeroId));
-                    // OnEnable에서 사망 통지가 와도 먼저 등록된 대여만 처리한다.
-                    lease.Hero.gameObject.SetActive(true);
-                    previousInterval = entry.IntervalSeconds;
+                    var unit = lease.Hero.GetComponent<UnitBase>();
+                    if (unit != null) unit.ApplyRoundDifficultyMultiplier(round.HpMultiplier, round.AttackMultiplier);
                 }
+                _leased.Add(lease.LeaseId, lease);
+                _alive.Add(lease.LeaseId, lease);
+                _experience.Add(lease.LeaseId, _pool.GetExperience(slot.HeroId));
+                // OnEnable에서 사망 통지가 와도 먼저 등록된 대여만 처리한다.
+                lease.Hero.gameObject.SetActive(true);
+                previousInterval = slot.IntervalSeconds;
+            }
             _isSpawningComplete = true;
         }
         private void RecordHeroFault(HeroLease lease, Exception exception)

@@ -34,6 +34,7 @@ public class Projectile : MonoBehaviour
 
     public float maxTravelDistance = 20f; // 아무도 못 맞히고 계속 날아갈 때 소멸시키는 최대 거리
 
+    private HitSoundKind hitSoundKind = HitSoundKind.Physical; // 명중 시 대상이 내는 피격음 종류(화살=Physical, 마법=Magic)
     private UnitBase originalTarget;
     private UnitSide enemySide;
     private Vector3 direction;
@@ -46,10 +47,14 @@ public class Projectile : MonoBehaviour
     private int splashMaxTargets;
 
     private const float HitDistance = 0.15f;
+    // 유닛 스프라이트(파츠별 sortingOrder 0~25)와 이펙트에 가려지지 않게 위로 올린다. 체력바(1000)·데미지 숫자(2000)보다는 아래.
+    private const int SortingOrderOffset = 900;
 
     public void Init(UnitBase targetUnit, int damageAmount, float moveSpeed, Vector2 spriteDefaultFacing,
-        float splashRadiusAmount = 0f, float splashSecondaryDamagePercentAmount = 1f, int splashMaxTargetsAmount = 0)
+        float splashRadiusAmount = 0f, float splashSecondaryDamagePercentAmount = 1f, int splashMaxTargetsAmount = 0,
+        HitSoundKind hitSound = HitSoundKind.Physical)
     {
+        hitSoundKind = hitSound;
         originalTarget = targetUnit;
         damage = damageAmount;
         speed = moveSpeed;
@@ -67,6 +72,16 @@ public class Projectile : MonoBehaviour
         }
 
         FaceDirection(direction);
+        RaiseSortingOrder();
+    }
+
+    /// <summary>프리팹 안의 모든 렌더러(스프라이트·파티클·트레일)를 원래 순서를 유지한 채 위 레이어로 올린다.</summary>
+    private void RaiseSortingOrder()
+    {
+        foreach (Renderer projectileRenderer in GetComponentsInChildren<Renderer>(true))
+        {
+            projectileRenderer.sortingOrder += SortingOrderOffset;
+        }
     }
 
     private void OnEnable()
@@ -148,7 +163,7 @@ public class Projectile : MonoBehaviour
 
     private void Hit(UnitBase target)
     {
-        target.TakeDamage(damage);
+        target.TakeDamage(damage, hitSoundKind);
         ApplySplashDamage(target);
         Destroy(gameObject);
     }
@@ -190,7 +205,7 @@ public class Projectile : MonoBehaviour
 
         for (int i = 0; i < hitCount; i++)
         {
-            inRange[i].unit.TakeDamage(secondaryDamage);
+            inRange[i].unit.TakeDamage(secondaryDamage, hitSoundKind);
         }
     }
 
