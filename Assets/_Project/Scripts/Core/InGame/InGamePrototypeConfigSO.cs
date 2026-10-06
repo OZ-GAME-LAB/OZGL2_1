@@ -40,9 +40,13 @@ namespace OZGL2.InGame
         public Vector2Int InitialAnchor => _initialAnchor;
         public string LobbyScenePath => _lobbyScenePath;
         public HeroPoolCatalogSO HeroPoolCatalog => _heroPoolCatalog;
-        public Vector3 HeroSpawnPosition => CreateHeroSpawnPositions()[1];
+        public Vector3 HeroSpawnPosition { get { var p = CreateHeroSpawnPositions(); return p[Mathf.Min(1, p.Length - 1)]; } }
+        /// <summary>선택 사항: 지정하면 용사 스폰 위치를 이 함수가 돌려준 목록으로 대신한다(난이도별 막사 배치용). 비어 있으면 기존 계산을 쓴다.</summary>
+        public static System.Func<Vector3[]> HeroSpawnOverride { get; set; }
         public Vector3[] CreateHeroSpawnPositions()
         {
+            var overridden = HeroSpawnOverride != null ? HeroSpawnOverride() : null;
+            if (overridden != null && overridden.Length > 0) return overridden;
             var size = _catalog.CreateDefinition().MaximumSize;
             if (!float.IsFinite(_heroSpawnTopMargin) || _heroSpawnTopMargin <= 0 ||
                 !float.IsFinite(_heroSpawnHorizontalInset) || _heroSpawnHorizontalInset < 0 ||

@@ -25,6 +25,13 @@ namespace OZGL2.UIBridge
         [SerializeField, Tooltip("로고 이미지가 없을 때 대신 보이는 글자 제목")] private string _gameTitle = "용사 때문에 레벨업";
         [SerializeField, Min(0.1f)] private float _fadeSeconds = 0.45f;
         [SerializeField, Range(0f, 80f), Tooltip("마우스에 따라 배경이 움직이는 정도(시차)")] private float _parallax = 30f;
+        [Header("희수 UI 조각(메뉴·설정 창)")]
+        [SerializeField, Tooltip("창·단추 프레임(Frame_WavePreview_Flat, 9분할)")] private Sprite _panelFrame;
+        [SerializeField, Tooltip("창 제목 이름표(Frame_SynergyNameplate_Flat, 9분할)")] private Sprite _namePlate;
+        [SerializeField, Tooltip("으뜸 단추 붉은 배너(Frame_StartCombat_Flat, 고정 비율)")] private Sprite _startBanner;
+        [SerializeField, Tooltip("모서리 마름모(Ornament_Diamond_Flat)")] private Sprite _cornerDiamond;
+        [SerializeField, Tooltip("이름표 양옆 장식(Ornament_WaveTitle_Flat)")] private Sprite _titleOrnament;
+        [SerializeField, Tooltip("배너 마름모 안 아이콘(Icon_CrossedSwords_Casual)")] private Sprite _swordsIcon;
 
         private TMP_FontAsset _font;
         private RectTransform _logoRect, _sun, _mountains, _hillsFar, _forestFar, _castleNear, _village, _hillsNear, _forestNear;
@@ -42,9 +49,8 @@ namespace OZGL2.UIBridge
         private RectTransform _starsRoot;
         private GameObject _settingsPanel, _confirmPanel;
         private TMP_Text _volumeLabel, _tutorialLabel;
-        private Image _toggleTrack, _toggleKnob;
+        private TMP_Text _fullscreenLabel;
         private bool _fullscreenOn;
-        private float _toggleK;
         private readonly List<(RectTransform rt, CanvasGroup group, Vector2 end, float delay)> _intro = new List<(RectTransform, CanvasGroup, Vector2, float)>();
         private float _tutorialLabelResetAt;
         private const string VolumeKey = "OZGL2.Volume";
@@ -77,12 +83,6 @@ namespace OZGL2.UIBridge
             AnimateIntro(t);
             AnimateParallax(dt);
 
-            if (_settingsPanel != null && _settingsPanel.activeSelf && _toggleTrack != null)
-            {
-                _toggleK = Mathf.MoveTowards(_toggleK, _fullscreenOn ? 1f : 0f, dt * 7f);
-                _toggleTrack.color = Color.Lerp(new Color(1f, 1f, 1f, 0.18f), new Color(1f, 0.79f, 0.36f, 1f), _toggleK);
-                _toggleKnob.rectTransform.anchoredPosition = new Vector2(Mathf.Lerp(-29f, 29f, _toggleK), 0f);
-            }
             if (_tutorialLabel != null && _tutorialLabelResetAt > 0f && t > _tutorialLabelResetAt) { _tutorialLabel.text = "다시 보기"; _tutorialLabelResetAt = 0f; }
 
             var kb = Keyboard.current;
@@ -125,8 +125,14 @@ namespace OZGL2.UIBridge
         {
             if (_starting || _settingsPanel == null) return;
             _fullscreenOn = Screen.fullScreen;
-            _toggleK = _fullscreenOn ? 1f : 0f;
+            RefreshFullscreenLabel();
             _settingsPanel.SetActive(true);
+        }
+
+        private void RefreshFullscreenLabel()
+        {
+            if (_fullscreenLabel == null) return;
+            _fullscreenLabel.text = _fullscreenOn ? "켜짐" : "꺼짐";
         }
 
         private void CloseSettings()
@@ -155,6 +161,7 @@ namespace OZGL2.UIBridge
         {
             _fullscreenOn = !_fullscreenOn; // 에디터에서는 실제 창 모드가 바뀌지 않으므로 스위치는 따로 기억한다
             Screen.fullScreen = _fullscreenOn;
+            RefreshFullscreenLabel();
         }
 
         private void ResetTutorial()
@@ -308,28 +315,36 @@ namespace OZGL2.UIBridge
 
             // 9) 로고 아래 금빛 장식선 + 나무 단추 셋(게임 시작 · 설정 · 나가기)
             BuildDivider(root, new Vector2(0f, -62f));
+            // 으뜸 단추는 희수의 붉은 배너(가로:세로 = 500:194), 나머지는 같은 폭의 어두운 프레임. 모두 가운데 정렬.
+            const float menuW = 400f;
+            float bannerH = _startBanner != null ? menuW * 194f / 500f : 120f;
             float utilityY;
             if (SaveGame.HasSave)
             {
                 // 저장이 있으면: 이어하기(으뜸) + 저장 요약 + 처음부터
-                RegisterIntro(ButtonRect(MakeButton(root, "이어하기", new Vector2(0f, -145f), new Vector2(560f, 108f), 56f, true, ContinueGame)), 0.45f);
-                var summary = NewText("SaveSummary", root, 24f, new Color(1f, 0.92f, 0.76f, 0.85f), TextAlignmentOptions.Center);
+                float primaryY = -62f - 34f - bannerH * 0.5f;
+                RegisterIntro(ButtonRect(MakeButton(root, "이어하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 50f, true, ContinueGame)), 0.45f);
+                var summary = NewText("SaveSummary", root, 24f, new Color(0.93f, 0.87f, 0.75f, 0.95f), TextAlignmentOptions.Center);
                 summary.text = SaveGame.Summary();
+                summary.enableAutoSizing = true; summary.fontSizeMin = 16f; summary.fontSizeMax = 24f;
+                AddTextShadow(summary);
                 var sm = summary.rectTransform;
                 sm.anchorMin = sm.anchorMax = new Vector2(0.5f, 0.5f); sm.pivot = new Vector2(0.5f, 0.5f);
-                sm.sizeDelta = new Vector2(900f, 36f); sm.anchoredPosition = new Vector2(0f, -222f);
+                sm.sizeDelta = new Vector2(menuW + 120f, 34f); sm.anchoredPosition = new Vector2(0f, primaryY - bannerH * 0.5f - 24f);
                 RegisterIntro(sm, 0.55f);
-                RegisterIntro(ButtonRect(MakeButton(root, "처음부터", new Vector2(0f, -292f), new Vector2(560f, 80f), 42f, false, NewGameClicked)), 0.62f);
-                utilityY = -388f;
+                float secondY = primaryY - bannerH * 0.5f - 24f - 17f - 14f - 33f;
+                RegisterIntro(ButtonRect(MakeButton(root, "처음부터", new Vector2(0f, secondY), new Vector2(menuW, 66f), 38f, false, NewGameClicked)), 0.62f);
+                utilityY = secondY - 33f - 12f - 30f;
             }
             else
             {
                 // 저장이 없으면(처음 켠 경우): 시작하기 하나
-                RegisterIntro(ButtonRect(MakeButton(root, "시작하기", new Vector2(0f, -150f), new Vector2(560f, 108f), 58f, true, BeginNewGame)), 0.45f);
-                utilityY = -272f;
+                float primaryY = -62f - 34f - bannerH * 0.5f;
+                RegisterIntro(ButtonRect(MakeButton(root, "시작하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 54f, true, BeginNewGame)), 0.45f);
+                utilityY = primaryY - bannerH * 0.5f - 12f - 30f;
             }
-            RegisterIntro(ButtonRect(MakeButton(root, "설정", new Vector2(-145f, utilityY), new Vector2(270f, 76f), 40f, false, OpenSettings)), 0.75f);
-            RegisterIntro(ButtonRect(MakeButton(root, "나가기", new Vector2(145f, utilityY), new Vector2(270f, 76f), 40f, false, QuitGame)), 0.85f);
+            RegisterIntro(ButtonRect(MakeButton(root, "설정", new Vector2(-(menuW * 0.25f + 6f), utilityY), new Vector2(menuW * 0.5f - 6f, 60f), 34f, false, OpenSettings)), 0.75f);
+            RegisterIntro(ButtonRect(MakeButton(root, "나가기", new Vector2(menuW * 0.25f + 6f, utilityY), new Vector2(menuW * 0.5f - 6f, 60f), 34f, false, QuitGame)), 0.85f);
 
             // 10) 돌담 테두리 + 가장자리를 어둡게 하는 비네팅
             BuildFrame(root);
@@ -432,31 +447,27 @@ namespace OZGL2.UIBridge
             rt.anchoredPosition += new Vector2(0f, -46f);
         }
 
+        private static readonly Color Cream = new Color(0.93f, 0.87f, 0.75f), Gold = new Color(1f, 0.84f, 0.48f);
+
+        private static void AddTextShadow(TMP_Text text)
+        {
+            if (text.GetComponent<Shadow>() != null) return;
+            var shadow = text.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.75f);
+            shadow.effectDistance = new Vector2(2f, -2f);
+        }
+
         /// <summary>
-        /// 유리 느낌의 현대적인 단추. 으뜸 단추(primary)는 금빛으로 꽉 차 은은히 숨 쉬듯 빛나고, 나머지는 어두운 반투명 바탕에 가는 테두리.
-        /// 마우스를 올리면 살짝 커지고 테두리가 금빛으로 바뀌며 화살표가 미끄러져 나온다. danger 는 삭제 확인용 붉은 단추.
+        /// 희수의 UI 조각으로 만든 단추. 으뜸 단추는 붉은 배너(왼쪽 마름모에 칼 아이콘, 글자는 오른쪽 띠 안 가운데),
+        /// 나머지는 어두운 프레임에 크림색 글자. 글자는 칸 안에서 가운데 정렬되고 길면 자동으로 줄어 칸을 넘지 않는다.
+        /// 마우스를 올리면 살짝 커지며 밝아지고 빛이 번진다. danger 는 글자가 붉은 확인용 단추.
         /// </summary>
         private TMP_Text MakeButton(RectTransform parent, string label, Vector2 pos, Vector2 size, float fontSize, bool primary, UnityEngine.Events.UnityAction onClick, bool danger = false)
         {
-            Color fill, hoverFill, ring, hoverRing, text, hoverText, glowColor;
-            if (danger)
-            {
-                fill = new Color(0.84f, 0.26f, 0.30f); hoverFill = new Color(0.96f, 0.38f, 0.38f);
-                ring = new Color(1f, 0.78f, 0.72f, 0.85f); hoverRing = new Color(1f, 0.92f, 0.88f, 1f);
-                text = new Color(1f, 0.96f, 0.93f); hoverText = Color.white; glowColor = new Color(1f, 0.38f, 0.34f, 0.55f);
-            }
-            else if (primary)
-            {
-                fill = new Color(1f, 0.79f, 0.36f); hoverFill = new Color(1f, 0.88f, 0.56f);
-                ring = new Color(1f, 0.95f, 0.76f, 0.9f); hoverRing = new Color(1f, 1f, 0.92f, 1f);
-                text = new Color(0.22f, 0.11f, 0.04f); hoverText = new Color(0.18f, 0.08f, 0.02f); glowColor = new Color(1f, 0.74f, 0.30f, 0.60f);
-            }
-            else
-            {
-                fill = new Color(0.08f, 0.06f, 0.14f, 0.72f); hoverFill = new Color(0.22f, 0.15f, 0.28f, 0.90f);
-                ring = new Color(1f, 1f, 1f, 0.26f); hoverRing = new Color(1f, 0.82f, 0.42f, 1f);
-                text = new Color(0.95f, 0.91f, 0.85f); hoverText = new Color(1f, 0.93f, 0.72f); glowColor = new Color(1f, 0.78f, 0.38f, 0.40f);
-            }
+            bool banner = primary && !danger && _startBanner != null;
+            Color text = danger ? new Color(1f, 0.58f, 0.52f) : primary ? Gold : Cream;
+            Color hoverText = danger ? new Color(1f, 0.74f, 0.68f) : primary ? Color.white : Gold;
+            Color glowColor = primary ? new Color(1f, 0.5f, 0.34f, 0.5f) : new Color(0.93f, 0.87f, 0.75f, 0.30f);
 
             var hit = NewImage("Button_" + label, parent, null, Color.clear); // 눌리는 영역(보이지 않음)
             var rt = hit.rectTransform;
@@ -466,44 +477,103 @@ namespace OZGL2.UIBridge
             var glow = NewImage("Glow", rt, _glow, glowColor);
             glow.raycastTarget = false;
             var glr = glow.rectTransform;
-            glr.anchorMin = glr.anchorMax = new Vector2(0.5f, 0.5f); glr.sizeDelta = new Vector2(size.x * 1.35f, size.y * 2.1f);
+            glr.anchorMin = glr.anchorMax = new Vector2(0.5f, 0.5f); glr.sizeDelta = new Vector2(size.x * 1.25f, size.y * 1.9f);
 
-            var body = NewImage("Body", rt, _round, fill);
-            body.type = Image.Type.Sliced; body.raycastTarget = false;
+            Sprite sprite = banner ? _startBanner : (_panelFrame != null ? _panelFrame : _roundFlat);
+            bool art = banner || _panelFrame != null;
+            Color baseColor = art ? new Color(0.86f, 0.86f, 0.86f) : new Color(0.09f, 0.09f, 0.09f, 0.97f);
+            Color hoverColor = art ? Color.white : new Color(0.2f, 0.17f, 0.15f, 1f);
+            var body = NewImage("Body", rt, sprite, baseColor);
+            if (!banner) body.type = Image.Type.Sliced;
+            body.raycastTarget = false;
             Stretch(body.rectTransform);
-            var ringImg = NewImage("Ring", rt, _roundRing, ring);
-            ringImg.type = Image.Type.Sliced; ringImg.raycastTarget = false;
-            Stretch(ringImg.rectTransform);
-
-            var chevron = NewImage("Chevron", rt, _chevron, new Color(text.r, text.g, text.b, 0f));
-            chevron.raycastTarget = false;
-            var cr = chevron.rectTransform;
-            cr.anchorMin = cr.anchorMax = new Vector2(1f, 0.5f); cr.pivot = new Vector2(0.5f, 0.5f);
-            cr.sizeDelta = new Vector2(30f, 30f); cr.anchoredPosition = new Vector2(-size.y * 0.55f, 0f);
 
             var labelText = NewText("Label", rt, fontSize, text, TextAlignmentOptions.Center);
             labelText.text = label;
-            Stretch(labelText.rectTransform);
+            labelText.enableAutoSizing = true; labelText.fontSizeMin = fontSize * 0.5f; labelText.fontSizeMax = fontSize;
+            labelText.overflowMode = TextOverflowModes.Ellipsis;
+            AddTextShadow(labelText);
+            var lr = labelText.rectTransform;
+            if (banner)
+            {
+                // 왼쪽 마름모를 비우고 오른쪽 붉은 띠 안 가운데
+                lr.anchorMin = new Vector2(0.37f, 0.08f); lr.anchorMax = new Vector2(0.93f, 0.92f);
+                lr.offsetMin = lr.offsetMax = Vector2.zero;
+                if (_swordsIcon != null)
+                {
+                    var icon = NewImage("Icon", rt, _swordsIcon, Color.white);
+                    icon.preserveAspect = true; icon.raycastTarget = false;
+                    var ir = icon.rectTransform;
+                    ir.anchorMin = ir.anchorMax = new Vector2(0.176f, 0.5f); ir.pivot = new Vector2(0.5f, 0.5f);
+                    ir.sizeDelta = new Vector2(size.y * 0.4f, size.y * 0.4f);
+                    ir.anchoredPosition = Vector2.zero;
+                }
+            }
+            else
+            {
+                lr.anchorMin = Vector2.zero; lr.anchorMax = Vector2.one;
+                lr.offsetMin = new Vector2(18f, 6f); lr.offsetMax = new Vector2(-18f, -6f);
+            }
 
             var button = hit.gameObject.AddComponent<Button>();
             button.transition = Selectable.Transition.None;
             button.navigation = new Navigation { mode = Navigation.Mode.None };
             button.onClick.AddListener(onClick);
-            hit.gameObject.AddComponent<TitleButtonFx>().Setup(body, ringImg, glow, chevron, labelText, fill, hoverFill, ring, hoverRing, text, hoverText, glowColor, primary || danger);
+            hit.gameObject.AddComponent<TitleButtonFx>().Setup(body, null, glow, null, labelText, baseColor, hoverColor, Color.clear, Color.clear, text, hoverText, glowColor, primary || danger);
             return labelText;
         }
 
-        /// <summary>어두운 유리 카드: 거의 불투명한 남색 바탕에 금빛 가는 테두리.</summary>
-        private RectTransform MakeGlassPanel(RectTransform parent, Vector2 size)
+        /// <summary>
+        /// 창 틀(희수의 어두운 프레임): 네 모서리 마름모, 위 가장자리에 걸친 이름표(제목, 양옆 장식), 그 아래 머리줄.
+        /// 안쪽 내용은 창 가운데를 (0,0)으로 놓는다. 제목 글자는 이름표 안 가운데에 맞춰 자동으로 줄어든다.
+        /// </summary>
+        private RectTransform MakeFlatPanel(RectTransform parent, Vector2 size, string title, float plateWidth)
         {
-            var img = NewImage("Panel", parent, _roundFlat, new Color(0.06f, 0.05f, 0.11f, 0.96f));
+            var sprite = _panelFrame != null ? _panelFrame : _roundFlat;
+            var img = NewImage("Panel", parent, sprite, _panelFrame != null ? Color.white : new Color(0.09f, 0.09f, 0.09f, 0.98f));
             img.type = Image.Type.Sliced;
             var rt = img.rectTransform;
             rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0.5f, 0.5f);
             rt.sizeDelta = size;
-            var ring = NewImage("Ring", rt, _roundRing, new Color(1f, 0.82f, 0.42f, 0.55f));
-            ring.type = Image.Type.Sliced; ring.raycastTarget = false;
-            Stretch(ring.rectTransform);
+
+            if (_cornerDiamond != null)
+                foreach (var corner in new[] { new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(1f, 1f) })
+                {
+                    var d = NewImage("Corner", rt, _cornerDiamond, Color.white);
+                    d.raycastTarget = false;
+                    var dr = d.rectTransform;
+                    dr.anchorMin = dr.anchorMax = corner; dr.pivot = new Vector2(0.5f, 0.5f);
+                    dr.sizeDelta = new Vector2(34f, 34f);
+                    dr.anchoredPosition = Vector2.zero;
+                }
+
+            const float plateH = 78f;
+            var plate = NewImage("Plate", rt, _namePlate != null ? _namePlate : _roundFlat, _namePlate != null ? Color.white : new Color(0.3f, 0.1f, 0.1f, 1f));
+            plate.type = Image.Type.Sliced; plate.raycastTarget = false;
+            var pr = plate.rectTransform;
+            pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 1f); pr.pivot = new Vector2(0.5f, 0.5f);
+            pr.sizeDelta = new Vector2(plateWidth, plateH); pr.anchoredPosition = Vector2.zero;
+            var titleText = NewText("PlateText", pr, 44f, Gold, TextAlignmentOptions.Center);
+            titleText.text = title;
+            titleText.enableAutoSizing = true; titleText.fontSizeMin = 24f; titleText.fontSizeMax = 44f;
+            AddTextShadow(titleText);
+            Stretch(titleText.rectTransform);
+            titleText.rectTransform.offsetMin = new Vector2(20f, 8f); titleText.rectTransform.offsetMax = new Vector2(-20f, -8f);
+            if (_titleOrnament != null)
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    var o = NewImage("PlateOrnament", rt, _titleOrnament, Color.white);
+                    o.raycastTarget = false;
+                    var orr = o.rectTransform;
+                    orr.anchorMin = orr.anchorMax = new Vector2(0.5f, 1f); orr.pivot = new Vector2(0.5f, 0.5f);
+                    orr.sizeDelta = new Vector2(30f, 30f);
+                    orr.anchoredPosition = new Vector2(side * (plateWidth * 0.5f + 34f), 0f);
+                }
+            var line = NewImage("HeaderLine", rt, null, new Color(Cream.r, Cream.g, Cream.b, 0.5f));
+            line.raycastTarget = false;
+            var lr = line.rectTransform;
+            lr.anchorMin = lr.anchorMax = new Vector2(0.5f, 1f); lr.pivot = new Vector2(0.5f, 0.5f);
+            lr.sizeDelta = new Vector2(size.x - 120f, 2f); lr.anchoredPosition = new Vector2(0f, -(plateH * 0.5f + 20f));
             return rt;
         }
 
@@ -511,6 +581,7 @@ namespace OZGL2.UIBridge
         {
             var label = NewText("Label_" + text, parent, size, color, align);
             label.text = text;
+            AddTextShadow(label);
             var r = label.rectTransform;
             bool left = align == TextAlignmentOptions.Left;
             r.anchorMin = r.anchorMax = new Vector2(0.5f, 0.5f); r.pivot = new Vector2(left ? 0f : 0.5f, 0.5f);
@@ -526,42 +597,34 @@ namespace OZGL2.UIBridge
             r.anchorMin = r.anchorMax = new Vector2(0.5f, 0.5f); r.sizeDelta = new Vector2(width, 2f); r.anchoredPosition = new Vector2(0f, y);
         }
 
-        /// <summary>설정 창: 소리 크기 슬라이더, 전체화면 스위치, 마왕 설명 다시 보기. 바깥은 어둡게 덮여 뒤 화면을 누를 수 없다.</summary>
+        /// <summary>설정 창: 소리 크기 슬라이더, 전체화면 켜짐/꺼짐, 마왕 설명 다시 보기. 줄마다 제목은 왼쪽, 조절은 오른쪽에 같은 선으로 맞춘다.</summary>
         private void BuildSettings(RectTransform root)
         {
-            var dim = NewImage("SettingsDim", root, null, new Color(0f, 0f, 0f, 0.62f));
+            var dim = NewImage("SettingsDim", root, null, new Color(0f, 0f, 0f, 0.66f));
             Stretch(dim.rectTransform);
             _settingsPanel = dim.gameObject;
-            var panel = MakeGlassPanel(dim.rectTransform, new Vector2(840f, 640f));
-            Color cream = new Color(0.95f, 0.91f, 0.85f), gold = new Color(1f, 0.86f, 0.55f), line = new Color(1f, 1f, 1f, 0.10f);
+            var panel = MakeFlatPanel(dim.rectTransform, new Vector2(920f, 620f), "설정", 320f);
+            Color line = new Color(Cream.r, Cream.g, Cream.b, 0.22f);
+            const float left = -400f, rowW = 780f;
 
-            PlaceLabel(panel, "설정", 56f, gold, TextAlignmentOptions.Center, new Vector2(0f, 245f), new Vector2(600f, 80f));
-            Hairline(panel, 205f, 700f, new Color(1f, 0.82f, 0.42f, 0.5f));
-
-            // 소리 크기: 슬라이더
-            PlaceLabel(panel, "소리 크기", 40f, cream, TextAlignmentOptions.Left, new Vector2(-380f, 110f), new Vector2(300f, 64f));
+            // 소리 크기
+            PlaceLabel(panel, "소리 크기", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 130f), new Vector2(260f, 60f));
             var sliderGo = new GameObject("VolumeSlider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             sliderGo.transform.SetParent(panel, false);
             sliderGo.GetComponent<Image>().color = Color.clear; // 누를 수 있는 영역을 넓힌다
             var sr = (RectTransform)sliderGo.transform;
-            sr.anchorMin = sr.anchorMax = new Vector2(0.5f, 0.5f); sr.sizeDelta = new Vector2(330f, 56f); sr.anchoredPosition = new Vector2(80f, 110f);
-            var bar = NewImage("Bar", sr, _roundFlat, new Color(1f, 1f, 1f, 0.16f));
-            bar.type = Image.Type.Sliced; bar.raycastTarget = false;
+            sr.anchorMin = sr.anchorMax = new Vector2(0.5f, 0.5f); sr.sizeDelta = new Vector2(330f, 56f); sr.anchoredPosition = new Vector2(100f, 130f);
+            var bar = NewImage("Bar", sr, null, new Color(Cream.r, Cream.g, Cream.b, 0.28f));
+            bar.raycastTarget = false;
             bar.rectTransform.anchorMin = new Vector2(0f, 0.5f); bar.rectTransform.anchorMax = new Vector2(1f, 0.5f);
-            bar.rectTransform.sizeDelta = new Vector2(0f, 12f);
+            bar.rectTransform.sizeDelta = new Vector2(0f, 6f);
             var fillArea = NewRect("FillArea", sr);
-            fillArea.anchorMin = new Vector2(0f, 0.5f); fillArea.anchorMax = new Vector2(1f, 0.5f); fillArea.sizeDelta = new Vector2(0f, 12f);
-            var fill = NewImage("Fill", fillArea, _roundFlat, new Color(1f, 0.79f, 0.36f));
-            fill.type = Image.Type.Sliced;
+            fillArea.anchorMin = new Vector2(0f, 0.5f); fillArea.anchorMax = new Vector2(1f, 0.5f); fillArea.sizeDelta = new Vector2(0f, 6f);
+            var fill = NewImage("Fill", fillArea, null, Gold);
             var handleArea = NewRect("HandleArea", sr);
-            Stretch(handleArea); handleArea.offsetMin = new Vector2(19f, 0f); handleArea.offsetMax = new Vector2(-19f, 0f);
-            var handle = NewImage("Handle", handleArea, _dot, new Color(1f, 0.97f, 0.88f));
-            handle.rectTransform.sizeDelta = new Vector2(38f, 38f);
-            var handleGlow = NewImage("HandleGlow", handle.rectTransform, _glow, new Color(1f, 0.79f, 0.36f, 0.55f));
-            handleGlow.raycastTarget = false;
-            handleGlow.rectTransform.anchorMin = handleGlow.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            handleGlow.rectTransform.sizeDelta = new Vector2(100f, 100f);
-            handleGlow.rectTransform.SetAsFirstSibling();
+            Stretch(handleArea); handleArea.offsetMin = new Vector2(20f, 0f); handleArea.offsetMax = new Vector2(-20f, 0f);
+            var handle = NewImage("Handle", handleArea, _cornerDiamond != null ? _cornerDiamond : _dot, _cornerDiamond != null ? Color.white : Cream);
+            handle.rectTransform.sizeDelta = new Vector2(40f, 40f);
             var slider = sliderGo.AddComponent<Slider>();
             slider.fillRect = fill.rectTransform;
             slider.handleRect = handle.rectTransform;
@@ -570,54 +633,38 @@ namespace OZGL2.UIBridge
             slider.minValue = 0f; slider.maxValue = 1f;
             slider.transition = Selectable.Transition.None;
             slider.navigation = new Navigation { mode = Navigation.Mode.None };
-            _volumeLabel = PlaceLabel(panel, string.Empty, 40f, gold, TextAlignmentOptions.Right, new Vector2(330f, 110f), new Vector2(140f, 60f));
+            _volumeLabel = PlaceLabel(panel, string.Empty, 40f, Gold, TextAlignmentOptions.Right, new Vector2(340f, 130f), new Vector2(140f, 60f));
             slider.SetValueWithoutNotify(AudioListener.volume);
             _volumeLabel.text = Mathf.RoundToInt(AudioListener.volume * 100f) + "%";
             slider.onValueChanged.AddListener(SetVolume);
-            Hairline(panel, 52f, 700f, line);
+            Hairline(panel, 75f, rowW, line);
 
-            // 전체화면: 스위치
-            PlaceLabel(panel, "전체화면", 40f, cream, TextAlignmentOptions.Left, new Vector2(-380f, -10f), new Vector2(300f, 64f));
-            var toggle = NewImage("FullscreenToggle", panel, null, Color.clear);
-            var tr = toggle.rectTransform;
-            tr.anchorMin = tr.anchorMax = new Vector2(0.5f, 0.5f); tr.sizeDelta = new Vector2(116f, 58f); tr.anchoredPosition = new Vector2(310f, -10f);
-            _toggleTrack = NewImage("Track", tr, _roundFlat, new Color(1f, 1f, 1f, 0.18f));
-            _toggleTrack.type = Image.Type.Sliced; _toggleTrack.raycastTarget = false;
-            Stretch(_toggleTrack.rectTransform);
-            _toggleKnob = NewImage("Knob", tr, _dot, new Color(1f, 0.97f, 0.88f));
-            _toggleKnob.raycastTarget = false;
-            _toggleKnob.rectTransform.anchorMin = _toggleKnob.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _toggleKnob.rectTransform.sizeDelta = new Vector2(46f, 46f);
-            var toggleButton = toggle.gameObject.AddComponent<Button>();
-            toggleButton.transition = Selectable.Transition.None;
-            toggleButton.navigation = new Navigation { mode = Navigation.Mode.None };
-            toggleButton.onClick.AddListener(ToggleFullscreen);
-            Hairline(panel, -70f, 700f, line);
+            // 전체화면
+            PlaceLabel(panel, "전체화면", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, 20f), new Vector2(260f, 60f));
+            _fullscreenLabel = MakeButton(panel, "꺼짐", new Vector2(320f, 20f), new Vector2(170f, 62f), 36f, false, ToggleFullscreen);
+            Hairline(panel, -35f, rowW, line);
 
             // 마왕의 설명 다시 보기
-            PlaceLabel(panel, "마왕의 설명", 40f, cream, TextAlignmentOptions.Left, new Vector2(-380f, -130f), new Vector2(300f, 64f));
-            _tutorialLabel = MakeButton(panel, "다시 보기", new Vector2(250f, -130f), new Vector2(240f, 64f), 34f, false, ResetTutorial);
-            Hairline(panel, -190f, 700f, line);
+            PlaceLabel(panel, "마왕의 설명", 42f, Cream, TextAlignmentOptions.Left, new Vector2(left, -90f), new Vector2(260f, 60f));
+            _tutorialLabel = MakeButton(panel, "다시 보기", new Vector2(290f, -90f), new Vector2(230f, 62f), 34f, false, ResetTutorial);
+            Hairline(panel, -145f, rowW, line);
 
-            MakeButton(panel, "닫기", new Vector2(0f, -252f), new Vector2(320f, 84f), 44f, true, CloseSettings);
+            MakeButton(panel, "닫기", new Vector2(0f, -226f), new Vector2(320f, 72f), 40f, true, CloseSettings);
             _settingsPanel.SetActive(false);
         }
 
         /// <summary>처음부터를 눌렀을 때 뜨는 확인 창: 저장된 진행이 사라진다고 알리고 「삭제하고 시작」/「취소」를 묻는다.</summary>
         private void BuildConfirm(RectTransform root)
         {
-            var dim = NewImage("ConfirmDim", root, null, new Color(0f, 0f, 0f, 0.62f));
+            var dim = NewImage("ConfirmDim", root, null, new Color(0f, 0f, 0f, 0.66f));
             Stretch(dim.rectTransform);
             _confirmPanel = dim.gameObject;
-            var panel = MakeGlassPanel(dim.rectTransform, new Vector2(860f, 460f));
-
-            PlaceLabel(panel, "처음부터 시작할까?", 54f, new Color(1f, 0.86f, 0.55f), TextAlignmentOptions.Center, new Vector2(0f, 145f), new Vector2(760f, 80f));
-            Hairline(panel, 100f, 700f, new Color(1f, 0.82f, 0.42f, 0.5f));
-            var body = PlaceLabel(panel, "저장된 마왕 레벨, 특성, 스킬,\n마왕군 해금이 모두 사라지고\n튜토리얼도 처음부터 다시 나온다.", 36f, new Color(0.86f, 0.83f, 0.82f), TextAlignmentOptions.Center, new Vector2(0f, 10f), new Vector2(760f, 150f));
+            var panel = MakeFlatPanel(dim.rectTransform, new Vector2(920f, 480f), "처음부터 시작할까?", 560f);
+            var body = PlaceLabel(panel, "저장된 마왕 레벨, 특성, 스킬,\n마왕군 해금이 모두 사라지고\n튜토리얼도 처음부터 다시 나온다.", 38f, Cream, TextAlignmentOptions.Center, new Vector2(0f, 20f), new Vector2(780f, 170f));
             body.textWrappingMode = TextWrappingModes.Normal;
-
-            MakeButton(panel, "삭제하고 시작", new Vector2(-200f, -150f), new Vector2(340f, 88f), 40f, true, BeginNewGame, true);
-            MakeButton(panel, "취소", new Vector2(200f, -150f), new Vector2(300f, 88f), 44f, false, () => _confirmPanel.SetActive(false));
+            body.lineSpacing = 8f;
+            MakeButton(panel, "삭제하고 시작", new Vector2(-200f, -150f), new Vector2(340f, 72f), 36f, false, BeginNewGame, true);
+            MakeButton(panel, "취소", new Vector2(200f, -150f), new Vector2(280f, 72f), 38f, false, () => _confirmPanel.SetActive(false));
             _confirmPanel.SetActive(false);
         }
 
@@ -1764,7 +1811,7 @@ namespace OZGL2.UIBridge
             _body = body; _ring = ring; _glow = glow; _chevron = chevron; _text = text;
             _fill = fill; _hoverFill = hoverFill; _ringColor = ringColor; _hoverRing = hoverRing;
             _textColor = textColor; _hoverText = hoverText; _glowColor = glowColor; _primary = primary;
-            _chevronBase = chevron.rectTransform.anchoredPosition;
+            if (chevron != null) _chevronBase = chevron.rectTransform.anchoredPosition;
             Apply(0f, Time.unscaledTime);
         }
 
@@ -1787,13 +1834,16 @@ namespace OZGL2.UIBridge
         private void Apply(float k, float t)
         {
             _body.color = Color.Lerp(_fill, _hoverFill, k);
-            _ring.color = Color.Lerp(_ringColor, _hoverRing, k);
+            if (_ring != null) _ring.color = Color.Lerp(_ringColor, _hoverRing, k);
             var text = Color.Lerp(_textColor, _hoverText, k);
             _text.color = text;
             float pulse = _primary ? 0.55f + 0.25f * Mathf.Sin(t * 2.2f) : 0f;
             _glow.color = new Color(_glowColor.r, _glowColor.g, _glowColor.b, _glowColor.a * Mathf.Max(pulse, k));
-            _chevron.color = new Color(text.r, text.g, text.b, k * 0.95f);
-            _chevron.rectTransform.anchoredPosition = _chevronBase + new Vector2(-(1f - k) * 16f + Mathf.Sin(t * 7f) * 2f * k, 0f);
+            if (_chevron != null)
+            {
+                _chevron.color = new Color(text.r, text.g, text.b, k * 0.95f);
+                _chevron.rectTransform.anchoredPosition = _chevronBase + new Vector2(-(1f - k) * 16f + Mathf.Sin(t * 7f) * 2f * k, 0f);
+            }
         }
     }
 }
