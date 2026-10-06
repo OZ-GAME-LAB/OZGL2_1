@@ -516,7 +516,7 @@ namespace OZGL2.UIBridge
                 const int probe = 256;
                 float size1 = cam.orthographicSize;
                 Vector3 center1 = camGo.transform.position;
-                var probeRt = new RenderTexture(probe, probe, 0, RenderTextureFormat.ARGB32);
+                var probeRt = new RenderTexture(probe, probe, 24, RenderTextureFormat.ARGB32);
                 cam.targetTexture = probeRt;
                 cam.Render();
                 var prevActive = RenderTexture.active;
@@ -546,7 +546,7 @@ namespace OZGL2.UIBridge
                     cam.orthographicSize = Mathf.Max(0.05f, half);
                 }
 
-                var rt = new RenderTexture(192, 192, 0, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point };
+                var rt = new RenderTexture(192, 192, 24, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point };
                 cam.targetTexture = rt;
                 cam.Render();
                 cam.targetTexture = null;

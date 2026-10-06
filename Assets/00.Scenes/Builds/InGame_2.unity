@@ -4095,6 +4095,7 @@ GameObject:
   - component: {fileID: 6666600017}
   - component: {fileID: 6666600018}
   - component: {fileID: 6666600020}
+  - component: {fileID: 6666600021}
   m_Layer: 0
   m_Name: ReleaseMode
   m_TagString: Untagged
@@ -4349,6 +4350,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbea4d9b5bcb585c9911afb0133f024e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameIdleUnits
+--- !u!114 &6666600021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: add4d09917f358289f5f78053f1b94c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Tutorial.TutorialDirector
+  _kingPrefab: {fileID: 7784438773992661821, guid: e454046cbb79c8a45bd042d39355d3f8, type: 3}
+  _charsPerSecond: 44
+  _dimAlpha: 0.62
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
