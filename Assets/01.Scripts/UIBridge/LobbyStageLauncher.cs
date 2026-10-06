@@ -1,5 +1,6 @@
 using System;
 using OZGL2.InGame;
+using OZGL2.Progression;
 using OZGL2.UIFlow;
 using UnityEngine;
 
@@ -34,6 +35,11 @@ namespace OZGL2.UIBridge
             if (_selector.IsTransitioning || _controller.IsLoading) return;
 
             var difficulty = _selector.SelectedDifficulty;
+            if (!StageClearStore.IsDifficultyUnlocked((int)difficulty))
+            {
+                Debug.Log("[난이도] 잠긴 난이도입니다: " + StageClearStore.LockedHint((int)difficulty));
+                return;
+            }
             string stageId = FindStageId(difficulty);
             if (string.IsNullOrEmpty(stageId))
             {
