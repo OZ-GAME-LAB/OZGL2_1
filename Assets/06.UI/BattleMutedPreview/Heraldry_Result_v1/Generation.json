@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-06",
+  "method": "built-in image_gen, exact prompts retained",
+  "reference": "codex-clipboard-664622c7-0900-4bb7-a8a5-72230b440963.png",
+  "style": "중세 문장 장식, 금속 금색 테두리, 검은 내부, 낮은 채도의 적색 깃발, 아이보리 글자. 배경 풍경은 제외.",
+  "assets": [
+    {
+      "file": "Sprites/ResultPanel.png",
+      "source": "exec-ee8ff288-547a-42bd-a9cd-d8cab93f9e30.png",
+      "prompt": "Use case: ui-mockup. Asset type: production-ready transparent PNG frame sprite for a Unity battle result popup. Input image 1 is STYLE AND SHAPE REFERENCE ONLY: use the central result panel, ignore both landscape backgrounds. Generate ONE identical-for-victory-and-defeat blank panel, not a comparison. Front-facing crisp smooth non-pixel illustrated medieval demon heraldry, restrained warm antique gold bevels and thin dark outlines, dark burgundy torn cloth hanging along the upper outer sides, smaller cloth tails near the bottom corners, small horned gold helmet crest at top centre, pointed ornamental corners. Shape and quality very close to reference. Compact upright panel approximately width 820 to height 950, symmetrical, fully visible with only a narrow transparent margin. Entire inner panel must be FULLY OPAQUE near-black charcoal with very subtle warm centre gradient, no see-through interior. Preserve generous interior negative space. Two understated dark brown laurel branches around the upper title area, leaving broad blank centre between them, below a small blank difficulty area. Do NOT bake any text, digits, labels, icons, buttons, bars, interior divider rules or additional panels into this sprite: all content will be separate Unity objects. No victory/defeat letters, no landscape, no screenshot, no checkerboard, no drop shadow outside silhouette, no glow. Transparent background outside outer silhouette only. This single panel must work for both victory and defeat.",
+      "alphaCorrection": "사용자 승인: RGB 불변, 5x5 이웃이 모두 alpha>=240인 내부만 alpha255. 변경1,059,150px, 외곽/투명영역보존"
+    },
+    {
+      "file": "Sprites/ResultLobbyButton.png",
+      "source": "exec-6c5da04a-1512-490a-8dae-cdced6dcf608.png",
+      "prompt": "Use case: ui-mockup. Generate ONE production-ready transparent PNG Unity button background sprite, no text and no icon. Input image 1 is style reference: match the gold-bordered burgundy 'return to lobby' button in the bottom of the battle result panels, ignoring everything else. Long horizontal aspect about 5.1:1, fully visible with narrow transparent margin. Elegant smooth non-pixel medieval demon-fantasy UI, a slim antique gold bevel, pointed ornamental tips at left and right, gently notched shoulders, thin near-black outlining, fully opaque dark burgundy-red inner face with restrained subtle brighter centre. No horn crest on the button, no hanging cloth, no legs, no backdrop, no drop shadow outside the silhouette. No letters, no number, no icon, no watermark. Front-facing and symmetrical, crisp at small sizes. This button will be 570x112 UI pixels inside a black and gold result panel; avoid over-thick border and preserve generous blank inner face. Transparent outside only.",
+      "alphaCorrection": "사용자 승인: RGB 불변, 내부 alpha255. 변경621,064px, 외곽/투명영역보존"
+    },
+    {
+      "file": "Sprites/ResultDivider.png",
+      "source": "exec-1f6d9da6-8956-4b01-9b58-24ecc8f54947.png",
+      "prompt": "Use case: ui-mockup. One isolated horizontal ornamental UI divider sprite on a genuinely transparent background, matching the supplied black-burgundy-gold medieval battle result UI reference. Two very fine warm antique gold metal hairline rules extending evenly left and right, tiny empty diamond outline at the exact centre separated by a narrow gap from each line. Perfectly straight, symmetrical, slim understated bevel, clean non-pixel illustration. Intended size 590 pixels wide and 20 pixels high inside a popup. Make the diamond only 18 pixels wide relative to the long line, not giant. No text, no glow, no shadow, no surrounding frame, no second divider or screen. Long horizontal element, fully visible, no clipped edges."
+    },
+    {
+      "file": "Sprites/Icon_Deployments.png",
+      "source": "exec-5d73d62c-5a7c-4c55-8ba0-0c840343c0e9.png",
+      "prompt": "Use case: ui-mockup. One isolated production Unity UI icon on genuine transparent background: a compact three-person group symbol for 'number of units deployed', matching the small group icon in the supplied battle result reference. Exactly three simple round heads and three rounded shoulder/torso silhouettes, a larger central figure in front and smaller figures left and right behind. Smooth non-pixel graphic, pale warm ivory-gold colour, mostly flat clear shapes with no external shadow, no glow, no border, no circular badge. No faces, no clothing details, no text, no background. Balanced chunky legible silhouette usable at 48x48 UI pixels. Centre icon and let it fill most of square canvas. Only this icon, not the reference screen.",
+      "alphaCorrection": "사용자 승인: 외부/사이 공간의 흰색·밝은 노랑 잔여픽셀 및 작은 분리된 잔여영역의 알파만0. 형태의 RGB 불변, 제거14,275px."
+    }
+  ],
+  "discardedGeneration": {
+    "source": "exec-1b3fec18-f9f8-4728-9742-3e2d302e403c.png",
+    "prompt": "Edit target: the provided three-person UI icon. Change ONLY alpha cleanup: remove all floating white or yellow residual speckles and white fringing in the spaces between the heads and shoulders and outside the silhouettes. Keep exact three-person shapes, same pale ivory-gold colour, same layout, same smooth anti-aliased real silhouette edges. Output clean genuine transparent background, not white. Every gap between the figures must be fully clear. No extra drawing, no text, no shadow.",
+    "reason": "잔여 픽셀 지속: 사용자 승인 직접 알파 보정본 사용"
+  },
+  "sprites": "PNG 변경 없는 alpha 경계 Rect를 Unity Sprite.Create FullRect로 별도 .asset 생성. Unity가 meta 생성.",
+  "reuse": "기존 모래시계·투구·불·로비성 아이콘, 경험치 트랙/채움, 기존 SDF폰트 재사용."
+}
