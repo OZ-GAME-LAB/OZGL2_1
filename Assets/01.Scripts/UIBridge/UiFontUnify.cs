@@ -8,6 +8,7 @@ namespace OZGL2.UIBridge
     /// <summary>
     /// 화면의 모든 글자가 희수 UI의 글꼴(빛의 계승자 · NEXON Lv2 Gothic)만 쓰게 맞춘다.
     /// 증강 선택창·메뉴 팝업 같은 곳은 따로 만든 다른 글꼴(BattleOverlay Pixel, 기본 글꼴 등)이 붙어 있어 한 화면에서 글꼴이 섞여 보였다.
+    /// 카드 전용 SDF(BattleCardTitle/Body SDF)는 희수가 만든 것이라 허용 목록에 넣어 그대로 둔다.
     /// 허용 목록에 없는 글꼴은 대표 글꼴(빛의 계승자 Bold)로 바꾼다. 허용 목록에 있는 글꼴(희수가 정한 제목·본문 글꼴)은 그대로 둔다.
     /// 새로 열린 창의 글자도 잡도록 주기적으로 훑는다.
     /// </summary>
@@ -39,7 +40,9 @@ namespace OZGL2.UIBridge
             if (_tmpMain != null)
                 foreach (var text in Resources.FindObjectsOfTypeAll<TMP_Text>())
                 {
-                    if (text == null || !text.gameObject.scene.IsValid() || text.font == null) continue;
+                    if (text == null || !text.gameObject.scene.IsValid()) continue;
+                    // 글꼴 연결이 비어 있으면(카드 전용 SDF 파일이 아직 없을 때 등) 글자가 안 보이므로 대표 글꼴로 채운다
+                    if (text.font == null) { text.font = _tmpMain; continue; }
                     if (_keepTmp.Contains(text.font.GetInstanceID())) continue;
                     text.font = _tmpMain;
                 }

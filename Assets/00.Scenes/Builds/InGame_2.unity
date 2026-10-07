@@ -8876,6 +8876,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
   - {fileID: 11400000, guid: 36fe7d726914a8c408af7e5c4eba9505, type: 2}
   - {fileID: 11400000, guid: 02fdbfbc11f69364785023cfc33679a6, type: 2}
+  - {fileID: 11400000, guid: 0b13ba286802d474992fea3fa75604ff, type: 2}
+  - {fileID: 11400000, guid: d4f241a093bece743bc807cee197f325, type: 2}
   _legacyMain: {fileID: 12800000, guid: e0a90fad30ce3ad488d279d3c5128894, type: 3}
   _legacyKeep:
   - {fileID: 12800000, guid: e0a90fad30ce3ad488d279d3c5128894, type: 3}
