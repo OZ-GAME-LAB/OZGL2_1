@@ -104,7 +104,7 @@ namespace OZGL2.UIFlow
                 traitTitle: "점유 칸수",
                 traitDescription: footprint.Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸",
                 skillTitle: "보유 스킬",
-                skillDescription: BattleCardSkillDescription.Build(stats),
+                skillDescription: BattleCardSkillDescription.Build(stats, star),
                 attack: (stats.attackPower * multiplier).ToString("0.#", CultureInfo.InvariantCulture),
                 defense: (stats.defensePercent * 100f).ToString("0.#", CultureInfo.InvariantCulture) + "%",
                 health: Mathf.RoundToInt(stats.maxHealth * multiplier).ToString(CultureInfo.InvariantCulture),

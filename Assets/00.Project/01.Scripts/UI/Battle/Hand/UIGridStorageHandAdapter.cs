@@ -368,7 +368,8 @@ namespace OZGL2.UIFlow
                 traitTitle: "점유 칸수",
                 traitDescription: GetFootprintCountText(option.Unit.GetFootprint(option.StarLevel)),
                 skillTitle: "보유 스킬",
-                skillDescription: BattleCardSkillDescription.Build(FindUnitStats(option.Unit.Id, 3)),
+                skillDescription: BattleCardSkillDescription.Build(
+                    FindUnitStats(option.Unit.Id, option.StarLevel), option.StarLevel),
                 attack: attack,
                 defense: defense,
                 health: health,
@@ -404,7 +405,8 @@ namespace OZGL2.UIFlow
                     traitTitle: "점유 칸수",
                     traitDescription: GetFootprintCountText(footprint),
                     skillTitle: "보유 스킬",
-                    skillDescription: BattleCardSkillDescription.Build(FindUnitStats(unit.Definition.Id, 3)),
+                    skillDescription: BattleCardSkillDescription.Build(
+                        FindUnitStats(unit.Definition.Id, unit.StarLevel), unit.StarLevel),
                     attack: attack,
                     defense: defense,
                     health: health,

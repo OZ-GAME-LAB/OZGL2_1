@@ -503,7 +503,7 @@ public static class BattleCardRedesignBuilder
             view.SetRank(1);
             view.SetArtwork(entry.GetPortrait(0));
             view.SetTrait("점유 칸수", "1칸");
-            view.SetSkill("보유 스킬", BattleCardSkillDescription.Build(entry.BaseStats));
+            view.SetSkill("보유 스킬", BattleCardSkillDescription.Build(entry.BaseStats, 1));
             view.SetStats(entry.BaseStats.attackPower.ToString("0.#", CultureInfo.InvariantCulture),
                 (entry.BaseStats.defensePercent * 100f).ToString("0.#", CultureInfo.InvariantCulture) + "%",
                 entry.BaseStats.maxHealth.ToString(CultureInfo.InvariantCulture));

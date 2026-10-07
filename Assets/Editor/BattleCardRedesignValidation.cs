@@ -84,11 +84,23 @@ public static class BattleCardRedesignValidation
                     foreach (string id in UNIT_IDS)
                     {
                         var entry = BattleCardRedesignBuilder.FindUnitEntry("unit." + id);
-                        string description = BattleCardSkillDescription.Build(entry.BaseStats);
-                        Need(description.StartsWith("3성 기준\n", StringComparison.Ordinal) &&
-                            description.Split('\n').Length <= 4, id + ": 3성 기준/최대 4줄 설명 계약");
-                        view.SetSkill("보유 스킬", description);
-                        CheckTextFits(skill, description, id + " 보유 스킬", 4, report);
+                        Need(entry != null && entry.BaseStats != null, id + ": 스킬 설명의 기초 전투 데이터 누락");
+                        for (int star = 1; star <= 3; star++)
+                        {
+                            string description = BattleCardSkillDescription.Build(entry.BaseStats, star);
+                            Need(description.IndexOf("3성 기준", StringComparison.Ordinal) < 0 &&
+                                description.Split('\n').Length <= 4, id + " " + star + "성: 현재 성급/최대 4줄 설명 계약");
+                            if (star == 1 || id == "M_WAR_01" || id == "M_SHD_01" || id == "M_MAG_01")
+                                Need(description == "스킬 없음", id + " " + star + "성: 기본 공격 특성이 보유 스킬로 표시됨");
+                            else if (id == "M_ARC_01")
+                                Need(description.Contains("추가 피해"), id + " " + star + "성: 성급 추가 피해 설명 누락");
+                            else if (id == "M_ROG_01")
+                                Need(description.Contains("기절"), id + " " + star + "성: 성급 기절 설명 누락");
+                            else if (id == "M_HEL_01")
+                                Need(description.Contains("최대 " + star + "명"), id + " " + star + "성: 현재 성급 회복 인원 불일치");
+                            view.SetSkill("보유 스킬", description);
+                            CheckTextFits(skill, description, id + " " + star + "성 보유 스킬", 4, report);
+                        }
                         CheckTextFits(FindText(root, "TitleText"), entry.DisplayName, id + " 이름", 1, null);
                         for (int star = 0; star < 3; star++)
                             Need(entry.GetPortrait(star) != null, id + ": " + (star + 1) + "성 초상화 누락");

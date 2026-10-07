@@ -205,3 +205,23 @@ Text는 `Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.
 - 추가 LayerMask / Tag / Collider / Rigidbody / IsTrigger / Animator Parameter / Animation Event / Input Action 연결은 필요하지 않다.
 - Scene에 연결하는 후속 작업에서는 실제 표시 크기·Canvas 배율·다른 화면비의 가독성과 기존 버튼 입력을 별도로 검사한다. 현재 `ChoiceCards` 교체는 수행하지 않는다.
 - Git Diff: 신규 Runtime·Editor 코드, 카드 Prefab 3종, 신규 아트와 Unity 생성 `.meta`, 이 문서 및 미리보기 결과를 검토한다. Scene·ProjectSettings·Packages와 기존 재사용 아트에 의도치 않은 변경이 없어야 한다. 작업 전부터 있던 변경과 구분한다.
+
+## 현재 성급의 보유 스킬 표시 — 2026-10-07
+
+손패·웨이브 보상·카드 미리보기는 `BattleCardSkillDescription.Build(stats, starLevel)`에 현재 카드 성급을 전달한다. 성급별 Prefab이 같은 기초 `UnitStatData`를 공유하므로 SO의 기본 `starLevel`만으로 카드 성급을 판단하지 않는다. 모든 카드에 붙던 `3성 기준` 문구를 제거했다.
+
+사용자 선택에 따라 **성급 상승으로 얻는 특수 효과만** 보유 스킬에 표시한다. 1성은 모두 `스킬 없음`이며, 도발·범위 공격·대상 선택·기본 회복 같은 기본 전투 방식은 이 칸에서 제외한다.
+
+| 직업 | 1성 | 2성 | 3성 |
+| --- | --- | --- | --- |
+| 전사·방패병·마법사 | 스킬 없음 | 스킬 없음 | 스킬 없음 |
+| 궁수 | 스킬 없음 | 잃은 체력에 따른 최대 50% 추가 피해 | 동일 |
+| 도적 | 스킬 없음 | 매 3번째 공격마다 1초 기절 | 동일 |
+| 힐러 | 스킬 없음 | 최대 2명 동시 회복 | 최대 3명 동시 회복 |
+
+- 효과나 스탯 데이터가 없으면 `스킬 없음`을 반환한다. 기존 `Build(stats)` API는 유지한다.
+- 저장된 `BattleCard_Unit.prefab`의 1성 샘플도 설명 텍스트만 동기화했다. 폰트·공유 Material·RankText·배치는 유지했다.
+- Editor 검증: 6직업 × 3성급의 문구·SDF 텍스트 잘림 검사 통과.
+- Play Mode 검증: 실제 Adapter를 사용한 임시 손패 복제본에서 18개 보관함 표시 데이터와 TMP 문구, 같은 슬롯의 성급 변경·재사용, 6종 1성 보상 카드 문구를 확인했다. 원본 스탯 데이터와 실제 게임 보관함은 변경하지 않았다.
+- 컴파일 완료, 최종 Console 오류·경고 및 Missing Script 0개. 신규 Inspector 연결은 없다.
+- 지형·기물 카드, Scene, 전투 코드와 밸런스 데이터는 이번 수정 대상이 아니다. 이전 웨이브 패널 변경도 그대로 보존했다.

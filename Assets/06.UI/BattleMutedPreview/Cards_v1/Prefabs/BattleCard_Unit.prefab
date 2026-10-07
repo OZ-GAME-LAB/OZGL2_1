@@ -3609,9 +3609,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "3\uC131 \uAE30\uC900\n\uB300\uC0C1 \uC8FC\uBCC0 \uBC18\uACBD 1.5\uC758
-    \uC801\n\uCD94\uAC00 \uCD5C\uB300 3\uBA85\uC5D0\uAC8C 100% \uD53C\uD574\n\uC0AC\uAC70\uB9AC
-    \uC548\uC758 \uC6A9\uC0AC\uB97C \uC790\uC2E0\uC5D0\uAC8C \uC720\uC778"
+  m_text: "\uC2A4\uD0AC \uC5C6\uC74C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d4f241a093bece743bc807cee197f325, type: 2}
   m_sharedMaterial: {fileID: -7367541039786148115, guid: d4f241a093bece743bc807cee197f325, type: 2}

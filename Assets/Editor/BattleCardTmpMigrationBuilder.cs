@@ -81,7 +81,7 @@ public static class BattleCardTmpMigrationBuilder
 
     public static void EnsureFonts()
     {
-        var characters = new StringBuilder("점유 칸수 보유 스킬 배치 영역 확장 배치 발판 유닛이 설 자리 " +
+        var characters = new StringBuilder("점유 칸수 보유 스킬 스킬 없음 배치 영역 확장 배치 발판 유닛이 설 자리 " +
             "확장할 위치에 배치해 유닛을 놓을 공간을 넓힙니다. 이 모양의 바닥 조각이에요. " +
             "영역 위에 먼저 놓고, 그 위에 유닛을 올리세요. 이미 놓은 발판과 이어서 놓아야 해요 " +
             "근접 원거리 사거리 공격속도 공격력 방어력 체력 ·");
@@ -101,7 +101,9 @@ public static class BattleCardTmpMigrationBuilder
             {
                 if (entry == null) continue;
                 characters.Append(entry.DisplayName);
-                if (entry.BaseStats != null) characters.Append(BattleCardSkillDescription.Build(entry.BaseStats));
+                if (entry.BaseStats != null)
+                    for (int star = 1; star <= 3; star++)
+                        characters.Append(BattleCardSkillDescription.Build(entry.BaseStats, star));
             }
         }
         string seed = new string(characters.ToString().Where(c => !char.IsControl(c)).Distinct().ToArray());
