@@ -194,7 +194,21 @@ namespace OZGL2.UIBridge
         {
             _dragging = false;
             if (!grid.IsExpansionDrag) return;
-            if (!grid.CommitPreview()) grid.CancelDrag();   // 놓을 수 없는 자리면 취소하고 카드는 그대로 둔다
+            string shapeId = grid.PendingExpansionShape.Id;
+            int before = grid.FloorCells.Count;
+            if (!grid.CommitPreview()) { grid.CancelDrag(); return; }   // 놓을 수 없는 자리면 취소하고 카드는 그대로 둔다
+            LogFloor(grid, shapeId, grid.FloorCells.Count - before);
+        }
+
+        /// <summary>확장을 놓은 직후, 늘어난 바닥 칸 수와 실제로 갈색 타일이 그려진 칸 수를 콘솔에 남긴다(둘이 다르면 그리는 쪽 문제).</summary>
+        private static void LogFloor(GridManager grid, string shapeId, int added)
+        {
+            int drawn = 0;
+            foreach (var r in FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
+                if (r.enabled && r.sprite != null && r.name.StartsWith("Cell_") && r.transform.parent != null && r.transform.parent.name.StartsWith("Surface_")) drawn++;
+            var cells = new System.Collections.Generic.List<string>();
+            foreach (var c in grid.FloorCells) cells.Add(c.x + "," + c.y);
+            Debug.Log("[확장] 모양 " + shapeId + " · 늘어난 바닥 " + added + "칸 · 전체 바닥 " + grid.FloorCells.Count + "칸 · 갈색으로 그려진 칸 " + drawn + "개 / 바닥 칸: " + string.Join(" ", cells));
         }
 
         private sealed class Handle : MonoBehaviour, IPointerDownHandler

@@ -10,7 +10,9 @@ using UnityEngine.UI;
 namespace OZGL2.UIBridge
 {
     /// <summary>
-    /// 이번 판에 고른 증강을 화면 왼쪽에 희수의 어두운 프레임 패널로 보여 준다(위 가장자리에 걸친 「증강 N」 이름표, 네 모서리 마름모).
+    /// 이번 판에 고른 증강을 화면 왼쪽에 시너지 목록과 같은 줄(희수의 SynergyTracker_InGame 프리팹: 문장 깃발·이름표·아이콘 틀)로 쌓아 보여 준다.
+    /// 줄마다 증강 이름, 등급·횟수(예: 골드 · ×2), 아이콘이 들어가고 틀 색이 등급색이다. 프리팹을 못 쓰면 아래의 옛 패널 모양으로 대신 그린다.
+    /// (옛 패널 모양 설명) 이번 판에 고른 증강을 화면 왼쪽에 희수의 어두운 프레임 패널로 보여 준다(위 가장자리에 걸친 「증강 N」 이름표, 네 모서리 마름모).
     /// 칸은 동그란 아이콘 + 등급(실버·골드·플래티넘) 색 이중 테두리, 골드 이상은 은은하게 빛나고, 등급만큼 마름모가 아래에 붙는다.
     /// 같은 증강을 여러 번 골랐으면 오른쪽 아래에 배지로 횟수가 붙는다. 마우스를 올리면 이름·등급·설명이 뜬다.
     /// 보상 패널 바로 아래 왼쪽 줄에 3칸씩 세로로 쌓고, 넘치면 오른쪽으로 새 줄을 만든다(왼쪽 아래 재화 아이콘을 가리지 않는 범위).
@@ -21,6 +23,9 @@ namespace OZGL2.UIBridge
         [SerializeField, Tooltip("증강 아이콘·등급 문장 모음(UIAugmentVisualCatalog)")] private UIAugmentVisualCatalogSO _visuals;
         [SerializeField, Range(0.45f, 0.62f), Tooltip("첫 줄의 세로 위치(화면 위에서부터의 비율)")] private float _topRatio = 0.545f;
         [SerializeField, Min(2)] private int _rows = 3;
+        [Header("시너지 목록 줄 모양")]
+        [SerializeField, Tooltip("시너지 목록 한 줄 프리팹(SynergyTracker_InGame)")] private GameObject _rowPrefab;
+        [SerializeField, Range(0.4f, 1f), Tooltip("줄 크기 배율(원본 330×118)")] private float _rowScale = 0.58f;
         [Header("희수 UI 조각(없으면 단색 상자로 대신)")]
         [SerializeField, Tooltip("패널 프레임(Frame_WavePreview_Flat, 9분할)")] private Sprite _panelFrame;
         [SerializeField, Tooltip("이름표(Frame_SynergyNameplate_Flat, 9분할)")] private Sprite _namePlate;
@@ -161,6 +166,7 @@ namespace OZGL2.UIBridge
             foreach (var c in _cells) if (c != null) Destroy(c);
             _cells.Clear();
             _glows.Clear();
+            if (_rowPrefab != null) { RebuildRows(entries); return; }
             float s = Mathf.Max(0.8f, Screen.height / 1080f);
             float cell = 60f * s, gap = 10f * s, pad = 16f * s, plateH = 42f * s;
             int rows = Mathf.Min(_rows, entries.Count), cols = (entries.Count + _rows - 1) / _rows;
@@ -265,6 +271,66 @@ namespace OZGL2.UIBridge
                 var hover = back.gameObject.AddComponent<Hover>();
                 hover.Hud = this; hover.Entry = e; hover.Cell = rt;
                 _cells.Add(cellGo);
+            }
+        }
+
+        /// <summary>시너지 목록과 같은 줄 프리팹을 증강마다 하나씩 세로로 쌓는다(남는 높이가 모자라면 오른쪽에 새 열).</summary>
+        private void RebuildRows(List<Entry> entries)
+        {
+            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            float scale = _rowScale * s;
+            float rowW = 330f * scale, rowH = 118f * scale, gap = 4f * s;
+            float top = Screen.height * _topRatio;
+            float available = Screen.height - top - 150f * s; // 왼쪽 아래 재화 아이콘을 가리지 않는 범위
+            int perColumn = Mathf.Max(1, Mathf.FloorToInt((available + gap) / (rowH + gap)));
+            _root.anchoredPosition = new Vector2(6f * s, -top);
+            _root.sizeDelta = Vector2.zero;
+            _heading.gameObject.SetActive(false);
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var e = entries[i];
+                int col = i / perColumn, row = i % perColumn;
+                var go = Instantiate(_rowPrefab, _root);
+                go.name = "Aug_" + e.id;
+                var rt = (RectTransform)go.transform;
+                rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+                rt.pivot = new Vector2(0f, 1f);
+                rt.localScale = Vector3.one * scale;
+                rt.anchoredPosition = new Vector2(col * (rowW + gap), -row * (rowH + gap));
+
+                int tierIndex = Mathf.Clamp(e.data.tier, 1, 3);
+                Color tier = TierColors[tierIndex - 1];
+                foreach (var button in go.GetComponentsInChildren<Button>(true)) Destroy(button); // 눌러서 하는 동작은 없다(마우스 올림 설명만)
+                foreach (var text in go.GetComponentsInChildren<Text>(true))
+                {
+                    if (text.name == "Name")
+                    {
+                        text.text = e.data.displayName;
+                        text.resizeTextForBestFit = true; text.resizeTextMinSize = 10; text.resizeTextMaxSize = Mathf.Max(12, text.fontSize);
+                    }
+                    else if (text.name == "Thresholds")
+                    {
+                        text.text = AugmentData.TierName(e.data.tier) + (e.count > 1 ? "  ·  ×" + e.count : string.Empty);
+                        text.color = tier;
+                        text.resizeTextForBestFit = true; text.resizeTextMinSize = 10; text.resizeTextMaxSize = Mathf.Max(12, text.fontSize);
+                    }
+                }
+                foreach (var image in go.GetComponentsInChildren<Image>(true))
+                {
+                    if (image.name == "Frame") image.color = tier;
+                    else if (image.name == "Icon" && image.GetComponent<Outline>() != null)
+                    {
+                        var sprite = _visuals != null ? _visuals.GetIcon(e.id) : null;
+                        if (sprite != null) image.sprite = sprite;
+                        image.preserveAspect = true; image.color = Color.white; image.enabled = image.sprite != null;
+                    }
+                }
+                var root = go.GetComponent<Image>();
+                if (root != null) root.raycastTarget = true; // 마우스 올림 설명을 받는다
+                var hover = go.AddComponent<Hover>();
+                hover.Hud = this; hover.Entry = e; hover.Cell = rt;
+                _cells.Add(go);
             }
         }
 
