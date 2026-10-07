@@ -907,21 +907,81 @@ namespace OZGL2.Tutorial
             _topicCatcher = catcher.gameObject;
             _topicCatcher.SetActive(false);
 
-            var diamond = Spr("Frame_DiamondRed");
-            var button = NewImage("HelpButton", go.transform, diamond, Color.white);
-            if (diamond == null) button.color = new Color(0.55f, 0.12f, 0.16f, 1f);
-            button.preserveAspect = true;
-            _helpButton = button.rectTransform;
+            // 로비 난이도 화살표 단추와 같은 모양의 메달: 어두운 원판 + 금빛 이중 테두리 + 네 방향 마름모, 숨 쉬는 빛, 올리면 커진다
+            var rootGo = new GameObject("HelpButton", typeof(RectTransform));
+            rootGo.transform.SetParent(go.transform, false);
+            _helpButton = (RectTransform)rootGo.transform;
             _helpButton.anchorMin = _helpButton.anchorMax = new Vector2(1f, 1f);
-            _helpButton.pivot = new Vector2(1f, 1f);
-            _helpButton.sizeDelta = new Vector2(78f, 78f);
-            button.gameObject.AddComponent<Button>().onClick.AddListener(() => SetTopicsOpen(_topicPanel == null || !_topicPanel.gameObject.activeSelf));
-            var q = NewText("Q", _helpButton, 40f, new Color(1f, 0.93f, 0.7f), TextAlignmentOptions.Center);
+            _helpButton.pivot = new Vector2(0.5f, 1f);
+            _helpButton.sizeDelta = new Vector2(60f, 60f);
+            Color gold = new Color(0.96f, 0.76f, 0.38f, 1f);
+            var discSprite = MakeMedallionSprite(0f);
+            var ringSprite = MakeMedallionSprite(0.9f);
+            _helpGlow = NewImage("Glow", _helpButton, MakeGlowSprite(), new Color(1f, 0.7f, 0.28f, 0.3f));
+            _helpGlow.raycastTarget = false;
+            _helpGlow.rectTransform.anchorMin = _helpGlow.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            _helpGlow.rectTransform.sizeDelta = new Vector2(120f, 120f);
+            var disc = NewImage("Disc", _helpButton, discSprite, new Color(0.09f, 0.04f, 0.06f, 0.97f));
+            Stretch(disc.rectTransform);
+            var button = disc.gameObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.onClick.AddListener(() => SetTopicsOpen(_topicPanel == null || !_topicPanel.gameObject.activeSelf));
+            _helpHover = disc.gameObject.AddComponent<HelpHover>();
+            var ring = NewImage("Ring", _helpButton, ringSprite, gold);
+            ring.raycastTarget = false;
+            Stretch(ring.rectTransform);
+            var innerRing = NewImage("InnerRing", _helpButton, ringSprite, new Color(gold.r, gold.g, gold.b, 0.45f));
+            innerRing.raycastTarget = false;
+            Stretch(innerRing.rectTransform);
+            innerRing.rectTransform.offsetMin = new Vector2(6f, 6f); innerRing.rectTransform.offsetMax = new Vector2(-6f, -6f);
+            for (int i = 0; i < 4; i++)
+            {
+                var tick = NewImage("Tick", _helpButton, _cornerSprite, gold);
+                tick.raycastTarget = false;
+                var tr = tick.rectTransform;
+                tr.anchorMin = tr.anchorMax = new Vector2(0.5f, 0.5f); tr.pivot = new Vector2(0.5f, 0.5f);
+                tr.sizeDelta = new Vector2(13f, 13f);
+                float a = i * Mathf.PI * 0.5f;
+                tr.anchoredPosition = new Vector2(Mathf.Sin(a), Mathf.Cos(a)) * 30f;
+                if (_cornerSprite == null) tr.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            }
+            var q = NewText("Q", _helpButton, 36f, new Color(1f, 0.88f, 0.52f), TextAlignmentOptions.Center);
             q.text = "?";
+            q.fontStyle = FontStyles.Bold;
+            q.outlineWidth = 0.2f; q.outlineColor = new Color32(40, 8, 14, 255);
             Stretch(q.rectTransform);
 
             BuildTopicPanel(go.transform);
             _helpCanvas.enabled = false;
+        }
+
+        private Image _helpGlow;
+        private HelpHover _helpHover;
+        private float _helpHoverK;
+
+        private sealed class HelpHover : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler, UnityEngine.EventSystems.IPointerExitHandler
+        {
+            public bool Hover;
+            public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData) => Hover = true;
+            public void OnPointerExit(UnityEngine.EventSystems.PointerEventData eventData) => Hover = false;
+        }
+
+        /// <summary>원판(inner = 0) 또는 속이 빈 고리(inner = 안쪽 반지름 비율)를 그린 스프라이트.</summary>
+        private static Sprite MakeMedallionSprite(float inner)
+        {
+            const int n = 128;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            float outer = n * 0.5f - 1f, innerR = outer * inner;
+            var px = new Color32[n * n];
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(n * 0.5f, n * 0.5f));
+                    float a = Mathf.Clamp01(outer - d) * (inner > 0f ? Mathf.Clamp01(d - innerR) : 1f);
+                    px[y * n + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(a * 255f));
+                }
+            tex.SetPixels32(px); tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
         }
 
         private void BuildTopicPanel(Transform parent)
@@ -986,10 +1046,45 @@ namespace OZGL2.Tutorial
             if (!show) { SetTopicsOpen(false); return; }
 
             float s = S;
-            _helpButton.localScale = Vector3.one * s;
-            _helpButton.anchoredPosition = new Vector2(-24f * s, -108f * s); // 상단 바·시너지 목록 사이
+            _helpHoverK = Mathf.MoveTowards(_helpHoverK, _helpHover != null && _helpHover.Hover ? 1f : 0f, Time.unscaledDeltaTime * 8f);
+            _helpButton.localScale = Vector3.one * (s * (1f + 0.12f * _helpHoverK));
+            if (_helpGlow != null)
+            {
+                var gc = _helpGlow.color;
+                gc.a = Mathf.Lerp(0.16f, 0.32f, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2f)) + 0.3f * _helpHoverK;
+                _helpGlow.color = gc;
+            }
+            // 설정(메뉴) 단추 바로 아래, 같은 세로 줄(가운데)에 맞춘다. 설정 단추를 못 찾으면 예전 자리(오른쪽 위)를 쓴다.
+            Vector2 pos = new Vector2(-24f * s - 27f * s, -108f * s);
+            var settings = FindSettingsButton();
+            if (settings != null)
+            {
+                var corners = new Vector3[4];
+                settings.GetWorldCorners(corners);
+                var canvas = settings.GetComponentInParent<Canvas>();
+                Camera cam = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.rootCanvas.worldCamera : null;
+                Vector2 bl = RectTransformUtility.WorldToScreenPoint(cam, corners[0]);
+                Vector2 br = RectTransformUtility.WorldToScreenPoint(cam, corners[3]);
+                pos = new Vector2((bl.x + br.x) * 0.5f - Screen.width, bl.y - 8f * s - Screen.height);
+            }
+            _helpButton.anchoredPosition = pos;
             _topicPanel.localScale = Vector3.one * s;
-            _topicPanel.anchoredPosition = new Vector2(-24f * s, -108f * s - 84f * s);
+            _topicPanel.anchoredPosition = new Vector2(-24f * s, pos.y - 60f * s - 12f * s);
+        }
+
+        private RectTransform _settingsRect;
+        private float _nextSettingsFind;
+
+        /// <summary>오른쪽 위 설정(메뉴) 단추. 화면이 바뀌면 사라질 수 있어 1초에 한 번만 다시 찾는다.</summary>
+        private RectTransform FindSettingsButton()
+        {
+            if (_settingsRect != null && _settingsRect.gameObject.activeInHierarchy) return _settingsRect;
+            if (Time.unscaledTime < _nextSettingsFind) return null;
+            _nextSettingsFind = Time.unscaledTime + 1f;
+            _settingsRect = null;
+            foreach (var rect in Resources.FindObjectsOfTypeAll<RectTransform>())
+                if (rect != null && rect.name == "SettingsButton" && rect.gameObject.scene.IsValid() && rect.gameObject.activeInHierarchy) { _settingsRect = rect; break; }
+            return _settingsRect;
         }
 
         // ───────────── 강조할 UI 찾기

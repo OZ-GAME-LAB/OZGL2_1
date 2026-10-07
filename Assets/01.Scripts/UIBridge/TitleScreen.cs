@@ -343,15 +343,7 @@ namespace OZGL2.UIBridge
                 // 저장이 있으면: 이어하기(으뜸) + 저장 요약 + 처음부터
                 float primaryY = -62f - 34f - bannerH * 0.5f;
                 RegisterIntro(ButtonRect(MakeButton(root, "이어하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 50f, true, ContinueGame)), 0.45f);
-                var summary = NewText("SaveSummary", root, 24f, new Color(0.93f, 0.87f, 0.75f, 0.95f), TextAlignmentOptions.Center);
-                summary.text = SaveGame.Summary();
-                summary.enableAutoSizing = true; summary.fontSizeMin = 16f; summary.fontSizeMax = 24f;
-                AddTextShadow(summary);
-                var sm = summary.rectTransform;
-                sm.anchorMin = sm.anchorMax = new Vector2(0.5f, 0.5f); sm.pivot = new Vector2(0.5f, 0.5f);
-                sm.sizeDelta = new Vector2(menuW + 120f, 34f); sm.anchoredPosition = new Vector2(0f, primaryY - bannerH * 0.5f - 24f);
-                RegisterIntro(sm, 0.55f);
-                float secondY = primaryY - bannerH * 0.5f - 24f - 17f - 14f - 33f;
+                float secondY = primaryY - bannerH * 0.5f - 16f - 33f;
                 RegisterIntro(ButtonRect(MakeButton(root, "처음부터", new Vector2(0f, secondY), new Vector2(menuW, 66f), 38f, false, NewGameClicked)), 0.62f);
                 utilityY = secondY - 33f - 12f - 30f;
             }
@@ -371,6 +363,9 @@ namespace OZGL2.UIBridge
             Stretch(vignette.rectTransform); vignette.raycastTarget = false;
             SpawnWallTorch(root, -1f);
             SpawnWallTorch(root, 1f);
+
+            // 10-2) 이어하기: 현재 진행 상황 카드(장식 위, 설정 창 아래)
+            if (SaveGame.HasSave) BuildResumeCard(root);
 
             // 11) 설정 창(맨 위) + 화면 전환용 검은 막
             BuildSettings(root);
@@ -594,6 +589,141 @@ namespace OZGL2.UIBridge
             lr.anchorMin = lr.anchorMax = new Vector2(0.5f, 1f); lr.pivot = new Vector2(0.5f, 0.5f);
             lr.sizeDelta = new Vector2(size.x - 120f, 2f); lr.anchoredPosition = new Vector2(0f, -(plateH * 0.5f + 20f));
             return rt;
+        }
+
+        // ───────────── 이어하기: 저장된 진행 상황 카드
+
+        /// <summary>스테이지 ID 끝의 숫자(stage_normal_30 → 30)가 그 스테이지의 전체 웨이브 수다.</summary>
+        private static int WaveTotalOf(string stageId)
+        {
+            if (string.IsNullOrEmpty(stageId)) return 0;
+            int u = stageId.LastIndexOf('_');
+            return u >= 0 && int.TryParse(stageId.Substring(u + 1), out int n) ? n : 0;
+        }
+
+        /// <summary>
+        /// 저장이 있을 때 이어하기 단추 오른쪽에 붙는 「현재 진행 상황」 카드(희수의 어두운 프레임·이름표).
+        /// 마왕 레벨·경험치바·LP·SP, 도전 중인 판(웨이브 진행바·재화·유닛·증강, 최대 두 개), 난이도 클리어 표시, 마지막 접속 시각.
+        /// 배경 장식(비네팅·횃불) 다음, 설정 창·암전 막 앞에 만들어서 다른 UI에 가려지지 않는다. 글자와 그림은 모두 눌림을 막지 않는다.
+        /// </summary>
+        private void BuildResumeCard(RectTransform root)
+        {
+            var mawang = MawangXpBridge.Mawang ?? new MawangLevel();
+            TraitMawangSettings.ApplySaved(mawang);
+
+            // 도전 중인 판(난이도마다 하나): 저장 시각이 늦은 순으로 두 개까지
+            var runs = new List<(int index, RunSave save, int total, string at)>();
+            for (int i = 0; i < StageClearStore.OrderedStageIds.Length; i++)
+            {
+                string id = StageClearStore.StageIdOf(i);
+                var save = RunSaveStore.Load(id);
+                int total = WaveTotalOf(id);
+                if (save == null || save.clearedRounds < 1 || (total > 0 && save.clearedRounds >= total)) continue;
+                runs.Add((i, save, total, RunSaveStore.SavedAt(id)));
+            }
+            runs.Sort((a, b) => string.CompareOrdinal(b.at, a.at));
+            if (runs.Count > 2) runs.RemoveRange(2, runs.Count - 2);
+
+            string last = SaveGame.LastPlayed;
+            bool hasLast = !string.IsNullOrEmpty(last);
+            const float w = 440f, pad = 30f, rowH = 66f;
+            float h = 88f + 60f + 12f + 24f + (runs.Count > 0 ? runs.Count * rowH : 34f) + 12f + 32f + (hasLast ? 28f : 0f) + 14f;
+
+            var panel = MakeFlatPanel(root, new Vector2(w, h), "현재 진행 상황", 280f);
+            panel.gameObject.name = "ResumeCard";
+            panel.anchoredPosition = new Vector2(452f, -96f - h * 0.5f);
+            Color dim = new Color(Cream.r, Cream.g, Cream.b, 0.72f), line = new Color(Cream.r, Cream.g, Cream.b, 0.22f);
+            Color orange = new Color(1f, 0.62f, 0.28f, 1f);
+
+            TMP_Text Put(string text, float size, Color color, TextAlignmentOptions align, float cy, float boxW)
+            {
+                var t = NewText("Text", panel, size, color, align);
+                t.text = text;
+                t.enableAutoSizing = true; t.fontSizeMin = size * 0.6f; t.fontSizeMax = size;
+                t.overflowMode = TextOverflowModes.Ellipsis;
+                AddTextShadow(t);
+                bool left = align == TextAlignmentOptions.Left, right = align == TextAlignmentOptions.Right;
+                var r = t.rectTransform;
+                r.anchorMin = r.anchorMax = new Vector2(0.5f, 0.5f);
+                r.pivot = new Vector2(left ? 0f : right ? 1f : 0.5f, 0.5f);
+                r.sizeDelta = new Vector2(boxW, size * 1.3f);
+                r.anchoredPosition = new Vector2(left ? -w * 0.5f + pad : right ? w * 0.5f - pad : 0f, cy);
+                return t;
+            }
+
+            void Bar(float cy, float ratio, Color fillColor)
+            {
+                var back = NewImage("BarBack", panel, null, new Color(0f, 0f, 0f, 0.55f));
+                back.raycastTarget = false;
+                var br = back.rectTransform;
+                br.anchorMin = br.anchorMax = new Vector2(0.5f, 0.5f);
+                br.sizeDelta = new Vector2(w - pad * 2f, 12f); br.anchoredPosition = new Vector2(0f, cy);
+                var edge = back.gameObject.AddComponent<Outline>();
+                edge.effectColor = new Color(Cream.r, Cream.g, Cream.b, 0.35f); edge.effectDistance = new Vector2(1f, -1f);
+                var fill = NewImage("BarFill", br, null, fillColor);
+                fill.raycastTarget = false;
+                var fr = fill.rectTransform;
+                fr.anchorMin = Vector2.zero; fr.anchorMax = new Vector2(Mathf.Clamp01(ratio), 1f);
+                fr.offsetMin = new Vector2(2f, 2f); fr.offsetMax = new Vector2(-2f, -2f);
+                fill.enabled = ratio > 0.001f;
+            }
+
+            float y = h * 0.5f - 88f;
+
+            // 마왕: 레벨 · LP/SP · 경험치바
+            Put("마왕 Lv " + mawang.Level, 34f, Gold, TextAlignmentOptions.Left, y - 18f, 220f);
+            Put("LP " + mawang.Points + "  ·  SP " + SkillTreeStore.SkillPoints, 22f, Cream, TextAlignmentOptions.Right, y - 18f, 190f);
+            Bar(y - 48f, mawang.Xp / (float)Mathf.Max(1, mawang.XpToNext), orange);
+            y -= 60f;
+
+            Hairline(panel, y - 6f, w - pad * 2f, line);
+            y -= 12f;
+            Put("도전 중인 판", 22f, dim, TextAlignmentOptions.Left, y - 12f, 220f);
+            y -= 24f;
+
+            if (runs.Count == 0)
+            {
+                Put("진행 중인 도전이 없습니다", 24f, dim, TextAlignmentOptions.Center, y - 17f, w - pad * 2f);
+                y -= 34f;
+            }
+            foreach (var run in runs)
+            {
+                var save = run.save;
+                int placed = 0;
+                foreach (var unit in save.units) if (unit.placed) placed++;
+                Put(StageClearStore.DifficultyNames[run.index], 30f, Gold, TextAlignmentOptions.Left, y - 15f, 140f);
+                Put(run.total > 0 ? save.clearedRounds + " / " + run.total + " 웨이브" : save.clearedRounds + " 웨이브", 26f, Cream, TextAlignmentOptions.Right, y - 15f, 220f);
+                Bar(y - 42f, run.total > 0 ? save.clearedRounds / (float)run.total : 1f, orange);
+                string detail = "재화 " + save.currency + "  ·  유닛 " + save.units.Count + "(배치 " + placed + ")  ·  증강 " + save.augments.Count
+                                + (save.rewardStage > 0 ? "  ·  보상 대기" : string.Empty);
+                Put(detail, 19f, dim, TextAlignmentOptions.Left, y - 56f, w - pad * 2f);
+                y -= rowH;
+            }
+
+            Hairline(panel, y - 6f, w - pad * 2f, line);
+            y -= 12f;
+
+            // 난이도 클리어 표시
+            Put("클리어", 22f, dim, TextAlignmentOptions.Left, y - 16f, 90f);
+            for (int k = 0; k < StageClearStore.DifficultyNames.Length; k++)
+            {
+                bool cleared = StageClearStore.IsCleared(StageClearStore.StageIdOf(k));
+                float px = -w * 0.5f + pad + 100f + k * 100f;
+                var pip = NewImage("Pip", panel, _cornerDiamond != null ? _cornerDiamond : _dot, cleared ? Gold : new Color(Cream.r, Cream.g, Cream.b, 0.28f));
+                pip.raycastTarget = false;
+                var pr = pip.rectTransform;
+                pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 0.5f); pr.pivot = new Vector2(0.5f, 0.5f);
+                pr.sizeDelta = new Vector2(18f, 18f); pr.anchoredPosition = new Vector2(px, y - 16f);
+                if (_cornerDiamond == null) pr.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                var label = Put(StageClearStore.DifficultyNames[k], 22f, cleared ? Gold : dim, TextAlignmentOptions.Left, y - 16f, 70f);
+                var nr = label.rectTransform;
+                nr.anchoredPosition = new Vector2(px + 16f, y - 16f);
+            }
+            y -= 32f;
+
+            if (hasLast) Put("마지막 접속  " + last, 20f, dim, TextAlignmentOptions.Center, y - 14f, w - pad * 2f);
+
+            RegisterIntro(panel, 0.6f);
         }
 
         private TMP_Text PlaceLabel(RectTransform parent, string text, float size, Color color, TextAlignmentOptions align, Vector2 pos, Vector2 box)

@@ -41,9 +41,24 @@ namespace OZGL2.Progression
 
         public static void Save() => PlayerPrefs.Save();
 
+        // 달성 팝업을 이미 보여 준 업적 id 목록(쉼표로 이어 한 줄로 저장)
+        private const string NotifiedKey = Prefix + "notified";
+
+        public static bool IsNotified(string achievementId) =>
+            ("," + PlayerPrefs.GetString(NotifiedKey, string.Empty) + ",").Contains("," + achievementId + ",");
+
+        public static void MarkNotified(string achievementId)
+        {
+            if (IsNotified(achievementId)) return;
+            string list = PlayerPrefs.GetString(NotifiedKey, string.Empty);
+            PlayerPrefs.SetString(NotifiedKey, string.IsNullOrEmpty(list) ? achievementId : list + "," + achievementId);
+            PlayerPrefs.Save();
+        }
+
         public static void ResetAll()
         {
             foreach (var counter in All) PlayerPrefs.DeleteKey(Prefix + counter);
+            PlayerPrefs.DeleteKey(NotifiedKey);
             PlayerPrefs.Save();
         }
 

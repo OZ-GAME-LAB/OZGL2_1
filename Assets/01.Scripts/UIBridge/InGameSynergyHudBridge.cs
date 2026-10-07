@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OZGL2.InGame;
+using OZGL2.Stage;
 using OZGL2.Synergy;
 using OZGL2.UIFlow;
 using TMPro;
@@ -88,10 +89,36 @@ namespace OZGL2.UIBridge
                 if (_sync == null || _sync.Synergy == null) { _sync = null; return; }
             }
             if (Time.frameCount % ScanInterval == 0) Refresh(_sync.Synergy);
-            UpdateTooltip(_sync.Synergy);
+            if (_fade >= 0.5f) UpdateTooltip(_sync.Synergy);
+            else if (_tipCanvas != null) _tipCanvas.enabled = false;
         }
 
-        private void LateUpdate() => ScaleTracker();
+        private void LateUpdate()
+        {
+            ScaleTracker();
+            FadeForReward();
+        }
+
+        private InGamePrototypeBootstrap _bootstrap;
+        private CanvasGroup _group;
+        private float _fade = 1f;
+
+        /// <summary>카드 보상을 고르는 동안에는 시너지 목록을 부드럽게 숨겨 카드(가운데)를 가리지 않게 하고, 끝나면 다시 보여 준다.</summary>
+        private void FadeForReward()
+        {
+            if (_container == null) return;
+            if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+            bool reward = _bootstrap != null && _bootstrap.Stage != null && _bootstrap.Stage.State == eStageState.GENERAL_REWARD;
+            if (_group == null && (reward || _fade < 1f))
+            {
+                _group = _container.GetComponent<CanvasGroup>();
+                if (_group == null) _group = _container.gameObject.AddComponent<CanvasGroup>();
+            }
+            if (_group == null) return;
+            _fade = Mathf.MoveTowards(_fade, reward ? 0f : 1f, Time.unscaledDeltaTime * 4f);
+            _group.alpha = _fade;
+            _group.blocksRaycasts = _fade > 0.5f; // 숨은 동안 시너지 설명이 카드 위에 뜨지 않게
+        }
 
         /// <summary>시너지 목록 전체를 키우고, 화면 오른쪽(왼쪽) 밖으로 나가면 안쪽으로 당겨 놓는다.</summary>
         private void ScaleTracker()
