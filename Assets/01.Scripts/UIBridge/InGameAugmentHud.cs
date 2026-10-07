@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using OZGL2.Augment;
+using OZGL2.InGame;
+using OZGL2.Stage;
 using OZGL2.Synergy;
 using OZGL2.UIFlow;
 using TMPro;
@@ -10,6 +12,7 @@ using UnityEngine.UI;
 namespace OZGL2.UIBridge
 {
     /// <summary>
+    /// 증강이 많아져도 화면을 덮지 않게 「증강 리스트」 토글 단추 하나로 접고 펼친다(보관함처럼). 기본은 접힌 상태이고, 단추를 누르면 아래로 목록이 펼쳐진다.
     /// 이번 판에 고른 증강을 화면 왼쪽에 시너지 목록과 같은 줄(희수의 SynergyTracker_InGame 프리팹: 문장 깃발·이름표·아이콘 틀)로 쌓아 보여 준다.
     /// 줄마다 증강 이름, 등급·횟수(예: 골드 · ×2), 아이콘이 들어가고 틀 색이 등급색이다. 프리팹을 못 쓰면 아래의 옛 패널 모양으로 대신 그린다.
     /// (옛 패널 모양 설명) 이번 판에 고른 증강을 화면 왼쪽에 희수의 어두운 프레임 패널로 보여 준다(위 가장자리에 걸친 「증강 N」 이름표, 네 모서리 마름모).
@@ -25,7 +28,7 @@ namespace OZGL2.UIBridge
         [SerializeField, Min(2)] private int _rows = 3;
         [Header("시너지 목록 줄 모양")]
         [SerializeField, Tooltip("시너지 목록 한 줄 프리팹(SynergyTracker_InGame)")] private GameObject _rowPrefab;
-        [SerializeField, Range(0.4f, 1f), Tooltip("줄 크기 배율(원본 330×118)")] private float _rowScale = 0.58f;
+        [SerializeField, Range(0.4f, 1.2f), Tooltip("줄 크기 배율(원본 330×118)")] private float _rowScale = 0.85f;
         [Header("희수 UI 조각(없으면 단색 상자로 대신)")]
         [SerializeField, Tooltip("패널 프레임(Frame_WavePreview_Flat, 9분할)")] private Sprite _panelFrame;
         [SerializeField, Tooltip("이름표(Frame_SynergyNameplate_Flat, 9분할)")] private Sprite _namePlate;
@@ -60,8 +63,32 @@ namespace OZGL2.UIBridge
             if (_canvas != null) Destroy(_canvas.gameObject);
         }
 
+        private InGamePrototypeBootstrap _bootstrap;
+        private CanvasGroup _group;
+        private float _fade = 1f;
+        private bool _open;
+
+        /// <summary>카드 보상을 고르는 동안은 부드럽게 숨겨 가운데 카드를 가리지 않게 하고, 끝나면 다시 보여 준다.</summary>
+        private void FadeForReward()
+        {
+            if (_canvas == null) return;
+            if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+            bool reward = _bootstrap != null && _bootstrap.Stage != null && _bootstrap.Stage.State == eStageState.GENERAL_REWARD;
+            if (_group == null)
+            {
+                if (!reward && _fade >= 1f) return;
+                _group = _canvas.GetComponent<CanvasGroup>();
+                if (_group == null) _group = _canvas.gameObject.AddComponent<CanvasGroup>();
+            }
+            _fade = Mathf.MoveTowards(_fade, reward ? 0f : 1f, Time.unscaledDeltaTime * 4f);
+            _group.alpha = _fade;
+            _group.blocksRaycasts = _fade > 0.5f;
+            if (_fade < 0.5f) HideTip();
+        }
+
         private void Update()
         {
+            FadeForReward();
             // 골드 이상 칸의 빛이 천천히 숨 쉰다
             float t = Time.unscaledTime;
             foreach (var g in _glows)
@@ -80,7 +107,7 @@ namespace OZGL2.UIBridge
             if (_sync == null) _sync = FindFirstObjectByType<RealSynergySync>();
             var run = _sync != null ? _sync.Augments : null;
             var entries = Collect(run);
-            string sig = Signature(entries);
+            string sig = Signature(entries) + "#" + LayoutKey();
             if (entries.Count == 0)
             {
                 if (_canvas != null && _canvas.enabled) _canvas.enabled = false;
@@ -113,6 +140,9 @@ namespace OZGL2.UIBridge
             return result;
         }
 
+        private static string LayoutKey()
+            => Mathf.RoundToInt(InGameSynergyHudBridge.RowScreenScale * 100f) + "/" + Mathf.RoundToInt(InGameCurrencyHud.ColumnLeft) + ":" + Mathf.RoundToInt(InGameCurrencyHud.ColumnWidth) + ":" + Mathf.RoundToInt(InGameCurrencyHud.SummaryBottom) + ":" + Screen.height;
+
         private static string Signature(List<Entry> entries)
         {
             var sb = new System.Text.StringBuilder();
@@ -132,7 +162,7 @@ namespace OZGL2.UIBridge
             go.transform.SetParent(transform, false);
             _canvas = go.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            _canvas.sortingOrder = 9;
+            _canvas.sortingOrder = 7; // 카드 보상 때 어두운 막(8)·손패(10) 뒤에 두어 카드를 가리지 않는다
             go.AddComponent<GraphicRaycaster>();
 
             var rootGo = new GameObject("Root", typeof(RectTransform));
@@ -278,14 +308,26 @@ namespace OZGL2.UIBridge
         private void RebuildRows(List<Entry> entries)
         {
             float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            float scale = _rowScale * s;
-            float rowW = 330f * scale, rowH = 118f * scale, gap = 4f * s;
-            float top = Screen.height * _topRatio;
+            // 이번 웨이브 · 이번 라운드 보상 패널과 같은 왼쪽 x·같은 폭(프리팹은 양옆 깃발까지 포함해 약 360 폭), 보상 패널 바로 아래
+            bool aligned = InGameCurrencyHud.ColumnLeft >= 0f && InGameCurrencyHud.ColumnWidth > 0f;
+            // 시너지 목록 한 줄과 화면에서 같은 크기(같은 프리팹이라 배율이 같으면 크기가 같다). 카드 보상 중에는 숨는다
+            float scale = InGameSynergyHudBridge.RowScreenScale > 0.05f ? InGameSynergyHudBridge.RowScreenScale : _rowScale * s;
+            float rowW = 360f * scale, rowH = 118f * scale, gap = 4f * s;
+            float left = aligned ? InGameCurrencyHud.ColumnLeft : 6f * s;
+            float top = InGameCurrencyHud.SummaryBottom > 0f ? Screen.height - (InGameCurrencyHud.SummaryBottom - 16f * s) : Screen.height * _topRatio;
             float available = Screen.height - top - 150f * s; // 왼쪽 아래 재화 아이콘을 가리지 않는 범위
             int perColumn = Mathf.Max(1, Mathf.FloorToInt((available + gap) / (rowH + gap)));
-            _root.anchoredPosition = new Vector2(6f * s, -top);
+            _root.anchoredPosition = new Vector2(left, -top);
             _root.sizeDelta = Vector2.zero;
             _heading.gameObject.SetActive(false);
+
+            // 토글 단추(항상 보인다): 「증강 N」 + 펼침/접힘 화살표
+            float btnH = rowH;
+            BuildToggle(entries, scale);
+            if (!_open) return;
+            float yOffset = btnH + gap + 2f * s;
+            available -= yOffset;
+            perColumn = Mathf.Max(3, Mathf.FloorToInt((available + gap) / (rowH + gap)));
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -297,7 +339,7 @@ namespace OZGL2.UIBridge
                 rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
                 rt.pivot = new Vector2(0f, 1f);
                 rt.localScale = Vector3.one * scale;
-                rt.anchoredPosition = new Vector2(col * (rowW + gap), -row * (rowH + gap));
+                rt.anchoredPosition = new Vector2(col * (rowW + gap) + 2.7f * scale, -(yOffset + row * (rowH + gap))); // 프리팹 왼쪽 깃발이 2.7 바깥으로 나와 있다
 
                 int tierIndex = Mathf.Clamp(e.data.tier, 1, 3);
                 Color tier = TierColors[tierIndex - 1];
@@ -332,6 +374,72 @@ namespace OZGL2.UIBridge
                 hover.Hud = this; hover.Entry = e; hover.Cell = rt;
                 _cells.Add(go);
             }
+        }
+
+        /// <summary>
+        /// 「증강 리스트」 토글 단추. 증강 줄과 같은 희수의 시너지 줄 프리팹(깃발·이름표·아이콘 틀)을 그대로 쓰므로 목록과 한 세트로 보인다.
+        /// 이름은 「증강 리스트」, 아래 줄에 개수와 「펼치기/접기」가 나오고, 누르면 목록이 펼쳐지거나 접힌다.
+        /// </summary>
+        private void BuildToggle(List<Entry> entries, float scale)
+        {
+            int total = 0;
+            foreach (var e in entries) total += e.count;
+
+            var go = Instantiate(_rowPrefab, _root);
+            go.name = "AugmentListToggle";
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.localScale = Vector3.one * scale;
+            rt.anchoredPosition = new Vector2(2.7f * scale, 0f);
+
+            Color gold = new Color(1f, 0.82f, 0.36f);
+            foreach (var text in go.GetComponentsInChildren<Text>(true))
+            {
+                if (text.name == "Name")
+                {
+                    text.text = "증강 리스트";
+                    text.resizeTextForBestFit = true; text.resizeTextMinSize = 10; text.resizeTextMaxSize = Mathf.Max(12, text.fontSize);
+                }
+                else if (text.name == "Thresholds")
+                {
+                    text.text = total + "개  ·  " + (_open ? "접기" : "펼치기");
+                    text.color = gold;
+                    text.resizeTextForBestFit = true; text.resizeTextMinSize = 10; text.resizeTextMaxSize = Mathf.Max(12, text.fontSize);
+                }
+            }
+            foreach (var image in go.GetComponentsInChildren<Image>(true))
+            {
+                if (image.name == "Frame") image.color = gold;
+                else if (image.name == "Icon" && image.GetComponent<Outline>() != null)
+                {
+                    var sprite = _visuals != null ? _visuals.GetIcon(string.Empty) : null; // 증강 공용(기본) 아이콘
+                    if (sprite != null) image.sprite = sprite;
+                    image.preserveAspect = true; image.color = Color.white; image.enabled = image.sprite != null;
+                }
+            }
+
+            var root = go.GetComponent<Image>();
+            if (root != null) root.raycastTarget = true;
+            var button = go.GetComponent<Button>();
+            if (button == null) button = go.AddComponent<Button>();
+            button.targetGraphic = root;
+            button.transition = Selectable.Transition.ColorTint;
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.18f, 1.12f, 1.02f, 1f);
+            colors.pressedColor = new Color(0.82f, 0.78f, 0.72f, 1f);
+            button.colors = colors;
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() =>
+            {
+                _open = !_open;
+                HideTip();
+                Sfx.Play(SfxId.UiClick);
+                _signature = string.Empty; // 바로 다시 그린다
+                _next = 0f;
+            });
+            _cells.Add(go);
         }
 
         // ───────────── 설명 말풍선

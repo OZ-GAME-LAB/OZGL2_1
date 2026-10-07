@@ -40,7 +40,9 @@ namespace OZGL2.UIBridge
     public sealed class InGameSynergyHudBridge : MonoBehaviour
     {
         private const int Slots = 4;
-        private const float TrackerScale = 1.25f; // 오른쪽 시너지 목록이 작아 잘 안 보여서 키운다
+        private const float TrackerScale = 0.9f;
+        /// <summary>시너지 목록 한 줄이 화면에서 실제로 차지하는 배율(프리팹 원본 대비). 고른 증강 줄이 같은 크기로 그리려고 읽는다. 아직 모르면 0.</summary>
+        public static float RowScreenScale { get; private set; } // 오른쪽 시너지 목록이 작아 잘 안 보여서 키운다
         private RectTransform _container;
         private const int ScanInterval = 5; // 프레임마다 확인하지 않아도 충분하다
 
@@ -125,6 +127,7 @@ namespace OZGL2.UIBridge
         {
             if (_container == null) return;
             if (!Mathf.Approximately(_container.localScale.x, TrackerScale)) _container.localScale = new Vector3(TrackerScale, TrackerScale, 1f);
+            RowScreenScale = _container.lossyScale.x;
             var canvas = _container.GetComponentInParent<Canvas>();
             if (canvas == null || canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay) return; // 오버레이 캔버스에서는 월드 좌표 = 화면 픽셀
             float minX = float.MaxValue, maxX = float.MinValue;

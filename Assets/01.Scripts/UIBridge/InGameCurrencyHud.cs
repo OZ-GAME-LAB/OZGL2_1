@@ -74,6 +74,33 @@ namespace OZGL2.UIBridge
         private Canvas _summaryCanvas;
         private RectTransform _summaryContent;
         private RectTransform _summaryBox;
+        /// <summary>왼쪽 열(이번 웨이브 · 이번 라운드 보상 · 고른 증강)이 함께 쓰는 기준: 왼쪽 x(화면 픽셀), 폭, 보상 패널의 아래 y. 보상 패널이 한 번 놓인 뒤부터 값이 있다(없으면 음수).</summary>
+        public static float ColumnLeft = -1f, ColumnWidth = -1f, SummaryBottom = -1f;
+
+        /// <summary>용사 처치로 재화를 얻을 때(화면 위치, 얻은 양). 금화 연출(InGameCoinAbsorb)이 구독하면 숫자는 금화가 도착한 만큼씩 오른다.</summary>
+        public static event System.Action<Vector2, int> Gained;
+        /// <summary>금화가 아직 날아가는 중이라 표시 숫자에는 반영하지 않은 양.</summary>
+        public static int PendingFlight { get; private set; }
+        private static InGameCurrencyHud _live;
+
+        /// <summary>금화가 재화 표시에 도착했다: 그만큼 숫자에 반영하고 표시가 톡 커진다.</summary>
+        public static void CoinArrived(int amount)
+        {
+            PendingFlight = Mathf.Max(0, PendingFlight - amount);
+            if (_live != null) _live._pulse = 0.3f;
+        }
+
+        /// <summary>지금 보이는 재화 표시(전투 중 복제본 또는 준비 화면 아이콘)의 화면 위치.</summary>
+        public static bool TryGetCurrencyScreenPos(out Vector2 pos)
+        {
+            pos = default;
+            if (_live == null) return false;
+            var target = _live._combatClone != null && _live._combatClone.gameObject.activeInHierarchy ? _live._combatClone
+                : _live._pulseTarget != null && _live._pulseTarget.gameObject.activeInHierarchy ? _live._pulseTarget : null;
+            if (target == null) return false;
+            pos = ScreenCenter(target);
+            return true;
+        }
         private Canvas _canvas;
         private TMP_FontAsset _font;
         private readonly List<Floating> _floats = new List<Floating>();
@@ -87,12 +114,16 @@ namespace OZGL2.UIBridge
         {
             _balance = _startAmount;
             _pushed = false;
+            PendingFlight = 0;
+            _live = this;
             UnitBase.OnHeroKilled += OnHeroKilled;
         }
 
         private void OnDisable()
         {
             UnitBase.OnHeroKilled -= OnHeroKilled;
+            if (_live == this) _live = null;
+            PendingFlight = 0;
             foreach (var button in _rerollButtons) if (button != null) button.onClick.RemoveListener(OnRerollClicked);
             _rerollButtons.Clear();
             _buttonHooked = false;
@@ -152,6 +183,13 @@ namespace OZGL2.UIBridge
             _balance += gain;
             _roundKillGain += gain;
             Push();
+            if (hero != null && Gained != null)
+            {
+                // 금화가 날아가 도착할 때 숫자가 오르고 표시가 커진다(떠오르는 "+N" 글자는 쓰지 않는다)
+                PendingFlight += gain;
+                Gained(WorldToScreen(hero.transform.position + Vector3.up * 0.4f), gain);
+                return;
+            }
             _pulse = 0.3f;
             if (hero != null) SpawnFloating(WorldToScreen(hero.transform.position + Vector3.up * 0.4f), "+" + gain, new Color(1f, 0.86f, 0.35f));
         }
@@ -989,6 +1027,7 @@ namespace OZGL2.UIBridge
                 _previewSignature = null; // 폭이 바뀌면 크기를 다시 계산
             }
             _summaryBox.anchoredPosition = topLeft;
+            ColumnLeft = topLeft.x; ColumnWidth = width; SummaryBottom = topLeft.y - _summaryBox.sizeDelta.y;
         }
 
         private RectTransform FindWavePanel()
@@ -1123,7 +1162,7 @@ namespace OZGL2.UIBridge
                     if (_cloneText == null || text.gameObject.name.IndexOf("Value", System.StringComparison.OrdinalIgnoreCase) >= 0) _cloneText = text;
                 if (_cloneText == null) { Destroy(copy); _combatClone = null; _cloneFailed = true; return false; }
             }
-            _displayBalance = Mathf.MoveTowards(_displayBalance, _balance, Mathf.Max(30f, Mathf.Abs(_balance - _displayBalance) * 6f) * Time.unscaledDeltaTime);
+            _displayBalance = Mathf.MoveTowards(_displayBalance, Mathf.Max(0, _balance - PendingFlight), Mathf.Max(30f, Mathf.Abs(_balance - PendingFlight - _displayBalance) * 6f) * Time.unscaledDeltaTime);
             _cloneText.text = Mathf.RoundToInt(_displayBalance).ToString();
             float k = _pulse > 0f ? 1f + 0.18f * Mathf.Sin((_pulse / 0.3f) * Mathf.PI) : 1f;
             _combatClone.localScale = new Vector3(_cloneBaseScale.x * k, _cloneBaseScale.y * k, 1f);
@@ -1176,7 +1215,7 @@ namespace OZGL2.UIBridge
             PlaceWidget();
 
             // 숫자가 한 번에 바뀌지 않고 빠르게 올라간다
-            _displayBalance = Mathf.MoveTowards(_displayBalance, _balance, Mathf.Max(30f, Mathf.Abs(_balance - _displayBalance) * 6f) * Time.unscaledDeltaTime);
+            _displayBalance = Mathf.MoveTowards(_displayBalance, Mathf.Max(0, _balance - PendingFlight), Mathf.Max(30f, Mathf.Abs(_balance - PendingFlight - _displayBalance) * 6f) * Time.unscaledDeltaTime);
             _widgetText.text = Mathf.RoundToInt(_displayBalance).ToString();
             float k = _pulse > 0f ? 1f + 0.22f * Mathf.Sin((_pulse / 0.3f) * Mathf.PI) : 1f;
             _widgetBox.localScale = new Vector3(k, k, 1f);

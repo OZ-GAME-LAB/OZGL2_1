@@ -28,9 +28,11 @@ namespace OZGL2.UIBridge
         [SerializeField, Range(0f, 0.9f), Tooltip("보상 선택 중 뒤 화면을 어둡게 하는 정도")]
         private float _rewardDim = 0.62f;
         [SerializeField] private float _rewardRestingYOffset = 8f;
+        [SerializeField, Range(0f, 0.2f), Tooltip("보상 카드를 화면 가운데에서 위로 올리는 정도(화면 높이 비율). 아래 리롤 버튼을 가리지 않게 한다.")]
+        private float _rewardRaise = 0.085f;
         [SerializeField, Min(1f)] private float _rewardHoverScale = 1.12f;
         [SerializeField, Min(0f)] private float _rewardHoverRise = 24f;
-        [SerializeField] private float _rewardSpacing = 28f;
+        [SerializeField] private float _rewardSpacing = 0f;
 
         private const BindingFlags Priv = BindingFlags.Instance | BindingFlags.NonPublic;
         private static readonly System.Type HandType = typeof(UIBattleCardHandView);
@@ -119,7 +121,7 @@ namespace OZGL2.UIBridge
             var corners = new Vector3[4];
             viewport.GetWorldCorners(corners);
             Vector2 center = (corners[0] + corners[2]) * 0.5f;
-            Vector2 screen = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            Vector2 screen = new Vector2(Screen.width * 0.5f, Screen.height * (0.5f + _rewardRaise));
             _panel.anchoredPosition = _panelPos + (screen - center) / Mathf.Max(0.01f, canvas.scaleFactor);
 
         }
