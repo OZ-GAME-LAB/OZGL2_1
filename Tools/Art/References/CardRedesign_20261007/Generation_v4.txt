@@ -1,0 +1,83 @@
+Date: 2026-10-07 (Asia/Seoul)
+Method: built-in image_gen edit
+Output: 04_CardRedesign_Wider_LandPlus.png
+Scope: Reference image only. Wider card proportions, smaller content, increased padding, land-plus icons.
+Inputs:
+D:/GitHub/OZGL2_1/Tools/Art/References/CardRedesign_20261007/03_CardRedesign_ActualGameAssets.png
+C:/Users/sudea/AppData/Local/Temp/codex-clipboard-4117d20e-830e-43cd-9b08-bb94868887f7.png
+C:/Users/sudea/AppData/Local/Temp/codex-clipboard-e84fe853-c62a-412a-990b-f7da1db7b2f7.png
+D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Portraits/M_WAR_01_1.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Terrain/earth_32_a.png
+
+Prompt:
+Use case: precise-object-edit. Revise the reference board (Image 1) using the user's ACTUAL Unity screenshots (Images 2 and 3). The user says the previous concept cards are too narrow and all individual elements are oversized. Fix WIDTH and SCALE, not the overall art style.
+
+INPUT ROLES:
+Image 1: previous two-card + six-expansion-shape board, edit target and content reference.
+Image 2: user's actual expansion card screenshot. Exact gold frame language, burgundy ribbons, restrained line weights and type icon styling reference. Ignore editor scrollbar and empty surrounding UI.
+Image 3: user's actual unit card screenshot. Exact proportions, understated gold frame, pixel-character relative scale, dark face panels, icon and text sizing reference. Remove its old board grid as previously requested.
+Image 4: actual M_WAR_01 pixel portrait, authoritative character. Preserve exact green skin, maroon topknot, orange belt, pale sword facing left, white/red shoulder patch and native blocky pixel detail.
+Image 5: actual game's earth_32_a flat brown dry-earth texture. Colour and material reference for the land icons.
+
+REQUIRED VISUAL CORRECTIONS:
+- Make each card CLEARLY WIDER relative to its height than Image 1. Final full card silhouette width:height approximately 0.64–0.66 (about 620 wide by 960 tall), including top crest and bottom ribbon. About 20–25 percent more width than the earlier generated layout. Do not squeeze the two cards to fit a narrow left column.
+- Thin the over-heavy gold frame slightly towards screenshots, retaining the existing curves, horned gold skull, burgundy side ribbons and bottom pennant.
+- Reduce inner components. Main unit sprite should be only about ONE THIRD of the card width and 16–18 percent of card height, centered in the artwork panel, with substantial negative space on all four sides. Do not enlarge it to fill the picture window.
+- Header title, star badge, type medallion, section tabs, numbers and body text all become modestly smaller relative to card size. Star and type medallion roughly 11–13 percent of card width. Title approximately 4.8–5 percent of card width in font size. Body approximately 3.6–4 percent. No oversized headings.
+- More left/right inner padding (about 7–9 percent of card width inside gold borders), generous empty space around text and icons.
+- Main image window height around 25 percent of card body, still smaller than original grid region; retain more area for combat and explanatory text.
+- Keep current gold/burgundy/dark charcoal colour scheme and slight brightness lift. Do not redesign frames. No beige parchment. No grid lines in any card.
+- The expansion card's main graphic must now be a COMPACT, clearly designed "LAND EXPANSION" ICON: a small simplified pixel-art dry-earth land tile/patch based on the game's brown terrain, plus a prominent readable GOLD/IVORY "+" sign outside its upper-right corner, similar to a small plus badge. The plus must be visible at a glance and remain inside the image window. Do not just show a huge land shape again. Do not show a huge plus character spanning the card. Total land-plus icon about 30–34 percent of card width, comfortably centered with abundant breathing room.
+- Keep six ID-based expansion examples on the right, but make EACH one a tidy matching LAND-PLUS icon: its exact shape silhouette plus the same small gold/ivory plus badge OUTSIDE the shape at upper-right. The plus is separate from the occupied-cell shape and must not look like another land cell. All six icons should share one visual system and consistent cell unit size. Avoid realistic floating stone-platform chunks.
+- Absolutely NO third/relic card. NO board title, subtitle, footer, category plaques, design notes or arrows. Only in-card content and six ID/count captions.
+
+COMPOSITION:
+One wide landscape board, ideally 2048x1280 or similar aspect. Two equally sized cards side by side at left/centre, occupying about 68 percent of width, and six compact expansion icons in a 2-column, 3-row catalogue in the right remaining space. Allow cards enough width to maintain specified silhouette ratio. Cards occupy about 85 percent of canvas height with clear outline. No large unused header strip. Full frame outlines, ribbons and all six samples visible. Neutral medium charcoal background. Subtle separator optional. Do not add external labels above either card.
+
+UNIT CARD:
+Existing header name "전사(근딜)", small crossed-swords type medallion matching the screenshot, small gold star "1".
+Image 4 ACTUAL pixel warrior, small with plenty of empty charcoal space. No new character illustration, no detailed repaint.
+First compact strip: burgundy title tab "점유 칸수", value "1칸".
+Larger combat section with burgundy title tab "전투 정보", modest left aligned text:
+"근접 · 사거리 1"
+"공격속도 1.0회/초"
+No synergy or invented effect.
+Three-column footer with restrained white sword/shield/heart icons and labels:
+"공격력" / "18"
+"방어율" / "10%"
+"체력" / "140"
+Numerals readable but noticeably less oversized than Image 1.
+
+EXPANSION CARD:
+Header name "배치 영역 확장". Small land-plus type medallion. Preserve the small gold star with digit "1" as shown in the user's actual screenshot. Use original diamond dividers and curled frame.
+Image window: ONE compact dry-earth expansion icon with an easily visible "+" badge, centered. A 2x2 earth shape may form its base to match the +4 example, but it must read as a single small designed icon with a plus symbol, not as four huge raw terrain blocks.
+Below image, smaller yet clear heading "배치 영역 +4칸".
+Body in modest size, generous margins:
+"확장할 위치에 배치해"
+"유닛을 놓을 공간을 넓힙니다."
+
+RIGHT SIX ICONS:
+Flat pixel-art muted brown/taupe earthy silhouettes using supplied game's texture, simplified as reusable UI icons. No large rock sides, green grass, flowers or rectangular grid background. Exact connected cell count. Add matching gold/ivory '+' badge off the upper-right of EVERY silhouette. Keep ID captions unaltered below; plus never covers ID or cells.
+Rows TOP to BOTTOM; # actual land area, . empty area:
+row1 left: "floor_domino" / "2칸" shape:
+#
+#
+row1 right: "floor_line3" / "3칸" shape:
+#
+#
+#
+row2 left: "floor_corner3" / "3칸" shape:
+#.
+##
+row2 right: "floor_square4" / "4칸" shape:
+##
+##
+row3 left: "floor_tee4" / "4칸" shape:
+.#.
+###
+row3 right: "floor_l4" / "4칸" shape:
+#.
+#.
+##
+
+Review priority: (1) wider cards, (2) smaller components and broad negative space, (3) clear land+ icon, (4) actual pixel warrior, (5) same game gold/burgundy frame. The finished result should feel like a restrained, usable UI from the attached screenshots, with improved spacing.

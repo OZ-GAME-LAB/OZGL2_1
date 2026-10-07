@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 151a739c8cf0d1c46925a58111f68711, type: 3}
+  m_Name: UIExpansionCardVisualCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIExpansionCardVisualCatalogSO
+  _entries:
+  - _shapeId: floor_domino
+    _artwork: {fileID: 21300000, guid: 008441ed65651a74cbaf2506004cbbdf, type: 3}
+  - _shapeId: floor_line3
+    _artwork: {fileID: 21300000, guid: b00095d9f74a42745a6d064694da071b, type: 3}
+  - _shapeId: floor_corner3
+    _artwork: {fileID: 21300000, guid: a070f424bf69d5145b7caa4a8d33a28f, type: 3}
+  - _shapeId: floor_square4
+    _artwork: {fileID: 21300000, guid: 87580df5bb78fce4ab2aef5ee33d1ccb, type: 3}
+  - _shapeId: floor_tee4
+    _artwork: {fileID: 21300000, guid: 415fa75f0fc11bf43bb123399127b94d, type: 3}
+  - _shapeId: floor_l4
+    _artwork: {fileID: 21300000, guid: f99b3d30b72372e449654228db332f28, type: 3}
+  _fallbackArtwork: {fileID: 0}

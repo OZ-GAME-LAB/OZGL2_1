@@ -1,0 +1,14 @@
+Method: built-in image_gen (edit)
+Input: 05_CardRedesign_DiamondFooter_ClearStats.png
+Output: 06_CardRedesign_BorderlessStats_InlineIcons.png
+
+Use case: precise-object-edit
+Asset type: Korean fantasy game card UI reference sheet.
+Input image 1 is the edit target, the latest approved full reference sheet. Perform a very narrow localized edit ONLY to the bottom stats area of the LEFT unit card.
+Primary request:
+1. Remove the individual gold rectangular outlines around all three unit stat cells, including their top horizontal outline, vertical dividers, small gold diamond separator ornaments and tiny curls. The stats should sit freely on the existing dark panel, with no boxed cells and no separating rules.
+2. Move each existing white stat icon from above the stat cells to immediately LEFT of its corresponding Korean label, on the SAME horizontal baseline. Three evenly spaced columns: sword icon + "공격력"; shield icon + "방어력"; heart icon + "체력". Icons should be compact, approximately the label height, with clear small spacing before the label. The combined icon-and-label groups should be horizontally centered in each column.
+3. Center the numeric values underneath those label groups. Exact values left-to-right are "18", "10%", "140". Preserve the current readable medium-large numeral size and ivory text style, with balanced vertical spacing. Do not enlarge them beyond the reference. Change the middle stat label from 방어율 to the explicitly requested 방어력. No change to its 10% value.
+Keep the overall outer gold card frame and bottom horizontal gold trim with centered gold diamond and curled ends COMPLETELY intact. Only remove the internal stats cell boxes; do NOT remove the outer card border or bottom ornament. Preserve the previous combat-info panel border above stats.
+Invariants: Keep the canvas size/aspect and all composition unchanged, all card dimensions and positions, existing charcoal backgrounds, red side ribbons, top skull crests, title name 전사(근딜), actual green pixel warrior size/pose, occupation/combat info, stars, every other text element. Preserve the ENTIRE expansion card and the ENTIRE six-icon expansion catalogue on the right without any edits, including its upper-left land-plus badge and borderless central single-land-plus icon. Do not add headings, explanatory notes, extra badges, grid lines, new card decorations, or watermarks.
+Return the edited full sheet, not a crop. Match the input closely everywhere outside the small bottom-left stats region.

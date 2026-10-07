@@ -1,0 +1,62 @@
+Date: 2026-10-07 (Asia/Seoul)
+Method: built-in image_gen
+Purpose: Reference board only; card statistics are examples.
+Output: 01_CardRedesign_WithExpansionIDs.png
+Prepared expansion images were not found in the repository; the board illustrates new concepts matching the actual shape definitions.
+
+Prompt:
+Use case: ui-mockup.
+Create ONE polished high-resolution landscape reference board for a Korean Unity medieval demon-fantasy card game. This is a visual concept board, not a screenshot of an implemented game. Prefer approximately 3072x2048 pixels with crisp readable Korean labels. Flat front-facing presentation, no perspective on the cards.
+
+BOARD COMPOSITION:
+Warm neutral light grey background, subtle texture, generous spacing. Top title in clear Korean: "카드 디자인 개선안". Small subtitle: "밝은 패널 · 이미지 중심 · 전투 정보 확대". A small footer reads "디자인 레퍼런스 · 표시 수치는 예시".
+LEFT 62%: three complete tall cards side by side, SAME HEIGHT, labeled above "유닛", "기물", "배치 영역 확장". They must each be large enough to clearly read. All edges visible. RIGHT 35%: heading "확장 ID별 이미지", SIX equally sized labeled sprite studies in a clean TWO-COLUMN by THREE-ROW catalogue, ordered row-major as listed below. Draw a thin visual separator between left and right. Do not cram sprite studies below cards. No arrows or annotation clutter.
+
+SHARED CARD STYLE:
+A refined smooth illustrated medieval fantasy UI, NOT pixel art. Polished antique-gold metal rims, restrained burgundy cloth side ribbons, small horned demon helmet crest at top centre; rounded and beveled shapes with readable silhouettes. REDUCE ornament bulk to increase usable area. Interiors are visibly brighter than near-black: warm pale greige stone/parchment panels, clean enough for dark charcoal text, light warm stone backgrounds behind portraits. Avoid black information panels. Top-left small circular gold type medallion (white sword, blue crystal, or land emblem). Unit and relic have one small gold rank star with digit "1" at top right. Expansion has NO star because it is not a ranked unit. Shared name area, smaller artwork area occupying about one quarter of the useful card height, compact occupied-cell strip, spacious information panels beneath. Text headers are elegant bold Korean serif inspired by Heir of Light; body and numbers are legible Korean sans serif. Ensure generous line spacing. All copy sits fully within panels. No five-by-five board, no checkerboard, no empty cell matrix, no grid over artwork, no synergy text, no synergy thresholds. Labels/numbers separate from the illustrated artworks in the concept.
+
+CARD 1 UNIT:
+Name "그림자 검사". Artwork: a cute readable hooded shadow swordsman with dark armour, glowing red eyes, silver sword, frontal character illustration, in the SMALL upper artwork panel with visible light background.
+First info strip: "점유 2칸".
+Second SPACIOUS combat section: header "전투 정보", readable rows "근접    사거리 1.5" and "공격속도 1.0회/초". Do NOT write range in cell units.
+Next SPACIOUS effect section: header "2성 특기", body on two readable lines "세 번째 공격 시" / "적을 기절시킵니다."
+Enlarged three-column stats footer with clear labels and bold values: "공격력" / "100", "방어율" / "20%", "체력" / "800". Small sword/shield/heart glyphs allowed, no excessive icons. Card hierarchy must clearly give more space to range/effects/stats than the portrait.
+
+CARD 2 RELIC:
+Name "마력 증폭기". Artwork: compact upright pale-blue magical crystal on a stone pedestal, matching the existing smooth demon-fantasy style, small upper panel.
+First info strip: "점유 1칸".
+Generous effect section header "기물 효과", two lines "주변 아군의" / "마법 피해 +15%".
+Generous second section header "3성 효과", two lines "재사용 시간 감소".
+No irrelevant unit attack/defense/health footer. No synergy. Keep its portrait and occupied strip aligned with unit card.
+
+CARD 3 EXPANSION:
+Name "배치 영역 확장". Artwork panel: clean TWO BY TWO connected grass-topped stone land piece, exactly FOUR equally sized square land cells, no surrounding grid; it is the same floor_square4 art shown in the catalogue. Straight top-down orthographic illustration with restrained bevel depth. First info strip: large "배치 영역 +4칸".
+Generous body section heading "사용 방법"; two lines "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다."
+No synergy, no combat stats, no rank star. Its smaller image area leaves ample explanatory space.
+
+RIGHT-HAND EXPANSION CATALOGUE:
+Each study shows a front-facing TOP-DOWN land cutout on the neutral board: fresh muted-green grass on grey cobblestone edging, clean natural grassy surface, narrow joints marking ONLY the actual square cells, subtle bevel depth, no floating separate cells. The exact silhouette is the priority. Do not add unused cells or a full background board. No isometric view. Maintain SAME CELL SIZE across all six studies and centre each silhouette in its area. Labels below each study are EXACT ASCII ID on first line and Korean cell count on second line. These are independent reusable image concepts with NO text baked into the land cutout itself.
+
+Coordinate notation: y increases upward, rows specified here run from TOP to BOTTOM. # means one actual grass/stone land cell; dot means EMPTY TRANSPARENT SPACE and must NOT be drawn as a tile.
+1. label "floor_domino", "2칸". Two vertical cells. Pattern:
+#
+#
+2. label "floor_line3", "3칸". Three vertical cells. Pattern:
+#
+#
+#
+3. label "floor_corner3", "3칸". Exact corner silhouette with upper-left, lower-left, lower-right. Pattern:
+#.
+##
+4. label "floor_square4", "4칸". Exact square. Pattern:
+##
+##
+5. label "floor_tee4", "4칸". Exact T-family silhouette oriented as an upward central stem above a lower three-cell row. Pattern:
+.#.
+###
+6. label "floor_l4", "4칸". Exact L silhouette with a left vertical three-cell column and one cell extending right from the BOTTOM. Pattern:
+#.
+#.
+##
+
+Constraints: deliver a single coherent finished comparison image including all THREE cards and all SIX shape studies. No cropped cards, no duplicate study, no missing ID, no extra tile, no fake grid, no black text panels, no redesign into sci-fi, no watermark. Accurate Korean spelling and clear hierarchy.

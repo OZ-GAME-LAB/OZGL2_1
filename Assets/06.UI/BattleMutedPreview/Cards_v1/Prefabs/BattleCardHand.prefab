@@ -570,7 +570,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIGridStorageHandAdapter
   _handView: {fileID: 2357450837467894354}
-  _unitCatalog: {fileID: 11400000, guid: f6eab01fc14b9834d8166794576ecf05, type: 2}
+  _unitCatalog: {fileID: 11400000, guid: ef523d816a96fb745bab0751b5ca6a88, type: 2}
+  _expansionCardVisuals: {fileID: 11400000, guid: 3243772fbef2d354c9c061c6666144d0, type: 2}
   _bootstrap: {fileID: 0}
   _phasePresentation: {fileID: 0}
   _legacyDocument: {fileID: 0}
@@ -629,6 +630,7 @@ MonoBehaviour:
   _comfortableSpacing: -60
   _minimumRevealWidth: 56
   _bottomPadding: 24
+  _restingYOffset: 0
   _fanArcHeight: 32
   _maxFanAngle: 8
   _hoverScale: 1.44

@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "date": "2026-10-07",
+  "method": "Built-in image_gen transparent-background editing. No CLI fallback or post-generation pixel editing.",
+  "status": "Integrated into BattleCard_Unit and BattleCard_LandSlot using Unity Editor APIs. Unit occupancy/three-star skill layout and per-shape expansion artwork are connected; original v1 art remains unchanged.",
+  "outputs": [
+    {
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/Sprites/CardShell_Unit.png",
+      "source": "exec-f9dcd9e4-4bbd-4646-9d34-44183ffb2df7.png",
+      "changes": [
+        "Upper side banners reduced to one cloth silhouette on each side",
+        "Reference-based shorter artwork area, shallow occupancy row and taller combat-information panel",
+        "Open stats footer with two vertical separators",
+        "Preserved upturned angular gold scroll ornaments at both bottom corners"
+      ]
+    },
+    {
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/Sprites/CardShell_LandSlot.png",
+      "source": "exec-04924555-5b0d-47f0-bae3-d60abce4f4d6.png",
+      "changes": [
+        "Upper side banners reduced to one cloth silhouette on each side",
+        "Chamfered artwork window",
+        "Lower emphasis and description regions separated by thin gold lines and diamonds"
+      ]
+    }
+  ],
+  "prefabInspection": {
+    "prefabs": [
+      "Assets/06.UI/BattleMutedPreview/Cards_v1/Prefabs/BattleCard_Unit.prefab",
+      "Assets/06.UI/BattleMutedPreview/Cards_v1/Prefabs/BattleCard_LandSlot.prefab"
+    ],
+    "existingShellFolder": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites",
+    "rootSize": [
+      600,
+      1100
+    ],
+    "shellRect": {
+      "position": [
+        0,
+        -100
+      ],
+      "size": [
+        600,
+        1000
+      ]
+    },
+    "separateUI": [
+      "Type badge and icon",
+      "Star badge and rank",
+      "Title and body text",
+      "Unit artwork",
+      "Footprint grid",
+      "Stats labels, icons and values"
+    ],
+    "note": "LandSlot _artwork is currently unassigned. Changed panel geometry needs UI RectTransform alignment during later Prefab integration."
+  },
+  "validation": {
+    "visual": [
+      "One upper banner per side",
+      "Unit bottom side ornaments retained",
+      "No baked text, badges, icons or artwork"
+    ],
+    "unity": "MCP connection unavailable; import, runtime alignment and Play Mode not verified."
+  },
+  "prompts": {
+    "unit": "Use case: precise-object-edit. Asset: production Unity uGUI card-shell PNG, blank background layer only.\nInput 1 is the EXISTING CardShell_Unit sprite to edit. Input 2 is the user's desired assembled unit-card layout reference (extract layout/style only). Input 3 is the exact bottom corner ornament the user specifically wants preserved.\nCreate ONE standalone edited UNIT CARD SHELL, tall portrait 3:5 canvas, ideally 960x1600. Match the polished warm gold, black/charcoal subtle gradient interiors, burgundy cloth, smooth illustrated demon-fantasy style of input 1 and the more readable layout of input 2. Keep the entire card silhouette fully inside the image with a narrow transparent margin. Real alpha transparency OUTSIDE the silhouette ONLY; every enclosed black/charcoal panel must be fully opaque.\nMost important correction: at the upper left and upper right, use EXACTLY ONE red hanging swallowtail banner per side. Remove the second overlapping/offset red strip on BOTH sides. A single uninterrupted cloth silhouette per side with one V-cut end; no cloth behind it, no second lower red tail. Keep the horned gold skull crest centered at the top.\nLayout based on input 2: empty header between thin gold horizontal rules; medium artwork window with clipped/chamfered gold corners (shorter vertically than original); one shallow full-width occupancy row with a blank burgundy label tab at its left; below it a substantially TALLER full-width combat-information panel with another matching blank burgundy label tab at left; roomy bottom stats area with only TWO thin vertical gold separators, no boxes around the individual stats. Preserve the small side decorations of the two label tabs as in input 2. Bottom center has the small faceted gold diamond from input 2. Preserve BOTH bottom outside CORNERS from input 1/input 3: the upturned angular gold flourish and curled tip, mirror-symmetric. Do NOT replace these two corners by simple round curls. Remove the original bottom-center hanging red banner in favor of the reference's gold center diamond.\nStrictly omit ALL runtime content: no title text, no digits, no writing, no type circle badge, no star badge, no crossed swords, no stat icons, no heart/shield, no unit character, no terrain, no plus sign, no grid or occupied cells. Blank shell art only. No checkerboard pixels, no background rectangle, no glow or shadow outside the silhouette, no collage.",
+    "landInitial": "Use case: precise-object-edit. Asset: production Unity uGUI land-expansion card-shell PNG, blank background layer only.\nInput 1 is the EXISTING CardShell_LandSlot sprite to edit. Input 2 is the user's desired assembled expansion-card reference board: ONLY the large card at the LEFT defines the target layout. The six icons on the RIGHT are NOT part of this output. Input 3 is the matching original unit shell for shared style.\nCreate ONE standalone LAND EXPANSION CARD SHELL, tall portrait 3:5 canvas, ideally 960x1600. Preserve the warm polished gold and charcoal/black gradient interiors, red cloth, smooth illustrated demon-fantasy style. The header/outer frame should visually match the card at the LEFT of input 2. Keep the whole silhouette within narrow transparent margins. Real alpha transparency outside only; enclosed card panels fully opaque.\nCritical correction: there is EXACTLY ONE red hanging swallowtail banner at the upper LEFT and exactly ONE at the upper RIGHT. Each is a single continuous cloth shape with one V-notched bottom. NO duplicate banner, no offset second layer, no second red tail peeking below or behind it. Keep centered horned gold skull and curled upper gold frame. No extra long banners at bottom corners: follow the clean bottom of the LEFT reference card.\nLayout: generous blank header with thin gold rules; one medium nearly-square blank artwork window framed in chamfered gold immediately below the header; beneath it a full-width gold divider with small center diamond; a blank emphasis band for the runtime +N tiles label; beneath that a narrower fine gold divider with small center diamond; then a large clean blank description panel; curled gold bottom corners and small faceted center gold diamond matching the LEFT reference.\nStrictly omit all runtime content: NO writing, no text or digits, no star, no circular type badge, no icon, no land/tile illustration, no plus symbol, no grid. Do not include right-side icon sheet, legend or reference-board separator. Blank shell only, no collage, no background rectangle, no baked checkerboard, no outside glow/shadow.",
+    "landCorrection": "Use case: precise-object-edit. Fix this blank Unity LAND EXPANSION CARD SHELL. Input 1 is the edit target (previous land shell). Input 2 is the successful UNIT shell demonstrating the CORRECT single hanging banner silhouette at each upper side. Input 3 is the user's reference board; only its LEFT CARD matters.\nTwo precise corrections:\n(1) Replace the entire upper-left and upper-right red hanging cloth assemblies of input 1 with EXACTLY the single-layer cloth silhouettes of input 2. There must be ONLY ONE red banner per side, with a single V-notch, ending around the top of the artwork panel. Remove the second red ribbon layer whose V-notch currently extends farther down alongside the vertical gold rail. Below the single banner's endpoint, the gold vertical rail must be exposed, with NO red fabric behind it. The fronts may retain the subtle crest motif, but no second cloth strip. This is mandatory.\n(2) Under the large artwork window, REMOVE the thick rectangular/octagonal borders around the two lower information areas. Follow input 3 LEFT CARD: one isolated long thin gold horizontal divider with small center diamond, then a clear blank emphasis band, then one shorter isolated thin gold horizontal divider with small center diamond, then a large open blank description area. No boxes around emphasis/description. The large outer gold frame remains.\nPreserve all other accepted parts of input 1: tall card, central horned skull, blank header, chamfered artwork window, gold material, charcoal gradient panel, left-right symmetry, full outline within canvas. Keep matching smooth illustrated style and similar proportions to input 2. Output ONE portrait PNG, real transparent background OUTSIDE only, all enclosed card surfaces fully opaque. Do not add writing, numbers, badges, stars, icons, terrain shapes, plus signs, characters, grids, checkerboards, or a contact sheet."
+  }
+}

@@ -1,0 +1,37 @@
+Method: built-in image_gen (geometry repair and combined reference).
+Requested canvas:1280x1104. Each Unity root600x1100, shell600x1000 at top offset100.
+Initial individual outputs were not at requested native canvas sizes and were retained only as intermediate visual drafts.
+
+Create the final image at EXACTLY 1280 pixels wide by 1104 pixels high. OPAQUE solid dark-charcoal background. This is a strict 1:1 Unity UI measurement reference, NOT an artistic poster. Do not crop, auto-trim, change canvas size, add big margins, or independently scale the cards.
+
+LAYOUT REQUIREMENT:
+Two Unity card roots, EACH exactly 600x1100 in this pixel canvas.
+LEFT root x=16,y=2,w=600,h=1100. RIGHT root x=664,y=2,w=600,h=1100.
+Each root's actual card shell allocation is x=0,y=100,w=600,h=1000 relative to its root. Thus the shells are at x=16,y=102,600x1000 and x=664,y=102,600x1000.
+Keep the source card-shell art's original aspect ratio of about0.600 within this allocation. Do not use root600x1100 as the shell's aspect ratio. The root's upper100px is layout slack, NOT part of the card. This is the main error to fix: the card shell must be wide relative to its height.
+Original gold/cloth alpha bounding boxes inside each 600x1000 shell are approximately x14..586,y25..957. Align both original-frame silhouettes on the same scale. No individual stretching or subjective fitting. No third column of examples. No board labels, arrows, measurements or extra text.
+
+INPUT ROLES:
+Image1: ORIGINAL ACTUAL UNIT card shell (source972x1618), authoritative unit gold frame shape.
+Image2: ORIGINAL ACTUAL LAND card shell (source971x1619), authoritative land gold frame shape. Land and unit frames are DIFFERENT and must remain different.
+Image3: approved full layout reference sheet, authoritative new unit character/content/section balance and expansion soil+ artwork.
+Image4: newly generated UNIT detail draft, use only its intended modifications, typography/content and bottom trim, not its arbitrary canvas size.
+Image5: newly generated LAND detail draft, use only its intended content and restored TWO divider lines, not its arbitrary canvas size or changed top frame.
+
+UNIT CARD:
+- Reproduce the original UNIT shell's horned skull, flowing top gold curls, upturned top side corners and muted burgundy side cloth. Large original circle/star header styling.
+- Title "전사(근딜)", rank "1"; crossed swords circle type badge. Keep game-like original fantasy title type.
+- Same small actual GREEN PIXEL warrior as image3, not a black hooded character. Compact sword-bearing sprite around160px wide. Upper image window has no board/grid and is relatively short and broad, about460x300px inside the600px shell width.
+- Information layout like image3/4: red tab "점유 칸수", value "1칸"; larger red tab "전투 정보", two lines "근접 · 사거리 1" and "공격속도 1.0회/초". Keep broad panels, comfortable left padding, no tiny type.
+- Bottom three stats use icons LEFT of their labels: sword"공격력",shield"방어력",heart"체력"; exact values below "18","10%","140". No rectangular stat boxes, only two SHORT thin gold vertical separators. Original medium readable numeric size.
+- Bottom uses requested horizontal gold line with filled central gold diamond and curled ends. The original dangling central red cloth is intentionally removed as in approvedimage3. Do not restore it.
+
+LAND CARD:
+- Preserve the ACTUAL LAND shell from image2, including its relatively FLAT STEPPED header top (do NOT copy the unit card's upward-pointed corners), original gold horned skull, header-bottom bar with filled diamond and curled ends, narrow double-line SQUARE CORNERED main image window, tall gold side rails, bottom red cloth at BOTH sides, wide curled lower trim and large center diamond.
+- Title "배치 영역 확장", rank"1". Upper-left round category medallion has original top/bottom diamond ornaments and contains the liked small soil-plus symbol.
+- Replace the grid with the compact brown pixel-soil+goldplus image from image3 in the center of the large black preview window. No board lines, no highlighted cells, no extra icons.
+- Under the preview, retain a wide gold separator with a large filled diamond.
+- Next the gold effect title "배치 영역 +4칸".
+- CRITICAL: below this effect TITLE and ABOVE body text, restore the separate THIN SHORTER gold line with a SMALL HOLLOW central diamond. This is distinct from the upper divider and MUST be present. Its placement relative to root is about y864, x136..464.
+- Body below on two lines: "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다."
+Both cards have original charcoal interiors and antique gold, not excessively bright neon gold. Keep exact text, clear lines, original-style details. Do not add new captions outside the cards. The result is just TWO full-size corrected card references side by side on the exact 1280x1104 canvas.

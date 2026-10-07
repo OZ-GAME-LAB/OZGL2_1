@@ -26,6 +26,7 @@ namespace OZGL2.UIFlow
         [Header("손패")]
         [SerializeField] private UIBattleCardHandView _handView;
         [SerializeField] private UIUnitCatalogSO _unitCatalog;
+        [SerializeField] private UIExpansionCardVisualCatalogSO _expansionCardVisuals;
 
         [Header("인게임 연결")]
         [SerializeField] private InGamePrototypeBootstrap _bootstrap;
@@ -57,6 +58,7 @@ namespace OZGL2.UIFlow
         private bool _hasLastViewInteractable;
         private bool _isShowingRewardSelection;
         private string _shownRewardRequestId;
+        private bool _hasLoadedExpansionCardVisuals;
 
         public bool IsRuntimeConnected => _bootstrap != null && _phasePresentation != null && _legacyDocument != null;
 
@@ -340,14 +342,19 @@ namespace OZGL2.UIFlow
 
             if (option.Kind == eGeneralRewardKind.EXPANSION)
             {
+                FootprintDefinition shape = option.ExpansionShape ?? _manager.Definition.Expansion;
                 return new BattleHandCardDisplayData(
                     id,
                     eBattleHandCardKind.LAND_SLOT,
                     "배치 영역 확장",
-                    areaTitle: "웨이브 보상 · " + (option.ExpansionShape ?? _manager.Definition.Expansion).Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸",
-                    footprint: CreateDisplayFootprint(option.ExpansionShape ?? _manager.Definition.Expansion, 0, false));
+                    areaTitle: "배치 영역 +" + shape.Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸",
+                    areaDescription: "확장할 위치에 배치해\n유닛을 놓을 공간을 넓힙니다.",
+                    artwork: GetExpansionArtwork(shape.Id),
+                    footprint: CreateDisplayFootprint(shape, 0, false),
+                    showFootprint: false);
             }
 
+            if (option.Unit == null) return null;
             UIUnitCatalogSO.Entry catalogEntry = FindUnitCatalogEntry(option.Unit.Id);
             string title = catalogEntry != null && !string.IsNullOrWhiteSpace(catalogEntry.DisplayName)
                 ? catalogEntry.DisplayName
@@ -358,13 +365,18 @@ namespace OZGL2.UIFlow
                 eBattleHandCardKind.UNIT,
                 title,
                 rankText: option.StarLevel.ToString(CultureInfo.InvariantCulture),
+                traitTitle: "점유 칸수",
+                traitDescription: GetFootprintCountText(option.Unit.GetFootprint(option.StarLevel)),
+                skillTitle: "보유 스킬",
+                skillDescription: BattleCardSkillDescription.Build(FindUnitStats(option.Unit.Id, 3)),
                 attack: attack,
                 defense: defense,
                 health: health,
                 areaTitle: "웨이브 보상",
                 areaDescription: catalogEntry != null ? catalogEntry.Description : string.Empty,
-                artwork: catalogEntry != null ? catalogEntry.Portrait : null,
-                footprint: CreateDisplayFootprint(option.Block, 0, false));
+                artwork: catalogEntry != null ? catalogEntry.GetPortrait(option.StarLevel - 1) : null,
+                footprint: CreateDisplayFootprint(option.Block, 0, false),
+                showFootprint: false);
         }
 
         private BattleHandCardDisplayData CreateDisplayItem(GridStoredItem storedItem)
@@ -389,13 +401,18 @@ namespace OZGL2.UIFlow
                     eBattleHandCardKind.UNIT,
                     title,
                     rankText: unit.StarLevel.ToString(CultureInfo.InvariantCulture),
+                    traitTitle: "점유 칸수",
+                    traitDescription: GetFootprintCountText(footprint),
+                    skillTitle: "보유 스킬",
+                    skillDescription: BattleCardSkillDescription.Build(FindUnitStats(unit.Definition.Id, 3)),
                     attack: attack,
                     defense: defense,
                     health: health,
                     areaTitle: string.IsNullOrEmpty(description) ? string.Empty : "설명",
                     areaDescription: description,
-                    artwork: catalogEntry != null ? catalogEntry.Portrait : null,
-                    footprint: CreateDisplayFootprint(footprint, unit.Rotation, unit.IsMirrored));
+                    artwork: catalogEntry != null ? catalogEntry.GetPortrait(unit.StarLevel - 1) : null,
+                    footprint: CreateDisplayFootprint(footprint, unit.Rotation, unit.IsMirrored),
+                    showFootprint: false);
             }
 
             if (storedItem.Kind == eGridDragKind.BLOCK)
@@ -411,6 +428,23 @@ namespace OZGL2.UIFlow
             }
 
             return null;
+        }
+
+        private Sprite GetExpansionArtwork(string shapeId)
+        {
+            if (_expansionCardVisuals == null && !_hasLoadedExpansionCardVisuals)
+            {
+                _hasLoadedExpansionCardVisuals = true;
+                _expansionCardVisuals = UIExpansionCardVisualCatalogSO.LoadDefault();
+            }
+            return _expansionCardVisuals != null ? _expansionCardVisuals.GetArtwork(shapeId) : null;
+        }
+
+        private static string GetFootprintCountText(FootprintDefinition footprint)
+        {
+            return footprint != null
+                ? footprint.Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸"
+                : string.Empty;
         }
 
         private UIUnitCatalogSO.Entry FindUnitCatalogEntry(string unitDefinitionId)
@@ -443,18 +477,22 @@ namespace OZGL2.UIFlow
             defense = string.Empty;
             health = string.Empty;
 
-            InGamePrototypeConfigSO config = _bootstrap != null ? _bootstrap.Config : null;
-            DemonArmyCatalog armyCatalog = config != null ? config.DemonArmyCatalog : null;
-            UnitBase prefab = armyCatalog != null
-                ? armyCatalog.FindPrefab(unitDefinitionId, starLevel)
-                : null;
-            UnitStatData stats = prefab != null ? prefab.statData : null;
+            UnitStatData stats = FindUnitStats(unitDefinitionId, starLevel);
             if (stats == null) return;
 
-            attack = stats.attackPower.ToString("0.#", CultureInfo.InvariantCulture);
+            float starMultiplier = UnitStatData.GetStarMultiplier(Mathf.Clamp(starLevel, 1, 3));
+            attack = (stats.attackPower * starMultiplier).ToString("0.#", CultureInfo.InvariantCulture);
             defense = string.Concat(
                 (stats.defensePercent * 100f).ToString("0.#", CultureInfo.InvariantCulture), "%");
-            health = stats.maxHealth.ToString(CultureInfo.InvariantCulture);
+            health = Mathf.RoundToInt(stats.maxHealth * starMultiplier).ToString(CultureInfo.InvariantCulture);
+        }
+
+        private UnitStatData FindUnitStats(string unitDefinitionId, int starLevel)
+        {
+            InGamePrototypeConfigSO config = _bootstrap != null ? _bootstrap.Config : null;
+            DemonArmyCatalog armyCatalog = config != null ? config.DemonArmyCatalog : null;
+            UnitBase prefab = armyCatalog != null ? armyCatalog.FindPrefab(unitDefinitionId, starLevel) : null;
+            return prefab != null ? prefab.statData : null;
         }
 
         private static Vector2Int[] CreateDisplayFootprint(

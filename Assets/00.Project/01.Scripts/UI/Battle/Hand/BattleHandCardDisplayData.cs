@@ -32,6 +32,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Sprite _artwork;
         [SerializeField] private Sprite _typeIcon;
         [SerializeField] private Vector2Int[] _footprint = Array.Empty<Vector2Int>();
+        [SerializeField] private bool _showFootprint = true;
 
         public string Id => _id ?? string.Empty;
         public eBattleHandCardKind Kind => _kind;
@@ -49,6 +50,7 @@ namespace OZGL2.UIFlow
         public Sprite Artwork => _artwork;
         public Sprite TypeIcon => _typeIcon;
         public Vector2Int[] Footprint => _footprint ?? Array.Empty<Vector2Int>();
+        public bool ShowFootprint => _showFootprint;
 
         public BattleHandCardDisplayData(
             string id,
@@ -66,7 +68,8 @@ namespace OZGL2.UIFlow
             string areaDescription = "",
             Sprite artwork = null,
             Sprite typeIcon = null,
-            Vector2Int[] footprint = null)
+            Vector2Int[] footprint = null,
+            bool showFootprint = true)
         {
             _id = id ?? string.Empty;
             _kind = kind;
@@ -83,6 +86,7 @@ namespace OZGL2.UIFlow
             _areaDescription = areaDescription ?? string.Empty;
             _artwork = artwork;
             _typeIcon = typeIcon;
+            _showFootprint = showFootprint;
             _footprint = footprint != null
                 ? (Vector2Int[])footprint.Clone()
                 : Array.Empty<Vector2Int>();

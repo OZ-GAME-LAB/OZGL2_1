@@ -54,11 +54,12 @@ namespace OZGL2.UIFlow
             _cardView.SetTypeIcon(_factionIcons != null && factionIndex < _factionIcons.Length
                 ? _factionIcons[factionIndex] : null);
             _cardView.SetFootprint(null);
+            _cardView.SetFootprintVisible(false);
             _cardView.SetStats(Format(attack), Format(stats.defensePercent * 100f) + "%",
                 health.ToString(CultureInfo.InvariantCulture));
-            _cardView.SetTrait("기본 정보", (isDemon ? "마왕군" : "인간군") + " · " + JobName(stats.job) +
-                "\n사거리 " + Format(range) + " · 공속 " + Format(stats.attackSpeed) + "회/초");
-            _cardView.SetSkill("고유 효과", BuildEffects(stats, star, healing));
+            _cardView.SetTrait("분류", (isDemon ? "마왕군" : "인간군") + " · " + JobName(stats.job));
+            _cardView.SetSkill("전투 정보", "사거리 " + Format(range) + " · 공속 " +
+                Format(stats.attackSpeed) + "회/초\n" + BuildEffects(stats, star, healing));
 
             if (_starBadge != null) _starBadge.gameObject.SetActive(isDemon);
             if (_contextText != null)
@@ -94,19 +95,21 @@ namespace OZGL2.UIFlow
         private static string BuildEffects(UnitStatData stats, int star, float healing)
         {
             var effects = new List<string>();
-            if (healing > 0f) effects.Add("체력 비율이 낮은 아군 회복 " + Format(healing));
+            if (healing > 0f) effects.Add("체력 비율 낮은 아군 " + Mathf.Clamp(star, 1, 3) + "명 회복 " + Format(healing));
             if (stats.targetLowestHealthEnemy) effects.Add("체력이 낮은 적 우선 공격");
             if (stats.splashRadius > 0f)
-                effects.Add("반경 " + Format(stats.splashRadius) + " 추가 피해 " +
+                effects.Add("반경 " + Format(stats.splashRadius) + " · 추가 " +
                     Format(stats.splashSecondaryDamagePercent * 100f) + "%" +
                     (stats.splashMaxTargets > 0 ? " · 최대 " + stats.splashMaxTargets + "명" : string.Empty));
             if (star >= 2 && stats.executeDamageBonusPerMissingHealth > 0f)
-                effects.Add("적의 잃은 체력에 따라 최대 " +
-                    Format(stats.executeDamageBonusPerMissingHealth * 100f) + "% 추가 피해");
+                effects.Add("잃은 체력 비례 추가 피해 (최대 " +
+                    Format(stats.executeDamageBonusPerMissingHealth * 100f) + "%)");
             if (star >= 2 && stats.comboStunAttackInterval > 0)
                 effects.Add(stats.comboStunAttackInterval + "번째 공격마다 " + Format(stats.comboStunDuration) + "초 기절");
             if (stats.burnDamagePerSecond > 0f && stats.burnDuration > 0f)
                 effects.Add(Format(stats.burnDuration) + "초간 초당 " + Format(stats.burnDamagePerSecond) + " 화상 피해");
+            if (stats.side == UnitSide.DemonArmy && stats.attackRange <= 1f)
+                effects.Add("사거리 안의 용사를 자신에게 유인");
             return effects.Count > 0 ? string.Join("\n", effects) : "별도의 고유 효과 없음";
         }
     }

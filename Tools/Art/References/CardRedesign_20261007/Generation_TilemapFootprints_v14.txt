@@ -1,0 +1,60 @@
+Method: built-in image_gen; reference board, not a Unity implementation.
+Source: OutdoorBattlefieldTheme / WitheredGroundTiles / earth_grass_32_m00..15.
+Actual source art is top-down flat earth with transparent connected edges, no baked grass rim or internal cell borders.
+Output:14_ExpansionCard_TilemapFootprints_Reference.png
+Inputs:
+C:/Users/sudea/AppData/Local/Temp/codex-clipboard-9c2e74f4-1810-494c-be02-74e3ebbe3706.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Transitions/earth_grass_32_m04.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Transitions/earth_grass_32_m05.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Transitions/earth_grass_32_m01.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Transitions/earth_grass_32_m03.png
+
+Use case: precise-object-edit / game UI reference.
+Asset type: terrain-map-based expansion card artwork and six footprint icons.
+Create ONE polished reference board: expansion card on the LEFT, six labeled expansion-shape icons in TWO COLUMNS and THREE ROWS on the RIGHT, all on a plain dark charcoal background. Landscape approximately1536x1024, high clarity. Use input1 as the card and catalogue layout reference; show the full card without cutting off side decorations. No unit card, no board headline or explanatory footer.
+
+INPUT ROLES:
+1. Existing card+six-icon reference. Preserve its gold/burgundy/charcoal card aesthetic, names, counts and gold PLUS symbols, but replace ALL SEVEN central/catalogue soil artworks with the real tilemap-inspired terrain below. Do NOT just copy its tan square-cookie textures.
+2. Actual game's earth_grass_32_m04.png: top cap of connected vertical ground (connects downward).
+3. Actual game's earth_grass_32_m05.png: connected north/south middle.
+4. Actual game's earth_grass_32_m01.png: bottom cap (connects upward).
+5. Actual game's earth_grass_32_m03.png: corner connected upward and right.
+These tiny32px images are authoritative material, palette and edge STYLE references. Enlarge their pixel style cleanly. Dark/transparent surroundings in these inputs are NOT a black border.
+
+MAIN DESIGN CHANGE:
+Depict each footprint as ONE seamless CONNECTED PATCH of the game's actual top-down dry soil, with neighboring cells merging exactly as tilemap transitions do. Match the subdued grey-taupe/light desaturated brown of inputs2-5, sparse small dark soil specks and irregular pixel-chipped natural edges. The surface is flat; no 3D elevation or cutaway side face. The perimeter is organic but stays faithful to the block-based footprint. No black internal seams, no cell borders, no grid, no stitched biscuit edging, no repeating isolated square tiles, no gold outline around terrain, no grass sod rim, no rock slabs, no glowing ground. The improvement should be immediately visible: one connected playable patch with terrain-map edge continuity, rather than separate brown squares. Keep the pixel scale and cell pitch consistent across all six icons. Natural texture, not noisy or high contrast.
+
+Add one compact, rounded, polished GOLD PLUS sign at the UPPER RIGHT of every terrain patch, with a small gap and subtle dark shadow. Keep the plus clearly legible, using the existing game's symbol design, with the ground larger than the plus. About30px plus signs for catalogue entries; about40px central-cardplus. No badge circle behind it.
+
+EXACT FOOTPRINTS on right (ASCII is an instruction; do NOT render these # characters). #=occupied unit cell, .=empty, rows TOP TO BOTTOM. Shared cell pitch about58px in all six icons; NEVER scale each icon separately to a common box. Base silhouettes must remain easy to recognize despite irregular edges:
+Top left text "floor_domino" and beneath "2칸":
+#
+#
+Top right text "floor_line3" and beneath "3칸":
+#
+#
+#
+Middle left text "floor_corner3" and beneath "3칸":
+#.
+##
+Middle right text "floor_square4" and beneath "4칸":
+##
+##
+Bottom left text "floor_tee4" and beneath "4칸":
+.#.
+###
+This is ㅗ, a single TOP-CENTER cell above a three-cell BOTTOM bar. Do not invert.
+Bottom right text "floor_l4" and beneath "4칸":
+#.
+#.
+##
+Tall L with foot to RIGHT; do not rotate.
+In actual tilemap terms: domino stacks m04,m01; line3 m04,m05,m01; corner topm04/bottomm03,m08; square topm06,m12/bottomm03,m09; tee topcenter m04/bottomm02,m11,m08; L topm04,middlem05,bottomm03,m08. Use the supplied edge textures to infer the connected remaining corner edges. Do not make disconnected separate blobs.
+
+LEFT CARD:
+Same full ornate frame, top gold skull/curled gold trim, red ribbons, top-left small liked soil+ category medallion and upper-right star"1". Title "배치 영역 확장". The central image is the floor_square4 footprint, a compact seamless 2x2 patch in the SAME new terrain style and a gold plus, taking roughly one-third of the preview-panel width. Do not make a large land landscape. Keep ample dark breathing room.
+Gold line/filled diamond below the image window; effect text "배치 영역 +4칸".
+Preserve the restored SECOND thin shorter gold line with a SMALL HOLLOW DIAMOND between the effect heading and body text, even though it is missing from input1.
+Body on two lines: "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다."
+No board grid in the large preview window. Keep original gold bottom trim, curled ends and central diamond.
+Clean, practical reference of ACTUAL TILEMAP TERRAIN made into readable inventory icons. No unrelated decorative elements, art style alternatives, extra text or watermarks.

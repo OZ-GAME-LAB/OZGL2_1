@@ -1,0 +1,21 @@
+Method: built-in image_gen (edit)
+Input:14_ExpansionCard_TilemapFootprints_Reference.png
+Output:15_ExpansionCard_SmoothTerrainIcons_Reference.png
+
+Use case: precise-object-edit
+Asset type: existing expansion-card and six terrain icon reference board.
+Input image is the exact current design to edit.
+
+Make ONLY the following change: smooth the OUTER SILHOUETTES of the soil artwork, while preserving the EXISTING SOIL TEXTURE inside them.
+Targets: the central terrain patch in the card, all six right-side ID terrain icons, and the tiny soil patch inside the upper-left category badge for consistency.
+- Remove ALL irregular pixel protrusions, chipped/torn edges, sawtooth steps and crumb-like edge pieces.
+- Replace each perimeter with clean, continuous, straight sides and gently ROUNDED corners. The terrain now has a neat intentionally designed UI-icon silhouette.
+- Use smooth high-quality antialiased boundaries, roughly 7-10px radius on convex corners at this1536x1024 size, smaller4-6px radius on concave corners of L and ㅗ. Preserve straight stretches; do not turn rectangles into pills or alter the footprint.
+- Crucially retain the same brown/taupe soil surface, original varied earthy speckles, grain, pixel texture scale, color and shading INSIDE every icon. Do NOT flatten the texture into a solid fill or blur it. The request is smooth SHAPE EDGES, not smooth/featureless material.
+- Keep each connected footprint as one continuous textured region, without internal cell seams or grids.
+- No new gold outline, thick black contour, grass edge, soil chunk thickness, 3D extrusion or badge behind these shapes. Only the existing subtle shadow may remain.
+- Keep all GOLD PLUS signs exactly as they are: size, color, style and upper-right position.
+
+Preserve exact silhouette topology, position and proportions for all6 IDs: floor_domino1x2 upright; floor_line3 1x3 upright; floor_corner3 shortL foot toRIGHT; floor_square4 square2x2; floor_tee4 ㅗ withoneTOPCENTERcell overa3cellBOTTOMbar; floor_l4 tallL3high withfoot toRIGHT. Keep the shared unit size, the relative height difference between domino and line3 and between corner3 and l4, all IDs and count captions. The middle card's displayed patch is the2x2square variant.
+
+Everything else in the image remains completely unchanged: full canvas/layout, card width and height, ornate gold frame, skull, red cloth, rank1, title, medallionframe, preview panel, both separator ornaments, effect text "배치 영역 +4칸", description, gold+ signs, all six ID/count labels and their placement, vertical divider and background. No new text or annotations. Return the same complete reference board with only neatly smoothed terrain contours.

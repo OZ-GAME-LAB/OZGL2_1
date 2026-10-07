@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-07",
+  "method": "Built-in image_gen transparent-background precise image edits, one separate call per variant. Original PNG preserved; final generated PNGs copied without pixel postprocessing.",
+  "editTarget": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites/Badge_Type.png",
+  "outputs": [
+    {
+      "name": "Unit",
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/Badges/Badge_Type_Unit.png",
+      "source": "exec-6cca9cf9-12d9-4cd5-91e4-eb69f8285bc6.png",
+      "target": "BattleCard_Unit/TypeBadge/Frame",
+      "background": "Dark crimson"
+    },
+    {
+      "name": "LandSlot",
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/Badges/Badge_Type_LandSlot.png",
+      "source": "exec-c2cc716f-1014-405f-ba3d-d35ba31b11b1.png",
+      "target": "BattleCard_LandSlot/TypeBadge/Frame",
+      "background": "Dark olive"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "Unit",
+      "color": "dark crimson",
+      "prompt": "Use case: precise-object-edit. Asset type: Unity uGUI TypeBadge/Frame Sprite. EDIT TARGET is the supplied existing circular badge PNG. Change ONLY the dark charcoal interior circular disk enclosed by the gold rim to the specified dark color. Keep the original circular gold metal rim, its beveled facets and highlights, the top and bottom gold diamond ornaments, all black contour strokes, the exact silhouette, scale, alignment and transparent padding completely unchanged. Gold pixels must remain GOLD. Keep the same square canvas and the same visible footprint as the source. The colored disk is opaque, gently shaded like the original charcoal disk, subtle satin shading, no obvious texture. Preserve alpha outside the badge: genuinely transparent background. Do not put any icon or text inside the disk. No new decorations, no glow, no added borders, no layout change. New interior color: DEEP DARK CRIMSON/BURGUNDY, base around #4A111C, subtle center illumination around #571923 and dark edges around #2A0910. The result must visibly read as subdued deep red on a dark fantasy game card, with good contrast for a separate ivory unit icon."
+    },
+    {
+      "name": "LandSlot",
+      "color": "dark olive",
+      "prompt": "Use case: precise-object-edit. Asset type: Unity uGUI TypeBadge/Frame Sprite. EDIT TARGET is the supplied existing circular badge PNG. Change ONLY the dark charcoal interior circular disk enclosed by the gold rim to the specified dark color. Keep the original circular gold metal rim, its beveled facets and highlights, the top and bottom gold diamond ornaments, all black contour strokes, the exact silhouette, scale, alignment and transparent padding completely unchanged. Gold pixels must remain GOLD. Keep the same square canvas and the same visible footprint as the source. The colored disk is opaque, gently shaded like the original charcoal disk, subtle satin shading, no obvious texture. Preserve alpha outside the badge: genuinely transparent background. Do not put any icon or text inside the disk. No new decorations, no glow, no added borders, no layout change. New interior color: DEEP DARK OLIVE, a muted yellow-green olive base around #3F4324, subtle center illumination around #4B4E2D and dark edges around #242713. The result must visibly read as subdued olive on a dark fantasy game card, with good contrast for a separate sandy brown terrain icon."
+    }
+  ],
+  "scope": "Interior background color only. Gold rim, upper/lower gold diamond ornaments and original 94x94 RectTransform retained. Separate TypeIcon, text, card layout and runtime data unchanged.",
+  "validation": "Unity compilation completed with no Console errors. Both Prefab Frame Sprite references, white Image color, 94x94 RectTransforms, Preserve Aspect, non-raycast, Sprite importer transparency/no-mipmap verified. PNG dimensions 1254x1254 and corner alpha-zero verified. Existing TypeIcon references retained. Snapshot Diff shows exactly one changed Frame Sprite reference in each Prefab. Actual Unity uGUI preview rendered to Tools/Art/Previews/BattleCardRedesign_TypeBadges.png and visually inspected. Original Lobby Scene and unsaved state preserved; no Scene save. Play Mode not rerun for this asset-only change; check badge color/contrast in hand and expansion reward cards."
+}

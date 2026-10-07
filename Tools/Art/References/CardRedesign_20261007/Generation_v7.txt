@@ -1,0 +1,16 @@
+Method: built-in image_gen (edit)
+Input 1: 06_CardRedesign_BorderlessStats_InlineIcons.png
+Input 2: codex-clipboard-391c8804-c4e7-4dd4-9a3a-5b3fdf5ea30a.png (user markup guide)
+Output: 07_CardRedesign_ExpandedInfo_SubtleStatDividers.png
+
+Use case: precise-object-edit
+Asset type: existing Korean fantasy game card reference sheet.
+Input 1: CLEAN EDIT TARGET, the full sheet with two cards and a six-icon expansion catalogue.
+Input 2: ANNOTATED LAYOUT GUIDE, a cropped unit card marked by the user. Red marks are edit instructions only and must NOT appear in output.
+
+Make ONLY these two localized changes to the LEFT UNIT CARD in input 1:
+1. Expand the vertical space allocated to the "점유 칸수" row and "전투 정보" panel, so that their information block extends downward to the red horizontal boundary indicated in input 2, directly above the bottom stats strip. Preserve the existing gold-framed panel style. Slightly increase the occupancy row height, and give the combat-info panel more room with comfortable internal padding. The bottom edge of the combat-info panel should now meet the indicated new boundary; avoid leaving an unused gap above the stats. For the full 1536x1024 composition this corresponds approximately to moving the combat panel bottom edge from y=748 to y=772. The portrait and all upper parts of the unit card must keep their present position, size and style. Preserve readable body text and prevent overlap with the stats.
+2. Add ONLY TWO subtle short vertical separator lines between the three bottom stat columns, where the two short red vertical strokes in input 2 indicate. These should be thin, muted low-contrast warm gold lines, centered vertically in the stats strip, with generous space above and below. Do not make boxes or full-height dividers, no diamonds on these lines, no horizontal stats outline. Keep all three white icons immediately LEFT of their labels, with the medium-large values centered below, as already designed. Exact groups: sword + "공격력" above "18"; shield + "방어력" above "10%"; heart + "체력" above "140". Adjust their vertical position minimally to fit neatly below the expanded info block and above the existing bottom trim.
+
+Invariants: Preserve the entire overall card width/height and layout, top skull crest, burgundy ribbons, gold outer frame, bottom curled gold line with centered diamond, title 전사(근딜), rank1, green pixel warrior and size, icon style, dark charcoal background. Text remains "점유 칸수", "1칸", "전투 정보", "근접 · 사거리 1", "공격속도 1.0회/초". Preserve the entire middle expansion card and all six expansion shape icons and their captions on the right exactly as in input 1. No red markup or editor controls in final. No new headings, explanatory text, or other changes.
+Return the edited full 1536x1024 reference sheet, not a crop.

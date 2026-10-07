@@ -19,6 +19,7 @@ namespace OZGL2.UIBridge
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [SerializeField, Tooltip("손패의 배치 카드 프리팹(BattleCard_LandSlot)")] private GameObject _cardPrefab;
+        [SerializeField] private UIExpansionCardVisualCatalogSO _expansionCardVisuals;
         [SerializeField, Range(0.2f, 0.6f), Tooltip("화면 높이 대비 카드 높이")] private float _heightRatio = 0.34f;
         [SerializeField, Range(0.1f, 0.6f), Tooltip("카드 가운데의 세로 위치(화면 높이 대비, 아래가 0)")] private float _centerY = 0.30f;
 
@@ -29,6 +30,7 @@ namespace OZGL2.UIBridge
         private CanvasGroup _group;
         private bool _filled;
         private string _shownShape;
+        private bool _hasLoadedExpansionCardVisuals;
 
         private void OnDestroy()
         {
@@ -76,17 +78,26 @@ namespace OZGL2.UIBridge
             }
             Layout();
             var shapeNow = grid.PendingExpansionShape;
+            if (shapeNow == null) return;
             if (_filled && _shownShape == shapeNow.Id) return;
             var view = _card.GetComponent<UIBattlePreparationCardView>();
             if (view == null) return;
             view.SetTitle("배치 영역 확장");
-            view.SetAreaDescription("바닥 +" + shapeNow.Cells.Count + "칸", string.Empty); // 자세한 설명은 InGameUiPolish 가 채운다
+            view.SetAreaDescription("배치 영역 +" + shapeNow.Cells.Count + "칸", "확장할 위치에 배치해\n유닛을 놓을 공간을 넓힙니다.");
+            if (_expansionCardVisuals == null && !_hasLoadedExpansionCardVisuals)
+            {
+                _hasLoadedExpansionCardVisuals = true;
+                _expansionCardVisuals = UIExpansionCardVisualCatalogSO.LoadDefault();
+            }
+            Sprite artwork = _expansionCardVisuals != null ? _expansionCardVisuals.GetArtwork(shapeNow.Id) : null;
+            view.SetArtwork(artwork);
             var cells = shapeNow.GetCells(Vector2Int.zero, 0, false);
             int minX = int.MaxValue, maxY = int.MinValue;
             foreach (var c in cells) { minX = Mathf.Min(minX, c.x); maxY = Mathf.Max(maxY, c.y); }
             var shape = new Vector2Int[cells.Length];
             for (int i = 0; i < cells.Length; i++) shape[i] = new Vector2Int(cells[i].x - minX, maxY - cells[i].y);
             view.SetFootprint(shape);
+            view.SetFootprintVisible(artwork == null);
             _shownShape = shapeNow.Id;
             _filled = true;
         }

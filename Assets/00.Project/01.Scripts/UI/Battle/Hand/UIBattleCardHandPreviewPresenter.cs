@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Globalization;
+using OZGL2.Grid;
+using OZGL2.Grid.Prototype;
 using UnityEngine;
 
 namespace OZGL2.UIFlow
@@ -14,8 +18,12 @@ namespace OZGL2.UIFlow
 
         [SerializeField] private UIBattleCardHandView _handView;
         [SerializeField] private bool _showPreview = true;
+        [SerializeField] private UIUnitCatalogSO _unitCatalog;
+        [SerializeField] private GridPrototypeCatalogSO _gridCatalog;
+        [SerializeField] private UIExpansionCardVisualCatalogSO _expansionCardVisuals;
 
         private bool _isRefreshing;
+        private bool _hasLoadedExpansionCardVisuals;
 
         private void OnEnable()
         {
@@ -55,73 +63,86 @@ namespace OZGL2.UIFlow
                    gameObject.scene.name == PREVIEW_SCENE_NAME;
         }
 
-        private static BattleHandCardDisplayData[] CreatePreviewItems()
+        private BattleHandCardDisplayData[] CreatePreviewItems()
         {
-            return new[]
+            var items = new List<BattleHandCardDisplayData>();
+            if (_unitCatalog == null || _gridCatalog == null) return items.ToArray();
+            if (_expansionCardVisuals == null && !_hasLoadedExpansionCardVisuals)
             {
-                new BattleHandCardDisplayData(
-                    "PREVIEW:UNIT:SHADOW",
-                    eBattleHandCardKind.UNIT,
-                    "그림자 검사",
-                    rankText: "3",
-                    traitTitle: "암영",
-                    traitDescription: "인접한 적에게 추가 피해를 줍니다.",
-                    skillTitle: "그림자 베기",
-                    skillDescription: "전방의 적을 빠르게 공격합니다.",
-                    attack: "28",
-                    defense: "12%",
-                    health: "180",
-                    footprint: new[] { Vector2Int.zero, Vector2Int.right }),
-                new BattleHandCardDisplayData(
-                    "PREVIEW:LAND:EMBER",
-                    eBattleHandCardKind.LAND_SLOT,
-                    "잿불 대지",
-                    rankText: "2",
-                    areaTitle: "배치 영역",
-                    areaDescription: "연결 가능한 땅 슬롯을 확장합니다.",
-                    footprint: new[] { Vector2Int.zero, Vector2Int.down, Vector2Int.right }),
-                new BattleHandCardDisplayData(
-                    "PREVIEW:RELIC:CHALICE",
-                    eBattleHandCardKind.RELIC,
-                    "심연의 성배",
-                    rankText: "유물",
-                    areaTitle: "보유 효과",
-                    areaDescription: "전투 시작 시 아군의 체력을 회복합니다."),
-                new BattleHandCardDisplayData(
-                    "PREVIEW:UNIT:ARCHER",
-                    eBattleHandCardKind.UNIT,
-                    "잿빛 궁수",
-                    rankText: "2",
-                    traitTitle: "원거리",
-                    traitDescription: "후방에서 안정적으로 공격합니다.",
-                    skillTitle: "관통 사격",
-                    skillDescription: "직선상의 적을 관통합니다.",
-                    attack: "23",
-                    defense: "8%",
-                    health: "135",
-                    footprint: new[] { Vector2Int.zero }),
-                new BattleHandCardDisplayData(
-                    "PREVIEW:LAND:FROST",
-                    eBattleHandCardKind.LAND_SLOT,
-                    "빙결 대지",
-                    rankText: "3",
-                    areaTitle: "배치 영역",
-                    areaDescription: "세로 방향으로 진형을 확장합니다.",
-                    footprint: new[] { Vector2Int.zero, Vector2Int.down, Vector2Int.down * 2 }),
-                new BattleHandCardDisplayData(
-                    "PREVIEW:UNIT:MAGE",
-                    eBattleHandCardKind.UNIT,
-                    "황금 마도사",
-                    rankText: "4",
-                    traitTitle: "마력",
-                    traitDescription: "스킬 피해가 증가합니다.",
-                    skillTitle: "황혼 폭발",
-                    skillDescription: "넓은 범위에 마법 피해를 줍니다.",
-                    attack: "35",
-                    defense: "10%",
-                    health: "155",
-                    footprint: new[] { Vector2Int.zero, Vector2Int.right, Vector2Int.down }),
-            };
+                _hasLoadedExpansionCardVisuals = true;
+                _expansionCardVisuals = UIExpansionCardVisualCatalogSO.LoadDefault();
+            }
+
+            IReadOnlyList<UnitDefinition> units = _gridCatalog.CreateUnits();
+            IReadOnlyList<FootprintDefinition> expansions = _gridCatalog.CreateDefinition().ExpansionShapes;
+            AddUnitPreview(items, units, "M_WAR_01", 3);
+            AddExpansionPreview(items, expansions, "floor_square4");
+            AddUnitPreview(items, units, "M_ARC_01", 2);
+            AddExpansionPreview(items, expansions, "floor_line3");
+            AddUnitPreview(items, units, "M_MAG_01", 1);
+            return items.ToArray();
+        }
+
+        private void AddUnitPreview(List<BattleHandCardDisplayData> items,
+            IReadOnlyList<UnitDefinition> units, string unitId, int star)
+        {
+            UIUnitCatalogSO.Entry entry = null;
+            foreach (UIUnitCatalogSO.Entry candidate in _unitCatalog.Entries)
+                if (candidate != null && candidate.Id == "unit." + unitId) { entry = candidate; break; }
+            if (entry == null || entry.BaseStats == null) return;
+
+            FootprintDefinition footprint = null;
+            foreach (UnitDefinition unit in units)
+                if (unit.Id == unitId) { footprint = unit.GetFootprint(star); break; }
+            if (footprint == null) return;
+
+            UnitStatData stats = entry.BaseStats;
+            float multiplier = UnitStatData.GetStarMultiplier(star);
+            items.Add(new BattleHandCardDisplayData(
+                "PREVIEW:UNIT:" + unitId, eBattleHandCardKind.UNIT, entry.DisplayName,
+                rankText: star.ToString(CultureInfo.InvariantCulture),
+                traitTitle: "점유 칸수",
+                traitDescription: footprint.Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸",
+                skillTitle: "보유 스킬",
+                skillDescription: BattleCardSkillDescription.Build(stats),
+                attack: (stats.attackPower * multiplier).ToString("0.#", CultureInfo.InvariantCulture),
+                defense: (stats.defensePercent * 100f).ToString("0.#", CultureInfo.InvariantCulture) + "%",
+                health: Mathf.RoundToInt(stats.maxHealth * multiplier).ToString(CultureInfo.InvariantCulture),
+                artwork: entry.GetPortrait(star - 1),
+                footprint: CreateDisplayFootprint(footprint),
+                showFootprint: false));
+        }
+
+        private void AddExpansionPreview(List<BattleHandCardDisplayData> items,
+            IReadOnlyList<FootprintDefinition> expansions, string shapeId)
+        {
+            foreach (FootprintDefinition shape in expansions)
+            {
+                if (shape.Id != shapeId) continue;
+                items.Add(new BattleHandCardDisplayData(
+                    "PREVIEW:LAND:" + shapeId, eBattleHandCardKind.LAND_SLOT, "배치 영역 확장",
+                    areaTitle: "배치 영역 +" + shape.Cells.Count.ToString(CultureInfo.InvariantCulture) + "칸",
+                    areaDescription: "확장할 위치에 배치해\n유닛을 놓을 공간을 넓힙니다.",
+                    artwork: _expansionCardVisuals != null ? _expansionCardVisuals.GetArtwork(shapeId) : null,
+                    footprint: CreateDisplayFootprint(shape),
+                    showFootprint: false));
+                break;
+            }
+        }
+
+        private static Vector2Int[] CreateDisplayFootprint(FootprintDefinition footprint)
+        {
+            Vector2Int[] cells = footprint.GetCells(Vector2Int.zero, 0, false);
+            if (cells.Length == 0) return cells;
+            int minX = cells[0].x, maxY = cells[0].y;
+            foreach (Vector2Int cell in cells)
+            {
+                minX = Mathf.Min(minX, cell.x);
+                maxY = Mathf.Max(maxY, cell.y);
+            }
+            for (int i = 0; i < cells.Length; i++)
+                cells[i] = new Vector2Int(cells[i].x - minX, maxY - cells[i].y);
+            return cells;
         }
     }
 }

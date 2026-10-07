@@ -13,7 +13,7 @@ public static class BattleCardHandValidation
     private const string UNIT_PREFAB_PATH = PREFAB_DIRECTORY + "/BattleCard_Unit.prefab";
     private const string LAND_SLOT_PREFAB_PATH = PREFAB_DIRECTORY + "/BattleCard_LandSlot.prefab";
     private const string RELIC_PREFAB_PATH = PREFAB_DIRECTORY + "/BattleCard_Relic.prefab";
-    private const string UNIT_CATALOG_PATH = "Assets/06.UI/LobbyMutedPreview/Collections_v1/UnitCatalog.asset";
+    private const string UNIT_CATALOG_PATH = "Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/UnitCatalog.asset";
 
     [MenuItem("Tools/OZGL/UI/Battle/Validate Card Hand Prefab")]
     public static void ValidateMenu()

@@ -1,0 +1,50 @@
+Method: built-in image_gen (two card edits).
+Unity MCP unavailable; measurements from saved prefabs and original textures.
+Prefab root: 600x1100; Shell Rect top-left (0,100),600x1000,preserveAspect=true.
+Unit PNG:972x1618; alpha>=16 bbox(23,45,926,1528).
+Land PNG:971x1619; alpha>=16 bbox(22,37,928,1508).
+Actual bounds proportional to Shell; native source aspect preserved.
+No Unity assets, scenes, prefabs, settings or scripts edited.
+
+Output:11_UnitCard_ActualSize_Reference.png
+Inputs:
+D:/GitHub/OZGL2_1/Tools/Art/References/CardRedesign_20261007/07_CardRedesign_ExpandedInfo_SubtleStatDividers.png
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites/CardShell_Unit.png
+C:/Users/sudea/AppData/Local/Temp/codex-clipboard-09589909-cc4a-4eea-9cea-726d28407631.png
+
+Use case: precise-object-edit / production UI reference.
+Primary task: produce a faithful 1:1 layout mockup from the IMPLEMENTED Unity card geometry, using the approved design-reference information arrangement. The user specifically complains the reference cards are too narrow and have lost frame details. Do not invent a new generic frame.
+OUTPUT CANVAS: exactly 600 pixels wide x 1100 pixels high, transparent outside the card, front view, no perspective. This matches the current RectTransform. Top 100 pixels are intentionally empty transparent layout space; the actual card-shell allocation is x=0,y=100,width=600,height=1000. IMPORTANT: do NOT squeeze the card shell into the full 600x1100 ratio; its own width-to-height ratio is 0.6. The visible gold-and-cloth silhouette nearly fills the 600x1000 shell rectangle, roughly x=14..586 and y=125..1055. Maintain broad usable horizontal panels. No presentation board, no extra canvas padding, no labels outside the card, no captions, rulers, dimensions or watermark.
+Reference roles: image 1 is the APPROVED INFORMATION-LAYOUT reference (the sheet with a green warrior on the left and the soil-plus expansion card in the middle). Image 2 is the ACTUAL IMPLEMENTED ORIGINAL FRAME for this card and is authoritative for its goldwork, contours and proportions. Image 3 is an actual implementation screenshot, authoritative for medallion/star styling and title font. Preserve the original frame detail, with only the intentional layout changes in image 1.
+Materials and type: original restrained antique gold and burgundy cloth, black charcoal panels, crisp readable ivory text. Keep the original horned-skull crest anatomy and original side ornaments; do not replace them with the oversimplified reference skull. Korean title has the original game's subtly serifed fantasy type, body and numeric text use a clean Korean Gothic sans-serif. All interiors opaque; truly transparent outside only. Do not include the blue-grey Unity scene background.
+CARD: UNIT. Return only the unit card.
+Use the actual UNIT frame, including the top corner peaks, curved golden scrollwork, burgundy side ribbons and precise original horned crest. Keep header accessories at implemented geometry: circular crossed-swords type medallion roughly x18,y144,width174,height174; star x467,y164,width132,height132; title region x169,y213,width300,height58. The circle and star may overlap the frame exactly as in the implementation screenshot.
+Content MUST come from the approved image1, not the prototype text/black character in image3. Exact title "전사(근딜)", rank "1". Use the same small actual GREEN pixel warrior from image1, red topknot, green face, dark red clothing, orange belt and silver sword. Preserve its pixel-art identity, keep its body compact around 160px wide with ample surrounding space. No black hooded swordsman.
+Inside the broad original frame, rework panel proportions to the approved layout: upper art panel approximately x72,y295,w460,h300, NO GRID; occupancy row roughly x72,y610,w460,h83; combat info panel x72,y710,w460,h195; stats occupy x78,y925,w450,h90. Keep frame edges connected elegantly without gaps. Original gold corners and title-tab contours, with the two title tabs containing "점유 칸수" and "전투 정보".
+Occupancy value "1칸". Combat body on two lines "근접 · 사거리 1" and "공격속도 1.0회/초", about 26px font with comfortable left padding. Do not shrink these to the tiny original prototype.
+Bottom stats match image1: no boxed stats cells, just two short thin gold vertical separators between three columns. White sword immediately LEFT of "공격력", white shield immediately LEFT of "방어력", white heart immediately LEFT of "체력". Center values underneath, exact "18" / "10%" / "140", around 34px, labels around 19px. Keep readable without crowding the bottom trim.
+Intentional previous user-approved change: omit the dangling red cloth and skull at bottom center. Instead use the clean horizontal gold lower trim with a central gold diamond and curled ends from image1. Preserve the overall width and decorative weight of the implemented UNIT frame, not the narrow draft proportions.
+
+
+Output:12_ExpansionCard_ActualSize_Reference.png
+Inputs:
+D:/GitHub/OZGL2_1/Tools/Art/References/CardRedesign_20261007/07_CardRedesign_ExpandedInfo_SubtleStatDividers.png
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites/CardShell_LandSlot.png
+C:/Users/sudea/AppData/Local/Temp/codex-clipboard-d61438b8-2e9e-4d02-a836-d0420a28a4ed.png
+
+Use case: precise-object-edit / production UI reference.
+Primary task: produce a faithful 1:1 layout mockup from the IMPLEMENTED Unity card geometry, using the approved design-reference information arrangement. The user specifically complains the reference cards are too narrow and have lost frame details. Do not invent a new generic frame.
+OUTPUT CANVAS: exactly 600 pixels wide x 1100 pixels high, transparent outside the card, front view, no perspective. This matches the current RectTransform. Top 100 pixels are intentionally empty transparent layout space; the actual card-shell allocation is x=0,y=100,width=600,height=1000. IMPORTANT: do NOT squeeze the card shell into the full 600x1100 ratio; its own width-to-height ratio is 0.6. The visible gold-and-cloth silhouette nearly fills the 600x1000 shell rectangle, roughly x=14..586 and y=125..1055. Maintain broad usable horizontal panels. No presentation board, no extra canvas padding, no labels outside the card, no captions, rulers, dimensions or watermark.
+Reference roles: image 1 is the APPROVED INFORMATION-LAYOUT reference (the sheet with a green warrior on the left and the soil-plus expansion card in the middle). Image 2 is the ACTUAL IMPLEMENTED ORIGINAL FRAME for this card and is authoritative for its goldwork, contours and proportions. Image 3 is an actual implementation screenshot, authoritative for medallion/star styling and title font. Preserve the original frame detail, with only the intentional layout changes in image 1.
+Materials and type: original restrained antique gold and burgundy cloth, black charcoal panels, crisp readable ivory text. Keep the original horned-skull crest anatomy and original side ornaments; do not replace them with the oversimplified reference skull. Korean title has the original game's subtly serifed fantasy type, body and numeric text use a clean Korean Gothic sans-serif. All interiors opaque; truly transparent outside only. Do not include the blue-grey Unity scene background.
+CARD: LAND EXPANSION. Return only the expansion card.
+Use the distinct ACTUAL LAND frame from image2, NOT a clone of the unit frame. Preserve its relatively horizontal stepped header top, original horned crest with burgundy backing, header-bottom gold line with a filled central diamond and curled ends, tall side gold borders, red cloth tabs at BOTH lower side corners, and the broad curled bottom trim with big central diamond. Its original main image window has fine square-corner double-line gold edges, rather than the unit card's clipped-corner thick bezel.
+Header title exactly "배치 영역 확장", rank "1". Header geometry: original round type medallion approximately x18,y144,width174,height174; star x467,y164,width132,height132; title text region x169,y213,width300,height58. Keep the original medallion's small top/bottom diamond ornaments. Inside that medallion use the liked soil-plus pictogram from image1.
+Large picture window keeps actual width approximately x88..512 and vertical range y334..739. Remove every board/grid line and highlighted board cell. Center the brown pixel-soil patch with gold PLUS from IMAGE1, compact around 145x150px including plus, with ample empty black space. The explicit requested basis is image1, so do not use the later hollow outline icon alternatives, map or flag.
+CRITICAL RESTORE TWO DISTINCT ORNAMENTAL DIVIDERS:
+A. Immediately under the picture window at about y769: the original wide thick gold line with a large FILLED central diamond, x83..518.
+B. BETWEEN the area-effect heading and body description, at about y864: the original thinner shorter gold line, x136..464, with a SMALL HOLLOW GOLD DIAMOND at its center. This line was accidentally missing in previous references; it MUST be clearly visible and separate from A. Use the actual original frame image to reproduce it.
+Between divider A and divider B, heading centered in area x95,y790,w410,h59, exact "배치 영역 +4칸", approximately 34px in warm light gold.
+Below divider B, body centered in area x90,y897,w420,h72, two lines "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다.", about 25px clean ivory Gothic sans-serif.
+Preserve the actual land card's plentiful horizontal room and ornate lower side ribbons. Every gold ornament should follow the original land frame. Do not omit the second divider, reuse a unit frame, or collapse the broad land card into a narrow reference silhouette.
+
