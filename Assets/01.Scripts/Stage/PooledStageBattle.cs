@@ -122,8 +122,10 @@ namespace OZGL2.Stage
                 }
             }
         }
-        /// <summary>true면 직업별로 몰아서 내보내지 않고 모든 직업을 비율대로 섞어서 한 줄로 내보낸다(보스는 맨 마지막).</summary>
+        /// <summary>true면 직업별로 몰아서 내보내지 않고 모든 직업을 비율대로 섞어서 한 줄로 내보낸다(보스는 웨이브 중간).</summary>
         private static readonly bool InterleaveSpawns = true;
+        /// <summary>보스가 나오는 시점(0=맨 처음, 1=맨 마지막)을 전체 스폰 순서 대비 비율로.</summary>
+        private const float BossSpawnPoint = 0.5f;
 
         private readonly struct SpawnSlot
         {
@@ -170,7 +172,8 @@ namespace OZGL2.Stage
                 return byEntry != 0 ? byEntry : a.index.CompareTo(b.index);
             });
             foreach (var item in mixed) slots.Add(item.slot);
-            slots.AddRange(tail);
+            // 보스는 마지막이 아니라 웨이브 중간쯤에 등장시킨다(앞뒤로 졸개가 이어진다).
+            slots.InsertRange(Mathf.RoundToInt(slots.Count * BossSpawnPoint), tail);
             return slots;
         }
 

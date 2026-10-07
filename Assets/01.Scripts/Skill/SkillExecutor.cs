@@ -137,6 +137,8 @@ namespace OZGL2.Skill
             int reviveCount = req.Skill.EffectiveReviveCount;
             Vector3 p = req.CastPoint;
 
+            PlaySkillSfx(d);
+
             if (d.flourishVfx != null && d.flourishCount > 0)
             {
                 StartCoroutine(Flourish(d, radius, p));
@@ -174,6 +176,25 @@ namespace OZGL2.Skill
                 case SkillEffectType.AllyBuff: BuffAllies(d, buffDur); break;
                 case SkillEffectType.Revive: Revive(reviveCount); break;
             }
+        }
+
+        // ─────────────────────────────────────────── 효과음
+
+        /// <summary>스킬 데이터(SkillData.castSfx/impactSfx)에 지정된 소리를 재생한다. 궁극기는 BGM에 묻히지 않게 BGM을 잠깐 줄인다.</summary>
+        private void PlaySkillSfx(SkillData d)
+        {
+            bool ultimate = d.category == SkillCategory.Ultimate;
+            if (d.castSfx != null) Sfx.PlayClip(d.castSfx, d.castSfxVolume, ultimate);
+            if (d.impactSfx == null) return;
+
+            if (d.castDelay > 0f) StartCoroutine(PlayDelayedSfx(d.impactSfx, d.impactSfxVolume, d.castDelay, ultimate));
+            else Sfx.PlayClip(d.impactSfx, d.impactSfxVolume, ultimate);
+        }
+
+        private static IEnumerator PlayDelayedSfx(AudioClip clip, float volume, float delay, bool duckBgm)
+        {
+            yield return new WaitForSeconds(delay);
+            Sfx.PlayClip(clip, volume, duckBgm);
         }
 
         // ─────────────────────────────────────────── 딜

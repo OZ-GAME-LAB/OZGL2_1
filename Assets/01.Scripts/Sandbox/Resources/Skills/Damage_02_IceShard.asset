@@ -48,3 +48,7 @@ MonoBehaviour:
   vfxScale: 2.4
   flourishVfx: {fileID: 0}
   flourishCount: 0
+  castSfx: {fileID: 8300000, guid: 2967738c5d89eb24d9e33ca8ea681348, type: 3}
+  castSfxVolume: 0.7
+  impactSfx: {fileID: 0}
+  impactSfxVolume: 0.7

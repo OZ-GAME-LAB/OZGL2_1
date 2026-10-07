@@ -24,6 +24,7 @@ MonoBehaviour:
   moveSpeed: 0.7
   healAmount: 0
   attackAnimationIndex: 0
+  sizeMultiplier: 1.6
   splashRadius: 0
   splashSecondaryDamagePercent: 1
   splashMaxTargets: 0

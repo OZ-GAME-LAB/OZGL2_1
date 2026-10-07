@@ -28,3 +28,5 @@ MonoBehaviour:
   cost: 1
   killExpReward: 0
   starLevel: 1
+  rageAttackSpeedBonus: 0.8
+  lifestealRatio: 0.2

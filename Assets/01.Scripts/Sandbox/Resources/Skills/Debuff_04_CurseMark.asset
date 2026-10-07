@@ -48,3 +48,7 @@ MonoBehaviour:
   fallFromSky: 0
   flourishVfx: {fileID: 0}
   flourishCount: 0
+  castSfx: {fileID: 8300000, guid: a7d4a9d0fcda54644b7ed6b3875d65a3, type: 3}
+  castSfxVolume: 0.7
+  impactSfx: {fileID: 0}
+  impactSfxVolume: 0.7
