@@ -37,6 +37,9 @@ namespace OZGL2.Progression
     {
         private const string Prefix = "OZGL2.RunSave.";
 
+        /// <summary>저장본을 마지막으로 바꾼 시각(예: "10-07 21:30"). 없으면 빈 문자열.</summary>
+        public static string SavedAt(string stageId) => string.IsNullOrEmpty(stageId) ? string.Empty : PlayerPrefs.GetString(Prefix + stageId + ".at", string.Empty);
+
         public static bool Has(string stageId) => !string.IsNullOrEmpty(stageId) && PlayerPrefs.HasKey(Prefix + stageId);
 
         public static RunSave Load(string stageId)
@@ -54,6 +57,7 @@ namespace OZGL2.Progression
             string key = Prefix + save.stageId;
             if (PlayerPrefs.GetString(key, string.Empty) == json) { MarkCombat(save.stageId, false); return false; }
             PlayerPrefs.SetString(key, json);
+            PlayerPrefs.SetString(key + ".at", System.DateTime.Now.ToString("MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture));
             PlayerPrefs.DeleteKey(CombatKey(save.stageId));
             PlayerPrefs.Save();
             return true;
@@ -63,6 +67,7 @@ namespace OZGL2.Progression
         {
             if (string.IsNullOrEmpty(stageId)) return;
             PlayerPrefs.DeleteKey(Prefix + stageId);
+            PlayerPrefs.DeleteKey(Prefix + stageId + ".at");
             PlayerPrefs.DeleteKey(CombatKey(stageId));
             PlayerPrefs.Save();
         }
@@ -79,7 +84,7 @@ namespace OZGL2.Progression
 
         public static void ClearAll()
         {
-            foreach (var id in StageClearStore.OrderedStageIds) { PlayerPrefs.DeleteKey(Prefix + id); PlayerPrefs.DeleteKey(CombatKey(id)); }
+            foreach (var id in StageClearStore.OrderedStageIds) { PlayerPrefs.DeleteKey(Prefix + id); PlayerPrefs.DeleteKey(Prefix + id + ".at"); PlayerPrefs.DeleteKey(CombatKey(id)); }
             PlayerPrefs.Save();
         }
     }

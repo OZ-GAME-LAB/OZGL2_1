@@ -11,7 +11,7 @@ namespace OZGL2.UIBridge
     /// 그 스테이지의 저장 칸을 갱신하므로, 도중에 로비로 나가거나 게임을 꺼도 다음에 같은 난이도로 들어가면 그 웨이브부터 이어진다.
     /// - 보상(카드·증강)을 고르기 전에 나갔다면 이어할 때 그 보상부터 다시 받는다.
     /// - 전투 중에 나가면 그 판은 포기로 본다(전투를 되돌려 같은 웨이브를 다시 도전하는 것을 막는다). 끄려면 _forfeitIfLeftInCombat 을 끈다.
-    /// - 패배하거나 끝까지 클리어하면 저장을 지운다. 1웨이브도 못 깬 판은 저장하지 않는다.
+    /// - 패배하거나 끝까지 클리어하면 저장을 지운다(다음 도전은 1웨이브부터, 마왕 레벨은 유지). 1웨이브도 못 깬 판은 저장하지 않는다.
     /// </summary>
     public sealed class InGameRunSaver : MonoBehaviour
     {
@@ -23,7 +23,18 @@ namespace OZGL2.UIBridge
         private string _clearedRun;
         private eStageState _lastState = eStageState.IDLE;
 
-        private void OnEnable() => RunResume.ForfeitOnCombatExit = _forfeitIfLeftInCombat;
+        /// <summary>디버그 웨이브 점프처럼 저장본을 직접 써 둔 뒤 씬을 다시 열 때, 씬이 닫히며 옛 상태로 덮어쓰지 않게 막는다(새 씬이 열리면 풀린다).</summary>
+        public static bool SuppressSave;
+
+        private void OnEnable()
+        {
+            SuppressSave = false;
+            RunResume.ForfeitOnCombatExit = _forfeitIfLeftInCombat;
+        }
+
+        /// <summary>패배해서 1웨이브부터 다시 시작해도 마왕 레벨·경험치는 그대로 이어지게 한다(웨이브·배치·재화만 처음부터). 「처음부터」(SaveGame.StartNew)만 레벨을 지운다.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void KeepLevelAcrossRuns() => OZGL2.Synergy.RealSynergySync.KeepMawangLevelOnRun = true;
 
         // 씬을 나가거나 게임이 꺼질 때 마지막 배치를 놓치지 않게 한 번 더 저장한다(0.4초 간격 저장 사이에 바꾼 것 포함)
         private void OnDisable() => FlushNow();
@@ -31,7 +42,7 @@ namespace OZGL2.UIBridge
 
         public void FlushNow()
         {
-            if (_bootstrap == null) return;
+            if (_bootstrap == null || SuppressSave) return;
             var stage = _bootstrap.Stage;
             var progress = stage != null ? stage.Progress : null;
             if (progress == null) return;
@@ -59,7 +70,7 @@ namespace OZGL2.UIBridge
                 return;
             }
 
-            if (Time.unscaledTime < _next) return;
+            if (Time.unscaledTime < _next || SuppressSave) return;
             _next = Time.unscaledTime + 0.4f;
             Save(progress, state);
         }
