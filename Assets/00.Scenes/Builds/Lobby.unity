@@ -133195,6 +133195,10 @@ PrefabInstance:
       value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7946810751115523707, guid: ea84098b5cfe36143aa0977d4ddd1d4e, type: 3}
+      propertyPath: m_text
+      value: "\uC6A9\uC0AC\uAD70"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7946810751115523707, guid: ea84098b5cfe36143aa0977d4ddd1d4e, type: 3}
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
@@ -136219,11 +136223,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1744971020006241803, guid: e9bcc70fbcd0f764682a7fede06d0393, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1744971020006241803, guid: e9bcc70fbcd0f764682a7fede06d0393, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1870769994988341771, guid: e9bcc70fbcd0f764682a7fede06d0393, type: 3}
       propertyPath: m_Sprite

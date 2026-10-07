@@ -14,6 +14,9 @@ public static class BattleCardRedesignBuilder
     public const string ART_ROOT = "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2";
     public const string PREFAB_ROOT = "Assets/06.UI/BattleMutedPreview/Cards_v1/Prefabs/";
     public const string CATALOG_PATH = ART_ROOT + "/Resources/UIExpansionCardVisualCatalog.asset";
+    public const string EXPANSION_TYPE_ICON_PATH = ART_ROOT + "/TypeIcons/Icon_Type_Expansion.png";
+    public const string RANK_MATERIAL_PATH = ART_ROOT + "/Fonts/BattleCardRank_WhiteOutline.mat";
+    private const float RANK_OUTLINE_WIDTH = 0.18f;
     private static readonly string[] STAT_NAMES = { "Attack", "Defense", "Health" };
     public static readonly string[] SHAPE_IDS =
         { "floor_domino", "floor_line3", "floor_corner3", "floor_square4", "floor_tee4", "floor_l4" };
@@ -200,6 +203,182 @@ public static class BattleCardRedesignBuilder
         image.raycastTarget = false;
     }
 
+    [MenuItem("Tools/OZGL2/Battle/Redesign/Import and Apply Saved Expansion Type Icon")]
+    public static void ApplySavedExpansionTypeIconMenu() => Debug.Log(ApplySavedExpansionTypeIcon());
+
+    // 확장 종류 아이콘과 배지 배치를 저장한다. 배치는 저장된 유닛 카드와 통일한다.
+    public static string ApplySavedExpansionTypeIcon()
+    {
+        Need(!EditorApplication.isPlayingOrWillChangePlaymode, "Edit Mode에서 실행해 주세요.");
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        Need(stage == null || !stage.scene.isDirty, "열린 Prefab의 미저장 변경을 먼저 저장해 주세요.");
+        string stagePath = stage != null ? stage.assetPath : null;
+        if (stage != null) StageUtility.GoToMainStage();
+        try
+        {
+            ImportSprite(EXPANSION_TYPE_ICON_PATH);
+            string path = PREFAB_ROOT + "BattleCard_LandSlot.prefab";
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                ApplyExpansionTypeIcon(root);
+                PrefabUtility.SaveAsPrefabAsset(root, path, out bool saved);
+                Need(saved, "확장 종류 아이콘 Prefab 저장 실패: " + path);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+            return "확장 카드 전용 Sprite 적용 및 유닛 기준 Frame·TypeIcon 배치 통일 완료. Scene 저장 없음.";
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(stagePath)) PrefabStageUtility.OpenPrefab(stagePath);
+        }
+    }
+
+    [MenuItem("Tools/OZGL2/Battle/Redesign/Apply Expansion Type Icon to Open Land Card (Undo)")]
+    public static void ApplyOpenExpansionTypeIcon()
+    {
+        Need(!EditorApplication.isPlayingOrWillChangePlaymode, "Edit Mode에서 실행해 주세요.");
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        Need(stage != null && stage.assetPath == PREFAB_ROOT + "BattleCard_LandSlot.prefab",
+            "지형 카드의 Prefab Mode에서 실행해 주세요.");
+        Undo.RegisterFullObjectHierarchyUndo(stage.prefabContentsRoot, "확장 카드 종류 아이콘 적용");
+        ApplyExpansionTypeIcon(stage.prefabContentsRoot);
+        EditorSceneManager.MarkSceneDirty(stage.scene);
+    }
+
+    [MenuItem("Tools/OZGL2/Battle/Redesign/Apply Saved Unit Rank Bold and White Outline")]
+    public static void ApplySavedUnitRankStyleMenu() => Debug.Log(ApplySavedUnitRankStyle());
+
+    public static string ApplySavedUnitRankStyle()
+    {
+        Need(!EditorApplication.isPlayingOrWillChangePlaymode, "Edit Mode에서 실행해 주세요.");
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        Need(stage == null || !stage.scene.isDirty, "열린 Prefab의 미저장 변경을 먼저 저장해 주세요.");
+        string stagePath = stage != null ? stage.assetPath : null;
+        if (stage != null) StageUtility.GoToMainStage();
+        try
+        {
+            string path = PREFAB_ROOT + "BattleCard_Unit.prefab";
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                ApplyUnitRankStyle(root);
+                PrefabUtility.SaveAsPrefabAsset(root, path, out bool saved);
+                Need(saved, "유닛 RankText Prefab 저장 실패: " + path);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
+            return "유닛 RankText Bold·전용 흰색 Outline 적용 완료. 공용 폰트/Material과 Scene 저장 없음.";
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(stagePath)) PrefabStageUtility.OpenPrefab(stagePath);
+        }
+    }
+
+    [MenuItem("Tools/OZGL2/Battle/Redesign/Apply Unit Rank Style to Open Card (Undo)")]
+    public static void ApplyOpenUnitRankStyle()
+    {
+        Need(!EditorApplication.isPlayingOrWillChangePlaymode, "Edit Mode에서 실행해 주세요.");
+        var stage = PrefabStageUtility.GetCurrentPrefabStage();
+        Need(stage != null && stage.assetPath == PREFAB_ROOT + "BattleCard_Unit.prefab",
+            "유닛 카드의 Prefab Mode에서 실행해 주세요.");
+        Undo.RecordObject(GetRankText(stage.prefabContentsRoot), "RankText Bold와 테두리 적용");
+        var material = AssetDatabase.LoadAssetAtPath<Material>(RANK_MATERIAL_PATH);
+        if (material != null) Undo.RecordObject(material, "RankText 전용 테두리 적용");
+        ApplyUnitRankStyle(stage.prefabContentsRoot);
+        EditorSceneManager.MarkSceneDirty(stage.scene);
+    }
+
+    private static TMP_Text GetRankText(GameObject root)
+    {
+        var view = root.GetComponent<UIBattlePreparationCardView>();
+        Need(view != null, "카드 View 연결 누락");
+        var binding = new SerializedObject(view).FindProperty("_rankText");
+        var rank = binding != null ? binding.objectReferenceValue as TMP_Text : null;
+        Need(rank != null, "RankText TMP 연결 누락");
+        return rank;
+    }
+
+    private static void ApplyUnitRankStyle(GameObject root)
+    {
+        Need(root != null && root.name == "BattleCard_Unit", "유닛 카드만 적용할 수 있습니다.");
+        var rank = GetRankText(root);
+        Need(rank.font != null && rank.font.material != null, "RankText 폰트/Material 연결 누락");
+        var material = AssetDatabase.LoadAssetAtPath<Material>(RANK_MATERIAL_PATH);
+        if (material == null)
+        {
+            // atlas와 기존 셰이더 설정을 복사하되, 공용 SDF Material은 수정하지 않는다.
+            material = new Material(rank.font.material) { name = "BattleCardRank_WhiteOutline" };
+            AssetDatabase.CreateAsset(material, RANK_MATERIAL_PATH);
+        }
+        Need(material.HasProperty("_OutlineColor") && material.HasProperty("_OutlineWidth"),
+            "RankText Material의 Outline 지원 누락");
+        material.SetColor("_OutlineColor", Color.white);
+        material.SetFloat("_OutlineWidth", RANK_OUTLINE_WIDTH);
+        material.EnableKeyword("OUTLINE_ON");
+        EditorUtility.SetDirty(material);
+        AssetDatabase.SaveAssetIfDirty(material);
+
+        rank.fontStyle |= FontStyles.Bold;
+        rank.fontSharedMaterial = material;
+        rank.extraPadding = true;
+        rank.UpdateMeshPadding();
+        EditorUtility.SetDirty(rank);
+    }
+
+    private static void ApplyExpansionTypeIcon(GameObject root)
+    {
+        Need(root != null && root.name == "BattleCard_LandSlot", "지형 카드만 적용할 수 있습니다.");
+        var target = FindTypeIcon(root);
+        Need(target != null && target.TryGetComponent<Image>(out _), "TypeBadge의 TypeIcon Image 연결 누락");
+        var image = target.GetComponent<Image>();
+        image.sprite = Require<Sprite>(EXPANSION_TYPE_ICON_PATH);
+        image.color = Color.white;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+
+        ApplyUnitTypeBadgeLayout(root);
+    }
+
+    private static Transform FindTypeIcon(GameObject root)
+    {
+        return root.transform.Find("TypeBadge/Frame/TypeIcon") ??
+            root.transform.Find("TypeBadge/TypeIcon");
+    }
+
+    private static void ApplyUnitTypeBadgeLayout(GameObject root)
+    {
+        var unit = Require<GameObject>(PREFAB_ROOT + "BattleCard_Unit.prefab");
+        var sourceBadge = unit.transform.Find("TypeBadge") as RectTransform;
+        var sourceFrame = unit.transform.Find("TypeBadge/Frame") as RectTransform;
+        var sourceIcon = FindTypeIcon(unit) as RectTransform;
+        var targetBadge = root.transform.Find("TypeBadge") as RectTransform;
+        var targetFrame = root.transform.Find("TypeBadge/Frame") as RectTransform;
+        var targetIcon = FindTypeIcon(root) as RectTransform;
+        Need(sourceBadge != null && sourceFrame != null && sourceIcon != null &&
+            targetBadge != null && targetFrame != null && targetIcon != null,
+            "유닛/확장 카드의 TypeBadge, Frame 또는 TypeIcon 연결 누락");
+
+        // 같은 부모 아래에서 RectTransform 값을 복사해야 실제 카드상의 위치도 일치한다.
+        var targetParent = sourceIcon.parent == sourceFrame ? targetFrame : targetBadge;
+        if (targetIcon.parent != targetParent)
+            Undo.SetTransformParent(targetIcon, targetParent, "카드 종류 아이콘 부모 통일");
+        CopyRectTransform(sourceBadge, targetBadge);
+        CopyRectTransform(sourceFrame, targetFrame);
+        CopyRectTransform(sourceIcon, targetIcon);
+    }
+
+    private static void CopyRectTransform(RectTransform source, RectTransform target)
+    {
+        target.anchorMin = source.anchorMin;
+        target.anchorMax = source.anchorMax;
+        target.pivot = source.pivot;
+        target.sizeDelta = source.sizeDelta;
+        target.anchoredPosition3D = source.anchoredPosition3D;
+        target.localRotation = source.localRotation;
+        target.localScale = source.localScale;
+    }
+
     // Prefab Mode에서 미세 조정할 때는 이 메뉴를 사용한다. Ctrl+Z로 되돌린 뒤 사용자가 저장한다.
     [MenuItem("Tools/OZGL2/Battle/Redesign/Apply Layout to Open Card (Undo)")]
     public static void ApplyOpenCard()
@@ -219,6 +398,7 @@ public static class BattleCardRedesignBuilder
         foreach (string id in SHAPE_IDS) ImportSprite(ART_ROOT + "/ExpansionArt/" + id + ".png");
         ImportStatIcons();
         ImportTypeBadges();
+        ImportSprite(EXPANSION_TYPE_ICON_PATH);
         BattleCardTmpMigrationBuilder.EnsureFonts();
         if (!AssetDatabase.IsValidFolder(ART_ROOT + "/Resources"))
             AssetDatabase.CreateFolder(ART_ROOT, "Resources");
@@ -280,15 +460,14 @@ public static class BattleCardRedesignBuilder
         shell.type = Image.Type.Simple;
         shell.preserveAspect = false;
         Rect(shell.rectTransform, 0, 100, 600, 1000);
-        Rect(Find(root, "TypeBadge"), 63, isUnit ? 195 : 180, 94, 94);
-        Rect(Find(root, "TypeBadge/Frame"), 0, 0, 94, 94);
+        // 수동으로 조정한 유닛 배지는 보존하고, 확장 카드는 아래에서 유닛 기준으로 맞춘다.
         ApplyTypeBadge(root);
         root.transform.Find("TypeBadge/BlackDiamond").gameObject.SetActive(false);
-        Rect(Find(root, "TypeBadge/TypeIcon"), 24, 24, 46, 46);
         Rect(Find(root, "StarBadge"), 464, isUnit ? 197 : 182, 94, 94);
-        Rect(Find(root, "RankText"), 480, isUnit ? 209 : 194, 62, 67);
+        // 별 배지 아래로 옮긴 RankText의 수동 배치는 그대로 유지한다.
         Style(root, "RankText", 42, TextAnchor.MiddleCenter, false);
-        root.transform.Find("RankText").GetComponent<TMP_Text>().color = new Color32(35, 25, 18, 255);
+        GetRankText(root).color = new Color32(35, 25, 18, 255);
+        if (isUnit) ApplyUnitRankStyle(root);
         Rect(Find(root, "TitleText"), 159, isUnit ? 213 : 198, 302, 60);
         Style(root, "TitleText", 34, TextAnchor.MiddleCenter, false, 28);
         view.SetFootprintVisible(false);
@@ -355,8 +534,7 @@ public static class BattleCardRedesignBuilder
             Rect(Find(root, "AreaDescriptionText"), 85, 784, 430, 156);
             Style(root, "AreaDescriptionText", 29, TextAnchor.UpperCenter, true, 25);
             view.SetTitle("배치 영역 확장");
-            view.SetTypeIcon(Require<UIExpansionCardVisualCatalogSO>(CATALOG_PATH).GetArtwork("floor_square4"));
-            Rect(Find(root, "TypeBadge/TypeIcon"), 12, 12, 70, 70);
+            ApplyExpansionTypeIcon(root);
             view.SetRankText(string.Empty);
             view.SetArtwork(Require<UIExpansionCardVisualCatalogSO>(CATALOG_PATH).GetArtwork("floor_square4"));
             view.SetAreaDescription("배치 영역 +4칸", "확장할 위치에 배치해\n유닛을 놓을 공간을 넓힙니다.");
@@ -377,7 +555,8 @@ public static class BattleCardRedesignBuilder
 
     private static void Style(GameObject root, string path, int size, TextAnchor alignment, bool body, int min = 0)
     {
-        var text = root.transform.Find(path).GetComponent<TMP_Text>();
+        var text = path == "RankText" ? GetRankText(root) :
+            root.transform.Find(path).GetComponent<TMP_Text>();
         text.font = Require<TMP_FontAsset>(body ? BattleCardTmpMigrationBuilder.BODY_FONT_PATH : BattleCardTmpMigrationBuilder.TITLE_FONT_PATH);
         text.fontSharedMaterial = text.font.material;
         text.color = IVORY;
