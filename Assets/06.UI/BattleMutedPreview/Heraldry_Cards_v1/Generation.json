@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "date": "2026-10-06",
+  "method": "Built-in image_gen; no fallback CLI",
+  "reference": "codex-clipboard-fd14a9ed-9f7d-4f3c-ab3e-f8f5e56b3508.png",
+  "promptSetPurpose": "Reusable final art specifications; normalized summary of generation prompts, not a verbatim transcript",
+  "sharedPrompt": "Create a production-ready transparent PNG sprite for a Unity casual medieval demon-fantasy card UI matching the supplied reference. Smooth non-pixel illustration, restrained polished antique gold metal, opaque near-black charcoal interior, muted burgundy cloth, dark outlines and a horned helmet crest. Front-facing, symmetrical, crisp readable silhouettes. Transparent outside only, fully opaque closed interiors. No baked lettering, digits, character artwork, grid, watermark or scene background. Keep functional content separate for Unity rendering.",
+  "assets": [
+    {
+      "path": "Sprites/CardShell_Unit.png",
+      "source": "exec-bd5b2ea5-bef3-4717-a291-17857074e04f.png",
+      "prompt": "Tall unit-card shell. Ornate gold rim, horned crest at top centre, muted red cloth at the sides. Blank header; large square artwork area; two shallow description sections with small blank title tabs; three-column stats footer. Leave space for a separate circular type badge at top-left and star badge at top-right. No text, icons, character or grid."
+    },
+    {
+      "path": "Sprites/CardShell_Relic.png",
+      "source": "exec-6290d39f-5e85-48cd-a4fc-42dc4e592083.png",
+      "prompt": "Matching tall relic/building-card shell. Blank header, large square artwork area, two stacked wide description panels with small blank title tabs. No stats footer. Gold metal, charcoal interiors and burgundy cloth matching the unit card. Separate badge spaces. No text, icon, illustration or grid."
+    },
+    {
+      "path": "Sprites/CardShell_LandSlot.png",
+      "source": "exec-85cb01f1-7e7e-4708-ba3e-72523fa72c1f.png",
+      "prompt": "Matching tall land-expansion reward-card shell. Blank top header, large empty square preview window, gold ornamental divider, broad uncluttered bottom description area. Horned crest and burgundy side cloth. No traits/skills tabs, no text, icon, grid or coloured tile."
+    },
+    {
+      "path": "Sprites/Badge_Star.png",
+      "source": "exec-1abd5da3-60ef-43db-b7ba-21141cf15d8d.png",
+      "prompt": "Single five-point gold metal rank star, frontal and symmetrical, matching the reference card's bevels and dark outline. Blank centre reserved for a runtime digit. No number, text, ribbon, glow or shadow outside the silhouette."
+    },
+    {
+      "path": "Sprites/Badge_Type.png",
+      "source": "exec-50b957c5-9a23-4131-89b3-879cd9744f34.png",
+      "prompt": "Single circular type medallion frame with antique gold rim and small pointed ornaments at top and bottom. Opaque charcoal inner disc. Blank centre for a separate type icon. Transparent outer silhouette. No symbol or text."
+    },
+    {
+      "path": "Sprites/Icon_Type_Land.png",
+      "source": "exec-3f5bb593-34bb-457c-ad84-455aeb9602f6.png",
+      "prompt": "Circular compact land-expansion emblem: stylized green grass and grey medieval cobblestone tiles, smooth non-pixel rendering, readable at small UI scale. Match the supplied reference and fit inside the separate gold type medallion. No metal rim or text."
+    },
+    {
+      "path": "Sprites/Icon_Type_Relic.png",
+      "source": "exec-8b5ec1e9-4924-4be1-9c84-3e8711e51320.png",
+      "prompt": "Compact relic emblem: upright pale-blue magic crystal with a thin elliptical orbit and a few small sparkles, smooth non-pixel rendering. Match the supplied relic reference and fit inside the gold type medallion. Transparent outside, no frame or text."
+    }
+  ],
+  "alphaCorrection": {
+    "userApproved": true,
+    "targets": ["CardShell_Unit.png", "CardShell_Relic.png", "CardShell_LandSlot.png", "Badge_Star.png", "Badge_Type.png"],
+    "method": "Read original RGBA pixels directly. Set alpha to 255 only where original alpha is 240..254 and every pixel of the surrounding 5x5 neighbourhood has alpha >=240. Keep outer 2px and every RGB byte unchanged. No resizing or cropping."
+  },
+  "implementation": {
+    "rootSize": [600, 1100],
+    "gridSize": [5, 5],
+    "cellSize": 76,
+    "gridLineThickness": 1.5,
+    "titleFont": "HeirofLightBold",
+    "bodyFont": "NEXON Lv2 Gothic",
+    "fontNote": "Existing fonts remain in git-ignored LocalStaging; teammates need the same font files and GUIDs.",
+    "preserved": ["C#", "Scenes", "Hand prefab", "Card data", "Existing view references", "Runtime text and artwork", "Hover/enlargement/drag logic"]
+  }
+}

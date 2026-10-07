@@ -27,6 +27,9 @@ namespace OZGL2.UIFlow
         [SerializeField] private Image[] _equippedFrames;
         [SerializeField] private Image[] _equippedUltimateFrames;
         [SerializeField] private RectTransform[] _equippedSlotRects;
+        [SerializeField] private Button[] _equippedSlotButtons;
+        [SerializeField] private Image[] _equippedLockIcons;
+        [SerializeField] private Color _lockedEquippedFrameColor = new Color(0.5f, 0.5f, 0.5f, 1f);
         [SerializeField] private UISkillCategoryStyleSO _categoryStyle;
         [SerializeField] private Image[] _cardSlotTints;
         [SerializeField] private Image[] _equippedSlotTints;
@@ -51,7 +54,6 @@ namespace OZGL2.UIFlow
         [Header("Heraldry 계정 UI — 기존 화면은 비활성 유지")]
         [SerializeField] private bool _useHeraldryLayout;
         [SerializeField] private TMP_Text _availableSp;
-        [SerializeField] private TMP_Text _equippedCount;
         [SerializeField] private TMP_Text[] _equippedNames;
         [SerializeField] private TMP_Text _ownedCount;
         [SerializeField] private Image _detailFrame;
@@ -189,7 +191,7 @@ namespace OZGL2.UIFlow
         public void SelectEquippedSlot(int slot)
         {
             if (_useHeraldryLayout && (IsExitConfirmationOpen || IsUnlockConfirmationOpen || _isUnlockPending)) return;
-            if (slot < 0 || slot >= SlotCapacity || !IsSkillUnlocked(_draft[slot])) return;
+            if (slot < 0 || slot >= SlotCapacity || slot >= _draft.Length || !IsSkillUnlocked(_draft[slot])) return;
             _category = 0;
             _selected = _draft[slot];
             SetStatus(string.Empty);
@@ -391,34 +393,54 @@ namespace OZGL2.UIFlow
                 ApplyLockedStyle(GetImage(_cardIcons, i), GetImage(_cardSlotTints, i), GetImage(_cardLockIcons, i), IsValid(i) && !IsSkillUnlocked(i));
                 ApplyUltimateFrame(GetImage(_cardUltimateFrames, i), IsSkillUnlocked(i) && _catalog.Entries[i].IsUltimate);
             }
+            // 표시 슬롯은 5개를 유지하되, 장착 배열과 저장 용량은 기존 특성 계산값을 따른다.
+            int visibleSlotCount = _useHeraldryLayout ? MAX_SLOT_COUNT : SlotCapacity;
             if (_useHeraldryLayout && _equippedSlotRects != null)
                 for (int i = 0; i < _equippedSlotRects.Length; i++)
-                    if (_equippedSlotRects[i] != null) _equippedSlotRects[i].gameObject.SetActive(i < SlotCapacity);
-            for (int i = 0; i < SlotCapacity; i++)
+                    if (_equippedSlotRects[i] != null) _equippedSlotRects[i].gameObject.SetActive(i < visibleSlotCount);
+            for (int i = 0; i < visibleSlotCount; i++)
             {
-                bool hasSkill = IsSkillUnlocked(_draft[i]);
+                bool isSlotLocked = _useHeraldryLayout && i >= SlotCapacity;
+                int equippedIndex = !isSlotLocked && i < _draft.Length ? _draft[i] : -1;
+                bool hasSkill = IsSkillUnlocked(equippedIndex);
+                UISkillPreviewCatalogSO.Entry equippedEntry = hasSkill ? _catalog.Entries[equippedIndex] : null;
+                if (_useHeraldryLayout && _equippedSlotButtons != null && i < _equippedSlotButtons.Length && _equippedSlotButtons[i] != null)
+                    _equippedSlotButtons[i].interactable = !isSlotLocked;
+                Image lockIcon = GetImage(_equippedLockIcons, i);
+                if (_useHeraldryLayout && lockIcon != null)
+                {
+                    lockIcon.enabled = isSlotLocked && lockIcon.sprite != null;
+                    lockIcon.raycastTarget = false;
+                }
                 if (_useHeraldryLayout && _equippedNames != null && i < _equippedNames.Length && _equippedNames[i] != null)
-                    _equippedNames[i].text = hasSkill ? _catalog.Entries[_draft[i]].DisplayName : "빈 슬롯";
+                    _equippedNames[i].text = isSlotLocked ? "잠긴 슬롯" : hasSkill ? equippedEntry.DisplayName : "빈 슬롯";
                 if (_equippedIcons != null && i < _equippedIcons.Length && _equippedIcons[i] != null)
                 {
-                    _equippedIcons[i].sprite = hasSkill ? _catalog.Entries[_draft[i]].Icon : null;
+                    _equippedIcons[i].sprite = hasSkill ? equippedEntry.Icon : null;
                     _equippedIcons[i].enabled = hasSkill;
-                    ApplyCategoryStyle(_equippedIcons[i], GetImage(_equippedSlotTints, i), hasSkill ? _catalog.Entries[_draft[i]] : null);
+                    ApplyCategoryStyle(_equippedIcons[i], GetImage(_equippedSlotTints, i), equippedEntry);
                 }
                 if (_equippedFrames != null && i < _equippedFrames.Length && _equippedFrames[i] != null)
                 {
-                    Sprite frame = hasSkill && _categoryStyle != null ? _categoryStyle.GetEquippedFrame(_catalog.Entries[_draft[i]].Category) : null;
+                    Sprite frame = hasSkill && _categoryStyle != null ? _categoryStyle.GetEquippedFrame(equippedEntry.Category) : null;
                     _equippedFrames[i].sprite = frame != null ? frame : _redFrame;
                     _equippedFrames[i].material = !hasSkill && _categoryStyle != null ? _categoryStyle.EmptyFrameMaterial : null;
+                    if (_useHeraldryLayout)
+                    {
+                        // 잠긴 슬롯은 투명도를 낮추지 않고 색상만 어둡게 한다. 해금 시 원래 밝기를 복원한다.
+                        Color frameColor = isSlotLocked ? _lockedEquippedFrameColor : Color.white;
+                        frameColor.a = 1f;
+                        _equippedFrames[i].color = frameColor;
+                    }
                     if (_equippedSlotRects != null && i < _equippedSlotRects.Length && _equippedSlotRects[i] != null && _equippedSlotRects[i] != _equippedFrames[i].rectTransform)
                     {
-                        Vector4 layout = frame != null ? _categoryStyle.GetEquippedFrameLayout(_catalog.Entries[_draft[i]].Category) : new Vector4(1, 1, 0, 0);
+                        Vector4 layout = frame != null ? _categoryStyle.GetEquippedFrameLayout(equippedEntry.Category) : new Vector4(1, 1, 0, 0);
                         Vector2 size = _equippedSlotRects[i].rect.size;
                         _equippedFrames[i].rectTransform.sizeDelta = new Vector2(size.x * layout.x, size.y * layout.y);
                         _equippedFrames[i].rectTransform.anchoredPosition = new Vector2(size.x * layout.z, size.y * layout.w);
                     }
                 }
-                ApplyUltimateFrame(GetImage(_equippedUltimateFrames, i), hasSkill && _catalog.Entries[_draft[i]].IsUltimate);
+                ApplyUltimateFrame(GetImage(_equippedUltimateFrames, i), hasSkill && equippedEntry.IsUltimate);
             }
             bool valid = IsValid(_selected);
             bool isUnlocked = IsSkillUnlocked(_selected);
@@ -451,8 +473,7 @@ namespace OZGL2.UIFlow
             if (_saveButton != null) _saveButton.interactable = _catalog != null && HasChanges;
             if (_useHeraldryLayout)
             {
-                if (_availableSp != null) _availableSp.text = "남은 SP  " + (_hasAccountState ? _skillPoints.ToString() : "—");
-                if (_equippedCount != null) _equippedCount.text = EquippedCount + " / " + SlotCapacity;
+                if (_availableSp != null) _availableSp.text = "보유 SP  " + (_hasAccountState ? _skillPoints.ToString() : "—");
                 if (_ownedCount != null)
                 {
                     int total = 0;

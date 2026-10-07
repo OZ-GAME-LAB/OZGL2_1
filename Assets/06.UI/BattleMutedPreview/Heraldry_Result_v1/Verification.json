@@ -1,0 +1,286 @@
+{
+  "date": "2026-10-06",
+  "scene": "Assets/00.Scenes/Builds/InGame_UIIntegration.unity",
+  "prefab": "Assets/06.UI/BattleMutedPreview/Heraldry_Result_v1/Prefabs/Canvas_BattleResult_Heraldry.prefab",
+  "scope": {
+    "newCommonResultPrefab": 1,
+    "replacedSceneInstances": 2,
+    "sceneResultInstancesAfter": 1,
+    "changedGameplayOrEditorScripts": 0,
+    "oldResultPrefabsChanged": false,
+    "InGameChanged": false,
+    "InGame2Changed": false,
+    "ProjectSettingsChanged": false,
+    "PackagesChanged": false,
+    "oldDirtySkillSlotOverridesPreserved": 12
+  },
+  "checks": {
+    "tests": [
+      {
+        "name": "requiredReferences",
+        "passed": true,
+        "count": 11
+      },
+      {
+        "name": "missingReferences",
+        "passed": true,
+        "items": []
+      },
+      {
+        "name": "displayCase0",
+        "passed": true,
+        "title": "승리",
+        "time": "05분 18초",
+        "fixedLabel": "클리어 시간",
+        "xp": 0.6
+      },
+      {
+        "name": "displayCase1",
+        "passed": true,
+        "title": "패배",
+        "time": "03분 42초",
+        "fixedLabel": "클리어 시간",
+        "xp": 0.82
+      },
+      {
+        "name": "displayCase2",
+        "passed": true,
+        "title": "패배",
+        "time": "00분 00초",
+        "fixedLabel": "클리어 시간",
+        "xp": 1
+      },
+      {
+        "name": "popupLifecycle",
+        "passed": true,
+        "duplicateOpenPrevented": true,
+        "escapeBlocked": true,
+        "confirmedClose": true
+      },
+      {
+        "name": "sceneSharedResult",
+        "passed": true,
+        "count": 1,
+        "navigator": "UI_Root",
+        "lobbyScene": "Assets/00.Scenes/Builds/Lobby.unity"
+      }
+    ],
+    "scene": "Assets/00.Scenes/Builds/InGame_UIIntegration.unity",
+    "dirty": false,
+    "compileInProgress": false,
+    "playMode": false
+  },
+  "previewChecks": {
+    "renders": [
+      {
+        "state": 0,
+        "path": "D:/GitHub/OZGL2_1/Temp/ResultHeraldry_20261006/Result_Victory.png",
+        "meshes": 25,
+        "texts": [
+          {
+            "name": "DifficultyText",
+            "text": "<color=#F4E7C5>보통</color> 난이도",
+            "overflow": false,
+            "size": 31
+          },
+          {
+            "name": "ResultTitleText",
+            "text": "승리",
+            "overflow": false,
+            "size": 102
+          },
+          {
+            "name": "Label",
+            "text": "클리어 시간",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "05분 18초",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "Label",
+            "text": "처치 용사 수",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "73명",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "Label",
+            "text": "유닛 배치 수",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "9개",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "Label",
+            "text": "얻은 경험치",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "860 exp",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "LevelText",
+            "text": "LV.5",
+            "overflow": false,
+            "size": 33
+          },
+          {
+            "name": "LevelUpText",
+            "text": "LV UP!",
+            "overflow": false,
+            "size": 23
+          },
+          {
+            "name": "Label",
+            "text": "로비로",
+            "overflow": false,
+            "size": 45
+          }
+        ],
+        "slider": 0.6
+      },
+      {
+        "state": 1,
+        "path": "D:/GitHub/OZGL2_1/Temp/ResultHeraldry_20261006/Result_Defeat.png",
+        "meshes": 24,
+        "texts": [
+          {
+            "name": "DifficultyText",
+            "text": "<color=#F4E7C5>지옥</color> 난이도",
+            "overflow": false,
+            "size": 31
+          },
+          {
+            "name": "ResultTitleText",
+            "text": "패배",
+            "overflow": false,
+            "size": 102
+          },
+          {
+            "name": "Label",
+            "text": "클리어 시간",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "03분 42초",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "Label",
+            "text": "처치 용사 수",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "41명",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "Label",
+            "text": "유닛 배치 수",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "7개",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "Label",
+            "text": "얻은 경험치",
+            "overflow": false,
+            "size": 30
+          },
+          {
+            "name": "Value",
+            "text": "320 exp",
+            "overflow": false,
+            "size": 32
+          },
+          {
+            "name": "LevelText",
+            "text": "LV.3",
+            "overflow": false,
+            "size": 33
+          },
+          {
+            "name": "LevelUpText",
+            "text": "",
+            "overflow": false,
+            "size": 23
+          },
+          {
+            "name": "Label",
+            "text": "로비로",
+            "overflow": false,
+            "size": 45
+          }
+        ],
+        "slider": 0.82
+      }
+    ],
+    "sameInstance": -355632,
+    "sceneUnchanged": true,
+    "dirtyBefore": false,
+    "dirtyAfter": false
+  },
+  "console": {
+    "errors": 0,
+    "warnings": [
+      "손패 Viewport 높이가 646.4 UI 단위보다 작아 호버 카드가 잘릴 수 있습니다. (기존 경고, 변경하지 않음)"
+    ]
+  },
+  "notTested": [
+    "실제 Play Mode 전투 종료에서의 결과 표시",
+    "실제 로비 이동 버튼 클릭에 의한 Scene 전환"
+  ],
+  "deferred": [
+    "기존 UIInGameBattleBridge가 StageId를 직접 전달하므로 실제 실행 난이도는 내부ID로 표시될 수 있음. 보통/어려움/지옥 UI 명칭 매핑은 별도 코드 작업.",
+    "승패 제목색은 기존 UIBattleResultView 단일 _titleColor를 그대로 사용, 공통 아이보리(승인). 별도색은 코드작업.",
+    "비활성 PreviewTriggers의 두 버튼은 같은 공통 Popup에 연결. 개별 승패 미리보기 지정은 별도작업. 실제 전투 브리지는 SetState 수행."
+  ],
+  "preservedStatistics": {
+    "time": "첫 전투 진입부터 결과 확정까지 경과 시간",
+    "deployments": "전투 중 최대 동시 배치 수",
+    "kills": "기존 전투 집계",
+    "xp": "기존 보상/저장 계산 유지"
+  },
+  "fontDependency": "기존 Git 제외 LocalStaging 폰트와 meta 필요(새 의존성 추가 아님)",
+  "inspectorChecklist": [
+    "Bridge 승리/패배 View와 Popup 모두 같은 새 결과창",
+    "결과창 Navigator=UI_Root, lobbyScenePath=Assets/00.Scenes/Builds/Lobby.unity",
+    "공통창 초기 비활성, CanDismiss=false, FirstSelected=LobbyButton",
+    "표시용 Slider 비상호작용, 게임 데이터 변경 이벤트 없음",
+    "LayerMask/Collider/Rigidbody/Animator/InputSystem 변경 없음"
+  ],
+  "diffNotes": [
+    "Scene Unity 직렬화 빈값 줄에 trailing-whitespace 3건: .unity 직접편집 금지에 따라 미보정",
+    "외부검토에서 prefab 중복ID/깨진내부참조/부모자식불일치 0"
+  ]
+}

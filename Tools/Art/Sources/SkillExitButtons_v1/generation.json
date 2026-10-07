@@ -1,0 +1,56 @@
+{
+  "tool": "built-in image_gen",
+  "intent": "precise-object-edit",
+  "edit_target": "Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_tab.png",
+  "interior_reference": "Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_back.png",
+  "generated_source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-bc2cc5f6-326d-4bb8-b7ee-f5118ed9ced4.png",
+  "project_output": "Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_exit_leave_v1.png",
+  "prompt": "Use case: precise-object-edit.\nAsset type: transparent raster UI button background for a Unity dark-fantasy skill settings unsaved-changes confirmation popup. Produce ONE blank red button, no text or icons.\nInput image 1 (skill_tab.png) is the EDIT TARGET and the geometry authority. Input image 2 (achievement_back.png) is ONLY an interior color/material reference.\nPrimary request: Change only the dark charcoal INNER FACE of image 1 to the same muted deep burgundy/crimson inner-face color and soft subtle mottled gradient seen inside image 2. Preserve the thin antique-gold bevel border, its exact thickness, highlights, outer silhouette, curved inward shoulder corners, rectangular proportions and overall geometry from image 1. Do NOT borrow the pointed spear ends or ornate large bevels from image 2.\nKeep image 1's long horizontal button aspect and centered position, and comparable transparent canvas padding. Front-on, absolutely flat, no perspective, no cast shadow outside, no glow.\nInterior must be fully opaque (alpha 255), clean and evenly filled to the existing border. Outside is genuinely transparent. Maintain smooth antialiased edges. Do not put white pixels or any background inside transparent areas.\nNo label, no letters, no emblem, no arrows, no additional decorations. Do not make the frame thicker or brighten the gold. The new sprite must visually match the skill_tab original placed beside it at the same dimensions.",
+  "constraints": {
+    "preserve_original_assets": true,
+    "frame": "skill_tab",
+    "interior": "achievement_back burgundy",
+    "text": "Separate TMP labels, no baked text",
+    "cancel": "Original dark skill_tab",
+    "leave": "New burgundy sprite",
+    "scene": "Lobby",
+    "prefab": "Canvas_LobbyOverlays",
+    "runtime_code_changed": false
+  },
+  "postprocessing": {
+    "user_approved": true,
+    "method": "Composite generated burgundy RGB into the center-connected dark inner face of the original skill_tab, excluding metal and preserving a four-direction edge margin. Set only that inner face alpha to 255.",
+    "native_size": [2172, 724],
+    "changed_inner_pixels": 785473,
+    "unchanged_original_rgba_pixels": 787055,
+    "protected_rgba_difference_count": 0,
+    "inner_alpha": 255,
+    "png_roundtrip_exact": true
+  },
+  "unity_application": {
+    "sprite": "Assets/06.UI/LobbyMutedPreview/Heraldry_Skills_v1/Sprites/skill_exit_leave_v1.asset",
+    "imported_texture_size": [2048, 683],
+    "crop_and_pivot": "Exact original skill_tab Sprite rect and pivot; 100 pixels per unit",
+    "scene": "Assets/00.Scenes/Builds/Lobby.unity",
+    "prefab": "Assets/06.UI/LobbyMutedPreview/Overlays/Prefabs/Canvas_LobbyOverlays.prefab",
+    "target": "Canvas_SkillSettings/ExitConfirmation/Panel/Leave",
+    "state_sprites": "Normal, hover, pressed, chosen and disabled all use the new red Sprite",
+    "both_button_size": [280, 69],
+    "both_label_font_size": 28,
+    "layout": "Existing symmetric positions preserved: Cancel (-157,-105), Leave (157,-105)",
+    "callbacks": "CancelExit and ConfirmExitWithoutSaving preserved",
+    "saved": true
+  },
+  "verification": {
+    "isolated_editor_checks_passed": 28,
+    "test_scene_mutations": false,
+    "test_callbacks_invoked": false,
+    "existing_unsaved_editor_state_preserved": true,
+    "button_text_fits": true,
+    "independent_scene_prefab_diff_review": "Only Leave Image Sprite, five state Sprites and Label fontSize/fontSizeBase changed",
+    "independent_pixel_review": "Original frame/exterior RGBA and silhouette preserved exactly; all changed inner pixels alpha 255",
+    "original_assets_and_runtime_code_unchanged": true,
+    "play_mode": "Not run; visual state transitions checked on an isolated inactive clone",
+    "console_error_warning_entries": 0
+  }
+}
