@@ -407,6 +407,7 @@ namespace OZGL2.Grid
             }
             if (IsExpansionDrag)
             {
+                var placedCells = GetPreviewCells(); // 뽑힌 조각 모양 그대로의 칸(아래에서 보류 모양을 비우기 전에 잡아 둔다)
                 var moving = FindExpansion(_selectedId);
                 if (moving != null)
                 {
@@ -419,7 +420,7 @@ namespace OZGL2.Grid
                     _pendingExpansion = null;
                     RequiresExpansionPlacement = false;
                 }
-                foreach (var cell in GetPreviewCells()) _floor.Add(cell);
+                foreach (var cell in placedCells) _floor.Add(cell);
                 UpdateFloorView();
                 ClearSelection(); Notify(true); return true;
             }

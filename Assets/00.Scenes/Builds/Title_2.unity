@@ -436,6 +436,7 @@ GameObject:
   - component: {fileID: 7770000004}
   - component: {fileID: 7770000005}
   - component: {fileID: 7770000006}
+  - component: {fileID: 7770000007}
   m_Layer: 0
   m_Name: TitleScreen
   m_TagString: Untagged
@@ -524,6 +525,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiTextFit
   _minScale: 0.55
   _scanSeconds: 0.5
+--- !u!114 &7770000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7770000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f793a53d55915ea18c0d0c5d3e2e5bf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.UiFontUnify
+  _tmpMain: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
+  _tmpKeep:
+  - {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
+  - {fileID: 11400000, guid: 36fe7d726914a8c408af7e5c4eba9505, type: 2}
+  - {fileID: 11400000, guid: 02fdbfbc11f69364785023cfc33679a6, type: 2}
+  _legacyMain: {fileID: 12800000, guid: e0a90fad30ce3ad488d279d3c5128894, type: 3}
+  _legacyKeep:
+  - {fileID: 12800000, guid: e0a90fad30ce3ad488d279d3c5128894, type: 3}
+  - {fileID: 12800000, guid: 2e3736a5148d93a46be1ea408a0e31d3, type: 3}
+  _scanSeconds: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
