@@ -64,9 +64,9 @@ MonoBehaviour:
     id: 6
     clips:
     - {fileID: 8300000, guid: f2e14b48189658d4e9daf91bd68e1761, type: 3}
-    volume: 0.5
+    volume: 0.25
     pitchRange: {x: 1.0, y: 1.0}
-    minInterval: 0.15
+    minInterval: 0.6
   - label: DeathHero
     id: 7
     clips:

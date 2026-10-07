@@ -29,3 +29,4 @@ MonoBehaviour:
   targetLowestHealthEnemy: 1
   comboStunAttackInterval: 3
   comboStunDuration: 1
+  maxHealthPercentDamage: 0.04

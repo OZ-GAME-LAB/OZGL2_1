@@ -52,3 +52,7 @@ MonoBehaviour:
   vfxRecolor: {r: 1, g: 0.85, b: 0.1, a: 1}
   flourishVfx: {fileID: 0}
   flourishCount: 0
+  castSfx: {fileID: 8300000, guid: 8efd74bdc68854e4483d865114ae5665, type: 3}
+  castSfxVolume: 0.6
+  impactSfx: {fileID: 0}
+  impactSfxVolume: 0.7
