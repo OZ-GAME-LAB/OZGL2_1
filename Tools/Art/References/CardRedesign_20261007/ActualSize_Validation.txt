@@ -1,0 +1,14 @@
+Observed output dimensions (verified from PNG files):
+11_UnitCard_FrameDetail_Draft.png:972x1618
+12_ExpansionCard_FrameDetail_Draft.png:1210x1300
+13_CardRedesign_FrameDetail_Comparison_Draft.png:1351x1164
+These are DESIGN DRAFTS, NOT pixel-exact 1:1 deliverables.
+A third image_gen call requesting only an output-size correction also failed to give a reliable exact-size export; it was not selected.
+Verified source geometry: Unit and Land root600x1100; shell600x1000 at(0,100),preserveAspect=true.
+Geometry source: BattleCard_Unit.prefab Root11591/Shell13850, BattleCard_LandSlot.prefab Root4971/Shell2390.
+Original frame details remain approximate in generated drafts.
+Pending user choice: explicitly authorize deterministic composition of original card materials to finish exact-size PNGs.
+
+Final size-correction prompt:
+Perform ONLY a final output-size correction on the provided completed two-card reference image. The existing image is 1351x1164. Return the SAME complete composition as a PNG whose actual file dimensions are EXACTLY 1280 pixels wide and EXACTLY 1104 pixels high. This is required for a 1:1 UI artboard, so the delivered PNG pixel dimensions must be 1280x1104, not a larger automatically chosen size and not just a verbal instruction. No redrawing, no changes to card designs, text, fonts, character, divider lines, icons, colors or details. No cropping, no new margins, no border, no stretching individual elements. Only the extremely small uniform overall downscale to the specified output canvas (the aspect-ratio difference is negligible). Retain the opaque dark background.
+

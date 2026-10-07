@@ -1,0 +1,84 @@
+Date: 2026-10-07 (Asia/Seoul)
+Method: built-in image_gen edit
+Output: 03_CardRedesign_ActualGameAssets.png
+Scope: Reference image only. Relic card and all board titles/subtitles/footer removed.
+Unit: M_WAR_01, 전사(근딜), 1 star, single footprint (1 cell).
+Unit source stats: Assets/03.ScriptableObjects/UnitStats/M_WAR_01.asset (attack 18, defense 10%, health 140, range 1, attacks/second 1).
+Terrain source: InGame_2 OutdoorBattlefieldTheme -> WitheredGroundTiles -> dry-earth sprites.
+Unity MCP was unavailable; saved scene and asset references were inspected.
+Inputs:
+D:/GitHub/OZGL2_1/Tools/Art/References/CardRedesign_20261007/02_CardRedesign_ExistingStyle.png
+D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Portraits/M_WAR_01_1.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Terrain/earth_32_a.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Transitions/earth_grass_32_m15.png
+D:/GitHub/OZGL2_1/Assets/_Project/Art/Battlefield/WitheredGround/Transitions/earth_grass_32_m03.png
+
+Prompt:
+Use case: precise-object-edit. Produce ONE corrected landscape reference image by editing Image 1. The user explicitly says the previous art is disconnected from the actual game, so ACTUAL supplied game sprite and tile textures must be reproduced faithfully.
+
+INPUTS:
+Image 1 = previous reference board, edit target. Keep its established bright-gold curled frames, horned skull crests, burgundy ribbons, dark charcoal panels, ivory text, compact occupancy strip and enlarged combat information. Use only the UNIT frame and EXPANSION frame.
+Image 2 = ACTUAL implemented M_WAR_01 1-star character portrait from Unity. This is authoritative. Preserve the exact low-resolution pixel silhouette, colours, pose, head, sword and proportions, as if enlarged using nearest-neighbor. It is a small GREEN-SKINNED warrior with dark-maroon hair/topknot, asymmetric pale/red eyes, dark maroon-black outfit, orange belt, pale blue-silver large sword pointing toward the LEFT, and a small white-red shoulder patch on the RIGHT. Do NOT draw the earlier hooded black/red swordsman. Do not repaint this into a detailed fantasy illustration. Do not invent armour.
+Image 3 = ACTUAL implemented dry-earth centre tile earth_32_a.png (32x32), authoritative terrain texture.
+Image 4 = ACTUAL implemented connected earth tile earth_grass_32_m15.png. It is a muted brown/taupe flat dirt texture.
+Image 5 = ACTUAL implemented edge/corner earth transition earth_grass_32_m03.png; use its irregular pixel edge style against neutral transparency.
+These terrain sprites define the palette and pixel density. Their tiny native resolution is intentional. Enlarge the actual pixel texture cleanly, preserving pixelated shapes. Do not invent fantasy land artwork.
+
+CHANGES:
+1. REMOVE THE ENTIRE RELIC CARD and all relic labels/art/text. Final image contains exactly TWO cards: unit and expansion.
+2. REMOVE all board-level headings and decorative text labels. Absolutely no "카드 개선 레퍼런스", no "기존 프레임 유지", no subtitle, no category plaques above cards, no "확장 ID별 이미지" heading, no footer, no "디자인 시안", no sample-value disclaimer in the image. Only text INSIDE the two cards and the six exact ID/count captions may remain.
+3. Replace unit portrait with Image 2 faithfully. Replace name with exact implemented name "전사(근딜)". Use current 1-star data, not invented previous numbers.
+4. Replace every bright green grass/raised stone land chunk with flat dry-earth tilemap shapes derived from Images 3–5. This applies BOTH to the expansion card and all six catalogue images.
+5. Reflow the layout to use the freed space: left two-thirds has TWO tall cards side by side, full outlines visible, equal height. Right third has six terrain shape cutouts in TWO columns by THREE rows, exact IDs and counts underneath. Neutral charcoal backdrop, no empty reserved title strip. Cards and shape rows fill the canvas with comfortable margins.
+6. Keep the modestly brightened DARK card surfaces and gold/burgundy original design. No parchment, no cream cards, no grid backgrounds.
+
+UNIT CARD CONTENT:
+Top name bar ABOVE art: "전사(근딜)".
+Gold type medallion with sword. Existing small gold star with digit "1".
+Image window about 25-28% of useful card height, actual Image 2 sprite well-sized and recognisable, no scenery/background illustration behind it.
+Compact first strip with burgundy title tab "점유 칸수", value "1칸".
+Expanded dark info panel with burgundy tab "전투 정보":
+"근접 · 사거리 1"
+"공격속도 1.0회/초"
+No synergy. No made-up 2-star stun ability or other invented effects.
+Original enlarged three-column stats footer:
+"공격력" "18"
+"방어율" "10%"
+"체력" "140"
+Keep typography legible and original frame structure. Extra breathing room in the info panel is fine.
+
+EXPANSION CARD:
+Top name "배치 영역 확장". Small type badge depicting the same flat brown earth, not green grass. No star.
+Short image area shows a 2x2 connected dry-earth patch made from the ACTUAL terrain textures, exactly four square grid-units in footprint, seamless between neighbouring units. Flat top-down, no raised stone sides, no isometric volume.
+Large lower text "배치 영역 +4칸".
+Ivory body text:
+"확장할 위치에 배치해"
+"유닛을 놓을 공간을 넓힙니다."
+Keep original gold diamond separator and lower burgundy pennant.
+
+RIGHT SIX TERRAIN CUTOUTS:
+Use flat connected earthy pixel-art patches, exact same muted brown/taupe dirt from the supplied game tiles. Texture consists of fine tiny dark earth flecks, restrained original colour variation and irregular pixelated outline edges. No green surfaces, no grass flowers, no cobblestone walls, no raised platforms, no bevelled blocks, no 3D thickness, no faux-cell boxes. The silhouette alone communicates the footprint. Internal cells connect seamlessly like the existing game tilemap. A very thin dark outer silhouette only if needed to distinguish earth against backdrop. Same square cell-unit size for all six shapes. No empty grid drawn around them. Top-down orthographic view.
+
+Rows TOP to BOTTOM; # = actual earth area; dot = empty backdrop, not a tile.
+Row 1 left caption "floor_domino", "2칸":
+#
+#
+Row 1 right caption "floor_line3", "3칸":
+#
+#
+#
+Row 2 left caption "floor_corner3", "3칸":
+#.
+##
+Row 2 right caption "floor_square4", "4칸":
+##
+##
+Row 3 left caption "floor_tee4", "4칸":
+.#.
+###
+Row 3 right caption "floor_l4", "4칸":
+#.
+#.
+##
+
+The previous hooded swordsman, blue crystal relic, lush green stone-edged chunks and heading text must all be gone. Preserve the actual project's pixel character and terrain while preserving its gold/burgundy UI. No new character design. One polished, complete image.

@@ -1,0 +1,41 @@
+Method: built-in image_gen (edit)
+Input: 07_CardRedesign_ExpandedInfo_SubtleStatDividers.png
+Output: 08_CardRedesign_ExpansionOutlineIcons.png
+
+Use case: precise-object-edit
+Asset type: Korean fantasy game expansion-shape LINE ICON reference board.
+Input image is the exact full board to edit. Keep the whole 1536x1024 composition.
+Requested edit: replace the brown dirt/soil illustrations in the MIDDLE card's main image panel and in ALL SIX right-side shape catalogue entries with elegant OUTLINE-ONLY icons. They represent actual polyomino placement footprints. No fill, no soil, no grain, no pixel edges, no bevel, no tile texture, no individual cell squares. The background inside each shape is the exact same dark charcoal as outside it. Use a single consistent thin warm-gold stroke, about 3-4 pixels at this canvas size, clean straight lines, crisp right-angle corners very slightly softened. NO internal grid or cell-divider lines. NO PLUS SIGNS accompanying these seven new shape drawings. Existing card text and the top-left small category medallion already communicate expansion and must remain intact.
+
+Middle card: replace its soil-square-plus with a single clean empty 2x2 square OUTLINE (floor_square4), centered in the same panel, about 126x126px. No other marks inside or around the shape. It matches the existing "배치 영역 +4칸" caption.
+
+Right catalogue: preserve the existing six ID captions, counts and two-column/three-row arrangement. Draw the precise union OUTER PERIMETER of the following cells, with a CONSISTENT CELL PITCH of about 50px for all six icons. Do not scale every icon independently to fit the same box: domino must be two units tall while line3 is three units tall, and corner3 must be visibly shorter than l4. The longest shapes should be about 150px in length, not larger than the current catalogue art. Center each shape over its own caption with sufficient padding.
+Coordinates below use x to right and y DOWN; # is an occupied unit cell and . is empty. These ASCII diagrams describe the SOLID FOOTPRINT whose OUTSIDE contour alone you draw; do not draw the # characters or cell grid:
+TOP LEFT, "floor_domino", "2칸":
+#
+#
+Outer shape is a 1x2 vertical rectangle.
+TOP RIGHT, "floor_line3", "3칸":
+#
+#
+#
+Outer shape is a 1x3 vertical rectangle.
+MIDDLE LEFT, "floor_corner3", "3칸":
+#.
+##
+Outer outline vertices in units: (0,0),(1,0),(1,1),(2,1),(2,2),(0,2),close. It is a short L with bottom-right foot.
+MIDDLE RIGHT, "floor_square4", "4칸":
+##
+##
+A 2x2 square outline.
+BOTTOM LEFT, "floor_tee4", "4칸":
+.#.
+###
+Outer outline vertices in units: (1,0),(2,0),(2,1),(3,1),(3,2),(0,2),(0,1),(1,1),close. This is a ㅗ shape: one cell at TOP CENTER and a three-cell-wide bar along the BOTTOM. Do NOT invert to T.
+BOTTOM RIGHT, "floor_l4", "4칸":
+#.
+#.
+##
+Outer outline vertices in units: (0,0),(1,0),(1,2),(2,2),(2,3),(0,3),close. This is a tall L with foot to the bottom RIGHT. Do NOT rotate.
+
+Everything else is invariant: ENTIRE LEFT UNIT CARD including all text, green pixel warrior, stats and subtle separators; all outer gold frames, red ribbons, skulls, stars, titles, body text; the expansion card's TOP LEFT CIRCULAR BADGE WITH SOIL AND PLUS (keep that previously approved category badge unchanged); dark background; existing vertical divider. No new labels, headings, annotations, or watermarks. Return the complete edited full board.

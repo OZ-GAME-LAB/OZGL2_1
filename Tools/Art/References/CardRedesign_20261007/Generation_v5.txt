@@ -1,0 +1,45 @@
+Date: 2026-10-07 (Asia/Seoul)
+Method: built-in image_gen edit
+Output: 05_CardRedesign_DiamondFooter_ClearStats.png
+Scope: Reference image only. Replace both lower trims, move stat icons above boxes, enlarge centred values, simplify central expansion icon.
+Inputs:
+D:/GitHub/OZGL2_1/Tools/Art/References/CardRedesign_20261007/04_CardRedesign_Wider_LandPlus.png
+C:/Users/sudea/AppData/Local/Temp/codex-clipboard-dcaebda8-ff49-4778-9a27-f0d9ac8c3753.png
+
+Prompt:
+Use case: precise-object-edit.
+Edit Image 1 with only the requested local changes. Image 2 is the user's EXACT desired bottom-edge trim. Output the full revised board, same wide composition and two cards plus six catalogue samples.
+
+INPUTS:
+Image 1: current approved wider two-card reference board. Main edit target.
+Image 2: requested bottom trim reference, with thin gold horizontal double-beveled line, a SMALL gold diamond exactly at centre, elegant curled gold terminals at both ends, dark black-charcoal panel. Use this exact design language and geometry for the BOTTOM of BOTH cards.
+
+CHANGES, STRICTLY LIMITED:
+A. BOTH CARD BOTTOMS:
+Replace each current heavy curled bottom assembly and dangling red demon pennant with the trim in Image 2: continuous clean thin gold horizontal line with a small centre gold diamond and gentle curled terminal at each end. Remove the entire dangling red pennant below each card. End both card bodies at the same baseline. No extra hanging badge, tassel, cloth, skull, point, or red ribbon BELOW the bottom line. Upper side burgundy cloth remains. Join the new lower trim gracefully to existing side frame. Keep overall card width and existing card body height. The simple strip should resemble Image 2 directly, not a newly designed ornate gold base.
+
+B. UNIT CARD STAT FOOTER:
+Make the footer easier to scan while staying restrained. Retain THREE equal stat columns. Move the small ivory sword / outlined shield / heart icons to just ABOVE the corresponding individual stat box, centred over each column. Icons are modest 26–30 px at the current roughly 1536x1024 board scale; DO NOT enlarge into giant badges. Provide a narrow dedicated dark gap for icons between combat info panel and top edge of stat boxes, so they don't overlap text. Gain this little vertical space by slightly shortening the empty bottom portion of combat info panel; do not shrink the character panel or change the other card content.
+Inside each stat box, centre the label on its own line and the value below it:
+"공격력" then "18"
+"방어율" then "10%"
+"체력" then "140".
+The VALUES are about 15–20 percent larger than in Image 1, medium-large, bold ivory and clearly dominant over labels, but not huge. Use the freed icon space so labels and numbers are not cramped or squeezed to the right. Label approx 18–21px and number approx 31–35px at current scale. Keep generous side padding, even alignment and balanced spacing. No changed values or extra stats. Preserve the gold three-column divisions, adapting just enough to the new icon-above-box layout.
+
+C. EXPANSION CARD MAIN CENTRAL ICON:
+KEEP THE TOP-LEFT CIRCULAR LAND-PLUS MEDALLION EXACTLY AS IT APPEARS IN IMAGE 1. Preserve its shape, graphic, plus, size, gold rim and position. The user explicitly likes this icon. Do not regenerate or reinterpret it.
+Change ONLY the LARGE CENTRAL graphic in the expansion card artwork window. Replace the four individually outlined dirt tiles with ONE clean, compact, unified FLAT brown earth silhouette, square overall, with subtle muted dry-earth texture derived from the existing icon. NO internal grid, no tile seams, no dividing lines, no four separately bordered squares, no black or gold outline stroke around the earth. Edges have a clean pixel silhouette without a drawn contour. It should read as a reusable borderless UI icon, not a patchwork of ground tiles. Keep the PLUS SYMBOL beside its upper-right, matching existing gold/ivory plus style; same overall compact scale and centre position with broad negative space. Do not make the icon larger. Do not put a frame or circle around this central icon. Preserve the artwork-window gold border surrounding the whole UI region.
+
+PRESERVE ALL OTHER ELEMENTS:
+- Exactly TWO cards, the existing wider proportions and shared height.
+- Header skulls, upper burgundy side ribbons, title bars, rank stars and type medallions.
+- Actual green pixel warrior sprite, its small size, current position and outfit.
+- Unit header "전사(근딜)", rank 1, "점유 칸수" and "1칸".
+- "전투 정보", "근접 · 사거리 1", "공격속도 1.0회/초".
+- Expansion header "배치 영역 확장", rank 1, "배치 영역 +4칸", and the original two-line description.
+- Right-hand SIX expansion samples, ID captions, counts and plus icons remain unchanged. Their existing different footprints are preserved; the borderless icon change applies only to the central icon on the large expansion card.
+- Background, vertical divider, margins and layout.
+- No title, subtitle, footer note, external annotations or relic card.
+- Same dark charcoal/gold/burgundy game style and brightness. No white/parchment panels, no new imagery.
+
+High fidelity image edit. The three local changes should be immediately visible: clean diamond bottom trim, clearer centred stat values with icons above boxes, and seamless borderless central land+ icon.

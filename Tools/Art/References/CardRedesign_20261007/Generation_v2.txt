@@ -1,0 +1,96 @@
+Date: 2026-10-07 (Asia/Seoul)
+Method: built-in image_gen with five existing project images as references
+Output: 02_CardRedesign_ExistingStyle.png
+Purpose: Minimal visual revision of existing gold/burgundy/dark card style. Concept values only.
+Inputs:
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites/CardShell_Unit.png
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites/CardShell_Relic.png
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v1/Sprites/CardShell_LandSlot.png
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Cards_v1/Sprites/Artwork_ShadowSwordsman.png
+D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Cards_v1/Sprites/Artwork_ManaAmplifier.png
+
+Prompt:
+Use case: precise-object-edit / ui-mockup.
+Create ONE landscape reference board by carefully adapting the supplied ACTUAL EXISTING GAME ASSETS. The user rejected the previous concept because it changed their card design too much. The central requirement is fidelity to these supplied original frames, with only modest brightness and layout improvements.
+
+INPUT ROLES:
+Image 1 is the actual UNIT card shell: primary edit target.
+Image 2 is the actual RELIC card shell: primary edit target.
+Image 3 is the actual LAND card shell: primary edit target.
+Image 4 is the existing Shadow Swordsman artwork: preserve this character, silhouette, dark hood, red eyes and sword.
+Image 5 is the existing Mana Amplifier artwork: preserve this tall black-stone blue magic obelisk, do not replace it with a generic floating crystal.
+Use the originals as concrete visual templates, not just loose inspiration.
+
+FRAME INVARIANTS:
+Closely preserve the broad rounded warm-gold bevels, curled gold corner flourishes, prominent central gold horned skull crest, long deep-red/burgundy cloth ribbons at upper sides, lower burgundy pennant and gold ornament. Preserve the same smooth game-UI illustration quality. Preserve the gold-outlined dark rectangular interior sections and the small burgundy tab-shaped section titles. The top NAME stays in its original position directly beneath the crest and ABOVE the artwork. Do NOT relocate it below the portrait. Preserve the long rectangular tall proportions (approximately 600:1100). Keep the three original frame identities. No new architectural scene, parchment, ivory paper, stone wall scenery, realistic metal armour redesign, or monochromatic white skin.
+
+ALLOWED CHANGES ONLY:
+1. Slightly brighter original dark face panels: lift near-black #111111 towards warm charcoal #292623–#35302B, with subtle warm illumination. They must still clearly look DARK. Brighten the warm-gold edges and burgundy enough for readability while retaining their original palette. Ivory-white body text and light gold headings, NOT black text.
+2. Remove ALL 5x5 board backgrounds and grid-line overlays. Character/relic artwork sits alone in a clean charcoal image window.
+3. Shorten the artwork window from the original very large square to about 25–28 percent of the useful card height. Do not make the actual character tiny; fit it visibly inside the shorter window.
+4. Replace the first synergy section with one compact occupied-cell strip.
+5. Use recovered vertical space to expand range/combat statistics and ability explanation; large enough readable body text. Preserve the original burgundy title tab shapes and gold dividers.
+
+BOARD LAYOUT:
+High resolution landscape, ideally 3072x2048 or larger. Neutral muted medium charcoal-grey backdrop, lighter than the card panels. Top heading "카드 개선 레퍼런스". Subtitle "기존 프레임 유지 · 이미지 영역 축소 · 정보칸 확대".
+Left approximately 64 percent of canvas: three finished cards side-by-side, unit, relic, expansion. Same height, entire original curled outline/ribbons visible, no cropping. Name bars at the TOP. Labels above cards "유닛", "기물", "배치 영역 확장".
+Right approximately 33 percent: heading "확장 ID별 이미지", six compact shape-art samples in TWO columns and THREE rows. Consistent cell size, generous neutral negative space, legible exact IDs underneath. Thin unobtrusive vertical separator. Small bottom note "디자인 시안 · 수치는 예시". Clean final visual, no wireframe callouts.
+
+UNIT CARD:
+Use original Image 1 frame and Image 4 character. Existing character artwork remains recognizable and maintains its pixel-like raster detail; don't redesign character anatomy or clothes.
+Top name "그림자 검사". Small circular gold sword badge at upper-left; small five-point gold star with "1" upper-right; do not obstruct skull crest or name.
+Shorter picture-only charcoal window.
+Compact first information strip with original burgundy tab "점유 칸수" and value "2칸". No grid diagram and no synergy.
+Expanded second dark section with original burgundy tab "전투 정보". Readable text:
+"근접 · 사거리 1.5"
+"공격속도 1.0회/초"
+"2성: 세 번째 공격 시 기절"
+Give each line generous space. Do not label range as cells.
+Expanded original three-column gold-outlined footer:
+"공격력" "100" | "방어율" "20%" | "체력" "800".
+Keep the original footer structure and small bottom burgundy pennant.
+
+RELIC CARD:
+Use original Image 2 frame and Image 5 obelisk. Top name "마력 증폭기". Matching circular crystal type badge and one gold rank star "1".
+Smaller charcoal artwork window aligned with unit picture window.
+First compact strip with burgundy tab "점유 칸수" and value "1칸".
+Large lower dark information panel retains original gold border and burgundy tab "기물 효과". Body text:
+"주변 아군 마법 피해 +15%"
+"3성: 재사용 시간 감소"
+No attack/defense/health footer and no invented attack range, no synergy.
+
+EXPANSION CARD:
+Use original Image 3 frame with the same gold skull crest, broad curled gold outline, burgundy side ribbons. Top name "배치 영역 확장". Land type badge, no rank star.
+Shorter image-only charcoal window, with a centered illustrated piece of green grass over stone: a 2x2 footprint of exactly four adjoining cells, visually matching floor_square4 from the right catalogue. No surrounding grid.
+Below, retain the original simple diamond gold dividers and spacious lower description area.
+Large centered text "배치 영역 +4칸".
+Smaller ivory-white description:
+"확장할 위치에 배치해"
+"유닛을 놓을 공간을 넓힙니다."
+No combat statistics, no synergy.
+
+RIGHT CATALOGUE EXACT SHAPES:
+Grass-topped grey stone land pieces, natural moderate green matching the game, modest crisp game-sprite rendering, straight top-down silhouette with only very slight thickness. Narrow stone joints between actual adjacent square cells are allowed; NO unused empty squares or grid background. Draw exact connected shapes below. Use same cell size and match the expansion card's land picture. Each sample must have exact ASCII ID and cell count below.
+Notation rows TOP to BOTTOM. # is an actual visible land cell, dot is EMPTY SPACE with no tile.
+Row 1 left: "floor_domino", "2칸":
+#
+#
+Row 1 right: "floor_line3", "3칸":
+#
+#
+#
+Row 2 left: "floor_corner3", "3칸":
+#.
+##
+Row 2 right: "floor_square4", "4칸":
+##
+##
+Row 3 left: "floor_tee4", "4칸":
+.#.
+###
+Row 3 right: "floor_l4", "4칸":
+#.
+#.
+##
+
+CRITICAL: This must look like a modest revision of the supplied gold/red/dark card shells. Faithful existing silhouette and ornament are more important than decorative reinvention. No cream/white/parchment interiors. No scenery inside portraits. No new silver/bronze thin frames. No 5x5 grids. No redesigned characters. No missing ID or extra shape cell. All Korean and IDs clean and readable. One finished reference board.

@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-07",
+  "method": "Built-in image_gen, separate transparent-background edits per symbol, followed by built-in cleanup edits. Copied generated PNGs without post-generation pixel editing.",
+  "reference": "C:/Users/sudea/AppData/Local/Temp/codex-clipboard-56446e1f-30eb-4a0e-a835-37cacdb198ef.png",
+  "outputs": [
+    {
+      "name": "Attack",
+      "source": "C:/Users/sudea/.codex/generated_images/01a114fc-f14e-7273-9abb-ee81849a9a52/exec-cb4d46bd-1853-490d-bd2c-2e5852a29da0.png",
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/StatIcons/Icon_Stat_Attack.png",
+      "prefabTarget": "BattleCard_Unit/Stats/Attack/Icon"
+    },
+    {
+      "name": "Defense",
+      "source": "C:/Users/sudea/.codex/generated_images/01a114fc-f14e-7273-9abb-ee81849a9a52/exec-a34e40e9-78b5-4a73-9e3b-dbbd146588f5.png",
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/StatIcons/Icon_Stat_Defense.png",
+      "prefabTarget": "BattleCard_Unit/Stats/Defense/Icon"
+    },
+    {
+      "name": "Health",
+      "source": "C:/Users/sudea/.codex/generated_images/01a114fc-f14e-7273-9abb-ee81849a9a52/exec-d72b3e3c-68b4-431e-a6b4-c0df64738ed3.png",
+      "path": "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/StatIcons/Icon_Stat_Health.png",
+      "prefabTarget": "BattleCard_Unit/Stats/Health/Icon"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "Attack",
+      "prompt": "Use case: background-extraction. Asset type: Unity uGUI stat icon PNG. Edit the supplied reference strip: isolate and faithfully reproduce ONLY the requested symbol as a standalone flat silhouette on a genuinely transparent background. Preserve the reference symbol's contour and warm ivory color (#FFF8E6). Square canvas, centered symbol, tight framing with only 8% transparent margin each side, fully opaque ivory interior and clean antialiased edges. Intended display size 31 pixels. No card, no letters, no numbers, no separators, no background, no shadow, no glow, no texture, no gradient, no other symbols. The reference is the source of the exact symbol design. Requested symbol: the ATTACK SWORD at the left. Solid ivory broad straight sword angled from bottom-left grip to top-right sharp blade tip at approximately 45 degrees. The tip is a chiseled acute point, the blade is broad with parallel edges and an angular taper. A short diagonal crossguard perpendicular to the blade, narrow handle and a small block pommel. Match the simple filled sword in the attached reference exactly, not an outline sword. The entire sword is one flat ivory shape."
+    },
+    {
+      "name": "Defense",
+      "prompt": "Use case: background-extraction. Asset type: Unity uGUI stat icon PNG. Edit the supplied reference strip: isolate and faithfully reproduce ONLY the requested symbol as a standalone flat silhouette on a genuinely transparent background. Preserve the reference symbol's contour and warm ivory color (#FFF8E6). Square canvas, centered symbol, tight framing with only 8% transparent margin each side, fully opaque ivory interior and clean antialiased edges. Intended display size 31 pixels. No card, no letters, no numbers, no separators, no background, no shadow, no glow, no texture, no gradient, no other symbols. The reference is the source of the exact symbol design. Requested symbol: the DEFENSE SHIELD in the middle. Symmetric upright heraldic shield, broad shoulders, a very small central crest rise at the top edge, inward curved tapered sides meeting a pointed bottom. Reproduce its thick ivory outer rim, a narrow TRANSPARENT gap inside that rim, and a smaller SOLID IVORY inner shield panel. The two nested shield shapes must match the reference. This is a filled inner shield and thick border, not a thin-line outline. No solid dark pixels: the gap and outside must both be transparent."
+    },
+    {
+      "name": "Health",
+      "prompt": "Use case: background-extraction. Asset type: Unity uGUI stat icon PNG. Edit the supplied reference strip: isolate and faithfully reproduce ONLY the requested symbol as a standalone flat silhouette on a genuinely transparent background. Preserve the reference symbol's contour and warm ivory color (#FFF8E6). Square canvas, centered symbol, tight framing with only 8% transparent margin each side, fully opaque ivory interior and clean antialiased edges. Intended display size 31 pixels. No card, no letters, no numbers, no separators, no background, no shadow, no glow, no texture, no gradient, no other symbols. The reference is the source of the exact symbol design. Requested symbol: the HEALTH HEART at the right. Solid warm ivory heart with two smooth rounded upper lobes, a small central V indentation and gently curved sides tapering to a sharp centered point at the bottom. Match the exact broad simple filled heart silhouette of the reference. Entire heart uniformly ivory, no outline and no inner cutouts."
+    }
+  ],
+  "cleanupPrompt": "Use case: precise-object-edit / background-extraction. Edit target: the supplied icon. Keep exactly its symbol shape, orientation, scale and position. CLEAN the image into a flawless FLAT VECTOR-STYLE RASTER ICON. Remove EVERY stray white speckle, particle, fringe and texture outside the intended silhouette and in any transparent gap. Fill the icon with one perfectly uniform opaque warm ivory color #FFF8E6. Edges must be smooth clean geometric antialiased edges, only a one-pixel edge transition, no roughness. Outside the symbol must be perfectly alpha-zero transparent, including all gaps. No black or white background, no noise, no texture, no glow, no shadow, no gradient. Do not add any elements. The output is a standalone production Unity game UI sprite, NOT a textured illustration.",
+  "scope": "Unit card footer only. Original shared Heraldry_Traits_v1 icons are preserved. Layout, text and runtime data are unchanged.",
+  "validation": "Unity compilation completed without Console errors. All three actual Prefab Sprite references, Sprite importer transparency/no-mipmap settings, 31x31 RectTransforms, Preserve Aspect and non-raycast settings verified. Actual Unity uGUI preview rendered to Tools/Art/Previews/BattleCardRedesign_StatIcons.png and visually inspected. Original Lobby Scene and its unsaved state preserved. Play Mode was not rerun for this asset-only follow-up."
+}

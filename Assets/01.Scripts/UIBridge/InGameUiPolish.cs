@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using OZGL2.InGame;
-using OZGL2.Synergy;
 using OZGL2.UIFlow;
 using UnityEngine;
 using TMPro;
@@ -12,14 +11,13 @@ namespace OZGL2.UIBridge
 {
     /// <summary>
     /// UI 프리팹을 수정하지 않고 실행 중에 다듬는 모음.
-    /// - 손패 카드: 시너지(직업)·특기 설명 칸이 비어 있던 것을 마왕군 데이터로 채우고, 잘 읽히게 색·크기를 맞춘다.
-    ///   (카드 칸은 있는데 손패 어댑터가 trait/skill 문구를 넘기지 않아 빈 상자로 보였다.)
+    /// - 배치 카드의 용도를 채운다. 유닛 정보는 손패 어댑터·프리팹 설정을 사용한다.
     /// - 상단 바: 웨이브 아이콘 자리가 흰 네모로 나오던 것에 해골 아이콘을 넣고, 웨이브 펼침 버튼의 분홍색을 바 색에 맞춘다.
     /// </summary>
     [DefaultExecutionOrder(1000)]
     public sealed class InGameUiPolish : MonoBehaviour
     {
-        [SerializeField, Tooltip("손패 카드의 특성(직업 시너지)·보유 스킬(사거리·공속) 설명을 채운다")] private bool _fillCardInfo = true;
+        [SerializeField, Tooltip("배치 카드 설명을 채운다. 유닛 정보는 손패 어댑터가 관리한다.")] private bool _fillCardInfo = true;
         [SerializeField, Tooltip("카드의 성급 숫자를 별 개수로 바꾼다(희수 UI의 별 배지를 쓰면 끈다)")] private bool _starRows = false;
         [SerializeField, Tooltip("웨이브 아이콘·펼침 단추 모양을 손본다(희수 UI를 그대로 쓰면 끈다)")] private bool _polishWaveHud = false;
         [SerializeField] private Sprite _waveIcon;
@@ -29,15 +27,11 @@ namespace OZGL2.UIBridge
 
         private const BindingFlags Priv = BindingFlags.Instance | BindingFlags.NonPublic;
         private static readonly System.Type CardType = typeof(UIBattlePreparationCardView);
-        private static readonly FieldInfo FTitle = CardType.GetField("_titleText", Priv), FRank = CardType.GetField("_rankText", Priv),
-            FTraitT = CardType.GetField("_traitTitleText", Priv), FTraitD = CardType.GetField("_traitDescriptionText", Priv),
-            FSkillT = CardType.GetField("_skillTitleText", Priv), FSkillD = CardType.GetField("_skillDescriptionText", Priv);
+        private static readonly FieldInfo FTitle = CardType.GetField("_titleText", Priv), FRank = CardType.GetField("_rankText", Priv);
         private static readonly FieldInfo FAreaT = CardType.GetField("_areaTitleText", Priv), FAreaD = CardType.GetField("_areaDescriptionText", Priv);
         private static readonly FieldInfo FToggle = typeof(UIWavePreviewDisclosure).GetField("_toggleButton", Priv);
 
         private InGamePrototypeBootstrap _bootstrap;
-        private RealSynergySync _sync;
-        private UIUnitCatalogSO _catalog;
         private float _next;
         private bool _hudFixed;
         private float _pendingToggleAt = -1f;
@@ -60,55 +54,23 @@ namespace OZGL2.UIBridge
 
         private void PolishCards()
         {
-            if (FTitle == null || FRank == null || FTraitT == null || FTraitD == null || FSkillT == null || FSkillD == null) return;
+            if (FTitle == null || FAreaT == null || FAreaD == null) return;
             if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
-            if (_sync == null) _sync = FindFirstObjectByType<RealSynergySync>();
-            if (_catalog == null)
-                foreach (var c in Resources.FindObjectsOfTypeAll<UIUnitCatalogSO>()) { _catalog = c; break; }
-            var armyCatalog = _bootstrap != null && _bootstrap.Config != null ? _bootstrap.Config.DemonArmyCatalog : null;
-            if (_catalog == null || armyCatalog == null || _sync == null || _sync.Synergy == null) return;
 
             foreach (var card in FindObjectsByType<UIBattlePreparationCardView>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
-                var title = (FTitle.GetValue(card) as Text)?.text;
-                string unitId = UnitIdByName(title);
-                if (unitId == null) { PolishLandCard(card, title); continue; } // 유닛 카드가 아니면 배치 카드(발판·영역 확장)
-
-                int star = 1;
-                int.TryParse((FRank.GetValue(card) as Text)?.text, out star);
-                star = Mathf.Clamp(star, 1, 3);
-                var prefab = armyCatalog.FindPrefab(unitId, star);
-                var stat = prefab != null ? prefab.statData : null;
-                if (stat == null) continue;
-
-                var def = _sync.Synergy.Def(stat.job);
-                string traitTitle = def != null ? def.displayName : stat.job.ToString();
-                string traitDesc = def != null
-                    ? def.tier1Threshold + "명  " + Short(def, def.tier1Desc) + "\n" + def.tier2Threshold + "명  " + Short(def, def.tier2Desc)
-                    : string.Empty;
-
-                bool healer = stat.healAmount > 0f;
-                string skillTitle = healer ? "치유" : (stat.attackRange <= 1.6f ? "근접" : "원거리");
-                string skillDesc = (healer ? "회복 " + stat.healAmount.ToString("0.#") + " · " : "") + "사거리 " + stat.attackRange.ToString("0.#") + " · 공속 " + stat.attackSpeed.ToString("0.0");
-                string special = Special(stat);
-                if (!string.IsNullOrEmpty(special)) skillDesc += "\n2성  " + special;
-
-                card.SetTrait(traitTitle, traitDesc);
-                card.SetSkill(skillTitle, skillDesc);
-                // 칸 크기가 서로 달라 칸마다 글자가 알아서 커지고 줄어들던 것을 같은 크기로 통일한다(칸을 넘칠 때만 줄어든다)
-                Style(FTraitT.GetValue(card) as Text, _titleColor, TitleSize, TextAnchor.MiddleCenter);
-                Style(FTraitD.GetValue(card) as Text, _bodyColor, BodySize, TextAnchor.MiddleLeft);
-                Style(FSkillT.GetValue(card) as Text, _titleColor, TitleSize, TextAnchor.MiddleCenter);
-                Style(FSkillD.GetValue(card) as Text, _bodyColor, BodySize, TextAnchor.MiddleLeft);
+                // 이름 매칭 대신 영역 설명 참조로 판별해 유닛/도감 문구를 덮어쓰지 않는다.
+                if (!IsCardText(FAreaT.GetValue(card)) || !IsCardText(FAreaD.GetValue(card))) continue;
+                PolishLandCard(card, ReadCardText(FTitle.GetValue(card)));
             }
         }
 
         private const string ExpansionTitle = "배치 영역 확장";
 
-        /// <summary>카드의 영역 제목("웨이브 보상 · 3칸" / "바닥 +3칸")에서 이번에 늘어나는 칸 수를 읽는다. 없으면 기본 조각의 칸 수.</summary>
+        /// <summary>카드의 영역 제목에서 이번에 늘어나는 칸 수를 읽는다. 없으면 기본 조각의 칸 수.</summary>
         private static int ExpansionCells(UIBattlePreparationCardView card, OZGL2.Grid.GridManager grid)
         {
-            var text = (FAreaT?.GetValue(card) as Text)?.text;
+            var text = ReadCardText(FAreaT?.GetValue(card));
             if (!string.IsNullOrEmpty(text))
             {
                 var m = System.Text.RegularExpressions.Regex.Match(text, "(\\d+)칸");
@@ -119,7 +81,7 @@ namespace OZGL2.UIBridge
 
         /// <summary>
         /// 배치 카드 두 종류의 역할을 카드 안에서 분명히 알려 준다.
-        /// - 「배치 영역 확장」(웨이브 보상 3택 중 하나): 마왕성 바닥 자체를 넓힌다 → 몇 칸 늘고, 지금 몇 칸이며, 최대가 몇 칸인지.
+        /// - 「배치 영역 확장」(웨이브 보상 3택 중 하나): 배치 영역의 증가 칸수와 사용 방법을 안내한다.
         /// - 발판 카드(유닛을 고르면 함께 오는 것): 그 유닛이 설 바닥 조각 → 칸 위에 놓은 뒤 유닛을 올리는 것.
         /// </summary>
         private void PolishLandCard(UIBattlePreparationCardView card, string title)
@@ -127,14 +89,13 @@ namespace OZGL2.UIBridge
             if (FAreaT == null || FAreaD == null) return;
             var grid = _bootstrap != null && _bootstrap.GridSession != null ? _bootstrap.GridSession.Grid : null;
             string areaTitle, body;
-            if (title == ExpansionTitle || title == "발판 확장")
+            bool isExpansion = title == ExpansionTitle || title == "발판 확장";
+            if (isExpansion)
             {
                 if (grid == null) return;
                 int add = ExpansionCells(card, grid);
-                int floor = 0; foreach (var _ in grid.FloorCells) floor++;
-                int max = grid.Definition.MaximumSize.x * grid.Definition.MaximumSize.y;
-                areaTitle = "바닥 +" + add + "칸";
-                body = "마왕성 바닥 자체를 넓혀서 발판과 유닛을 더 놓을 수 있어요.\n지금 " + floor + "칸 → " + Mathf.Min(max, floor + add) + "칸  (최대 " + max + "칸)\n고르면 초록 칸에 끌어다 놓아요.";
+                areaTitle = "배치 영역 +" + add + "칸";
+                body = "확장할 위치에 배치해\n유닛을 놓을 공간을 넓힙니다.";
             }
             else
             {
@@ -143,8 +104,9 @@ namespace OZGL2.UIBridge
                 body = "이 모양의 바닥 조각이에요.\n영역 위에 먼저 놓고, 그 위에 유닛을 올리세요.\n(이미 놓은 발판과 이어서 놓아야 해요)";
             }
             card.SetAreaDescription(areaTitle, body);
-            Style(FAreaT.GetValue(card) as Text, _titleColor, TitleSize - 2, TextAnchor.MiddleCenter);
-            Style(FAreaD.GetValue(card) as Text, _bodyColor, BodySize, TextAnchor.MiddleLeft);
+            if (isExpansion) return;
+            Style(FAreaT.GetValue(card) as Graphic, _titleColor, TitleSize - 2, TextAnchor.MiddleCenter);
+            Style(FAreaD.GetValue(card) as Graphic, _bodyColor, BodySize, TextAnchor.MiddleLeft);
         }
 
         /// <summary>
@@ -154,7 +116,7 @@ namespace OZGL2.UIBridge
         /// </summary>
         private static void ShowRankStars(UIBattlePreparationCardView card)
         {
-            var rank = FRank.GetValue(card) as Text;
+            var rank = FRank.GetValue(card) as Graphic;
             var star = card.transform.Find("StarBadge") as RectTransform;
             if (rank == null || star == null) return;
             var parent = star.parent as RectTransform;
@@ -168,7 +130,7 @@ namespace OZGL2.UIBridge
             var row = parent.Find("RankStars") as RectTransform;
 
             int n;
-            bool isUnit = int.TryParse(rank.text, out n) && n >= 1;
+            bool isUnit = int.TryParse(ReadCardText(rank), out n) && n >= 1;
             if (!isUnit)
             {
                 if (row != null) row.gameObject.SetActive(false);
@@ -222,36 +184,34 @@ namespace OZGL2.UIBridge
             }
         }
 
-        private string UnitIdByName(string title)
-        {
-            if (string.IsNullOrEmpty(title) || _catalog == null) return null;
-            foreach (var entry in _catalog.Entries)
-                if (entry != null && entry.DisplayName == title && entry.Id.StartsWith("unit.M_")) return entry.Id.Substring(5);
-            return null;
-        }
-
-        private static string Short(SynergyData def, string desc)
-        {
-            if (string.IsNullOrEmpty(desc)) return string.Empty;
-            string prefix = def.displayName + " ";
-            return desc.StartsWith(prefix) ? desc.Substring(prefix.Length) : desc;
-        }
-
-        private static string Special(UnitStatData stat)
-        {
-            if (stat.comboStunAttackInterval > 0) return stat.comboStunAttackInterval + "번째 공격 기절";
-            if (stat.executeDamageBonusPerMissingHealth > 0f) return "잃은 체력만큼 추가 피해";
-            if (stat.targetLowestHealthEnemy) return "체력 낮은 적 우선";
-            return null;
-        }
-
         // 카드 설계 좌표(폭 640 기준)의 글자 크기
         private const int TitleSize = 26, BodySize = 21;
 
-        private static void Style(Text text, Color color, int size, TextAnchor align)
+        private static bool IsCardText(object target) => target is Text || target is TMP_Text;
+
+        private static string ReadCardText(object target)
         {
-            if (text == null) return;
-            text.color = color;
+            if (target is TMP_Text tmp) return tmp.text;
+            return (target as Text)?.text;
+        }
+
+        private static void Style(Graphic target, Color color, int size, TextAnchor align)
+        {
+            if (target == null) return;
+            target.color = color;
+            if (target is TMP_Text tmp)
+            {
+                tmp.richText = false;
+                tmp.textWrappingMode = TextWrappingModes.Normal;
+                tmp.overflowMode = TextOverflowModes.Truncate;
+                tmp.enableAutoSizing = true;
+                tmp.fontSizeMin = Mathf.RoundToInt(size * 0.6f);
+                tmp.fontSizeMax = size;
+                tmp.alignment = align == TextAnchor.MiddleCenter ? TextAlignmentOptions.Center : TextAlignmentOptions.Left;
+                tmp.fontStyle = FontStyles.Normal;
+                return;
+            }
+            if (!(target is Text text)) return;
             text.supportRichText = false;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;

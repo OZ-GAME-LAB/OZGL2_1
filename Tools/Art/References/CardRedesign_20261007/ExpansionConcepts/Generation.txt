@@ -1,0 +1,35 @@
+Method: built-in image_gen; three independent card references.
+Reference: 07_CardRedesign_ExpandedInfo_SubtleStatDividers.png
+
+Option 1: 01_Expansion_SoilPlus.png
+Use case: precise-object-edit
+Asset type: Korean fantasy game expansion card design reference.
+Input image: approved current full reference sheet. Use ONLY its MIDDLE expansion card as the exact style and layout reference.
+Create ONE standalone full expansion card on a plain charcoal backdrop, centered, straight-on, fully visible with comfortable margins. Portrait canvas approximately 1024x1536. Preserve the original card width-to-height ratio, gold curled outer frame, horned skull crest, burgundy side ribbons, black panels, gold bottom line and diamond, rank star "1", and the small upper-left earth-plus medallion. The card proportions and all typography should match the middle card in the reference.
+Text exactly: title "배치 영역 확장"; gold effect line "배치 영역 +4칸"; body on two lines "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다."
+Change ONLY the central illustrated icon inside the large upper image panel, according to the concept below. This is a compact game UI icon, using the game's actual brown/taupe dry pixel earth surface, matching the reference pixel scale and slightly irregular earthen silhouette. The icon occupies about 40% of the inner panel width, with generous empty space around it; do not enlarge to fill the panel.
+No internal grid lines, no outline stroke around the earth silhouette, no black edging, no raised grass blocks, no 3D floating islands, no large terrain scene. Only a restrained soft shadow, earthy texture and a readable gold symbol. Gold symbols may have the established dimensional highlight of the UI.
+Do not include the unit card, right catalogue, headings, numbering, option names, explanatory annotations or watermark. No extra illustration outside the central panel.
+Concept: A single clean compact square patch of brown pixel soil, with subtle pixel texture and no internal divisions. One bold bright gold PLUS sign sits just outside its upper-right corner, clearly associated with the patch. The soil remains a flat top-down icon with no perimeter stroke. This is the simple, instantly readable land-addition pictogram, close to the approved design.
+
+Option 2: 02_Expansion_JoiningLand.png
+Use case: precise-object-edit
+Asset type: Korean fantasy game expansion card design reference.
+Input image: approved current full reference sheet. Use ONLY its MIDDLE expansion card as the exact style and layout reference.
+Create ONE standalone full expansion card on a plain charcoal backdrop, centered, straight-on, fully visible with comfortable margins. Portrait canvas approximately 1024x1536. Preserve the original card width-to-height ratio, gold curled outer frame, horned skull crest, burgundy side ribbons, black panels, gold bottom line and diamond, rank star "1", and the small upper-left earth-plus medallion. The card proportions and all typography should match the middle card in the reference.
+Text exactly: title "배치 영역 확장"; gold effect line "배치 영역 +4칸"; body on two lines "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다."
+Change ONLY the central illustrated icon inside the large upper image panel, according to the concept below. This is a compact game UI icon, using the game's actual brown/taupe dry pixel earth surface, matching the reference pixel scale and slightly irregular earthen silhouette. The icon occupies about 40% of the inner panel width, with generous empty space around it; do not enlarge to fill the panel.
+No internal grid lines, no outline stroke around the earth silhouette, no black edging, no raised grass blocks, no 3D floating islands, no large terrain scene. Only a restrained soft shadow, earthy texture and a readable gold symbol. Gold symbols may have the established dimensional highlight of the UI.
+Do not include the unit card, right catalogue, headings, numbering, option names, explanatory annotations or watermark. No extra illustration outside the central panel.
+Concept: A compact top-down icon showing new land attaching to existing land: a muted dark-brown existing soil patch at left, connected along its right edge to a lighter warm-brown new soil extension. Together they form one simple continuous stepped silhouette with NO drawn internal dividing lines or grid. Distinguish old and new areas by their restrained color/value difference only. One small bold bright gold PLUS sign floats above the lighter newly added right-hand area. No arrows, no flying parts, no landscape. The whole icon should clearly communicate expanding usable ground, while staying as small and simple as the first concept.
+
+Option 3: 03_Expansion_OutwardGrowth.png
+Use case: precise-object-edit
+Asset type: Korean fantasy game expansion card design reference.
+Input image: approved current full reference sheet. Use ONLY its MIDDLE expansion card as the exact style and layout reference.
+Create ONE standalone full expansion card on a plain charcoal backdrop, centered, straight-on, fully visible with comfortable margins. Portrait canvas approximately 1024x1536. Preserve the original card width-to-height ratio, gold curled outer frame, horned skull crest, burgundy side ribbons, black panels, gold bottom line and diamond, rank star "1", and the small upper-left earth-plus medallion. The card proportions and all typography should match the middle card in the reference.
+Text exactly: title "배치 영역 확장"; gold effect line "배치 영역 +4칸"; body on two lines "확장할 위치에 배치해" / "유닛을 놓을 공간을 넓힙니다."
+Change ONLY the central illustrated icon inside the large upper image panel, according to the concept below. This is a compact game UI icon, using the game's actual brown/taupe dry pixel earth surface, matching the reference pixel scale and slightly irregular earthen silhouette. The icon occupies about 40% of the inner panel width, with generous empty space around it; do not enlarge to fill the panel.
+No internal grid lines, no outline stroke around the earth silhouette, no black edging, no raised grass blocks, no 3D floating islands, no large terrain scene. Only a restrained soft shadow, earthy texture and a readable gold symbol. Gold symbols may have the established dimensional highlight of the UI.
+Do not include the unit card, right catalogue, headings, numbering, option names, explanatory annotations or watermark. No extra illustration outside the central panel.
+Concept: A compact single square brown pixel-earth patch centered in the panel, shown flat top-down with no grid or perimeter stroke. Two short clear gold arrows point OUTWARD from the patch, one directly above pointing upward and one immediately right pointing right. The arrows are compact secondary accents close to the ground, about one-third its width, suggesting additional usable space. Keep the earth clearly dominant so the result reads as expanding land, not a movement-control button. No circular arrows, no four-way cross, no extra border or frame around the icon. Preserve the small upper-left card medallion with its original PLUS sign.

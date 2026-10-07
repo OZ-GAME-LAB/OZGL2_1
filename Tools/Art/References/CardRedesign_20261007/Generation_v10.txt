@@ -1,0 +1,28 @@
+Method: built-in image_gen (edit)
+Input: 09_CardRedesign_RoundedBoldExpansionIcons.png
+Output: 10_CardRedesign_ExpansionPlusGameIcons.png
+
+Use case: precise-object-edit
+Asset type: finished fantasy-game EXPAND SPACE icon system shown in an existing card reference sheet.
+Input is the exact edit target. The user says the current rounded outline shapes still look like simple diagrams and asks for proper game icons with PLUS signs. Make a clear visual improvement, not another tiny line-weight tweak.
+
+ONLY redesign the seven gold hollow shape drawings: one inside the middle expansion card and all six right-side ID examples.
+Art direction: compact cohesive game action emblems, a bold rounded hollow footprint + a chunky PLUS sign at its upper-right. Match the polished gold inventory/UI icon rendering of the frame and rank star. Each icon should feel like a finished collectible game symbol rather than a flat geometry diagram.
+
+For ALL SEVEN:
+- Keep each true footprint silhouette, orientation, center, proportional dimensions and empty interior.
+- Use a stout rounded gold outline, slightly thicker than current (about 12px for catalogue, 13-14px central), smooth rounded outer and concave corners. It is hollow; no solid shape fill or internal cell lines.
+- Give the thick stroke a controlled gold bevel: warm pale-gold top/left highlight, amber lower/right edge, a very thin deep-brown outside keyline, and a SHORT 2-3px dark drop shadow. Subtle shallow depth, not a heavily extruded 3D object. Flat/front-facing, never tilted or isometric.
+- Add a prominent solid gold '+' symbol at the upper-right of EACH footprint. Compact, rounded-ended, thick equal-width arms, pale-gold highlight/amber edge/deep-brown thin rim matching the footprint, no circle behind it. Leave a narrow dark gap between footprint and plus so both silhouettes remain recognizable. The plus is around 30-34px wide in the right catalogue and 42px in the middle card. Treat each footprint and plus as ONE tightly composed action icon, not two unrelated objects. Fit them within the existing allocated space without touching captions or neighboring icons.
+- Gold material should be consistent across shapes and plus signs; tasteful restrained contrast, no sparkle particles or bloom. No extra ornamental backplates or terrain.
+
+Shape constraints:
+Central card: square2x2 + PLUS, centered above "배치 영역 +4칸".
+Right-top-left floor_domino: upright 1x2 rectangle + PLUS; right-top-right floor_line3: upright 1x3 rectangle + PLUS.
+Right-middle-left floor_corner3: short L, top-left one unit and a 2-unit bottom row, foot to RIGHT + PLUS.
+Right-middle-right floor_square4: 2x2 square + PLUS.
+Right-bottom-left floor_tee4: ㅗ shape, single top-center unit over a 3-unit bottom bar + PLUS, NOT an inverted T.
+Right-bottom-right floor_l4: tall L three units tall, foot to RIGHT + PLUS.
+Use the same unit length across six catalogue shapes, with domino shorter than line3, corner3 shorter than l4. Do not rotate or normalize all shapes to the same size.
+
+Preserve EVERYTHING ELSE exactly: all card frames and their positions, title and body texts, stars, the liked top-left small category icon on the expansion card, dark backgrounds, ENTIRE unit card with character/stats/labels, vertical divider and all six ID labels and 2칸/3칸/4칸 captions. No new headings, decorative motifs or watermarks. The entire board composition and 1536x1024 canvas remain unchanged. Return the full sheet.

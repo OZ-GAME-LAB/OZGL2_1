@@ -465,10 +465,13 @@ namespace OZGL2.UIFlow
             cardView.SetSkill(data.SkillTitle, data.SkillDescription);
             cardView.SetStats(data.Attack, data.Defense, data.Health);
             cardView.SetAreaDescription(data.AreaTitle, data.AreaDescription);
-            // null은 해당 종류 Prefab의 기본 아트를 그대로 사용한다는 의미다.
-            cardView.SetArtwork(data.Artwork != null ? data.Artwork : slot.DefaultArtwork);
+            // 발판과 미등록 확장 모양에는 다른 모양의 기본 삽화를 대신 보여 주지 않는다.
+            bool isLandCard = data.Kind == eBattleHandCardKind.LAND_SLOT;
+            cardView.SetArtwork(isLandCard ? data.Artwork :
+                data.Artwork != null ? data.Artwork : slot.DefaultArtwork);
             cardView.SetTypeIcon(data.TypeIcon != null ? data.TypeIcon : slot.DefaultTypeIcon);
             cardView.SetFootprint(data.Footprint);
+            cardView.SetFootprintVisible(data.ShowFootprint || (isLandCard && data.Artwork == null));
         }
 
         private void DestroySlot(UIBattleCardHandSlot slot)

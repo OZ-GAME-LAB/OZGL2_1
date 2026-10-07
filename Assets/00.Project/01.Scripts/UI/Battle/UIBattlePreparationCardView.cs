@@ -1,4 +1,5 @@
 using System.Globalization;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,27 +10,28 @@ namespace OZGL2.UIFlow
     [AddComponentMenu("UI/Battle Preparation Card View")]
     public sealed class UIBattlePreparationCardView : MonoBehaviour
     {
-        [Header("공통 문구")]
-        [SerializeField] private Text _titleText;
-        [SerializeField] private Text _rankText;
+        // 공용 View에서 유닛/지형의 TMP와 기물의 기존 Text 참조를 함께 지원한다.
+        [Header("공통 문구 (Text 또는 TMP_Text)")]
+        [SerializeField] private Graphic _titleText;
+        [SerializeField] private Graphic _rankText;
 
         [Header("특성 / 보유 스킬")]
-        [SerializeField] private Text _traitTitleText;
-        [SerializeField] private Text _traitDescriptionText;
-        [SerializeField] private Text _skillTitleText;
-        [SerializeField] private Text _skillDescriptionText;
+        [SerializeField] private Graphic _traitTitleText;
+        [SerializeField] private Graphic _traitDescriptionText;
+        [SerializeField] private Graphic _skillTitleText;
+        [SerializeField] private Graphic _skillDescriptionText;
 
         [Header("공격 / 방어 / 체력")]
-        [SerializeField] private Text _attackLabelText;
-        [SerializeField] private Text _attackValueText;
-        [SerializeField] private Text _defenseLabelText;
-        [SerializeField] private Text _defenseValueText;
-        [SerializeField] private Text _healthLabelText;
-        [SerializeField] private Text _healthValueText;
+        [SerializeField] private Graphic _attackLabelText;
+        [SerializeField] private Graphic _attackValueText;
+        [SerializeField] private Graphic _defenseLabelText;
+        [SerializeField] private Graphic _defenseValueText;
+        [SerializeField] private Graphic _healthLabelText;
+        [SerializeField] private Graphic _healthValueText;
 
         [Header("영역 설명")]
-        [SerializeField] private Text _areaTitleText;
-        [SerializeField] private Text _areaDescriptionText;
+        [SerializeField] private Graphic _areaTitleText;
+        [SerializeField] private Graphic _areaDescriptionText;
 
         [Header("독립 아이콘 / 삽화")]
         [SerializeField] private Image _typeIcon;
@@ -83,6 +85,14 @@ namespace OZGL2.UIFlow
         public void SetArtwork(Sprite artwork) => SetSprite(_artwork, artwork);
 
         public void SetTypeIcon(Sprite typeIcon) => SetSprite(_typeIcon, typeIcon);
+
+        public void SetFootprintVisible(bool isVisible)
+        {
+            if (_footprintGridRoot == null)
+                _footprintGridRoot = transform.Find("FootprintGrid") as RectTransform;
+            if (_footprintGridRoot != null)
+                _footprintGridRoot.gameObject.SetActive(isVisible);
+        }
 
         /// <summary>
         /// Inspector의 격자 설정을 기존 FootprintGrid 자식에 적용한다.
@@ -227,9 +237,10 @@ namespace OZGL2.UIFlow
             }
         }
 
-        private static void SetText(Text target, string value)
+        private static void SetText(Graphic target, string value)
         {
-            if (target != null) target.text = value ?? string.Empty;
+            if (target is TMP_Text tmp) tmp.text = value ?? string.Empty;
+            else if (target is Text legacy) legacy.text = value ?? string.Empty;
         }
 
         private static void SetSprite(Image target, Sprite sprite)

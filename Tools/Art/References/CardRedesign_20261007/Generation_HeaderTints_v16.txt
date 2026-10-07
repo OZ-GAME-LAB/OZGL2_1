@@ -1,0 +1,25 @@
+Method: built-in image_gen (two localized edits).
+Original inputs: unit1944x3236 with transparency; expansionboard2322x1548 opaque.
+User request: tint only name-header backgrounds, dark crimson for unit and dark green for expansion.
+
+Output:16_UnitCard_DarkCrimsonHeader.png
+Input:C:/Users/sudea/AppData/Local/Temp/codex-clipboard-5fde319f-c9cc-4b9d-b05d-9ef9c8110a75.png
+Transparent background:true
+Use case: precise-object-edit.
+This is a STRICTLY LOCAL COLOR EDIT to the provided image. Do not redesign or redraw the card.
+Change only the existing dark NAME-HEADER BACKGROUND behind the card's title, bounded by the existing upper and lower gold horizontal rules. Tint that existing rectangular header surface; do not add a new pill, ribbon, label plate, outline or new geometry. The tint should extend naturally through the header panel behind the existing overlaid type medallion/star, but do not recolor the medallion, its interior, the star, gold borders, title lettering or cloth.
+Keep the original charcoal material shading and subtle grain visible through a restrained low-saturation color wash, with a soft slightly lighter center and darker edges. Make the color recognizable but dark and understated; the existing white Korean title must remain crisp and high-contrast. No glow or neon saturation.
+Every other pixel region should remain visually unchanged: composition, proportions, padding, text wording/fonts, gold metal, horned crest, red cloth, all icons, artwork, body panel backgrounds, dividers and stats or catalogue. Keep the full original composition and its original aspect ratio with no crop or added margins. No new captions or watermarks.
+TARGET: the single UNIT CARD. Recolor ONLY the background directly behind "전사(근딜)" to a subtle DARK CRIMSON / deep wine-red, approximately #481923 with charcoal shadows near #251316. A gentle deep burgundy tint, less bright and saturated than the red side cloth and the red information tabs. Do not change the top crest's black backing above the header's upper gold rule; do not tint the large character illustration panel below the header.
+Preserve the original true transparency outside the card. Keep all existing text, the green pixel warrior, 1칸, combat information and the 18/10%/140 stat row unchanged. Preserve original1944x3236 composition.
+
+Output:17_ExpansionCard_DarkGreenHeader.png
+Input:C:/Users/sudea/AppData/Local/Temp/codex-clipboard-1d1e37d6-abe3-473c-ad3e-33ff2351628d.png
+Transparent background:false
+Use case: precise-object-edit.
+This is a STRICTLY LOCAL COLOR EDIT to the provided image. Do not redesign or redraw the card.
+Change only the existing dark NAME-HEADER BACKGROUND behind the card's title, bounded by the existing upper and lower gold horizontal rules. Tint that existing rectangular header surface; do not add a new pill, ribbon, label plate, outline or new geometry. The tint should extend naturally through the header panel behind the existing overlaid type medallion/star, but do not recolor the medallion, its interior, the star, gold borders, title lettering or cloth.
+Keep the original charcoal material shading and subtle grain visible through a restrained low-saturation color wash, with a soft slightly lighter center and darker edges. Make the color recognizable but dark and understated; the existing white Korean title must remain crisp and high-contrast. No glow or neon saturation.
+Every other pixel region should remain visually unchanged: composition, proportions, padding, text wording/fonts, gold metal, horned crest, red cloth, all icons, artwork, body panel backgrounds, dividers and stats or catalogue. Keep the full original composition and its original aspect ratio with no crop or added margins. No new captions or watermarks.
+TARGET: only the NAME HEADER of the LEFT EXPANSION CARD within this full reference board. Recolor ONLY the background directly behind "배치 영역 확장" to a subtle DARK FOREST GREEN, approximately #17392C with charcoal-green shadows near #11231C. Slightly dark muted green, refined and visibly distinct from the charcoal body while remaining understated.
+The entire right-side six-ID soil-icon catalogue and its labels/counts are completely unchanged. Preserve every smooth rounded terrain icon, its earth texture, every gold PLUS sign, the full expansion-card layout, both title/body separator lines, all wording and the opaque charcoal board background. Do not tint the soil, medallion interior, star, the large preview panel or bottom description area. Preserve original2322x1548 composition.

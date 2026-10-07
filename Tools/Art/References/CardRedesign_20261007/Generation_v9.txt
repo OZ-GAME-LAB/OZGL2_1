@@ -1,0 +1,16 @@
+Method: built-in image_gen (edit)
+Input: 08_CardRedesign_ExpansionOutlineIcons.png
+Output: 09_CardRedesign_RoundedBoldExpansionIcons.png
+
+Use case: precise-object-edit
+Asset type: existing Korean fantasy card UI reference board.
+Input image is the exact edit target. Make ONLY a stylistic refinement to SEVEN outline icons: the centered hollow square in the middle expansion card and the six gold footprint-outline icons in the right catalogue.
+Change those 7 thin sharp-corner outlines into BOLD, SOFTLY ROUNDED GAME UI ICONS:
+- Increase the consistent stroke width from roughly 3px to 8-9px on this 1536x1024 canvas: visibly about 2.5 times thicker, clean uniform weight.
+- Round every convex corner gracefully with about 10-12px radius, and each concave L/T corner with a smaller approximately 6px radius. These must read as deliberate rounded icons, not sharp polygons. Maintain the straight sides and recognizable angular polyomino structure; do not turn the rectangles into pills or the square into a circle.
+- Use bright warm gold matching the reference outlines, smooth high-quality antialiasing, a very subtle warm top-edge highlight is acceptable but no deep bevel, no heavy glow, no new shadow or black contour.
+- KEEP THE INTERIORS COMPLETELY EMPTY, with the existing background visible. No fill, no internal dividing lines, no soil, no texture, no plus signs. No additional icon badge/backplate.
+Preserve exact icon locations, orientation and approximate dimensions and the existing shared unit-pitch proportions. Thickening must not collapse narrow internal areas or change the footprints.
+Shapes stay: central 2x2 square; top-left floor_domino a 1x2 VERTICAL rectangle; top-right floor_line3 a 1x3 VERTICAL rectangle; middle-left floor_corner3 a short L with foot RIGHT; middle-right floor_square4 a 2x2 square; bottom-left floor_tee4 an upward stem over a 3-unit-wide BOTTOM bar (ㅗ shape, NOT T); bottom-right floor_l4 a tall L with foot RIGHT. The 3-unit shapes remain visibly longer than the 2-unit shapes. Round the same contours, never rotate, flip or resize individual IDs to a common box.
+Everything outside these SEVEN icon strokes is unchanged: complete left unit card, all Korean and English text and numbers, characters, card outer frames, horns, stars, ribbons, stats, middle card top-left category medallion, body text and bottom trim, background, catalogue layout and vertical divider. Keep all original text perfectly intact. No new headings, annotations or watermark.
+Return the full edited 1536x1024 board, not a crop.
