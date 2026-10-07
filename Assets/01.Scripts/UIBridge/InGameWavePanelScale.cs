@@ -1,3 +1,5 @@
+using OZGL2.InGame;
+using OZGL2.Stage;
 using UnityEngine;
 
 namespace OZGL2.UIBridge
@@ -5,6 +7,7 @@ namespace OZGL2.UIBridge
     /// <summary>
     /// 왼쪽 위 「이번 웨이브」 패널을 작게 줄여 가운데 손패 카드의 왼쪽 끝을 가리지 않게 한다.
     /// 패널 묶음(WavePreviewViewport)은 좌상단 pivot 이라, 크기만 줄이면 왼쪽 위 모서리는 그대로 두고 오른쪽·아래로 줄어든다.
+    /// 카드 보상을 고르는 동안에는 패널을 부드럽게 숨겨 카드 선택 화면이 깔끔하게 보이게 하고, 끝나면 다시 보여 준다.
     /// 마스크와 안쪽 내용을 같이 줄이므로 펼침/접힘 연출은 그대로 동작한다. 팀 프리팹은 수정하지 않는다.
     /// </summary>
     public sealed class InGameWavePanelScale : MonoBehaviour
@@ -12,8 +15,25 @@ namespace OZGL2.UIBridge
         private const string ViewportName = "WavePreviewViewport";
 
         [SerializeField, Range(0.4f, 1f)] private float _scale = 0.72f;
-        private float _next;
+        private float _next, _fade = 1f;
+        private InGamePrototypeBootstrap _bootstrap;
         private readonly System.Collections.Generic.List<RectTransform> _viewports = new System.Collections.Generic.List<RectTransform>();
+
+        private void Update()
+        {
+            if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+            bool reward = _bootstrap != null && _bootstrap.Stage != null && _bootstrap.Stage.State == eStageState.GENERAL_REWARD;
+            if (!reward && _fade >= 1f) return;
+            _fade = Mathf.MoveTowards(_fade, reward ? 0f : 1f, Time.unscaledDeltaTime * 4f);
+            foreach (var rect in _viewports)
+            {
+                if (rect == null) continue;
+                var group = rect.GetComponent<CanvasGroup>();
+                if (group == null) { if (_fade >= 1f) continue; group = rect.gameObject.AddComponent<CanvasGroup>(); }
+                group.alpha = _fade;
+                group.blocksRaycasts = _fade > 0.5f;
+            }
+        }
 
         private void LateUpdate()
         {

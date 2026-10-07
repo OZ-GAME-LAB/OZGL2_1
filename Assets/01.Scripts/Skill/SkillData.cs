@@ -106,6 +106,14 @@ namespace OZGL2.Skill
         [Tooltip("도트 틱 간격(초)")]
         public float onHitDotTick = 0.5f;
 
+        [Header("효과음 (비워두면 무음)")]
+        [Tooltip("스킬을 쓰는 순간 재생")]
+        public AudioClip castSfx;
+        [Range(0f, 1f)] public float castSfxVolume = 0.7f;
+        [Tooltip("castDelay(초) 뒤에 재생 — 착탄·폭발처럼 늦게 터지는 스킬(메테오)용. castDelay가 0이면 시전과 동시에 재생")]
+        public AudioClip impactSfx;
+        [Range(0f, 1f)] public float impactSfxVolume = 0.7f;
+
         [Header("Zone")]
         public ZoneEffect zoneEffect = ZoneEffect.Slow;
         public ZoneTarget zoneTarget = ZoneTarget.Enemies;

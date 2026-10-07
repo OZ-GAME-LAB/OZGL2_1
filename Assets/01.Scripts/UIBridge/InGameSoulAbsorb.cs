@@ -43,6 +43,13 @@ namespace OZGL2.UIBridge
         private Canvas _canvas;
         private Sprite _glowSprite, _ringSprite;
         private FieldInfo _fillField;
+
+        /// <summary>지금 화면에서 경험치바를 채우고 있는 그림(복제본). 경험치바 스타일(InGameXpBarStyle)이 여기에 꾸밈을 얹는다.</summary>
+        public static Image FillImage { get; private set; }
+        /// <summary>바에 지금 보여 주는 채움 비율(0~1) — 영혼이 도착한 만큼만 오른 값.</summary>
+        public static float ShownNorm { get; private set; }
+        /// <summary>지정하면 채움 그림을 팀 스프라이트 대신 이것으로 그린다(꾸밈용 단색 흰 그림).</summary>
+        public static Sprite OverrideFillSprite { get; set; }
         private Image _orig;   // 팀 UI의 경험치바 채움(숨기고 둔다)
         private Image _fill;   // 같은 자리에 둔 우리 쪽 복제본(값·반짝임을 우리가 쓴다 — 팀 코드와 값을 다투지 않는다)
         private float _punch;
@@ -215,7 +222,7 @@ namespace OZGL2.UIBridge
             float dt = Time.unscaledDeltaTime;
             if (_orig.enabled) _orig.enabled = false; // 팀 UI가 다시 켜도 매 프레임 끈다
             _fill.enabled = true;
-            _fill.sprite = _orig.sprite;
+            _fill.sprite = OverrideFillSprite != null ? OverrideFillSprite : _orig.sprite;
             _fill.material = _orig.material;
             UpdateXpDisplay(dt);
             UpdatePunch(dt);
@@ -240,6 +247,7 @@ namespace OZGL2.UIBridge
                 _lastLevel = mawang.Level;
             }
             _shownNorm = Mathf.Lerp(_shownNorm, target, 1f - Mathf.Exp(-14f * dt));
+            ShownNorm = _shownNorm;
             _fill.type = Image.Type.Filled;
             _fill.fillMethod = _orig.fillMethod;
             _fill.fillOrigin = _orig.fillOrigin;
@@ -354,6 +362,7 @@ namespace OZGL2.UIBridge
                 if (!(mb is Graphic) && mb != null) Destroy(mb);
             go.transform.SetSiblingIndex(_orig.transform.GetSiblingIndex() + 1);
             _fill = go.GetComponent<Image>();
+            FillImage = _fill;
             _fill.raycastTarget = false;
             _shownNorm = -1f;
         }
@@ -363,6 +372,7 @@ namespace OZGL2.UIBridge
         {
             if (_fill != null) Destroy(_fill.gameObject);
             _fill = null;
+            FillImage = null;
             if (_orig != null) _orig.enabled = true;
             _orig = null;
             _shownNorm = -1f;

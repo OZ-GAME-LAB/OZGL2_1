@@ -4,15 +4,21 @@ using OZGL2.Grid.Prototype;
 using OZGL2.InGame;
 using OZGL2.UIFlow;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 namespace OZGL2.UIBridge
 {
     /// <summary>
-    /// 「배치 영역 확장」 보상을 골랐을 때 끌어다 놓는 조각을 손패와 같은 카드 모양으로 보여 준다.
+    /// 「배치 영역 확장」 보상을 골랐을 때 끌어다 놓는 조각을 손패와 같은 카드 모양으로 보여 주고, 그 카드를 직접 끌어서 놓게 한다.
     /// 지금까지는 옛 UI Toolkit 의 초록색 안내 줄(FLOOR +2 — Drag this required reward…)이 그 자리였다.
-    /// - 카드 그림은 손패의 배치 카드(BattleCard_LandSlot)를 그대로 쓰고, 옛 안내 줄은 투명하게 만들어 같은 자리에서 "눌러서 끌기" 입력만 받게 한다.
-    /// - 끌고 있는 동안에는 카드를 흐리게 해서 바닥에 올라간 미리보기가 잘 보이게 한다.
+    /// - 카드 그림은 손패의 배치 카드(BattleCard_LandSlot)를 그대로 쓴다.
+    /// - 끌기는 이 카드가 uGUI 로 직접 받아서 그리드(BeginExpansionDrag → MovePreview → CommitPreview)를 조작한다.
+    ///   (예전에는 투명하게 만든 옛 안내 줄을 같은 자리에 겹쳐 입력만 받게 했는데, 겹친 위치가 어긋나면 카드가 눌리지 않고 확장이 안 됐다.)
+    /// - 끌고 있는 동안에는 카드를 흐리게 해서 바닥에 올라간 미리보기가 잘 보이게 하고, R 키로 회전한다. 놓을 수 없는 자리에서 놓으면 카드가 그대로 남는다.
     /// </summary>
     public sealed class InGameExpansionCard : MonoBehaviour
     {
@@ -24,13 +30,16 @@ namespace OZGL2.UIBridge
         [SerializeField, Range(0.1f, 0.6f), Tooltip("카드 가운데의 세로 위치(화면 높이 대비, 아래가 0)")] private float _centerY = 0.30f;
 
         private GridPrototypeRunner _runner;
+        private InGamePrototypeBootstrap _bootstrap;
+        private InGamePhasePresentation _phase;
         private Label _legacy;
         private Canvas _canvas;
         private RectTransform _card;
         private CanvasGroup _group;
-        private bool _filled;
+        private bool _filled, _dragging;
         private string _shownShape;
         private bool _hasLoadedExpansionCardVisuals;
+        private Camera _camera;
 
         private void OnDestroy()
         {
@@ -43,18 +52,36 @@ namespace OZGL2.UIBridge
             if (_runner == null) _runner = FindFirstObjectByType<GridPrototypeRunner>(FindObjectsInactive.Include);
             var grid = _runner != null ? _runner.Manager : null;
             if (grid == null) return;
+            if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
 
             bool show = grid.Phase == eGridPhase.PREPARATION && grid.RequiresExpansionPlacement;
             if (!show)
             {
+                _dragging = false;
                 if (_canvas != null && _canvas.enabled) _canvas.enabled = false;
                 return;
             }
             EnsureCard(grid);
             _canvas.enabled = true;
-            _group.alpha = grid.IsExpansionDrag ? 0.28f : 1f;
-            SyncLegacy();
+            _group.alpha = _dragging ? 0.28f : 1f;
+            HideLegacy();
+
+            // 끄는 중에는 R 키로 회전, 마우스를 떼는 것이 카드 밖에서 일어나도 놓기가 끝나도록 한다
+            if (_dragging)
+            {
+                if (!grid.IsExpansionDrag) _dragging = false;   // 다른 이유로 끌기가 끝났다
+                else
+                {
+                    var keyboard = Keyboard.current;
+                    if (keyboard != null && keyboard.rKey.wasPressedThisFrame) grid.RotatePreview();
+                    var mouse = Mouse.current;
+                    if (mouse != null) MovePreview(grid, mouse.position.ReadValue());
+                    if (mouse != null && mouse.leftButton.wasReleasedThisFrame) Release(grid);
+                }
+            }
         }
+
+        // ───────────── 카드 만들기
 
         private void EnsureCard(GridManager grid)
         {
@@ -65,15 +92,25 @@ namespace OZGL2.UIBridge
                 _canvas = go.AddComponent<Canvas>();
                 _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 _canvas.sortingOrder = 12;
+                go.AddComponent<GraphicRaycaster>();
                 var instance = Instantiate(_cardPrefab, go.transform, false);
                 instance.name = "ExpansionCardVisual";
                 _card = (RectTransform)instance.transform;
                 _card.anchorMin = _card.anchorMax = Vector2.zero;
                 _card.pivot = new Vector2(0.5f, 0.5f);
                 _group = instance.AddComponent<CanvasGroup>();
-                _group.blocksRaycasts = false;      // 입력은 아래의 옛 안내 줄(투명)이 받는다
-                _group.interactable = false;
-                foreach (var graphic in instance.GetComponentsInChildren<UnityEngine.UI.Graphic>(true)) graphic.raycastTarget = false;
+                foreach (var graphic in instance.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+
+                // 카드 전체를 덮는 투명 판이 누르기·끌기를 받는다
+                var areaGo = new GameObject("DragArea", typeof(RectTransform), typeof(Image));
+                areaGo.transform.SetParent(_card, false);
+                var area = (RectTransform)areaGo.transform;
+                area.anchorMin = new Vector2(0.1f, 0.05f); area.anchorMax = new Vector2(0.9f, 0.95f);
+                area.offsetMin = area.offsetMax = Vector2.zero;
+                var image = areaGo.GetComponent<Image>();
+                image.color = new Color(0f, 0f, 0f, 0f);
+                image.raycastTarget = true;
+                areaGo.AddComponent<Handle>().Owner = this;
                 _filled = false;
             }
             Layout();
@@ -110,36 +147,95 @@ namespace OZGL2.UIBridge
             _card.anchoredPosition = new Vector2(Screen.width * 0.5f, Screen.height * _centerY);
         }
 
-        /// <summary>옛 안내 줄을 카드 자리와 같은 크기로 옮기고 투명하게 만든다(눌러서 끌기 입력은 그대로 받는다).</summary>
-        private void SyncLegacy()
+        /// <summary>옛 안내 줄은 입력도 받지 않게 숨긴다(카드가 대신 입력을 받는다).</summary>
+        private void HideLegacy()
         {
             if (_legacy == null || _legacy.panel == null)
             {
                 _legacy = _runner.GetType().GetField("_expansionCard", Private)?.GetValue(_runner) as Label;
-                if (_legacy == null || _legacy.panel == null) return;
+                if (_legacy == null) return;
             }
-            var parent = _legacy.parent;
-            if (parent == null) return;
-            var corners = new Vector3[4];
-            _card.GetWorldCorners(corners);
-            // 카드 그림 전체 크기 기준(프리팹 본체 600x1100 중 보이는 카드 부분: 가운데 80% 폭, 90% 높이)
-            Vector2 min = corners[0], max = corners[2];
-            Vector2 size = max - min;
-            Vector2 insetMin = min + new Vector2(size.x * 0.1f, size.y * 0.05f);
-            Vector2 insetMax = max - new Vector2(size.x * 0.1f, size.y * 0.05f);
-            var panel = _legacy.panel;
-            Vector2 tl = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(insetMin.x, insetMax.y));
-            Vector2 br = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(insetMax.x, insetMin.y));
-            Vector2 ltl = parent.WorldToLocal(tl), lbr = parent.WorldToLocal(br);
+            _legacy.pickingMode = PickingMode.Ignore;
+            _legacy.style.opacity = 0f;
             _legacy.style.position = Position.Absolute;
-            _legacy.style.left = ltl.x;
-            _legacy.style.top = ltl.y;
-            _legacy.style.width = lbr.x - ltl.x;
-            _legacy.style.height = lbr.y - ltl.y;
-            _legacy.style.marginTop = 0;
-            _legacy.style.backgroundColor = Color.clear;
-            _legacy.style.color = Color.clear;
-            _legacy.style.opacity = 0.01f;
+            _legacy.style.width = 0f;
+            _legacy.style.height = 0f;
+            _legacy.style.marginTop = 0f;
+        }
+
+        // ───────────── 끌기
+
+        private bool CanInteract()
+        {
+            if (_phase == null) _phase = FindFirstObjectByType<InGamePhasePresentation>(FindObjectsInactive.Include);
+            return _phase == null || _phase.CanInteract;
+        }
+
+        private void Begin(Vector2 pointer)
+        {
+            var grid = _runner != null ? _runner.Manager : null;
+            if (grid == null || !CanInteract() || _dragging) return;
+
+            // 선택 전에 초점을 해제해야 R 중복 처리와 FocusOut에 의한 새 드래그 취소를 막을 수 있다.
+            var focusController = _legacy?.panel?.focusController
+                ?? _runner.GetComponent<UIDocument>()?.rootVisualElement?.panel?.focusController;
+            focusController?.focusedElement?.Blur();
+
+            if (!grid.BeginExpansionDrag()) return;
+            _dragging = true;
+            MovePreview(grid, pointer);
+        }
+
+        private void MovePreview(GridManager grid, Vector2 pointer)
+        {
+            if (_bootstrap == null || _bootstrap.Config == null) return;
+            if (_camera == null) _camera = Camera.main;
+            if (_camera == null) return;
+            var config = _bootstrap.Config;
+            Vector3 origin = config.GridWorldOrigin;
+            var plane = new Plane(Vector3.back, new Vector3(0f, 0f, origin.z));
+            var ray = _camera.ScreenPointToRay(pointer);
+            if (!plane.Raycast(ray, out float distance)) return;
+            Vector3 hit = ray.GetPoint(distance);
+            var cell = new Vector2Int(Mathf.RoundToInt((hit.x - origin.x) / config.CellWorldSize), Mathf.RoundToInt((hit.y - origin.y) / config.CellWorldSize));
+
+            // 조각의 가운데가 커서 아래에 오도록 기준 칸을 옮긴다
+            var cells = grid.PendingExpansionShape.GetCells(Vector2Int.zero, grid.PreviewRotation, false);
+            float sx = 0f, sy = 0f;
+            foreach (var c in cells) { sx += c.x; sy += c.y; }
+            var center = new Vector2Int(Mathf.RoundToInt(sx / cells.Length), Mathf.RoundToInt(sy / cells.Length));
+            grid.MovePreview(cell - center);
+        }
+
+        private void Release(GridManager grid)
+        {
+            _dragging = false;
+            if (!grid.IsExpansionDrag) return;
+            string shapeId = grid.PendingExpansionShape.Id;
+            int before = grid.FloorCells.Count;
+            if (!grid.CommitPreview()) { grid.CancelDrag(); return; }   // 놓을 수 없는 자리면 취소하고 카드는 그대로 둔다
+            LogFloor(grid, shapeId, grid.FloorCells.Count - before);
+        }
+
+        /// <summary>확장을 놓은 직후, 늘어난 바닥 칸 수와 실제로 갈색 타일이 그려진 칸 수를 콘솔에 남긴다(둘이 다르면 그리는 쪽 문제).</summary>
+        private static void LogFloor(GridManager grid, string shapeId, int added)
+        {
+            int drawn = 0;
+            foreach (var r in FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
+                if (r.enabled && r.sprite != null && r.name.StartsWith("Cell_") && r.transform.parent != null && r.transform.parent.name.StartsWith("Surface_")) drawn++;
+            var cells = new System.Collections.Generic.List<string>();
+            foreach (var c in grid.FloorCells) cells.Add(c.x + "," + c.y);
+            Debug.Log("[확장] 모양 " + shapeId + " · 늘어난 바닥 " + added + "칸 · 전체 바닥 " + grid.FloorCells.Count + "칸 · 갈색으로 그려진 칸 " + drawn + "개 / 바닥 칸: " + string.Join(" ", cells));
+        }
+
+        private sealed class Handle : MonoBehaviour, IPointerDownHandler
+        {
+            public InGameExpansionCard Owner;
+            public void OnPointerDown(PointerEventData eventData)
+            {
+                if (eventData.button != PointerEventData.InputButton.Left) return;
+                Owner.Begin(eventData.position);
+            }
         }
     }
 }

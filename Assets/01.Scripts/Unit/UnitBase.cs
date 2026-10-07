@@ -117,6 +117,19 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         _burnExpire = Mathf.Max(_burnExpire, Time.time + seconds);
     }
 
+    /// <summary>기절·둔화·취약·화상 중 하나라도 걸려 있는지(힐러 3성의 정화 대상 판별).</summary>
+    public bool HasDebuff => currentState != UnitState.Dead &&
+        (Time.time < _stunExpire || Time.time < _slowExpire || Time.time < _vulnerableExpire || Time.time < _burnExpire);
+
+    /// <summary>해로운 상태(기절·둔화·취약·화상)를 즉시 해제한다. 둔화 이펙트와 화상 틴트는 다음 Update/Tick에서 정리된다.</summary>
+    public void CleanseDebuffs()
+    {
+        _stunExpire = 0f;
+        _slowExpire = 0f;
+        _vulnerableExpire = 0f;
+        _burnExpire = 0f;
+    }
+
     private static readonly Color BurnTintColor = new Color(1f, 0.55f, 0.55f);
     private bool _burnTintActive;
 
@@ -397,6 +410,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     protected virtual void OnEnable()
     {
         UnitRegistry.Register(this);
+        ApplySizeMultiplier();
 
         // 풀에서 재대여되면 ResetForSpawn()이 SetActive(true) 되기 전에 currentState/이동 목표를
         // 미리 정해두는데, 그때는 아직 비활성이라 SPUM PlayAnimation(Animator.SetBool)이 실제로
@@ -475,6 +489,29 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     }
 
     private float _spriteHeight = 1f;
+    private bool _sizeApplied;
+
+    /// <summary>
+    /// statData.sizeMultiplier만큼 유닛을 키운다(보스 연출). 체력바·충돌체·스프라이트 높이 측정이 Awake에서 원래 크기 기준으로
+    /// 끝난 뒤(첫 OnEnable)에 한 번만 적용해서 이중으로 커지지 않게 한다. 풀에서 재사용돼도 스케일은 그대로 유지된다.
+    /// </summary>
+    private void ApplySizeMultiplier()
+    {
+        if (_sizeApplied || statData == null)
+        {
+            return;
+        }
+
+        _sizeApplied = true;
+        float multiplier = statData.sizeMultiplier;
+        if (multiplier <= 1.001f)
+        {
+            return;
+        }
+
+        transform.localScale *= multiplier; // 좌우 반전(x 부호)은 그대로 유지된다
+        _spriteHeight *= multiplier;
+    }
 
     /// <summary>
     /// 클릭 선택(사거리 표시용) 판정용 콜라이더가 없으면 자식 SpriteRenderer들의 바운즈에 맞춰
@@ -628,6 +665,12 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     protected virtual void TickMove()
     {
+        // 다가오는 동안에도 평타 쿨다운은 흘러야 "쿨이 돌면 멈춰서 선공"이 성립한다(근접/아군은 기존 동작 유지).
+        if (UsesAdvanceWhileOnCooldown() && attackCooldownTimer > 0f)
+        {
+            attackCooldownTimer -= Time.deltaTime;
+        }
+
         if (TryAcquireTarget())
         {
             return;
@@ -721,17 +764,23 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         return true;
     }
 
-    // 용사 원거리(궁수·마법사)는 사거리 끝에서 멈추지 않고 사거리의 이 비율까지 더 다가가서 교전을 시작한다.
-    // 아군은 이동하지 않아서 사거리 끝에서 쏘면 아군 근접·뒷줄이 닿지 못하고 일방적으로 맞기 때문.
-    // 일단 교전에 들어가면 대상 유지는 원래 사거리(attackRange) 기준이라 제자리에서 계속 쏜다.
+    // 용사 원거리(궁수·마법사)의 "쿨다운 중엔 다가오고, 쿨이 돌면 멈춰서 먼저 쏜다" 규칙.
+    // 아군은 이동하지 않아서 사거리 끝에서 계속 쏘면 아군 근접·뒷줄이 닿지 못하고 일방적으로 맞고,
+    // 반대로 무조건 가까이 붙으면 쏘기도 전에 죽는다. 그래서:
+    //  - 평타가 준비됐으면(쿨 0) 사거리 안에 들어오는 즉시 멈춰서 선공한다.
+    //  - 쏜 뒤 쿨다운 중에는 사거리의 이 비율 거리까지 계속 다가온다(이동 중에도 쿨다운은 흐른다).
     private const float RangedHeroEngageRatio = 0.7f;
     private const float RangedEngageMinRange = 1.5f; // 이 사거리 이하(근접)는 해당 없음
+    private float _swingEndTime; // 마지막 평타 모션이 끝나(실제 피해가 나가) 이동을 다시 시작해도 되는 시각
 
-    /// <summary>이동을 멈추고 교전을 시작하는 거리. 기본은 사거리 그대로, 용사 원거리 딜러만 더 가까이.</summary>
+    private bool UsesAdvanceWhileOnCooldown()
+        => statData != null && Side == UnitSide.Hero && statData.healAmount <= 0f && statData.attackRange > RangedEngageMinRange;
+
+    /// <summary>이동을 멈추고 교전을 시작하는 거리. 기본은 사거리 그대로, 용사 원거리 딜러는 쿨다운 중일 때만 더 가까이.</summary>
     protected virtual float GetEngageRange()
     {
         float range = statData.attackRange;
-        if (Side == UnitSide.Hero && statData.healAmount <= 0f && range > RangedEngageMinRange)
+        if (UsesAdvanceWhileOnCooldown() && attackCooldownTimer > 0f)
         {
             range *= RangedHeroEngageRatio;
         }
@@ -873,9 +922,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
                 continue;
             }
 
-            if (unit.currentHealth >= unit.statData.maxHealth)
+            if (!NeedsHealing(unit))
             {
-                continue; // 이미 풀피면 치료 대상 아님
+                continue; // 이미 풀피면 치료 대상 아님(3성 힐러는 해로운 상태가 걸린 아군도 대상)
             }
 
             // 사거리 밖의 다친 아군 때문에 사거리 안의 풀피 판정을 못 하고 헛돌지 않도록, 힐 대상도
@@ -900,7 +949,16 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         return lowest;
     }
 
-    private readonly List<UnitBase> _extraHealTargets = new List<UnitBase>(3);
+    private readonly List<UnitBase> _extraHealTargets = new List<UnitBase>(4);
+
+    // 힐러 성급 기믹: 1성 1명 / 2성 2명 / 3성 4명 동시 치료 + 3성은 치료한 아군의 해로운 상태(기절·둔화·취약·화상)를 해제한다.
+    private const int HealerThreeStarTargets = 4;
+    private int HealTargetCount => statData.starLevel >= 3 ? HealerThreeStarTargets : Mathf.Clamp(statData.starLevel, 1, 2);
+    private bool HealerCleanses => statData != null && statData.healAmount > 0f && statData.starLevel >= 3;
+
+    /// <summary>힐 대상 여부: 다쳤거나, (3성 힐러 한정) 해로운 상태가 걸려 있다.</summary>
+    private bool NeedsHealing(UnitBase unit)
+        => unit.currentHealth < unit.statData.maxHealth || (HealerCleanses && unit.HasDebuff);
 
     /// <summary>FindLowestHealthAlly와 같은 기준(사거리 안·풀피 제외·체력 비율 최저)에서 이미 고른 대상은 빼고 찾는다.</summary>
     private UnitBase FindLowestHealthAllyExcluding(List<UnitBase> excluded)
@@ -914,7 +972,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             UnitBase unit = candidates[i];
             if (unit == null || unit.currentState == UnitState.Dead || unit.statData == null ||
-                unit.currentHealth >= unit.statData.maxHealth || excluded.Contains(unit))
+                !NeedsHealing(unit) || excluded.Contains(unit))
             {
                 continue;
             }
@@ -947,7 +1005,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         // 힐러가 힐 걸던 대상이 그 사이(자기 힐 포함) 풀피가 됐거나, 힐 도중 적이 전멸해 전투가
         // 끝났으면 계속 붙잡고 있지 말고 대기 상태로 돌아간다(낭비 힐 방지).
         if (statData != null && statData.healAmount > 0f &&
-            ((currentTarget.statData != null && currentTarget.currentHealth >= currentTarget.statData.maxHealth)
+            ((currentTarget.statData != null && !NeedsHealing(currentTarget))
              || !HasLivingEnemies()))
         {
             currentTarget = null;
@@ -964,6 +1022,15 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
+        // 용사 원거리: 쏜 직후 쿨다운 중이면 모션이 끝나는 대로 다시 다가간다(쿨이 돌면 TryAcquireTarget이 멈춰서 선공시킨다).
+        if (UsesAdvanceWhileOnCooldown() && attackCooldownTimer > 0f && Time.time >= _swingEndTime &&
+            dist > GetEngageRange())
+        {
+            currentTarget = null;
+            SetState(UnitState.Move);
+            return;
+        }
+
         FaceDirection(currentTarget.transform.position - transform.position);
 
         attackCooldownTimer -= Time.deltaTime;
@@ -973,7 +1040,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             // 스윙마다(쿨다운 완료 시점마다) 직접 트리거를 다시 넣어준다.
             PlaySpumAnimation(UnitState.Attack);
             // 모션 시작과 동시에 데미지/이펙트가 나가면 어색해서, 실제 적용은 스윙 애니메이션 길이만큼 늦춘다.
-            StartCoroutine(DelayedAttack(currentTarget, GetAttackAnimationDuration()));
+            float swingDuration = GetAttackAnimationDuration();
+            StartCoroutine(DelayedAttack(currentTarget, swingDuration));
+            _swingEndTime = Time.time + swingDuration + 0.05f;
             attackCooldownTimer = GetAttackInterval();
         }
     }
@@ -1042,7 +1111,22 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     {
         float speed = statData != null ? statData.attackSpeed : 1f;
         float speedMult = statData != null ? CombatModifierHub.GetAttackSpeedMult(statData.job, statData.side) : 1f;
-        return 1f / Mathf.Max(speed * speedMult * EffectiveSlowMult * EffectiveBuffAttackSpeedMult, 0.01f);
+        return 1f / Mathf.Max(speed * speedMult * EffectiveSlowMult * EffectiveBuffAttackSpeedMult * RageAttackSpeedMult, 0.01f);
+    }
+
+    /// <summary>전사 3성 분노: 잃은 체력 비율에 비례해 공속이 오른다(체력 가득이면 1배).</summary>
+    private float RageAttackSpeedMult
+    {
+        get
+        {
+            if (statData == null || statData.starLevel < 3 || statData.rageAttackSpeedBonus <= 0f || statData.maxHealth <= 0)
+            {
+                return 1f;
+            }
+
+            float missingRatio = 1f - Mathf.Clamp01((float)currentHealth / statData.maxHealth);
+            return 1f + statData.rageAttackSpeedBonus * missingRatio;
+        }
     }
 
     protected virtual void PerformAttack(UnitBase target)
@@ -1057,9 +1141,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             float healMult = CombatModifierHub.GetHealMult(statData.job, statData.side);
             int healAmount = Mathf.RoundToInt(statData.healAmount * healMult);
             target.Heal(healAmount);
+            if (HealerCleanses) target.CleanseDebuffs();
 
-            // 힐러 성급 기믹: 2성은 2명, 3성은 3명을 동시에 치료 — 주 대상 외에 사거리 안에서 체력 비율이 낮은 순으로 추가.
-            int extraTargets = Mathf.Clamp(statData.starLevel, 1, 3) - 1;
+            // 힐러 성급 기믹: 2성은 2명, 3성은 4명을 동시에 치료(+3성은 정화) — 주 대상 외에 사거리 안에서 체력 비율이 낮은 순으로 추가.
+            int extraTargets = HealTargetCount - 1;
             if (extraTargets > 0)
             {
                 _extraHealTargets.Clear();
@@ -1073,6 +1158,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
                     }
 
                     extra.Heal(healAmount);
+                    if (HealerCleanses) extra.CleanseDebuffs();
                     _extraHealTargets.Add(extra);
                 }
             }
@@ -1095,6 +1181,14 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
         int damage = CalculateDamage(rawAttackPower, targetDefense);
 
+        // 도적 3성: 적중마다 대상 최대 체력 비례 추가 피해. 보스처럼 체력이 큰 대상에게 폭주하지 않게 일반 피해의 2배까지만.
+        if (statData.starLevel >= 3 && statData.maxHealthPercentDamage > 0f &&
+            target.statData != null && target.statData.maxHealth > 0)
+        {
+            int percentDamage = Mathf.RoundToInt(target.statData.maxHealth * statData.maxHealthPercentDamage);
+            damage += Mathf.Min(percentDamage, damage * 2);
+        }
+
         // 도적 기믹(성급 2 이상): N번째 공격마다 대상 기절.
         _attackCount++;
         if (statData.starLevel >= 2 && statData.comboStunAttackInterval > 0 &&
@@ -1104,7 +1198,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         // 화상(화염기사류): 기본공격이 명중하는 대상에게 매번 화상을 새로 걸어(갱신) 도트 피해를 추가.
-        if (statData.burnDamagePerSecond > 0f)
+        // 마법사 3성 점화도 같은 경로 — burnMinStar로 성급을 제한하고, 직격 대상(target)에게만 건다(광역 피해 대상은 제외).
+        if (statData.burnDamagePerSecond > 0f && statData.starLevel >= statData.burnMinStar)
         {
             target.ApplyBurn(statData.burnDamagePerSecond, statData.burnDuration);
         }
@@ -1112,13 +1207,61 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         if (statData.projectilePrefab != null)
         {
             LaunchProjectile(target, damage);
+
+            // 궁수 3성 이중 사격: 같은 공격에 화살 한 발을 더 — 다른 적이 사거리 안에 있으면 그쪽(최저 체력), 없으면 같은 대상.
+            if (statData.starLevel >= 3 && statData.secondShotDamageRatio > 0f)
+            {
+                UnitBase secondTarget = FindSecondShotTarget(target);
+                float secondDefense = (secondTarget.statData != null ? secondTarget.statData.defensePercent : 0f) * secondTarget.EffectiveBuffDefenseMult
+                                      + CombatModifierHub.GetDefenseAdd(secondTarget.Side);
+                LaunchProjectile(secondTarget, CalculateDamage(rawAttackPower * statData.secondShotDamageRatio, secondDefense));
+            }
         }
         else
         {
             Sfx.Play(SfxId.AttackMelee);
-            target.TakeDamage(damage);
-            ApplySplashDamage(target, damage);
+            target.TakeDamageFrom(damage, HitSoundKind.Physical, this);
+            int dealt = damage + ApplySplashDamage(target, damage);
+
+            // 전사 3성 흡혈: 가한 피해(광역 포함)에 비례해 회복.
+            if (statData.starLevel >= 3 && statData.lifestealRatio > 0f && dealt > 0)
+            {
+                Heal(Mathf.Max(1, Mathf.RoundToInt(dealt * statData.lifestealRatio)));
+            }
         }
+    }
+
+    /// <summary>이중 사격의 두 번째 표적: 주 표적을 뺀 사거리 안 적 중 체력 비율이 가장 낮은 적. 없으면 주 표적.</summary>
+    private UnitBase FindSecondShotTarget(UnitBase primary)
+    {
+        UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
+        var candidates = UnitRegistry.GetUnits(enemySide);
+        float rangeSqr = statData.attackRange * statData.attackRange;
+        UnitBase best = null;
+        float bestRatio = float.MaxValue;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UnitBase unit = candidates[i];
+            if (unit == null || unit == primary || unit.currentState == UnitState.Dead || unit.statData == null || unit.statData.maxHealth <= 0)
+            {
+                continue;
+            }
+
+            if ((unit.transform.position - transform.position).sqrMagnitude > rangeSqr)
+            {
+                continue;
+            }
+
+            float ratio = (float)unit.currentHealth / unit.statData.maxHealth;
+            if (ratio < bestRatio)
+            {
+                bestRatio = ratio;
+                best = unit;
+            }
+        }
+
+        return best != null ? best : primary;
     }
 
     /// <summary>
@@ -1126,11 +1269,11 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     /// 인원 수는 UnitStatData(splashSecondaryDamagePercent/splashMaxTargets)로 유닛별 조절.
     /// 발사체 공격의 스플래시는 Projectile.ApplySplashDamage가 별도로 처리한다.
     /// </summary>
-    protected virtual void ApplySplashDamage(UnitBase primaryTarget, int damage)
+    protected virtual int ApplySplashDamage(UnitBase primaryTarget, int damage)
     {
         if (statData.splashRadius <= 0f)
         {
-            return;
+            return 0;
         }
 
         UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
@@ -1162,6 +1305,8 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             inRange[i].unit.TakeDamage(secondaryDamage);
         }
+
+        return secondaryDamage * hitCount; // 흡혈 계산용 — 실제로 가한 간접 피해 합계
     }
 
     /// <summary>
@@ -1216,7 +1361,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         int before = currentHealth;
         currentHealth = Mathf.Min(currentHealth + amount, statData.maxHealth);
         CombatEffects.PlayHeal(transform.position);
-        CombatEffects.PlayHealNumber(transform.position, _spriteHeight, currentHealth - before);
+        if (currentHealth > before)
+        {
+            CombatEffects.PlayHealNumber(transform.position, _spriteHeight, currentHealth - before); // 정화만 한 풀피 대상엔 "+0"을 띄우지 않는다
+        }
         Sfx.Play(SfxId.Heal);
     }
 
@@ -1246,7 +1394,13 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     /// <summary>기본(근접·화살) 피해 — 피격음은 Hit.</summary>
     public void TakeDamage(int amount) => TakeDamage(amount, HitSoundKind.Physical);
 
-    public virtual void TakeDamage(int amount, HitSoundKind soundKind)
+    public virtual void TakeDamage(int amount, HitSoundKind soundKind) => TakeDamageFrom(amount, soundKind, null);
+
+    /// <summary>
+    /// 공격자를 알 수 있는 피해 경로(근접 평타). 방패병 3성 가시 방패가 공격자에게 되돌려줄 대상을 알아야 해서 따로 둔다.
+    /// 반사 피해는 attacker 없이(null) 들어가서 반사끼리 무한 반복되지 않는다.
+    /// </summary>
+    public virtual void TakeDamageFrom(int amount, HitSoundKind soundKind, UnitBase attacker)
     {
         if (currentState == UnitState.Dead)
         {
@@ -1263,6 +1417,14 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             Sfx.Play(soundKind == HitSoundKind.Magic ? SfxId.HitMagic : SfxId.Hit);
         }
+
+        // 방패병 3성 가시 방패: 근접 공격자에게 받은 피해의 일부를 되돌려준다(치명타로 쓰러져도 반사는 들어간다).
+        if (attacker != null && appliedDamage > 0 && statData != null && statData.starLevel >= 3 &&
+            statData.thornsReflectRatio > 0f && attacker.currentState != UnitState.Dead)
+        {
+            attacker.TakeDamage(Mathf.Max(1, Mathf.RoundToInt(appliedDamage * statData.thornsReflectRatio)), HitSoundKind.None);
+        }
+
         if (currentHealth <= 0)
         {
             Die();

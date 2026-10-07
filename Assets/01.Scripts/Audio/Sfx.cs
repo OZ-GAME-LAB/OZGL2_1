@@ -124,6 +124,27 @@ public static class Sfx
         }
     }
 
+    /// <summary>
+    /// 카탈로그 슬롯 없이 클립을 직접 재생한다(스킬처럼 소리가 데이터 에셋에 달려 있는 경우).
+    /// 마스터 볼륨·음소거 설정은 Play(SfxId)와 똑같이 따른다. duckBgm이면 알림음처럼 재생되는 동안 BGM을 줄인다.
+    /// </summary>
+    public static void PlayClip(AudioClip clip, float volume = 1f, bool duckBgm = false)
+    {
+        if (clip == null || Muted || SfxMuted)
+        {
+            return;
+        }
+
+        SfxCatalogSO catalog = Catalog;
+        float master = (catalog != null ? catalog.masterVolume : 1f) * MasterVolume;
+        SfxPlayer.Play(clip, volume * master, 1f);
+
+        if (duckBgm)
+        {
+            Bgm.Duck(Mathf.Min(clip.length, MaxDuckSeconds), DuckedBgmFactor);
+        }
+    }
+
     private const float DuckedBgmFactor = 0.25f;
     private const float MaxDuckSeconds = 4f;
 

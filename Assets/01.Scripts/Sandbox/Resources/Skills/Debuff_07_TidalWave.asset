@@ -51,3 +51,7 @@ MonoBehaviour:
   vfxTint: {r: 1, g: 1, b: 1, a: 1}
   flourishVfx: {fileID: 0}
   flourishCount: 0
+  castSfx: {fileID: 8300000, guid: 6e37b253bd1bcca4cbb0f762429c8ff2, type: 3}
+  castSfxVolume: 0.7
+  impactSfx: {fileID: 0}
+  impactSfxVolume: 0.7

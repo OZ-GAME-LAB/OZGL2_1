@@ -67,6 +67,9 @@ namespace OZGL2.Progression
             PlayerPrefs.Save();
         }
 
+        /// <summary>마지막으로 접속한 시각(예: "10-07 21:30"). 기록이 없으면 빈 문자열.</summary>
+        public static string LastPlayed => PlayerPrefs.GetString(KeySavedAt, string.Empty);
+
         /// <summary>이어하기 아래에 보여 줄 한 줄 요약.</summary>
         public static string Summary()
         {

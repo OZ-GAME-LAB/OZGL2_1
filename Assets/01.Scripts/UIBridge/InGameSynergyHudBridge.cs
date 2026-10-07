@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OZGL2.InGame;
+using OZGL2.Stage;
 using OZGL2.Synergy;
 using OZGL2.UIFlow;
 using TMPro;
@@ -39,7 +40,9 @@ namespace OZGL2.UIBridge
     public sealed class InGameSynergyHudBridge : MonoBehaviour
     {
         private const int Slots = 4;
-        private const float TrackerScale = 1.25f; // 오른쪽 시너지 목록이 작아 잘 안 보여서 키운다
+        private const float TrackerScale = 0.9f;
+        /// <summary>시너지 목록 한 줄이 화면에서 실제로 차지하는 배율(프리팹 원본 대비). 고른 증강 줄이 같은 크기로 그리려고 읽는다. 아직 모르면 0.</summary>
+        public static float RowScreenScale { get; private set; } // 오른쪽 시너지 목록이 작아 잘 안 보여서 키운다
         private RectTransform _container;
         private const int ScanInterval = 5; // 프레임마다 확인하지 않아도 충분하다
 
@@ -88,16 +91,43 @@ namespace OZGL2.UIBridge
                 if (_sync == null || _sync.Synergy == null) { _sync = null; return; }
             }
             if (Time.frameCount % ScanInterval == 0) Refresh(_sync.Synergy);
-            UpdateTooltip(_sync.Synergy);
+            if (_fade >= 0.5f) UpdateTooltip(_sync.Synergy);
+            else if (_tipCanvas != null) _tipCanvas.enabled = false;
         }
 
-        private void LateUpdate() => ScaleTracker();
+        private void LateUpdate()
+        {
+            ScaleTracker();
+            FadeForReward();
+        }
+
+        private InGamePrototypeBootstrap _bootstrap;
+        private CanvasGroup _group;
+        private float _fade = 1f;
+
+        /// <summary>카드 보상을 고르는 동안에는 시너지 목록을 부드럽게 숨겨 카드(가운데)를 가리지 않게 하고, 끝나면 다시 보여 준다.</summary>
+        private void FadeForReward()
+        {
+            if (_container == null) return;
+            if (_bootstrap == null) _bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+            bool reward = _bootstrap != null && _bootstrap.Stage != null && _bootstrap.Stage.State == eStageState.GENERAL_REWARD;
+            if (_group == null && (reward || _fade < 1f))
+            {
+                _group = _container.GetComponent<CanvasGroup>();
+                if (_group == null) _group = _container.gameObject.AddComponent<CanvasGroup>();
+            }
+            if (_group == null) return;
+            _fade = Mathf.MoveTowards(_fade, reward ? 0f : 1f, Time.unscaledDeltaTime * 4f);
+            _group.alpha = _fade;
+            _group.blocksRaycasts = _fade > 0.5f; // 숨은 동안 시너지 설명이 카드 위에 뜨지 않게
+        }
 
         /// <summary>시너지 목록 전체를 키우고, 화면 오른쪽(왼쪽) 밖으로 나가면 안쪽으로 당겨 놓는다.</summary>
         private void ScaleTracker()
         {
             if (_container == null) return;
             if (!Mathf.Approximately(_container.localScale.x, TrackerScale)) _container.localScale = new Vector3(TrackerScale, TrackerScale, 1f);
+            RowScreenScale = _container.lossyScale.x;
             var canvas = _container.GetComponentInParent<Canvas>();
             if (canvas == null || canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay) return; // 오버레이 캔버스에서는 월드 좌표 = 화면 픽셀
             float minX = float.MaxValue, maxX = float.MinValue;

@@ -22,6 +22,10 @@ namespace OZGL2.Skill
         [SerializeField] private float _vfxMaxRadius = 9f;
         [Tooltip("피해 판정에 더하는 여유. 0이면 조준 사거리 표시(반경)와 정확히 일치 — 예전 0.35는 표시보다 넓게 맞아서 0으로 맞춤")]
         [SerializeField] private float _hitMargin = 0f;
+        [Header("넉백 파동")]
+        [SerializeField, Range(0.05f, 1f), Tooltip("스킬 데이터의 force 에 곱하는 비율 = 실제로 밀려나는 거리(칸)")] private float _knockbackDistanceScale = 0.25f;
+        [SerializeField, Min(0f), Tooltip("이 이상은 밀려나지 않는다(칸)")] private float _knockbackMaxDistance = 1.6f;
+        [SerializeField, Min(0.05f), Tooltip("밀려나는 데 걸리는 시간(초). 처음엔 빠르고 끝으로 갈수록 느려진다")] private float _knockbackSeconds = 0.3f;
         [SerializeField] private bool _playSfx = false;
         [Header("궁극기 연출 (유성우·절대영도·심판)")]
         [Tooltip("궁극기 흩뿌림 이펙트 하나의 크기 배율(예전 0.6 은 작아서 밋밋했다)")]
@@ -137,6 +141,8 @@ namespace OZGL2.Skill
             int reviveCount = req.Skill.EffectiveReviveCount;
             Vector3 p = req.CastPoint;
 
+            PlaySkillSfx(d);
+
             if (d.flourishVfx != null && d.flourishCount > 0)
             {
                 StartCoroutine(Flourish(d, radius, p));
@@ -174,6 +180,25 @@ namespace OZGL2.Skill
                 case SkillEffectType.AllyBuff: BuffAllies(d, buffDur); break;
                 case SkillEffectType.Revive: Revive(reviveCount); break;
             }
+        }
+
+        // ─────────────────────────────────────────── 효과음
+
+        /// <summary>스킬 데이터(SkillData.castSfx/impactSfx)에 지정된 소리를 재생한다. 궁극기는 BGM에 묻히지 않게 BGM을 잠깐 줄인다.</summary>
+        private void PlaySkillSfx(SkillData d)
+        {
+            bool ultimate = d.category == SkillCategory.Ultimate;
+            if (d.castSfx != null) Sfx.PlayClip(d.castSfx, d.castSfxVolume, ultimate);
+            if (d.impactSfx == null) return;
+
+            if (d.castDelay > 0f) StartCoroutine(PlayDelayedSfx(d.impactSfx, d.impactSfxVolume, d.castDelay, ultimate));
+            else Sfx.PlayClip(d.impactSfx, d.impactSfxVolume, ultimate);
+        }
+
+        private static IEnumerator PlayDelayedSfx(AudioClip clip, float volume, float delay, bool duckBgm)
+        {
+            yield return new WaitForSeconds(delay);
+            Sfx.PlayClip(clip, volume, duckBgm);
         }
 
         // ─────────────────────────────────────────── 딜
@@ -460,12 +485,37 @@ namespace OZGL2.Skill
             _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf)
             {
-                (e as IStatusReceiver)?.ApplyKnockback(e.Position - point, d.force);
+                if (e is IStatusReceiver receiver)
+                {
+                    Vector3 away = e.Position - point;
+                    away.z = 0f;
+                    if (away.sqrMagnitude < 0.0001f) away = Vector3.up; // 정확히 중심이면 위(용사가 오는 쪽)로
+                    float near = radius > 0.01f ? Mathf.Clamp01(away.magnitude / radius) : 0f;
+                    // 가까울수록 조금 더 밀려난다(가장자리는 55%)
+                    float distance = Mathf.Min(_knockbackMaxDistance, d.force * _knockbackDistanceScale * Mathf.Lerp(1f, 0.55f, near));
+                    StartCoroutine(SmoothKnockback(e, receiver, away.normalized, distance));
+                }
                 if (power > 0f) e.TakeDamage(power);
             }
 
             if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
             else StartCoroutine(ExpandFade(point, radius, new Color(0.7f, 0.9f, 0.7f), 0.3f, true));
+        }
+
+        /// <summary>한 번에 순간이동시키지 않고 짧은 시간 동안 나눠서 민다(처음엔 빠르게, 끝에서 부드럽게 멈춘다).</summary>
+        private IEnumerator SmoothKnockback(IDamageable target, IStatusReceiver receiver, Vector3 direction, float distance)
+        {
+            float t = 0f, moved = 0f;
+            while (t < _knockbackSeconds)
+            {
+                t += Time.deltaTime;
+                float k = Mathf.Clamp01(t / _knockbackSeconds);
+                float reached = distance * (1f - (1f - k) * (1f - k)); // ease-out
+                float step = reached - moved;
+                if (step > 0f && !target.IsDead) receiver.ApplyKnockback(direction, step);
+                moved = reached;
+                yield return null;
+            }
         }
 
         private void StunHit(SkillData d, float radius, Vector3 point)

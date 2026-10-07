@@ -62,9 +62,23 @@ public class UnitStatData : ScriptableObject
     [Range(0f, 3f)]
     public float executeDamageBonusPerMissingHealth = 0f; // 대상이 잃은 체력 비율만큼 추가 피해 배율(0=비활성, 0.5=최대 +50%)
 
+    [Header("3성 직업 기믹 (성급 3 이상에서만 발동, 0=비활성)")]
+    [Tooltip("전사: 잃은 체력 비율에 비례해 공속 증가. 0.8이면 체력 0%에서 +80%.")]
+    public float rageAttackSpeedBonus = 0f;
+    [Range(0f, 1f), Tooltip("전사: 가한 피해(광역 포함)의 이 비율만큼 자신을 회복.")]
+    public float lifestealRatio = 0f;
+    [Range(0f, 1f), Tooltip("방패병: 근접 공격으로 받은 피해의 이 비율만큼 공격자에게 반사.")]
+    public float thornsReflectRatio = 0f;
+    [Range(0f, 0.2f), Tooltip("도적: 적중마다 대상 최대 체력의 이 비율만큼 추가 피해(상한: 일반 피해의 2배 — 보스 보호).")]
+    public float maxHealthPercentDamage = 0f;
+    [Range(0f, 1f), Tooltip("궁수: 이중 사격 — 두 번째 화살의 피해 비율. 다른 적이 있으면 그쪽, 없으면 같은 대상.")]
+    public float secondShotDamageRatio = 0f;
+
     [Header("화상(도트) — 기본공격 적중 시 대상에게 지속 피해 추가 (0=비활성)")]
     public float burnDamagePerSecond = 0f;
     public float burnDuration = 0f;
+    [Min(1), Tooltip("화상을 거는 최소 성급. 마법사 점화는 3.")]
+    public int burnMinStar = 1;
 
     [Header("회복 오라 — 공격 여부와 무관하게 주기적으로 자신 포함 주변 아군 회복 (0=비활성)")]
     public float auraHealAmount = 0f;
@@ -89,6 +103,10 @@ public class UnitStatData : ScriptableObject
     public float phaseTransitionBuffDuration = 0f;
     public float phaseTransitionStunDuration = 0f; // 발동 시 주변 적(마왕군) 전체 스턴
     public float phaseTransitionRadius = 0f;
+
+    [Header("크기 (보스 등 큰 유닛 연출용 — 1=원래 크기, 전투 스탯에는 영향 없음)")]
+    [Min(1f)]
+    public float sizeMultiplier = 1f;
 
     [Header("참고 데이터 (다른 파트 연계용, 세진 파트에서는 미사용)")]
     public int cost = 1;                // 마왕군 코스트 (배치/뽑기 비용 — 김건·준기 파트 연계)
