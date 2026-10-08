@@ -59,7 +59,7 @@ namespace OZGL2.Tutorial
     /// <summary>
     /// 마왕이 들려주는 설명 모음. 말투는 거만하지만 친절한 마왕.
     /// 게임 규칙이 바뀌면 이 표의 문장만 고치면 된다(코드·씬은 건드리지 않는다).
-    /// Target 열쇠: reward(이번 라운드 보상 패널) · result.title/result.xp/result.confirm(웨이브 결과창) · wave(이번 웨이브) · grid(마왕성 칸) · hand(카드 손패) · synergy(시너지 목록) · start(전투 시작) ·
+    /// Target 열쇠: reward(이번 라운드 보상 패널) · result.title/result.xp/result.confirm(웨이브 결과창) · wave(이번 웨이브) · grid(마왕성 칸) · hand(카드 손패) · synergy(시너지 목록) · augments(증강 리스트 단추) · start(전투 시작) ·
     ///              skills(스킬 슬롯) · xp(경험치바) · currency(재화) · reroll(리롤) · king(마왕 자리)
     /// 도감 성급: codex.stars(별 표시) · codex.next(다음 모습 화살표)
     /// 로비: level(레벨) · nav(하단 메뉴) · stage(스테이지) · startbtn(전투 준비) · codexlist(도감 목록) ·
@@ -76,7 +76,7 @@ namespace OZGL2.Tutorial
 
         public static readonly TutorialSequence Intro = new TutorialSequence("intro", "게임 목표와 배치", "ingame", false, true,
             new TutorialStep("크하하! 잘 왔다, 새내기 마왕이여! 이 몸이 직접 마왕성을 지키는 법을 알려주마!", null, true),
-            new TutorialStep("저 '이번 웨이브'를 보거라. 이번에 쳐들어올 용사들이다. 30웨이브를 모두 막아내면 짐의 승리니라!", "wave"),
+            new TutorialStep("저 '이번 웨이브'를 보거라. 이번에 쳐들어올 용사들이다. 종류가 많으면 좌우 화살표나 방향키로 한 종류씩 넘겨 볼 수 있다. 30웨이브를 모두 막아내면 짐의 승리니라!", "wave"),
             new TutorialStep("그 아래 '이번 라운드 보상'을 보거라. 이번 웨이브를 막아내면 받을 것이 미리 적혀 있다. 재화는 용사를 잡을 때와 클리어할 때 얻고, SP는 스킬을 해금하는 데 쓰느니라.", "reward"),
             new TutorialStep("이 칸들이 마왕성이다. 용사들은 위에서 내려와 짐을 노린다. 막으려면 마왕군을 배치해야 하느니라.", "grid"),
             new TutorialStep("마우스 휠을 굴리면 화면을 확대하고 축소할 수 있다. 마왕군이 작게 보이면 가까이 당겨 보거라."),
@@ -92,7 +92,7 @@ namespace OZGL2.Tutorial
             new TutorialStep("전투가 시작됐다! 우리 마왕군이 용사들과 싸우는 모습을 지켜보거라.", null, true),
             new TutorialStep("아래 스킬 슬롯을 눌러 범위를 정하고 놓으면, 짐이 직접 마법을 쓴다. 쿨타임이 끝나면 다시 쓸 수 있느니라.", "skills"),
             new TutorialStep("용사를 쓰러뜨리면 영혼이 모여 경험치가 오른다. 레벨이 오를수록 짐이 강해지느니라.", "xp"),
-            new TutorialStep("용사를 잡으면 재화도 얻는다. 재화는 보상 카드를 다시 뽑는 리롤에 쓰거라.", "currency"),
+            new TutorialStep("용사를 잡으면 금화가 날아와 재화 표시에 쌓인다. 재화는 보상 카드를 다시 뽑는 리롤에 쓰거라.", "currency"),
             new TutorialStep("위쪽의 배속 버튼으로 전투를 빠르게 돌릴 수도 있다. 자, 용사들을 막아 보거라!", null, true));
 
         public static readonly TutorialSequence WaveResult = new TutorialSequence("waveresult", "웨이브 결과", "ingame", false, false,
@@ -102,12 +102,13 @@ namespace OZGL2.Tutorial
 
         public static readonly TutorialSequence Reward = new TutorialSequence("reward", "보상 카드와 리롤", "ingame", false, true,
             new TutorialStep("웨이브 클리어! 마왕군 카드 3장 중 하나를 골라 보상으로 받거라.", null, true),
+            new TutorialStep("카드를 고르는 동안에는 다른 창이 잠시 숨어서 카드가 잘 보이게 된다. 고르고 나면 이번 웨이브 정보와 증강 리스트가 다시 나타나느니라."),
             new TutorialStep("고른 유닛은 보관함(아래 카드 칸)에 들어간다. 다음 배치 때 칸에 올려 놓으면 된다."),
             new TutorialStep("마음에 드는 카드가 없으면 리롤이다. 재화를 내고 카드를 다시 뽑을 수 있다.", "reroll"));
 
         public static readonly TutorialSequence Augment = new TutorialSequence("augment", "보스와 증강", "ingame", false, true,
             new TutorialStep("보스를 쓰러뜨렸구나, 대단하다! 보상으로 증강을 고를 수 있다.", null, true),
-            new TutorialStep("증강은 이번 판 동안 마왕군과 스킬을 강하게 해 준다. 어떤 증강이 우리 마왕군에게 어울릴지 잘 생각해서 고르거라."));
+            new TutorialStep("증강은 이번 판 동안 마왕군과 스킬을 강하게 해 준다. 어떤 증강이 우리 마왕군에게 어울릴지 잘 생각해서 고르거라. 고른 증강은 왼쪽 '증강 리스트'에 모인다."));
 
         public static readonly TutorialSequence Boss = new TutorialSequence("boss", "보스 웨이브", "ingame", false, false,
             new TutorialStep("이번 웨이브에는 보스가 온다! 체력이 매우 높으니 스킬을 아껴 두고, 마왕군을 든든히 세워 두거라.", "wave", true));
@@ -119,13 +120,17 @@ namespace OZGL2.Tutorial
             new TutorialStep("마우스 오른쪽 버튼(또는 휠 버튼)을 누른 채 끌면 맵을 둘러볼 수 있다. 너무 멀리까지는 볼 수 없다."),
             new TutorialStep("Home 키를 누르면 언제든 원래 화면으로 돌아온다. 웨이브가 바뀌면 화면도 알아서 제자리로 돌아오느니라."));
 
+        public static readonly TutorialSequence AugmentList = new TutorialSequence("topic.augments", "증강 리스트", "ingame", false, true,
+            new TutorialStep("보스를 쓰러뜨리고 고른 증강은 왼쪽 '증강 리스트'에 모인다.", "augments"),
+            new TutorialStep("리스트를 누르면 고른 증강이 펼쳐지고, 다시 누르면 접힌다. 증강에 마우스를 올리면 효과 설명이 나오느니라."));
+
         public static readonly TutorialSequence Synergy = new TutorialSequence("topic.synergy", "시너지", "ingame", false, true,
             new TutorialStep("같은 직업을 3명 모으면 1단계, 5명 모으면 2단계 시너지가 발동한다.", "synergy"),
             new TutorialStep("직업이 다른 둘을 함께 모으면 '조합 시너지'도 생긴다. 예를 들어 궁수와 마법사 각 2명이면 포격대다!"));
 
         public static readonly TutorialSequence Levels = new TutorialSequence("topic.levels", "경험치와 재화", "ingame", false, true,
             new TutorialStep("용사를 쓰러뜨리면 경험치가 올라 마왕이 레벨업한다. 레벨업으로 얻는 포인트는 로비 특성에 쓰거라.", "xp"),
-            new TutorialStep("재화도 용사를 잡을 때와 웨이브를 클리어할 때 얻는다. 재화는 리롤에 쓴다.", "currency"));
+            new TutorialStep("재화도 용사를 잡을 때와 웨이브를 클리어할 때 얻는다. 용사를 잡으면 금화가 날아와 재화 표시로 들어가고, 재화는 리롤에 쓴다.", "currency"));
 
         public static readonly TutorialSequence Unlock = new TutorialSequence("topic.unlock", "SP와 해금", "ingame", false, true,
             new TutorialStep("SP는 웨이브를 깰 때마다 쌓인다. 2웨이브마다 1씩 얻고, 10웨이브 단위로는 보너스가 붙는다. 로비 스킬창에서 새 스킬을 해금하는 데 쓰거라."),
@@ -205,7 +210,7 @@ namespace OZGL2.Tutorial
 
         /// <summary>자동 설명 + 도움말 목록 순서.</summary>
         public static readonly TutorialSequence[] All =
-            { Intro, Battle, WaveResult, Reward, Augment, Synergy, Levels, View, Unlock, Boss, LobbyTour, LobbyAchievements, LobbyTraits, LobbySkills, LobbyCodex };
+            { Intro, Battle, WaveResult, Reward, Augment, AugmentList, Synergy, Levels, View, Unlock, Boss, LobbyTour, LobbyAchievements, LobbyTraits, LobbySkills, LobbyCodex };
 
         public static TutorialSequence Find(string id)
         {

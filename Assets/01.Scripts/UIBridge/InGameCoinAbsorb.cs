@@ -143,6 +143,7 @@ namespace OZGL2.UIBridge
             coin.root.gameObject.SetActive(false);
             _pool.Push(coin);
             InGameCurrencyHud.CoinArrived(coin.amount);
+            Sfx.Play(SfxId.CoinGain); // 짧은 시간에 여러 개가 도착해도 소리는 슬롯의 최소 간격으로 솎아 낸다
             // 금빛 파동
             var go = new GameObject("CoinFlash", typeof(RectTransform), typeof(Image));
             go.transform.SetParent(_canvas.transform, false);

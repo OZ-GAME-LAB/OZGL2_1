@@ -187,3 +187,42 @@ MonoBehaviour:
     volume: 0.8
     pitchRange: {x: 1, y: 1}
     minInterval: 0.2
+  - label: CoinGain
+    id: 24
+    clips:
+    - {fileID: 8300000, guid: 3906b684e141523478d8e2fb3a70c08b, type: 3}
+    volume: 0.45
+    pitchRange: {x: 1, y: 1.25}
+    minInterval: 0.05
+  - label: ListOpen
+    id: 25
+    clips:
+    - {fileID: 8300000, guid: b8dc8120d1d9f644c82c9b700a6a9543, type: 3}
+    volume: 0.6
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.1
+  - label: ListClose
+    id: 26
+    clips:
+    - {fileID: 8300000, guid: 6127ed59693c352489ff90849678155b, type: 3}
+    volume: 0.6
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.1
+  - label: TutorialVoice
+    id: 27
+    clips:
+    - {fileID: 8300000, guid: db1e1652610c5308a35769d8232d5706, type: 3}
+    - {fileID: 8300000, guid: 8b5c03a12faa525aaab6b1998818f8d2, type: 3}
+    - {fileID: 8300000, guid: 2d7261775bf850fca24292a7be2e43d6, type: 3}
+    - {fileID: 8300000, guid: 527c99085509553e8f08c9f38700ab66, type: 3}
+    - {fileID: 8300000, guid: efd676287121509faf20775692d37518, type: 3}
+    - {fileID: 8300000, guid: aac0be66a37a57fcb207a9fe1195bec4, type: 3}
+    - {fileID: 8300000, guid: 43a824970e2359fc869ceaa33e2286f3, type: 3}
+    - {fileID: 8300000, guid: f17a579e12825c15b69b942f95146a94, type: 3}
+    - {fileID: 8300000, guid: 959a733bea275bdba90f1163ac908797, type: 3}
+    - {fileID: 8300000, guid: fd3cbe3b81b153229089278ca6b54c7c, type: 3}
+    - {fileID: 8300000, guid: 609d1722a2c65f8d8879da6f74b410d5, type: 3}
+    - {fileID: 8300000, guid: baaa71f6c6dc51339716a244edfb1909, type: 3}
+    volume: 0.5
+    pitchRange: {x: 0.94, y: 1.06}
+    minInterval: 0.06

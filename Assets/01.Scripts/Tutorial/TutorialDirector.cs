@@ -198,6 +198,30 @@ namespace OZGL2.Tutorial
 
         // ───────────── 진행
 
+        private int _blipChars, _syllables;
+
+        // 글자마다 높낮이가 다른 음계(펜타토닉 느낌) — 같은 글자는 늘 같은 높이라 말소리처럼 들린다
+        private static readonly float[] BabbleSteps = { -4f, -2f, 0f, 2f, 3f, 5f, 7f, 9f };
+
+        /// <summary>
+        /// 마왕이 말하는 소리(옹알이): 방금 찍힌 글자들 중 글자·숫자만 세어 세 글자마다 한 음절을 낸다. 공백과 문장부호에서는 쉰다.
+        /// 물음표·느낌표 앞 음절은 높게 끝난다. 소리 12종 중 하나가 무작위로 나오고(같은 것이 연달아 나오지 않음) 글자에 따라 높낮이가 바뀐다.
+        /// </summary>
+        private void SpeakNewChars(int from, int to)
+        {
+            var info = _body.textInfo;
+            for (int i = from; i < to && i < info.characterCount; i++)
+            {
+                char c = info.characterInfo[i].character;
+                if (!char.IsLetterOrDigit(c)) continue;
+                if (++_syllables % 3 != 0) continue;
+                float semitone = BabbleSteps[(c * 7 + 3) % BabbleSteps.Length] - 3f; // 마왕답게 전체를 낮춘다
+                char next = i + 1 < info.characterCount ? info.characterInfo[i + 1].character : ' ';
+                if (next == '?' || next == '!') semitone += 3f;
+                Sfx.Play(SfxId.TutorialVoice, Mathf.Pow(2f, semitone / 12f));
+            }
+        }
+
         private void Begin(TutorialSequence seq)
         {
             EnsureUi();
@@ -226,6 +250,8 @@ namespace OZGL2.Tutorial
             _body.ForceMeshUpdate();
             _totalChars = _body.textInfo.characterCount;
             _typed = 0f;
+            _blipChars = 0;
+            _syllables = 0;
             _counter.text = (_index + 1) + " / " + _seq.Steps.Length;
             _clickedAt = -1f;
             _releasedAt = -1f;
@@ -293,7 +319,9 @@ namespace OZGL2.Tutorial
             if (_typed < _totalChars)
             {
                 _typed = Mathf.Min(_totalChars, _typed + _charsPerSecond * Time.unscaledDeltaTime);
-                _body.maxVisibleCharacters = Mathf.FloorToInt(_typed);
+                int shown = Mathf.FloorToInt(_typed);
+                _body.maxVisibleCharacters = shown;
+                if (shown > _blipChars) { SpeakNewChars(_blipChars, shown); _blipChars = shown; }
             }
             else _body.maxVisibleCharacters = _totalChars;
 
@@ -1100,6 +1128,7 @@ namespace OZGL2.Tutorial
                 case "reroll": return RectOfNamed(new[] { "Button_Reroll" }, out rect);
                 case "currency": return RectOfNamed(new[] { "Currency", "Currency_Combat", "CombatCurrency" }, out rect);
                 case "xp": return RectOfNamed(new[] { "ExperienceTrack", "ExperienceFillSoul" }, out rect);
+                case "augments": return RectOfNamed(new[] { "AugmentListToggle" }, out rect);
                 case "synergy": return RectOfNamed(new[] { "SynergyTracker_InGame", "Synergy_0", "Synergy_1", "Synergy_2", "Synergy_3" }, out rect, true);
                 case "skills": return RectOfSkillSlots(out rect);
                 case "hand": return RectOfHand(out rect);

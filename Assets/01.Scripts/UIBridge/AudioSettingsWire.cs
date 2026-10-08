@@ -57,12 +57,12 @@ namespace OZGL2.UIBridge
         {
             var bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
             string lobbyPath = bootstrap != null && bootstrap.Config != null ? bootstrap.Config.LobbyScenePath : null;
-            if (string.IsNullOrEmpty(lobbyPath)) lobbyPath = "Assets/00.Scenes/Builds/Lobby_2.unity";
+            if (string.IsNullOrEmpty(lobbyPath)) lobbyPath = "Assets/00.Scenes/Builds/Lobby.unity";
             FindFirstObjectByType<InGameRunSaver>()?.FlushNow(); // 나가기 직전 배치까지 저장
             Time.timeScale = 1f;
             bootstrap?.CancelRun();
             if (Application.CanStreamedLevelBeLoaded(lobbyPath)) SceneManager.LoadScene(lobbyPath, LoadSceneMode.Single);
-            else SceneManager.LoadScene("Lobby_2", LoadSceneMode.Single);
+            else SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         }
 
         private static void Quit()
