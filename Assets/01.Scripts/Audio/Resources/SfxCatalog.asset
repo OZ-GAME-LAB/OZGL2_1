@@ -136,7 +136,7 @@ MonoBehaviour:
   - label: UiCancel
     id: 16
     clips:
-    - {fileID: 8300000, guid: fe0512c041563334ebdf70a0a4047c1e, type: 3}
+    - {fileID: 8300000, guid: 4b0461e176dc0ed41a33fb035c46fc74, type: 3}
     volume: 0.7
     pitchRange: {x: 0.95, y: 1.05}
     minInterval: 0.05
