@@ -27,6 +27,7 @@ public class UnitHealthBar : MonoBehaviour
     private const float HeroWidthScale = 0.85f;  // 용사 막대 폭 배율
     private const float LowHpRatio = 0.3f;
     private const int SortStep = 16;             // 막대 한 개가 쓰는 정렬 칸 수(겹겹이 쌓인 층 수보다 크게)
+    private const int SortBase = 8000;           // 막대는 항상 유닛·성벽·이펙트 스프라이트보다 위에 — 앞뒤 정렬은 이 위에서 ±1600 안에서만 민다
 
     private static Sprite _white, _gradient;
 
@@ -101,7 +102,7 @@ public class UnitHealthBar : MonoBehaviour
         _all = list.ToArray();
         _baseAlpha = new float[_all.Length];
         _baseOrder = new int[_all.Length];
-        for (int i = 0; i < _all.Length; i++) { _baseAlpha[i] = _all[i].color.a; _baseOrder[i] = _all[i].sortingOrder; }
+        for (int i = 0; i < _all.Length; i++) { _baseAlpha[i] = _all[i].color.a; _baseOrder[i] = _all[i].sortingOrder - 1000 + SortBase; }
 
         // 외곽선·테두리·배경·눈금·성급 표시는 크기가 고정이라 한 번만 놓는다
         SetRect(_outline, 0f, _barWidth + (Frame + Outline) * 2f, h + (Frame + Outline) * 2f, 0f);
@@ -110,6 +111,7 @@ public class UnitHealthBar : MonoBehaviour
         for (int i = 0; i < _ticks.Length; i++)
             SetRect(_ticks[i], (-0.5f + 0.25f * (i + 1)) * _barWidth, 0.014f, h * 0.9f, 0f);
 
+        foreach (var sr in _all) sr.sortingOrder = sr.sortingOrder - 1000 + SortBase;
         transform.localPosition = new Vector3(0f, heightOffset, 0f);
         ResetState();
     }
@@ -196,7 +198,7 @@ public class UnitHealthBar : MonoBehaviour
         float alpha = full ? FullHpAlpha : 1f;
 
         // 화면 아래쪽(앞쪽) 유닛의 막대가 위에 그려지게 정렬 층을 유닛 높이에 맞춰 민다
-        int boost = Mathf.Clamp(Mathf.RoundToInt(-_unit.transform.position.y * 8f), -500, 500) * SortStep;
+        int boost = Mathf.Clamp(Mathf.RoundToInt(-_unit.transform.position.y * 2f), -100, 100) * SortStep;
         if (boost != _sortBoost)
         {
             _sortBoost = boost;
