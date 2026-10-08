@@ -14,24 +14,82 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIAugmentVisualCatalogSO
   _tiers:
   - _tier: 1
-    _velvetBackground: {fileID: 21300000, guid: ee8b3cc254f214d49b3efe966a88ead0, type: 3}
-    _descriptionPanel: {fileID: 21300000, guid: 01390a074d33c404195f3a7da6c84ef5, type: 3}
-    _crest: {fileID: 21300000, guid: 78c960cf6771df447899e4a7f07405af, type: 3}
-    _gradeColor: {r: 0.92156863, g: 0.88235295, b: 0.8117647, a: 1}
-    _gradeLabelY: -122
+    _velvetBackground: {fileID: 21300000, guid: dd88ff5842bc3ce4db2c37339b7ae2ad, type: 2}
+    _descriptionPanel: {fileID: 0}
+    _crest: {fileID: 21300000, guid: c86b207d046a2e64f918a33c293839c1, type: 2}
+    _gradeColor: {r: 0.92, g: 0.92, b: 0.94, a: 1}
+    _gradeLabelY: -133
   - _tier: 2
-    _velvetBackground: {fileID: 21300000, guid: ad356aa9d15d81a46b5955bc271686e8, type: 3}
-    _descriptionPanel: {fileID: 21300000, guid: 4d3ed63c3e2b6904bb8ad968b4501ba1, type: 3}
-    _crest: {fileID: 21300000, guid: 01448c08160923b4ca15a29b961dfe16, type: 3}
-    _gradeColor: {r: 0.8, g: 0.6862745, b: 0.45882353, a: 1}
-    _gradeLabelY: -128
+    _velvetBackground: {fileID: 21300000, guid: 294de7490042ea64c81b3975db6dd387, type: 2}
+    _descriptionPanel: {fileID: 0}
+    _crest: {fileID: 21300000, guid: ca322a88f6d57614084eba86f142489c, type: 2}
+    _gradeColor: {r: 1, g: 0.83, b: 0.46, a: 1}
+    _gradeLabelY: -133
   - _tier: 3
-    _velvetBackground: {fileID: 21300000, guid: 78d3242c01c4364499e5a3affbd75d0f, type: 3}
-    _descriptionPanel: {fileID: 21300000, guid: ea1407697f1b14841acf704ca74f982e, type: 3}
-    _crest: {fileID: 21300000, guid: 9675495d722282140a2af6929f8b90b6, type: 3}
-    _gradeColor: {r: 0.80784315, g: 0.9137255, b: 0.93333334, a: 1}
-    _gradeLabelY: -110
+    _velvetBackground: {fileID: 21300000, guid: 558d238b4265ca047b18c65c1e97a0a5, type: 2}
+    _descriptionPanel: {fileID: 0}
+    _crest: {fileID: 21300000, guid: 25275d74949229748921d3c6a9c47ed0, type: 2}
+    _gradeColor: {r: 0.58, g: 0.9, b: 1, a: 1}
+    _gradeLabelY: -133
   _icons:
   - _augmentId: mon_hp
-    _icon: {fileID: 21300000, guid: a020d40489cd428429d35f3f661bca59, type: 3}
-  _defaultIcon: {fileID: 21300000, guid: 10ab51bead245dd41840fcf6b7346221, type: 3}
+    _icon: {fileID: 21300000, guid: f9f7ee8444d296c45b40918859134f4b, type: 2}
+  - _augmentId: shield_s
+    _icon: {fileID: 21300000, guid: f9f7ee8444d296c45b40918859134f4b, type: 2}
+  - _augmentId: mon_speed
+    _icon: {fileID: 21300000, guid: f781bf2a100c75f45be3f603993284c0, type: 2}
+  - _augmentId: crit_s
+    _icon: {fileID: 21300000, guid: d35182f53270e2b41b1faa6d896326f9, type: 2}
+  - _augmentId: crit_p
+    _icon: {fileID: 21300000, guid: d35182f53270e2b41b1faa6d896326f9, type: 2}
+  - _augmentId: cdkill_g
+    _icon: {fileID: 21300000, guid: ee5901400a5801849a180f719813303f, type: 2}
+  - _augmentId: cdkill_p
+    _icon: {fileID: 21300000, guid: ee5901400a5801849a180f719813303f, type: 2}
+  - _augmentId: skill_cooldown
+    _icon: {fileID: 21300000, guid: ee5901400a5801849a180f719813303f, type: 2}
+  - _augmentId: skill_cooldown_g
+    _icon: {fileID: 21300000, guid: ee5901400a5801849a180f719813303f, type: 2}
+  - _augmentId: util_reset
+    _icon: {fileID: 21300000, guid: ee5901400a5801849a180f719813303f, type: 2}
+  - _augmentId: echo_g
+    _icon: {fileID: 21300000, guid: c05bc9e214e9cab4cb8a2d68e382b53e, type: 2}
+  - _augmentId: echo_p
+    _icon: {fileID: 21300000, guid: c05bc9e214e9cab4cb8a2d68e382b53e, type: 2}
+  - _augmentId: eco_sp
+    _icon: {fileID: 21300000, guid: e3a8e7bbf25519c408868a533b401490, type: 2}
+  - _augmentId: eco_xp_s
+    _icon: {fileID: 21300000, guid: 6c651b0db86bf1f428f63d45c93fc340, type: 2}
+  - _augmentId: eco_xp_p
+    _icon: {fileID: 21300000, guid: 6c651b0db86bf1f428f63d45c93fc340, type: 2}
+  - _augmentId: util_xp_s
+    _icon: {fileID: 21300000, guid: 6c651b0db86bf1f428f63d45c93fc340, type: 2}
+  - _augmentId: util_xp_p
+    _icon: {fileID: 21300000, guid: 6c651b0db86bf1f428f63d45c93fc340, type: 2}
+  - _augmentId: xpalive_p
+    _icon: {fileID: 21300000, guid: 2f42dacc2eb0a2440b98e6a516c23b20, type: 2}
+  - _augmentId: explode_p
+    _icon: {fileID: 21300000, guid: 1946199d49275804790472b83f5b043c, type: 2}
+  - _augmentId: skill_damage
+    _icon: {fileID: 21300000, guid: 1946199d49275804790472b83f5b043c, type: 2}
+  - _augmentId: skill_capstone
+    _icon: {fileID: 21300000, guid: 0130a1192341b7a4781b6b078c54d60f, type: 2}
+  - _augmentId: frost_g
+    _icon: {fileID: 21300000, guid: 7a1840fd99dd6c14787870d7d1d3206f, type: 2}
+  - _augmentId: onhit_s
+    _icon: {fileID: 21300000, guid: 7a1840fd99dd6c14787870d7d1d3206f, type: 2}
+  - _augmentId: hero_vuln
+    _icon: {fileID: 21300000, guid: 1cc0c0b2caec1fe4aa065b32106358a8, type: 2}
+  - _augmentId: predator_g
+    _icon: {fileID: 21300000, guid: d35182f53270e2b41b1faa6d896326f9, type: 2}
+  - _augmentId: revive_p
+    _icon: {fileID: 21300000, guid: a8ef03c5480f13e4086901d1f48da844, type: 2}
+  - _augmentId: util_heal
+    _icon: {fileID: 21300000, guid: 9a7bfd121b6333347bb2aa98c261d556, type: 2}
+  - _augmentId: skill_buffdur
+    _icon: {fileID: 21300000, guid: 5383c8a4a94665e4cb8d1e55733e76a8, type: 2}
+  - _augmentId: skill_radius
+    _icon: {fileID: 21300000, guid: fc2e37b17a065414f9214ac1fdcf733b, type: 2}
+  - _augmentId: skill_radius_p
+    _icon: {fileID: 21300000, guid: fc2e37b17a065414f9214ac1fdcf733b, type: 2}
+  _defaultIcon: {fileID: 21300000, guid: d35182f53270e2b41b1faa6d896326f9, type: 2}
