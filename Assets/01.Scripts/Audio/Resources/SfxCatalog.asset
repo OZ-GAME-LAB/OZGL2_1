@@ -226,3 +226,11 @@ MonoBehaviour:
     volume: 0.5
     pitchRange: {x: 0.94, y: 1.06}
     minInterval: 0.06
+  - label: Reroll
+    id: 28
+    clips:
+    - {fileID: 8300000, guid: 02878254be46547caae25c29360cdc12, type: 3}
+    - {fileID: 8300000, guid: c340e9b0eb625311baee0379b4e1c1b2, type: 3}
+    volume: 0.7
+    pitchRange: {x: 0.96, y: 1.05}
+    minInterval: 0.08

@@ -36,6 +36,7 @@ public enum SfxId
     ListOpen,      // 증강 리스트 등 접이식 목록을 펼칠 때 — 전용 소리가 없으면 UnitPlace 소리를 쓴다
     ListClose,     // 접이식 목록을 접을 때 — 전용 소리가 없으면 UnitReturn 소리를 쓴다
     TutorialVoice, // 마왕이 말하는 소리: 튜토리얼 말풍선에 글자가 찍힐 때 옹알이처럼 한 음절씩(동물의 숲 말소리 느낌)
+    Reroll,        // 보상 카드를 리롤(다시 뽑기)할 때 — 카드를 훑어 넘기는 소리
 }
 
 /// <summary>
