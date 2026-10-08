@@ -26,13 +26,13 @@ namespace OZGL2.UIBridge
                 save.units.Add(new RunUnitSave { id = u.InstanceId, unitId = u.Definition.Id, star = u.StarLevel, placed = u.IsPlaced, mirrored = u.IsMirrored, x = u.Anchor.x, y = u.Anchor.y, rotation = u.Rotation });
         }
 
-        /// <summary>고른 증강을 순서대로 적는다. 고르는 순간 한 번 실행되는 증강은 이미 효과를 받았으므로 적지 않는다.</summary>
+        /// <summary>고른 증강을 순서대로 모두 적는다(고르는 순간 한 번 실행되는 증강도 목록에는 남기고, 이어할 때 효과는 다시 주지 않는다).</summary>
         public static void CaptureAugments(RunSave save, AugmentRun augments)
         {
             save.augments.Clear();
             if (augments == null) return;
             foreach (var d in augments.PickedList)
-                if (d != null && !d.isInstant) save.augments.Add(d.augmentId);
+                if (d != null) save.augments.Add(d.augmentId);
         }
 
         public static void Restore(RunSave save, GridRunSession session, GridPrototypeCatalogSO catalog)
@@ -78,7 +78,7 @@ namespace OZGL2.UIBridge
             if (augments == null || save == null || save.augments == null) return;
             foreach (var id in save.augments)
                 foreach (var d in augments.Pool)
-                    if (d != null && d.augmentId == id) { augments.Pick(d); break; }
+                    if (d != null && d.augmentId == id) { augments.RestoreSaved(d); break; }
         }
     }
 }

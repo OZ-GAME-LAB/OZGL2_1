@@ -177,6 +177,21 @@ namespace OZGL2.Stage
             return slots;
         }
 
+        /// <summary>
+        /// 게임 시간(Time.timeScale 이 반영되는 시간)으로 기다린다. 예전에는 Task.Delay(실제 시간)라서 몬스터 스폰 간격에 배속이 적용되지 않고
+        /// 일시정지 중에도 계속 소환됐다. 프레임마다 Time.deltaTime 을 모아 기다리므로 2배속이면 간격이 절반, 정지하면 멈춘다.
+        /// </summary>
+        private static async Task WaitGameSeconds(float seconds, CancellationToken token)
+        {
+            float elapsed = 0f;
+            while (elapsed < seconds)
+            {
+                token.ThrowIfCancellationRequested();
+                await Task.Yield();
+                elapsed += Time.deltaTime;
+            }
+        }
+
         private async Task SpawnAsync(RoundDefinition round, CancellationToken token)
         {
             float previousInterval = 0;
@@ -184,7 +199,7 @@ namespace OZGL2.Stage
             foreach (var slot in BuildSpawnOrder(round))
             {
                 if (previousInterval > 0)
-                    await Task.Delay(TimeSpan.FromSeconds(previousInterval), token);
+                    await WaitGameSeconds(previousInterval, token);
                 token.ThrowIfCancellationRequested();
                 var lease = _pool.Rent(slot.HeroId, _spawnPositions[spawnIndex], _deathHandler, _returnHandler, _faultHandler);
                 spawnIndex = (spawnIndex + 1) % _spawnPositions.Length;

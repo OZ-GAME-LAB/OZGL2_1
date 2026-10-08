@@ -130,8 +130,24 @@ namespace OZGL2.Augment
             return true;
         }
 
+        /// <summary>
+        /// 저장된 판을 이어할 때 고른 증강을 목록에 되돌린다. Pick 과 달리 「고르는 순간 한 번 실행되는」 효과(Picked 이벤트)는 다시 실행하지 않는다 —
+        /// 그 효과는 처음 고를 때 이미 받았고, 이어하기에서 또 주면 중복 보상이 된다. 목록과 스택(지속 효과 계산)만 복원한다.
+        /// </summary>
+        public bool RestoreSaved(AugmentData d)
+        {
+            if (d == null || IsMaxed(d)) return false;
+            _stacks[d.augmentId] = StackOf(d) + 1;
+            _pickedOrder.Add(d);
+            Changed?.Invoke();
+            return true;
+        }
+
         public void ResetRun()
         {
+            // 도중에 고른 증강이 사라졌다는 제보를 추적하기 위해, 증강이 있는 상태에서 초기화되면 누가 불렀는지 남긴다
+            if (_pickedOrder.Count > 0)
+                Debug.Log("[증강] 초기화(ResetRun): 고른 증강 " + _pickedOrder.Count + "개를 비웁니다 / 호출 위치: " + new System.Diagnostics.StackTrace(1, false));
             _stacks.Clear();
             _pickedOrder.Clear();
             Changed?.Invoke();
