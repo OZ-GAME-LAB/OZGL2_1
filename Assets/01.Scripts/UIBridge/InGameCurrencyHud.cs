@@ -308,18 +308,28 @@ namespace OZGL2.UIBridge
                 SpawnFloating(at, "재화가 모자라요 (" + cost + " 필요)", new Color(1f, 0.5f, 0.45f));
                 return;
             }
-            if (!RedrawCandidates(run))
-            {
-                SpawnFloating(at, "다시 뽑지 못했어요", new Color(1f, 0.5f, 0.45f));
-                return;
-            }
-            _balance -= cost;
-            _rerollCount++;
-            Push();
-            RefreshHandCards();
-            SpawnFloating(at, "-" + cost + "  다시 뽑았어요", new Color(0.7f, 0.95f, 1f));
+            if (_rerollFx == null) _rerollFx = gameObject.GetComponent<InGameRerollFx>() ?? gameObject.AddComponent<InGameRerollFx>();
+            if (_rerollFx.Busy) return; // 카드가 바뀌는 연출 중에는 다시 누를 수 없다
             Sfx.Play(SfxId.Reroll);
+            // 카드가 한 장씩 뒤집혀 가려진 순간에 실제로 바꾸고, 새 카드가 뒤집혀 나타난다
+            _rerollFx.Play(() =>
+            {
+                if (!IsChoosingReward(out var current) || _balance < cost) return false; // 연출 중에 카드를 골랐다면 바꾸지 않는다
+                if (!RedrawCandidates(current))
+                {
+                    SpawnFloating(at, "다시 뽑지 못했어요", new Color(1f, 0.5f, 0.45f));
+                    return false;
+                }
+                _balance -= cost;
+                _rerollCount++;
+                Push();
+                RefreshHandCards();
+                SpawnFloating(at, "-" + cost + "  다시 뽑았어요", new Color(0.7f, 0.95f, 1f));
+                return true;
+            });
         }
+
+        private InGameRerollFx _rerollFx;
 
         /// <summary>보상 후보(Candidates)를 같은 규칙(GeneralRewardSource.Draw)으로 새로 뽑아 바꿔 끼운다.</summary>
         private bool RedrawCandidates(GridRunSession run)

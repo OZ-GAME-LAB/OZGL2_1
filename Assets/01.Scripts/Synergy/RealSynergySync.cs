@@ -57,6 +57,9 @@ namespace OZGL2.Synergy
         public AugmentRun Augments => _augments;
         public SkillManager SkillManager => _skillManager;
 
+        /// <summary>지금 적용 중인 스킬 피해 배율(마왕 레벨 · 특성 · 증강). 전투 화면의 스킬 설명이 실제 피해를 보여 주는 데 쓴다.</summary>
+        public float SkillPowerMultNow => _skillMods != null ? _skillMods.PowerMult : SkillLevelScaling.CurrentPowerMult();
+
         /// <summary>
         /// 마왕 위치. 인스펙터에 지정된 Transform이 있으면 그걸 쓰고, 없으면 RealDefenders가
         /// 라운드 시작마다 채워두는 UnitRegistry.KingWorldPosition(실제 그리드 King 앵커)을 쓴다.
