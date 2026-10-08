@@ -145983,13 +145983,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6666700001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d6c6b5f5f0b6fe459f8aa863703207a, type: 3}
+  m_Script: {fileID: 11500000, guid: bc26c9d108ba55469824211c9326a8b4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.LobbyProgressCard
-  _panelFrame: {fileID: 21300000, guid: 1b68ba64fa429ee498402de0628edd40, type: 3}
-  _namePlate: {fileID: 21300000, guid: 75e2578879be6474284a6a28f2b22772, type: 3}
-  _diamond: {fileID: 21300000, guid: ff7ec2d8e5286554c8997ce56fa4162f, type: 3}
-  _topLeft: {x: 44, y: 156}
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.LobbyCardRecordToggle
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

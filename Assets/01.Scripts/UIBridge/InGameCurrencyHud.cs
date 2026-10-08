@@ -318,6 +318,7 @@ namespace OZGL2.UIBridge
             Push();
             RefreshHandCards();
             SpawnFloating(at, "-" + cost + "  다시 뽑았어요", new Color(0.7f, 0.95f, 1f));
+            Sfx.Play(SfxId.Reroll);
         }
 
         /// <summary>보상 후보(Candidates)를 같은 규칙(GeneralRewardSource.Draw)으로 새로 뽑아 바꿔 끼운다.</summary>
@@ -957,7 +958,9 @@ namespace OZGL2.UIBridge
             return traits.BuildModifiers().MilestoneSpBonus;
         }
 
-        private RectTransform _wavePanel;
+        private RectTransform _wavePanel, _waveBottomPanel;
+        private float _waveBottomLowest = float.MaxValue;
+        private int _waveBottomHeight;
         private readonly List<CanvasGroup> _waveGroups = new List<CanvasGroup>();
         private bool _waveHidden;
         private float _waveShownAlpha = 1f;
@@ -1008,15 +1011,36 @@ namespace OZGL2.UIBridge
                 Camera cam = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.rootCanvas.worldCamera : null;
                 float left = float.MaxValue, bottom = float.MaxValue;
                 var gc = new Vector3[4];
+                // 웨이브 패널은 화살표로 접으면 내용이 마스크(WavePreviewViewport) 위쪽 바깥으로 올라간다. 그 바깥 그림까지 재면 바닥이 오르내리므로
+                // 마스크 안에 보이는 부분만 잰다.
+                Rect clip = default; bool hasClip = false;
+                foreach (var r in _wavePanel.GetComponentsInChildren<RectTransform>(true))
+                    if (r.name == "WavePreviewViewport")
+                    {
+                        r.GetWorldCorners(gc);
+                        Vector2 v0 = RectTransformUtility.WorldToScreenPoint(cam, gc[0]), v1 = RectTransformUtility.WorldToScreenPoint(cam, gc[2]);
+                        clip = Rect.MinMaxRect(Mathf.Min(v0.x, v1.x), Mathf.Min(v0.y, v1.y), Mathf.Max(v0.x, v1.x), Mathf.Max(v0.y, v1.y)); hasClip = true;
+                        break;
+                    }
                 foreach (var g in _wavePanel.GetComponentsInChildren<Graphic>(false))
                 {
                     if (g == null || !g.enabled || g.color.a < 0.05f) continue;
                     g.rectTransform.GetWorldCorners(gc);
                     Vector2 a0 = RectTransformUtility.WorldToScreenPoint(cam, gc[0]), b0 = RectTransformUtility.WorldToScreenPoint(cam, gc[2]);
                     if (Mathf.Abs(b0.x - a0.x) > Screen.width * 0.9f) continue; // 화면 전체를 덮는 막은 제외
+                    float gy0 = Mathf.Min(a0.y, b0.y), gy1 = Mathf.Max(a0.y, b0.y);
+                    if (hasClip && g.rectTransform.GetComponentInParent<RectMask2D>() != null)
+                    {
+                        if (gy1 <= clip.yMin || gy0 >= clip.yMax) continue; // 접혀서 마스크 밖으로 올라간 그림
+                        gy0 = Mathf.Max(gy0, clip.yMin);
+                    }
                     left = Mathf.Min(left, Mathf.Min(a0.x, b0.x));
-                    bottom = Mathf.Min(bottom, Mathf.Min(a0.y, b0.y));
+                    bottom = Mathf.Min(bottom, gy0);
                 }
+                // 펼침·접힘 연출 중에도(화면 크기가 같은 동안) 가장 낮았던 바닥을 유지해 아래 보상 패널·증강 목록이 따라 움직이지 않게 한다
+                if (_wavePanel != _waveBottomPanel || Screen.height != _waveBottomHeight) { _waveBottomPanel = _wavePanel; _waveBottomHeight = Screen.height; _waveBottomLowest = float.MaxValue; }
+                if (bottom < float.MaxValue) _waveBottomLowest = Mathf.Min(_waveBottomLowest, bottom);
+                if (_waveBottomLowest < float.MaxValue) bottom = _waveBottomLowest;
                 if (left < float.MaxValue) topLeft = new Vector2(Mathf.Max(8f * s, left), bottom - 28f * s);
             }
 

@@ -75,6 +75,15 @@ namespace OZGL2.UIFlow
         private eLobbyDifficulty _displayedDifficulty;
 
         public float Expansion => _expansion;
+        private bool _externalOpen;
+
+        /// <summary>마우스가 명패 위에 없어도 펼쳐 둔다(난이도 카드를 눌렀을 때). false 로 하면 평소의 호버 동작으로 돌아간다. 난이도를 넘기는 중에는 자동으로 풀린다.</summary>
+        public void SetExternalOpen(bool open)
+        {
+            _externalOpen = open;
+            if (CanExpand()) SchedulePointerRequest(open || IsPointerOverPanel());
+        }
+
         public bool IsExpanded => _expansion >= 0.999f;
         public bool IsTransitionLocked => _isTransitionLocked;
         public bool HasEntry => _hasEntry;
@@ -215,6 +224,7 @@ namespace OZGL2.UIFlow
 
         private bool IsPointerOverPanel()
         {
+            if (_externalOpen) return true;
             Mouse mouse = Mouse.current;
             EventSystem eventSystem = EventSystem.current;
             if (mouse == null || eventSystem == null || _hitArea == null) return false;
@@ -302,7 +312,7 @@ namespace OZGL2.UIFlow
             _isTransitionLocked = isTransitioning;
             _hasPendingPointerRequest = false;
             _pointerRecheckRemaining = 0f;
-            if (isTransitioning) AnimateTo(false);
+            if (isTransitioning) { _externalOpen = false; AnimateTo(false); }
             else _needsPointerRefresh = true;
         }
 

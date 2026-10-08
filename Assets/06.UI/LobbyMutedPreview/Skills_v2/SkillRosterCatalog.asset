@@ -281,8 +281,7 @@ MonoBehaviour:
     _cooldown: "60\uCD08"
   - _id: ui_preview_absolute_zero
     _displayName: "\uC808\uB300 \uC601\uB3C4"
-    _description: "\uADF9\uD55C\uC758 \uB0C9\uAE30\uB85C \uD654\uBA74 \uC548\uC758
-      \uBAA8\uB4E0 \uC801\uC744 4\uCD08\uAC04 \uC815\uC9C0\uC2DC\uD0B5\uB2C8\uB2E4."
+    _description: "\uADF9\uD55C\uC758 \uB0C9\uAE30\uB85C \uD654\uBA74 \uC548\uC758 \uBAA8\uB4E0 \uC801\uC744 4\uCD08\uAC04 \uC815\uC9C0\uC2DC\uD0A4\uACE0, \uC5BC\uC74C\uC774 \uAE68\uC9C8 \uB54C \uCD1D 200\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
     _category: 0
     _icon: {fileID: 21300000, guid: 4d07b5d5e8e24ac4c89024c8ca3d45cf, type: 3}
     _defaultUnlocked: 1
@@ -291,8 +290,8 @@ MonoBehaviour:
     _unlockSp: 5
     _activation: "\uC989\uC2DC"
     _isArcane: 0
-    _effectLabel: "\uC815\uC9C0"
-    _effectValue: "4\uCD08"
+    _effectLabel: "\uD53C\uD574"
+    _effectValue: 200
     _cooldown: "90\uCD08"
   - _id: ui_preview_judgment
     _displayName: "\uC2EC\uD310"
