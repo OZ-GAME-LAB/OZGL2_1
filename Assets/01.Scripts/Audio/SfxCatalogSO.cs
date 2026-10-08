@@ -35,11 +35,7 @@ public enum SfxId
     CoinGain,      // 처치한 재화(금화)가 재화 표시에 도착할 때 — 전용 소리가 없으면 UnitGain 소리를 쓴다
     ListOpen,      // 증강 리스트 등 접이식 목록을 펼칠 때 — 전용 소리가 없으면 UnitPlace 소리를 쓴다
     ListClose,     // 접이식 목록을 접을 때 — 전용 소리가 없으면 UnitReturn 소리를 쓴다
-    TutorialBlip,  // 마왕 튜토리얼 말풍선에 글자가 찍힐 때(몇 글자마다 한 번)
-    TutorialPop,   // 말풍선이 다음 말로 바뀔 때
-    TutorialNext,  // 튜토리얼에서 눌러서 다음으로 넘길 때
-    TutorialStart, // 튜토리얼이 시작되며 마왕이 나타날 때
-    TutorialEnd,   // 튜토리얼이 끝날 때
+    TutorialVoice, // 마왕이 말하는 소리: 튜토리얼 말풍선에 글자가 찍힐 때 옹알이처럼 한 음절씩(동물의 숲 말소리 느낌)
 }
 
 /// <summary>

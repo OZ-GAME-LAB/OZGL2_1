@@ -208,38 +208,21 @@ MonoBehaviour:
     volume: 0.6
     pitchRange: {x: 1, y: 1}
     minInterval: 0.1
-  - label: TutorialBlip
+  - label: TutorialVoice
     id: 27
     clips:
-    - {fileID: 8300000, guid: 8eff4256533780e41ac308c793475cb2, type: 3}
-    volume: 0.35
-    pitchRange: {x: 0.7, y: 0.95}
-    minInterval: 0.045
-  - label: TutorialPop
-    id: 28
-    clips:
-    - {fileID: 8300000, guid: 3843abb13d9b4560b8f27086385f70e1, type: 3}
-    volume: 0.6
-    pitchRange: {x: 1, y: 1}
-    minInterval: 0.15
-  - label: TutorialNext
-    id: 29
-    clips:
-    - {fileID: 8300000, guid: 5ccb91f15514f51488a761e751dfc955, type: 3}
+    - {fileID: 8300000, guid: db1e1652610c5308a35769d8232d5706, type: 3}
+    - {fileID: 8300000, guid: 8b5c03a12faa525aaab6b1998818f8d2, type: 3}
+    - {fileID: 8300000, guid: 2d7261775bf850fca24292a7be2e43d6, type: 3}
+    - {fileID: 8300000, guid: 527c99085509553e8f08c9f38700ab66, type: 3}
+    - {fileID: 8300000, guid: efd676287121509faf20775692d37518, type: 3}
+    - {fileID: 8300000, guid: aac0be66a37a57fcb207a9fe1195bec4, type: 3}
+    - {fileID: 8300000, guid: 43a824970e2359fc869ceaa33e2286f3, type: 3}
+    - {fileID: 8300000, guid: f17a579e12825c15b69b942f95146a94, type: 3}
+    - {fileID: 8300000, guid: 959a733bea275bdba90f1163ac908797, type: 3}
+    - {fileID: 8300000, guid: fd3cbe3b81b153229089278ca6b54c7c, type: 3}
+    - {fileID: 8300000, guid: 609d1722a2c65f8d8879da6f74b410d5, type: 3}
+    - {fileID: 8300000, guid: baaa71f6c6dc51339716a244edfb1909, type: 3}
     volume: 0.5
-    pitchRange: {x: 1, y: 1}
-    minInterval: 0.1
-  - label: TutorialStart
-    id: 30
-    clips:
-    - {fileID: 8300000, guid: 6f0cecf80a70b9745bee50c950531e1f, type: 3}
-    volume: 0.5
-    pitchRange: {x: 1, y: 1}
-    minInterval: 0.5
-  - label: TutorialEnd
-    id: 31
-    clips:
-    - {fileID: 8300000, guid: 4fc443061fd4438d808207ed27db0e4c, type: 3}
-    volume: 0.45
-    pitchRange: {x: 1, y: 1}
-    minInterval: 0.5
+    pitchRange: {x: 0.94, y: 1.06}
+    minInterval: 0.06

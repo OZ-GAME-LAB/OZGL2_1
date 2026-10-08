@@ -64,7 +64,8 @@ public static class Sfx
 
     public static void StopBgm() => Bgm.Stop();
 
-    public static void Play(SfxId id)
+    /// <summary>pitchScale: 슬롯의 무작위 음 높이에 곱한다(말소리처럼 글자마다 높낮이를 줄 때).</summary>
+    public static void Play(SfxId id, float pitchScale = 1f)
     {
         if (Muted || SfxMuted)
         {
@@ -77,7 +78,7 @@ public static class Sfx
         {
             // 전용 소리 파일이 아직 없는 ID는 비슷한 기존 소리로 대신 낸다(파일을 슬롯에 넣으면 그 소리가 우선한다)
             SfxId fallback = FallbackOf(id);
-            if (fallback != id) Play(fallback);
+            if (fallback != id) Play(fallback, pitchScale);
             return;
         }
 
@@ -116,7 +117,7 @@ public static class Sfx
         }
 
         _lastPlayedTime[(int)id] = now;
-        float pitch = UnityEngine.Random.Range(entry.pitchRange.x, entry.pitchRange.y);
+        float pitch = UnityEngine.Random.Range(entry.pitchRange.x, entry.pitchRange.y) * pitchScale;
         float volume = entry.volume * catalog.masterVolume * MasterVolume;
         SfxPlayer.Play(clip, volume, pitch);
 

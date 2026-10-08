@@ -198,7 +198,29 @@ namespace OZGL2.Tutorial
 
         // ───────────── 진행
 
-        private int _blipChars;
+        private int _blipChars, _syllables;
+
+        // 글자마다 높낮이가 다른 음계(펜타토닉 느낌) — 같은 글자는 늘 같은 높이라 말소리처럼 들린다
+        private static readonly float[] BabbleSteps = { -4f, -2f, 0f, 2f, 3f, 5f, 7f, 9f };
+
+        /// <summary>
+        /// 마왕이 말하는 소리(옹알이): 방금 찍힌 글자들 중 글자·숫자만 세어 세 글자마다 한 음절을 낸다. 공백과 문장부호에서는 쉰다.
+        /// 물음표·느낌표 앞 음절은 높게 끝난다. 소리 12종 중 하나가 무작위로 나오고(같은 것이 연달아 나오지 않음) 글자에 따라 높낮이가 바뀐다.
+        /// </summary>
+        private void SpeakNewChars(int from, int to)
+        {
+            var info = _body.textInfo;
+            for (int i = from; i < to && i < info.characterCount; i++)
+            {
+                char c = info.characterInfo[i].character;
+                if (!char.IsLetterOrDigit(c)) continue;
+                if (++_syllables % 3 != 0) continue;
+                float semitone = BabbleSteps[(c * 7 + 3) % BabbleSteps.Length] - 3f; // 마왕답게 전체를 낮춘다
+                char next = i + 1 < info.characterCount ? info.characterInfo[i + 1].character : ' ';
+                if (next == '?' || next == '!') semitone += 3f;
+                Sfx.Play(SfxId.TutorialVoice, Mathf.Pow(2f, semitone / 12f));
+            }
+        }
 
         private void Begin(TutorialSequence seq)
         {
@@ -207,7 +229,6 @@ namespace OZGL2.Tutorial
             Debug.Log("[튜토리얼] 시작: " + seq.Id + " (" + seq.Title + ")");
             _seq = seq;
             _index = 0;
-            Sfx.Play(SfxId.TutorialStart); // 마왕이 나타난다
             _canvas.enabled = true;
             _portrait.SetShown(true);
             if (seq.PauseGame && Time.timeScale > 0f)
@@ -230,7 +251,7 @@ namespace OZGL2.Tutorial
             _totalChars = _body.textInfo.characterCount;
             _typed = 0f;
             _blipChars = 0;
-            if (_index > 0) Sfx.Play(SfxId.TutorialPop); // 첫 말은 시작 소리가 대신한다
+            _syllables = 0;
             _counter.text = (_index + 1) + " / " + _seq.Steps.Length;
             _clickedAt = -1f;
             _releasedAt = -1f;
@@ -244,8 +265,7 @@ namespace OZGL2.Tutorial
         private void Advance()
         {
             if (_seq == null || _seq.Steps[_index].Kind != StepKind.Talk) return;
-            if (_typed < _totalChars) { _typed = _totalChars; Sfx.Play(SfxId.TutorialNext); return; } // 타이핑 중이면 한 번에 다 보여 준다
-            Sfx.Play(SfxId.TutorialNext);
+            if (_typed < _totalChars) { _typed = _totalChars; return; } // 타이핑 중이면 한 번에 다 보여 준다
             NextStep();
         }
 
@@ -270,7 +290,7 @@ namespace OZGL2.Tutorial
 
         private void End()
         {
-            if (_seq != null) { TutorialStore.MarkSeen(_seq.Id); Sfx.Play(SfxId.TutorialEnd); }
+            if (_seq != null) TutorialStore.MarkSeen(_seq.Id);
             _seq = null;
             if (_canvas != null) _canvas.enabled = false;
             if (_arrow != null) { _arrow.enabled = false; _arrowShown = false; }
@@ -301,7 +321,7 @@ namespace OZGL2.Tutorial
                 _typed = Mathf.Min(_totalChars, _typed + _charsPerSecond * Time.unscaledDeltaTime);
                 int shown = Mathf.FloorToInt(_typed);
                 _body.maxVisibleCharacters = shown;
-                if (shown >= _blipChars + 3) { _blipChars = shown; Sfx.Play(SfxId.TutorialBlip); } // 세 글자마다 톡
+                if (shown > _blipChars) { SpeakNewChars(_blipChars, shown); _blipChars = shown; }
             }
             else _body.maxVisibleCharacters = _totalChars;
 
