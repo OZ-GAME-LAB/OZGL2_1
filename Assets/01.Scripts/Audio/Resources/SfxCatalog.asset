@@ -187,3 +187,59 @@ MonoBehaviour:
     volume: 0.8
     pitchRange: {x: 1, y: 1}
     minInterval: 0.2
+  - label: CoinGain
+    id: 24
+    clips:
+    - {fileID: 8300000, guid: 3906b684e141523478d8e2fb3a70c08b, type: 3}
+    volume: 0.45
+    pitchRange: {x: 1, y: 1.25}
+    minInterval: 0.05
+  - label: ListOpen
+    id: 25
+    clips:
+    - {fileID: 8300000, guid: b8dc8120d1d9f644c82c9b700a6a9543, type: 3}
+    volume: 0.6
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.1
+  - label: ListClose
+    id: 26
+    clips:
+    - {fileID: 8300000, guid: 6127ed59693c352489ff90849678155b, type: 3}
+    volume: 0.6
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.1
+  - label: TutorialBlip
+    id: 27
+    clips:
+    - {fileID: 8300000, guid: 8eff4256533780e41ac308c793475cb2, type: 3}
+    volume: 0.35
+    pitchRange: {x: 0.7, y: 0.95}
+    minInterval: 0.045
+  - label: TutorialPop
+    id: 28
+    clips:
+    - {fileID: 8300000, guid: 3843abb13d9b4560b8f27086385f70e1, type: 3}
+    volume: 0.6
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.15
+  - label: TutorialNext
+    id: 29
+    clips:
+    - {fileID: 8300000, guid: 5ccb91f15514f51488a761e751dfc955, type: 3}
+    volume: 0.5
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.1
+  - label: TutorialStart
+    id: 30
+    clips:
+    - {fileID: 8300000, guid: 6f0cecf80a70b9745bee50c950531e1f, type: 3}
+    volume: 0.5
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.5
+  - label: TutorialEnd
+    id: 31
+    clips:
+    - {fileID: 8300000, guid: 4fc443061fd4438d808207ed27db0e4c, type: 3}
+    volume: 0.45
+    pitchRange: {x: 1, y: 1}
+    minInterval: 0.5

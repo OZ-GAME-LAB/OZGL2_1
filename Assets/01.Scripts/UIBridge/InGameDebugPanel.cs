@@ -124,6 +124,7 @@ namespace OZGL2.UIBridge
             if (wave < 1 || wave > stage.TotalRounds) { _message = "웨이브는 1 ~ " + stage.TotalRounds + " 사이로 넣어 주세요."; return; }
 
             string stageId = progress.StageId;
+            if (wave > 1) UnitUnlockStore.UnlockForRound(wave - 1); // 건너뛴 5·10·15웨이브의 유닛 해금
             if (wave == 1) RunSaveStore.Clear(stageId);
             else
             {

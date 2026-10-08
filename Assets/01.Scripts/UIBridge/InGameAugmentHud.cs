@@ -435,7 +435,7 @@ namespace OZGL2.UIBridge
             {
                 _open = !_open;
                 HideTip();
-                Sfx.Play(SfxId.UiClick);
+                Sfx.Play(_open ? SfxId.ListOpen : SfxId.ListClose);
                 _signature = string.Empty; // 바로 다시 그린다
                 _next = 0f;
             });

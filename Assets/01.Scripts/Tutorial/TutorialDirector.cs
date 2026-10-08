@@ -198,6 +198,8 @@ namespace OZGL2.Tutorial
 
         // ───────────── 진행
 
+        private int _blipChars;
+
         private void Begin(TutorialSequence seq)
         {
             EnsureUi();
@@ -205,6 +207,7 @@ namespace OZGL2.Tutorial
             Debug.Log("[튜토리얼] 시작: " + seq.Id + " (" + seq.Title + ")");
             _seq = seq;
             _index = 0;
+            Sfx.Play(SfxId.TutorialStart); // 마왕이 나타난다
             _canvas.enabled = true;
             _portrait.SetShown(true);
             if (seq.PauseGame && Time.timeScale > 0f)
@@ -226,6 +229,8 @@ namespace OZGL2.Tutorial
             _body.ForceMeshUpdate();
             _totalChars = _body.textInfo.characterCount;
             _typed = 0f;
+            _blipChars = 0;
+            if (_index > 0) Sfx.Play(SfxId.TutorialPop); // 첫 말은 시작 소리가 대신한다
             _counter.text = (_index + 1) + " / " + _seq.Steps.Length;
             _clickedAt = -1f;
             _releasedAt = -1f;
@@ -239,7 +244,8 @@ namespace OZGL2.Tutorial
         private void Advance()
         {
             if (_seq == null || _seq.Steps[_index].Kind != StepKind.Talk) return;
-            if (_typed < _totalChars) { _typed = _totalChars; return; } // 타이핑 중이면 한 번에 다 보여 준다
+            if (_typed < _totalChars) { _typed = _totalChars; Sfx.Play(SfxId.TutorialNext); return; } // 타이핑 중이면 한 번에 다 보여 준다
+            Sfx.Play(SfxId.TutorialNext);
             NextStep();
         }
 
@@ -264,7 +270,7 @@ namespace OZGL2.Tutorial
 
         private void End()
         {
-            if (_seq != null) TutorialStore.MarkSeen(_seq.Id);
+            if (_seq != null) { TutorialStore.MarkSeen(_seq.Id); Sfx.Play(SfxId.TutorialEnd); }
             _seq = null;
             if (_canvas != null) _canvas.enabled = false;
             if (_arrow != null) { _arrow.enabled = false; _arrowShown = false; }
@@ -293,7 +299,9 @@ namespace OZGL2.Tutorial
             if (_typed < _totalChars)
             {
                 _typed = Mathf.Min(_totalChars, _typed + _charsPerSecond * Time.unscaledDeltaTime);
-                _body.maxVisibleCharacters = Mathf.FloorToInt(_typed);
+                int shown = Mathf.FloorToInt(_typed);
+                _body.maxVisibleCharacters = shown;
+                if (shown >= _blipChars + 3) { _blipChars = shown; Sfx.Play(SfxId.TutorialBlip); } // 세 글자마다 톡
             }
             else _body.maxVisibleCharacters = _totalChars;
 
@@ -1100,6 +1108,7 @@ namespace OZGL2.Tutorial
                 case "reroll": return RectOfNamed(new[] { "Button_Reroll" }, out rect);
                 case "currency": return RectOfNamed(new[] { "Currency", "Currency_Combat", "CombatCurrency" }, out rect);
                 case "xp": return RectOfNamed(new[] { "ExperienceTrack", "ExperienceFillSoul" }, out rect);
+                case "augments": return RectOfNamed(new[] { "AugmentListToggle" }, out rect);
                 case "synergy": return RectOfNamed(new[] { "SynergyTracker_InGame", "Synergy_0", "Synergy_1", "Synergy_2", "Synergy_3" }, out rect, true);
                 case "skills": return RectOfSkillSlots(out rect);
                 case "hand": return RectOfHand(out rect);

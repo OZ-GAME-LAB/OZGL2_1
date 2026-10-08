@@ -75,6 +75,9 @@ public static class Sfx
         if (catalog == null || !catalog.TryGet(id, out SfxCatalogSO.Entry entry) ||
             entry.clips == null || entry.clips.Length == 0)
         {
+            // 전용 소리 파일이 아직 없는 ID는 비슷한 기존 소리로 대신 낸다(파일을 슬롯에 넣으면 그 소리가 우선한다)
+            SfxId fallback = FallbackOf(id);
+            if (fallback != id) Play(fallback);
             return;
         }
 
@@ -142,6 +145,17 @@ public static class Sfx
         if (duckBgm)
         {
             Bgm.Duck(Mathf.Min(clip.length, MaxDuckSeconds), DuckedBgmFactor);
+        }
+    }
+
+    private static SfxId FallbackOf(SfxId id)
+    {
+        switch (id)
+        {
+            case SfxId.CoinGain: return SfxId.UnitGain;
+            case SfxId.ListOpen: return SfxId.UnitPlace;
+            case SfxId.ListClose: return SfxId.UnitReturn;
+            default: return id;
         }
     }
 
