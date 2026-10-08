@@ -8175,6 +8175,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIInGameSkillBarController
   _bootstrap: {fileID: 8701223948942012780}
   _slotContainer: {fileID: 1501133009}
+  _slotPrefab: {fileID: 1558777687731574111, guid: be97edf1647534d4988ac49acff331e9, type: 3}
   _sceneSlots:
   - {fileID: 755682557}
   - {fileID: 899723548}
