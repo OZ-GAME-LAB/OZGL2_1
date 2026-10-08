@@ -3,8 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// 원래 타겟을 매 프레임 다시 조준하는(유도) 단일 명중(비관통) 발사체.
-/// 원래 타겟이 죽거나 사라지면 그 시점에 가장 가까운 살아있는 적으로 갈아타서 계속 유도한다.
-/// 아무도 없으면 마지막 방향으로 최대 사거리까지 날아가다 소멸. 어느 경우든 딱 한 대상만 맞고 사라진다(관통 없음).
+/// 원래 타겟이 죽거나 사라지면 다른 적으로 갈아타지 않고 그 시점의 방향 그대로 직진한다. 직진 중 경로에 닿는 적이 있으면
+/// 그 적에게 피해를 주고, 없으면 일정 거리(LostTargetFlightDistance)를 더 날아가다 사라진다. 어느 경우든 딱 한 대상만 맞고 사라진다(관통 없음).
 /// 이동 후 거리로 명중을 판정하지 않고, "이번 프레임에 도달/지나칠 거리인가"로 미리 판정해서
 /// 빠른 이동에 스쳐 지나가는(오버슈트) 문제를 막는다.
 /// 프리팹 자체(Arrow, Fireball 등)엔 비주얼(SpriteRenderer/Animator)만 있고, 이 컴포넌트는
@@ -46,7 +46,11 @@ public class Projectile : MonoBehaviour
     private float splashSecondaryDamagePercent = 1f;
     private int splashMaxTargets;
 
+    private bool targetLost; // 표적이 죽어서 더는 유도하지 않고 직진 중
+
     private const float HitDistance = 0.15f;
+    private const float StrayHitRadius = 0.4f;          // 직진 중 이 반경 안에 닿는 적에게 명중
+    private const float LostTargetFlightDistance = 6f;  // 표적을 잃은 뒤 이만큼 더 날아가고 사라진다
     // 유닛 스프라이트(파츠별 sortingOrder 0~25)와 이펙트에 가려지지 않게 위로 올린다. 체력바(1000)·데미지 숫자(2000)보다는 아래.
     private const int SortingOrderOffset = 900;
 
@@ -96,25 +100,42 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
-        UnitBase liveTarget = ResolveLiveTarget();
         float step = speed * Time.deltaTime;
 
-        if (liveTarget != null)
+        // 표적이 죽거나 사라지면 다른 적으로 갈아타지 않고, 그 시점의 진행 방향 그대로 직진한다.
+        if (!targetLost && (originalTarget == null || originalTarget.currentState == UnitState.Dead))
         {
-            Vector3 toTarget = liveTarget.transform.position - transform.position;
+            targetLost = true;
+            maxTravelDistance = Mathf.Min(maxTravelDistance, traveledDistance + LostTargetFlightDistance);
+        }
+
+        if (!targetLost)
+        {
+            Vector3 toTarget = originalTarget.transform.position - transform.position;
             float distance = toTarget.magnitude;
 
             // 이번 프레임 이동거리(step)가 남은 거리보다 크면(=지나쳐버릴 프레임) 그 자리에서 바로 명중 처리.
             // 이동 후에 거리를 재는 방식은 한 프레임에 훌쩍 지나쳐버려서 계속 못 맞히는 문제가 있었음.
             if (distance <= Mathf.Max(step, HitDistance))
             {
-                transform.position = liveTarget.transform.position;
-                Hit(liveTarget);
+                transform.position = originalTarget.transform.position;
+                Hit(originalTarget);
                 return;
             }
 
             direction = toTarget / distance;
             FaceDirection(direction);
+        }
+        else
+        {
+            // 직진 중에는 이번 프레임 이동 경로에 걸리는 가장 가까운 적에게 부딪힌다.
+            UnitBase struck = FindStruckEnemy(step);
+            if (struck != null)
+            {
+                transform.position = struck.transform.position;
+                Hit(struck);
+                return;
+            }
         }
 
         transform.position += direction * step;
@@ -127,19 +148,14 @@ public class Projectile : MonoBehaviour
     }
 
     /// <summary>
-    /// 유도 대상 결정: 원래 타겟이 살아있으면 그대로 유지. 죽었거나 사라졌으면 그 시점에 가장 가까운
-    /// 살아있는 적으로 갈아타서 계속 유도한다(예전엔 방향을 고정해버려서 옆에 다른 적이 있어도 그냥 지나쳤음).
+    /// 표적을 잃은 뒤 직진하는 동안의 충돌 판정: 이번 프레임 이동 구간(현재 위치→step만큼 앞)과 StrayHitRadius 안에 들어오는
+    /// 살아있는 적 중 가장 먼저 닿는 하나를 고른다. 구간으로 판정해서 빠른 발사체가 적을 스쳐 지나치지 않는다.
     /// </summary>
-    private UnitBase ResolveLiveTarget()
+    private UnitBase FindStruckEnemy(float step)
     {
-        if (originalTarget != null && originalTarget.currentState != UnitState.Dead)
-        {
-            return originalTarget;
-        }
-
         var candidates = UnitRegistry.GetUnits(enemySide);
-        UnitBase nearest = null;
-        float nearestDistSqr = float.MaxValue;
+        UnitBase struck = null;
+        float struckAlong = float.MaxValue;
 
         for (int i = 0; i < candidates.Count; i++)
         {
@@ -149,16 +165,22 @@ public class Projectile : MonoBehaviour
                 continue;
             }
 
-            float distSqr = (unit.transform.position - transform.position).sqrMagnitude;
-            if (distSqr < nearestDistSqr)
+            Vector3 toUnit = unit.transform.position - transform.position;
+            float along = Vector3.Dot(toUnit, direction);
+            if (along < -StrayHitRadius || along > step + StrayHitRadius)
             {
-                nearestDistSqr = distSqr;
-                nearest = unit;
+                continue;
+            }
+
+            Vector3 closest = direction * Mathf.Clamp(along, 0f, step);
+            if ((toUnit - closest).sqrMagnitude <= StrayHitRadius * StrayHitRadius && along < struckAlong)
+            {
+                struckAlong = along;
+                struck = unit;
             }
         }
 
-        originalTarget = nearest; // 갈아탄 대상을 새 유도 대상으로 갱신
-        return nearest;
+        return struck;
     }
 
     private void Hit(UnitBase target)

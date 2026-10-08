@@ -1208,13 +1208,17 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             LaunchProjectile(target, damage);
 
-            // 궁수 3성 이중 사격: 같은 공격에 화살 한 발을 더 — 다른 적이 사거리 안에 있으면 그쪽(최저 체력), 없으면 같은 대상.
+            // 궁수 3성 이중 사격: 같은 공격에 다른 적을 향해 화살 한 발을 더. 사거리 안에 다른 적이 없으면 두 번째 화살은 쏘지 않는다
+            // (한 명에게 두 발이 겹쳐 날아가지 않게).
             if (statData.starLevel >= 3 && statData.secondShotDamageRatio > 0f)
             {
                 UnitBase secondTarget = FindSecondShotTarget(target);
-                float secondDefense = (secondTarget.statData != null ? secondTarget.statData.defensePercent : 0f) * secondTarget.EffectiveBuffDefenseMult
-                                      + CombatModifierHub.GetDefenseAdd(secondTarget.Side);
-                LaunchProjectile(secondTarget, CalculateDamage(rawAttackPower * statData.secondShotDamageRatio, secondDefense));
+                if (secondTarget != null)
+                {
+                    float secondDefense = (secondTarget.statData != null ? secondTarget.statData.defensePercent : 0f) * secondTarget.EffectiveBuffDefenseMult
+                                          + CombatModifierHub.GetDefenseAdd(secondTarget.Side);
+                    LaunchProjectile(secondTarget, CalculateDamage(rawAttackPower * statData.secondShotDamageRatio, secondDefense));
+                }
             }
         }
         else
@@ -1231,7 +1235,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
     }
 
-    /// <summary>이중 사격의 두 번째 표적: 주 표적을 뺀 사거리 안 적 중 체력 비율이 가장 낮은 적. 없으면 주 표적.</summary>
+    /// <summary>이중 사격의 두 번째 표적: 주 표적을 뺀 사거리 안 적 중 체력 비율이 가장 낮은 적. 없으면 null(두 번째 화살 없음).</summary>
     private UnitBase FindSecondShotTarget(UnitBase primary)
     {
         UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
@@ -1261,7 +1265,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             }
         }
 
-        return best != null ? best : primary;
+        return best;
     }
 
     /// <summary>
