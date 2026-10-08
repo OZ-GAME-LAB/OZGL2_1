@@ -7,7 +7,7 @@ using UnityEngine;
 /// 잘 보이고 보기 좋게 만든 점:
 /// - 진영 색: 마왕군은 밝은 보라, 용사는 선명한 빨강. 막대 테두리도 진영마다 다른 밝은 색(보랏빛 은색 / 따뜻한 금색)이라 어떤 바닥 위에서도 구분된다.
 /// - 두꺼운 어두운 외곽선 + 밝은 안쪽 테두리 + 어두운 홈 + 위가 밝은 채움 + 윗면 광택 + 아랫면 그늘 + 25% 눈금으로 작아도 입체감이 난다.
-/// - 맞으면 하얗게 번쩍이고, 깎인 만큼은 눈에 띄는 노란 잔상이 잠깐 남았다가 따라 줄어든다. 체력 30% 아래에서는 채움과 테두리가 맥박처럼 깜빡인다.
+/// - 맞으면 하얗게 번쩍이고, 깎인 만큼은 눈에 띄는 노란 잔상이 잠깐 머문 뒤 부드럽게 미끄러지며 따라 줄어든다(철권식). 체력 30% 아래에서는 채움과 테두리가 맥박처럼 깜빡인다.
 /// - 옆 유닛과 겹치지 않게: 막대 폭은 칸(1칸) 안에 들어오게 제한하고(무기·방패까지 잰 몸 폭을 그대로 쓰면 2칸이 넘게 커졌다),
 ///   용사는 떼로 몰려오므로 마왕군보다 막대를 조금 작고 얇게 그린다(둘 다 늘 보인다).
 ///   겹치더라도 화면 아래쪽(앞쪽) 유닛의 막대가 위에 그려진다. 성급은 유닛 머리 위의 별 표시가 이미 있어서 막대에는 넣지 않는다.
@@ -20,8 +20,9 @@ public class UnitHealthBar : MonoBehaviour
     private const float MinBarWidth = 0.5f;
     private const float Frame = 0.022f;          // 안쪽 밝은 테두리 두께
     private const float Outline = 0.04f;         // 바깥 어두운 외곽선 두께
-    private const float TrailDelay = 0.4f;       // 맞은 뒤 잔상이 줄기 시작하기까지
-    private const float TrailSpeed = 1.4f;       // 초당 줄어드는 비율
+    private const float TrailDelay = 0.3f;       // 맞은 뒤 노란 잔상이 그대로 머무는 시간(연속으로 맞으면 그때마다 다시 센다)
+    private const float TrailSmooth = 6f;        // 잔상이 따라 줄어드는 부드러움(클수록 빨리) — 남은 간격에 비례해 줄어 처음엔 빠르고 끝은 천천히 닿는다
+    private const float TrailMinSpeed = 0.35f;   // 끝에서 너무 오래 끌지 않도록 최소로 줄어드는 속도(초당 비율)
     private const float FullHpAlpha = 0.9f;      // 마왕군 막대가 가득 찼을 때의 투명도(거의 그대로)
     private const float HeroHeight = 0.14f;      // 용사 막대는 떼로 몰려오므로 마왕군(0.18)보다 얇게
     private const float HeroWidthScale = 0.85f;  // 용사 막대 폭 배율
@@ -174,7 +175,13 @@ public class UnitHealthBar : MonoBehaviour
         else if (target > _ratio + 0.0005f) { _flashK = Mathf.Max(_flashK, 0.35f); }          // 회복: 약하게 번쩍
         _ratio = target;
         if (_ratio >= _trailRatio) _trailRatio = _ratio;                                      // 회복하면 잔상도 같이 올라온다
-        else if (Time.time - _lastHitTime > TrailDelay) _trailRatio = Mathf.MoveTowards(_trailRatio, _ratio, TrailSpeed * dt);
+        else if (Time.time - _lastHitTime > TrailDelay)
+        {
+            // 철권 같은 연출: 잠깐 머문 노란 잔상이 남은 간격에 비례해 부드럽게 미끄러져 내려온다
+            float gap = _trailRatio - _ratio;
+            float step = Mathf.Max(gap * (1f - Mathf.Exp(-TrailSmooth * dt)), TrailMinSpeed * dt);
+            _trailRatio = Mathf.Max(_ratio, _trailRatio - step);
+        }
         _flashK = Mathf.MoveTowards(_flashK, 0f, dt * 5f);
 
         float h = _height;
