@@ -1226,7 +1226,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             // 전사 3성 흡혈: 가한 피해(광역 포함)에 비례해 회복.
             if (statData.starLevel >= 3 && statData.lifestealRatio > 0f && dealt > 0)
             {
-                Heal(Mathf.Max(1, Mathf.RoundToInt(dealt * statData.lifestealRatio)));
+                ApplyHeal(Mathf.Max(1, Mathf.RoundToInt(dealt * statData.lifestealRatio)), false); // 흡혈은 효과음 없이
             }
         }
     }
@@ -1351,7 +1351,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         return Mathf.Max(0, Mathf.RoundToInt(damage));
     }
 
-    public virtual void Heal(int amount)
+    public virtual void Heal(int amount) => ApplyHeal(amount, true);
+
+    /// <summary>회복 적용. playSound=false면 힐 효과음만 생략한다(전사 흡혈처럼 자주 터지는 자가 회복용). 이펙트·숫자는 그대로.</summary>
+    private void ApplyHeal(int amount, bool playSound)
     {
         if (statData == null || currentState == UnitState.Dead)
         {
@@ -1365,7 +1368,10 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         {
             CombatEffects.PlayHealNumber(transform.position, _spriteHeight, currentHealth - before); // 정화만 한 풀피 대상엔 "+0"을 띄우지 않는다
         }
-        Sfx.Play(SfxId.Heal);
+        if (playSound)
+        {
+            Sfx.Play(SfxId.Heal);
+        }
     }
 
     public virtual void SetMoveTarget(Vector3 targetPosition)
