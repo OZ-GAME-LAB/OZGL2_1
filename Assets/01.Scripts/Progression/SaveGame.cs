@@ -30,7 +30,7 @@ namespace OZGL2.Progression
                 var mawang = MawangXpBridge.Mawang;
                 if (mawang != null && (mawang.Level > 1 || mawang.Xp > 0 || mawang.Points > 0)) return true;
                 if (SkillTreeStore.SkillPoints > 0 || SkillTreeStore.HighestMilestone > 0 || SkillTreeStore.HighestDripStep > 0
-                    || SkillTreeStore.HasSavedEquipment || UnitUnlockStore.UnlockedCount > 0 || StageClearStore.AnyCleared) return true;
+                    || SkillTreeStore.HasSavedEquipment || UnitUnlockStore.UnlockedCount > 0 || CodexStore.SeenHeroCount > 0 || StageClearStore.AnyCleared) return true;
                 if (Resources.LoadAll<SkillData>("Skills").Any(s => s != null && SkillTreeStore.IsUnlocked(s.skillId))) return true;
                 return new TraitTree(Resources.LoadAll<TraitData>("Traits")).AllocatedPoints > 0;
             }
@@ -91,6 +91,7 @@ namespace OZGL2.Progression
             SkillTreeStore.Wipe(Resources.LoadAll<SkillData>("Skills").Where(s => s != null).Select(s => s.skillId));
             new TraitTree(Resources.LoadAll<TraitData>("Traits")).ResetAll();
             UnitUnlockStore.ResetAll();
+            CodexStore.ResetAll();
             StageClearStore.ResetAll();
             AchievementStore.ResetAll();
             StageRecordStore.ResetAll();

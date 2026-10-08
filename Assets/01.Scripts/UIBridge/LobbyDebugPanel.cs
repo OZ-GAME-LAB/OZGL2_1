@@ -148,6 +148,7 @@ namespace OZGL2.UIBridge
             DrawSkillPoints();
             DrawSkills();
             DrawTraits();
+            DrawCodex();
             DrawChecks();
 
             GUILayout.EndScrollView();
@@ -230,6 +231,38 @@ namespace OZGL2.UIBridge
                 var m = Mawang;
                 _message = m != null && Traits().TryResetAndRefund(m) ? "특성 초기화, LP 환급됨" : "초기화할 특성 없음";
                 Snapshot();
+            }
+        }
+
+        /// <summary>도감 연동 확인용: 마왕군 해금·용사 발견을 켜고 끄면 도감 카드가 바로 열리고 닫힌다(0.4초 안에 반영).</summary>
+        private void DrawCodex()
+        {
+            GUILayout.Label("■ 도감 (마왕군 해금 / 용사 발견)  — 발견 용사 " + CodexStore.SeenHeroCount + " / " + CodexStore.HeroIds.Length);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("마왕군 전부 해금")) UnitUnlockStore.UnlockAll();
+            if (GUILayout.Button("마왕군 해금 초기화")) UnitUnlockStore.ResetAll();
+            if (GUILayout.Button("용사 전부 등록")) CodexStore.MarkAllHeroes();
+            if (GUILayout.Button("용사 등록 초기화")) CodexStore.ResetAll();
+            GUILayout.EndHorizontal();
+            foreach (var id in CodexStore.DemonIds)
+            {
+                bool scheduled = false;
+                foreach (var e in UnitUnlockStore.Schedule) if (e.UnitId == id) scheduled = true;
+                bool on = UnitUnlockStore.IsUnlocked(id);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label((on ? "● " : "○ ") + "마왕군 " + UnitUnlockStore.DisplayName(id) + (scheduled ? "" : " (기본)"), GUILayout.Width(190f));
+                GUI.enabled = scheduled;
+                if (GUILayout.Button(on ? "잠그기" : "해금", GUILayout.Width(70f))) UnitUnlockStore.SetUnlocked(id, !on);
+                GUI.enabled = true;
+                GUILayout.EndHorizontal();
+            }
+            foreach (var id in CodexStore.HeroIds)
+            {
+                bool on = CodexStore.HasSeenHero(id);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label((on ? "● " : "○ ") + CodexStore.DisplayName(id), GUILayout.Width(190f));
+                if (GUILayout.Button(on ? "지우기" : "등록", GUILayout.Width(70f))) CodexStore.SetHeroSeen(id, !on);
+                GUILayout.EndHorizontal();
             }
         }
 

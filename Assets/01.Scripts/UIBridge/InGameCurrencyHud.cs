@@ -624,6 +624,10 @@ namespace OZGL2.UIBridge
         private Coroutine _bannerRoutine;
 
         /// <summary>라운드를 클리어해 새 마왕군이 해금됐을 때 화면 위쪽에 잠깐 알려 준다(유닛 그림 + 이름).</summary>
+        /// <summary>화면 위쪽 가운데에 짧은 안내 문구(예: 「도감 등록: 용사 전사」)를 띄운다.</summary>
+        public void AnnounceCodex(string message) =>
+            SpawnFloating(new Vector2(Screen.width * 0.5f, Screen.height * 0.74f), message, new Color(1f, 0.88f, 0.55f));
+
         public void AnnounceUnitUnlock(string unitId)
         {
             if (_bannerRoutine != null) StopCoroutine(_bannerRoutine);
