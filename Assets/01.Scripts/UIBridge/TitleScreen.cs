@@ -20,7 +20,7 @@ namespace OZGL2.UIBridge
     /// </summary>
     public sealed class TitleScreen : MonoBehaviour
     {
-        [SerializeField] private string _lobbyScene = "Lobby_2";
+        [SerializeField] private string _lobbyScene = "Lobby";
         [SerializeField, Tooltip("게임 로고(투명 배경)")] private Sprite _logo;
         [SerializeField, Tooltip("로고 이미지가 없을 때 대신 보이는 글자 제목")] private string _gameTitle = "용사 때문에 레벨업";
         [SerializeField, Min(0.1f)] private float _fadeSeconds = 0.45f;
@@ -209,7 +209,9 @@ namespace OZGL2.UIBridge
             _fade.color = Color.black;
             if (_ownedEventSystem != null) { Destroy(_ownedEventSystem); _ownedEventSystem = null; }
             yield return null; // 이벤트 시스템이 지워진 뒤에 로비를 연다
-            SceneManager.LoadScene(_lobbyScene);
+            // 씬 이름이 바뀌기 전 값(예: Lobby_2)이 저장돼 있어도 로비로 가도록 한다
+            string target = Application.CanStreamedLevelBeLoaded(_lobbyScene) ? _lobbyScene : "Lobby";
+            SceneManager.LoadScene(target);
         }
 
         private IEnumerator FadeIn()
