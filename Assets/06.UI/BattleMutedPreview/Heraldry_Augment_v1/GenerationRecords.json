@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-08",
+  "mode": "imagegen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "asset": "CardShell_Gold",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-f2f28a9d-3396-42e5-955f-654e429a9d5c.png",
+      "prompt": "Use case: ui-mockup. Asset: one production GOLD card body Sprite, portrait artwork of visible ratio 600:940. Input image is STYLE/LAYOUT reference only.\nCreate ONLY the gold outer card body from one of the cards in the reference, isolated on transparent background, with no screen header or button. Crisp clean hand-painted 2D dark-fantasy Heraldry UI, like the supplied reference: matte opaque charcoal interior, controlled beveled metal shading, clear black outlines, no glow, no bloom, no particles, no pixel art. Genuine transparent background outside the UI. NO WORDS, NO LETTERS, NO NUMBERS, NO SYMBOLIC SKILL ICONS baked into the PNG. Unity will add dynamic icons and Korean text separately.\nA narrow warm antique-gold beveled outline with gently curved top edge, a small centered gold horned demon-head crest at the very top, deep-crimson short side pennants at upper corners and very small lower side pennants. Matte opaque charcoal full card interior. Small gold diamond at bottom center. A restrained gold/brown leaf ornament at each lower inner corner. Same width and height at all tiers.\nIMPORTANT remove the entire ROUND medallion and its surrounding laurel and grade plaque from the upper area: the upper area is a plain charcoal blank so a separately generated round Crest can be layered there. Do not draw an empty icon circle in the body. Also no text, names, description, duration label or stars.\nLayout in the full body: reserve top 8% for horns/top frame; blank upper medallion area from 12% to 52%; blank card name area at 54%-60%; a fine gold horizontal divider with tiny center diamond at 63% height; large blank description area at 66%-84%; lower leaf ornament only around 91% height. Gold frame fine, not bulky. Entire isolated card fits fully in the portrait image with narrow transparent margin, no crop.",
+      "reference_paths": [
+        "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_References/20261007_AugmentHeraldry_v1/02_Gold_Selection.png"
+      ]
+    },
+    {
+      "asset": "Crest_Gold",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-6ece4a34-9bce-446e-b55a-aaa502321560.png",
+      "prompt": "Use case: ui-mockup. Asset: one production GOLD round Crest Sprite for the top of an augment card. Input is STYLE reference only. Crisp clean hand-painted 2D dark-fantasy Heraldry UI, like the supplied reference: matte opaque charcoal interior, controlled beveled metal shading, clear black outlines, no glow, no bloom, no particles, no pixel art. Genuine transparent background outside the UI. NO WORDS, NO LETTERS, NO NUMBERS, NO SYMBOLIC SKILL ICONS baked into the PNG. Unity will add dynamic icons and Korean text separately.\nSquare canvas. ONLY a round gold beveled medallion, warm matte black circular center, two modest gold/brown rounded laurel sprigs beside it, and a small black grade-name plaque with a gold clipped-corner border immediately below the circle, no text on plaque. No horned demon head on this asset because the card body owns it. No card body, banners, footer, screen header or button.\nGeometry matters for Unity: normalized square canvas, medallion center at x=50%, y=43% from top (about +36 on a 512 unit canvas). Circle radius 30% of canvas width. The small grade plaque center at x=50%, y=80%, width 43%, height 10%. Side laurel within x=5%-25% and 75%-95%. Transparent outside the medallion/leaf/plaque, black areas fully opaque. Generous plain black icon area remains empty. Same clean metal quality and warm gold hue as current gold card reference. No crown; this is Gold, not Platinum.",
+      "reference_paths": [
+        "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_References/20261007_AugmentHeraldry_v1/02_Gold_Selection.png"
+      ]
+    },
+    {
+      "asset": "Header",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-255b32ac-315a-4c2a-9113-9424d3c8db43.png",
+      "prompt": "Use case: ui-mockup. Asset: one production header frame Sprite for the augment selection UI, reference is the latest Platinum screen. Crisp clean hand-painted 2D dark-fantasy Heraldry UI, like the supplied reference: matte opaque charcoal interior, controlled beveled metal shading, clear black outlines, no glow, no bloom, no particles, no pixel art. Genuine transparent background outside the UI. NO WORDS, NO LETTERS, NO NUMBERS, NO SYMBOLIC SKILL ICONS baked into the PNG. Unity will add dynamic icons and Korean text separately.\nExtract the DESIGN of the top title plaque into a new isolated landscape sprite with natural visible ratio approximately 4.7:1, sized for a Unity display 700x150. Gold curled corner frame, matte solid black title interior, ONE short single-layer burgundy hanging flag at each side. Each flag has one clean inverted-V notch, no double hanging strips. No demon head, horns or crown above the header. Two small isolated gold diamonds flanking the empty title area, around 17% and 83% of width; no horizontal decoration lines beside the diamonds. No title text or instruction text. Do not draw the three cards or bottom button. Full frame isolated with tight transparent padding.",
+      "reference_paths": [
+        "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_References/20261007_AugmentHeraldry_v1/03_Platinum_Selection_v3_Transparent.png"
+      ]
+    },
+    {
+      "asset": "BattlefieldButton",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b1f8111c-3765-4293-b3d2-aced07bd514b.png",
+      "prompt": "Use case: ui-mockup. Asset: NEW compact dedicated battlefield-view button background Sprite. Input 1 is style reference from the latest Platinum screen; Input 2 is codex_count_badge STYLE ONLY, do not reuse its dimensions or broad empty margins. Crisp clean hand-painted 2D dark-fantasy Heraldry UI, like the supplied reference: matte opaque charcoal interior, controlled beveled metal shading, clear black outlines, no glow, no bloom, no particles, no pixel art. Genuine transparent background outside the UI. NO WORDS, NO LETTERS, NO NUMBERS, NO SYMBOLIC SKILL ICONS baked into the PNG. Unity will add dynamic icons and Korean text separately.\nCreate a new isolated dark charcoal/brown button with warm antique-gold beveled edge, pointed clipped corners, small gold diamond at each horizontal end and smaller centered top/bottom diamonds. Design matches codex_count_badge ornament family but is newly made specifically for the short four-character Korean label 전장 보기, which Unity adds separately.\nNatural VISIBLE width-to-height ratio exactly around 3.3:1, target Unity display 300x90. Center blank text region roughly 200x48 with small practical horizontal padding, NOT a long counter banner. Keep gold border thin and corners compact. Tight transparent crop around the visible shape. NO text, icon, cards, other UI, or large transparent gutters. Black/brown center is fully opaque; no red fill.",
+      "reference_paths": [
+        "D:/GitHub/OZGL2_1/Assets/98.ExternalAssets/00.LocalStaging/UI_References/20261007_AugmentHeraldry_v1/03_Platinum_Selection_v3_Transparent.png",
+        "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/Sprites/codex_count_badge.png"
+      ]
+    },
+    {
+      "asset": "CardShell_Silver",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-568f478f-d8cc-4d4b-a30d-c6f5bc37114b.png",
+      "prompt": "Edit image 1 into a tier variant of this exact production Unity UI sprite. Image 2 is only color/rank design reference. STRICT preserve canvas dimensions, visual bounds, frame proportions, black interior, ornament locations and divider location; do not add text/icons/numbers or a screenshot background. silver gunmetal metal, pale cold steel bevels, understated flat steel highlights. Keep the crimson flags. Bottom leaf sprigs must be sparse subtle gunmetal. No gold or blue. Simple rank, no crystals. Transparent background outside silhouette, no shadows outside silhouette, every enclosed dark interior fully opaque. Hand-painted crisp 2D fantasy game UI as the original.",
+      "master_sprite": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-f2f28a9d-3396-42e5-955f-654e429a9d5c.png"
+    },
+    {
+      "asset": "CardShell_Platinum",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-8b197e27-76db-41c8-968f-f8ab9e76e89e.png",
+      "prompt": "Edit image 1 into a tier variant of this exact production Unity UI sprite. Image 2 is only color/rank design reference. STRICT preserve canvas dimensions, visual bounds, frame proportions, black interior, ornament locations and divider location; do not add text/icons/numbers or a screenshot background. saturated azure and cyan metal, dark cobalt edge shadows, icy cyan highlights. This is BLUE PLATINUM, not silver white. Keep crimson flags. Change bottom leaf sprigs into small angular blue crystal leaf clusters. Tiny extra inset blue crystal facets on corner diamonds, retaining silhouette. Transparent background outside silhouette, no shadows outside silhouette, every enclosed dark interior fully opaque. Hand-painted crisp 2D fantasy game UI as the original.",
+      "master_sprite": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-f2f28a9d-3396-42e5-955f-654e429a9d5c.png"
+    },
+    {
+      "asset": "Crest_Silver",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-aabd26c9-9e50-4813-8754-11b0f320fc90.png",
+      "prompt": "Edit image 1 into a tier variant of this exact production Unity UI sprite. Image 2 is only color/rank design reference. STRICT preserve canvas dimensions, visual bounds, frame proportions, black interior, ornament locations and divider location; do not add text/icons/numbers or a screenshot background. silver gunmetal simple beveled round ring and charcoal opaque center, REMOVE laurel leaves completely (outside ring becomes transparent); no crown, no crystal. Same ring location, diameter and blank bottom grade plaque location as image 1. Plaque steel beveled border. No gold. Transparent background outside silhouette, no shadows outside silhouette, every enclosed dark interior fully opaque. Hand-painted crisp 2D fantasy game UI as the original.",
+      "master_sprite": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-6ece4a34-9bce-446e-b55a-aaa502321560.png"
+    },
+    {
+      "asset": "Crest_Platinum",
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-e295e626-1e7e-4929-a9d4-2d0f7a3f4da4.png",
+      "prompt": "Edit image 1 into a tier variant of this exact production Unity UI sprite. Image 2 is only color/rank design reference. STRICT preserve canvas dimensions, visual bounds, frame proportions, black interior, ornament locations and divider location; do not add text/icons/numbers or a screenshot background. BLUE platinum saturated azure/cyan round ring with dark navy shadows and opaque charcoal center. Change rounded gold laurels to distinct angular blue crystal wing/leaf clusters. Add a SMALL azure crystal diadem just above ring, not a horned demon head. Keep same ring and blank grade plaque location/size. Plaque blue beveled border. No gold. Transparent background outside silhouette, no shadows outside silhouette, every enclosed dark interior fully opaque. Hand-painted crisp 2D fantasy game UI as the original.",
+      "master_sprite": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-6ece4a34-9bce-446e-b55a-aaa502321560.png"
+    }
+  ],
+  "alpha_correction": {
+    "user_approved": true,
+    "rgb_preserved": true,
+    "exterior_and_antialias_preserved": true,
+    "method": "Only dark enclosed interior pixels (maximum RGB below 80, alpha at least 240, 3-pixel inset from silhouette) raised to alpha 255."
+  }
+}
