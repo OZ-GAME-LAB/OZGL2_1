@@ -66,6 +66,7 @@ namespace OZGL2.UIBridge
                 // 저장된 설정을 토글 모양에 먼저 반영한다(바뀐 경우에만 이벤트가 나가므로 같은 값이면 아무 일도 없다)
                 type.GetMethod("SetBgmEnabled", Priv)?.Invoke(view, new object[] { GameAudioSettings.BgmEnabled });
                 type.GetMethod("SetSfxEnabled", Priv)?.Invoke(view, new object[] { GameAudioSettings.SfxEnabled });
+                AudioVolumeSliderUi.AttachTo(view.transform); // 설정 패널이면 「배경음악」「효과음」 줄 아래에 음량 슬라이더를 붙인다
                 any = true;
             }
             return any;

@@ -14,6 +14,7 @@ internal sealed class Bgm : MonoBehaviour
 
     private AudioSource _source;
     private float _baseVolume;
+    private float _rawVolume = 1f;
     private float _duckFactor = 1f;
     private float _duckTarget = 1f;
     private float _duckUntil;
@@ -30,7 +31,8 @@ internal sealed class Bgm : MonoBehaviour
         }
 
         Bgm bgm = Instance();
-        bgm._baseVolume = Mathf.Clamp01(volume) * Sfx.MasterVolume;
+        bgm._rawVolume = Mathf.Clamp01(volume);
+        bgm._baseVolume = bgm._rawVolume * Sfx.MasterVolume * Sfx.BgmVolume;
         if (bgm._source.clip == clip && bgm._source.isPlaying)
         {
             bgm.ApplyVolume(); // 볼륨만 갱신
@@ -40,6 +42,14 @@ internal sealed class Bgm : MonoBehaviour
         bgm._source.clip = clip;
         bgm.ApplyVolume();
         bgm._source.Play();
+    }
+
+    /// <summary>설정 창에서 음량을 바꿨을 때, 지금 재생 중인 곡의 볼륨만 다시 계산한다.</summary>
+    internal static void RefreshVolume()
+    {
+        if (_instance == null) return;
+        _instance._baseVolume = _instance._rawVolume * Sfx.MasterVolume * Sfx.BgmVolume;
+        _instance.ApplyVolume();
     }
 
     internal static void Stop()

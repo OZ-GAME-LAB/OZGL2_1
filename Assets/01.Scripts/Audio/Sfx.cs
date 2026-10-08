@@ -17,6 +17,10 @@ public static class Sfx
 
     /// <summary>옵션 화면 등에서 쓸 런타임 마스터 볼륨(0~1). 카탈로그 masterVolume과 곱해진다.</summary>
     public static float MasterVolume { get; set; } = 1f;
+    /// <summary>설정 창의 배경음악 음량 슬라이더(0~1). 켜기·끄기 토글과 별개로 곱해진다.</summary>
+    public static float BgmVolume { get; set; } = 1f;
+    /// <summary>설정 창의 효과음 음량 슬라이더(0~1). 켜기·끄기 토글과 별개로 곱해진다.</summary>
+    public static float SfxVolume { get; set; } = 1f;
     public static bool Muted { get; set; }
     /// <summary>배경음악만 끈다(설정 창의 배경음악 토글). Muted 와 별개.</summary>
     public static bool BgmMuted { get; set; }
@@ -32,6 +36,8 @@ public static class Sfx
         _lastPlayedTime = null;
         _lastClipIndex = null;
         MasterVolume = 1f;
+        BgmVolume = 1f;
+        SfxVolume = 1f;
         Muted = false;
         BgmMuted = false;
         SfxMuted = false;
@@ -63,6 +69,9 @@ public static class Sfx
     }
 
     public static void StopBgm() => Bgm.Stop();
+
+    /// <summary>배경음악 음량 슬라이더를 움직이면 재생 중인 곡에 바로 반영한다.</summary>
+    public static void RefreshBgmVolume() => Bgm.RefreshVolume();
 
     /// <summary>pitchScale: 슬롯의 무작위 음 높이에 곱한다(말소리처럼 글자마다 높낮이를 줄 때).</summary>
     public static void Play(SfxId id, float pitchScale = 1f)
@@ -118,7 +127,7 @@ public static class Sfx
 
         _lastPlayedTime[(int)id] = now;
         float pitch = UnityEngine.Random.Range(entry.pitchRange.x, entry.pitchRange.y) * pitchScale;
-        float volume = entry.volume * catalog.masterVolume * MasterVolume;
+        float volume = entry.volume * catalog.masterVolume * MasterVolume * SfxVolume;
         SfxPlayer.Play(clip, volume, pitch);
 
         // 웨이브 클리어·승패처럼 "들려야 하는" 알림음은 BGM에 묻히기 쉬워서, 재생되는 동안 BGM을 줄여준다.
@@ -140,7 +149,7 @@ public static class Sfx
         }
 
         SfxCatalogSO catalog = Catalog;
-        float master = (catalog != null ? catalog.masterVolume : 1f) * MasterVolume;
+        float master = (catalog != null ? catalog.masterVolume : 1f) * MasterVolume * SfxVolume;
         SfxPlayer.Play(clip, volume * master, 1f);
 
         if (duckBgm)
