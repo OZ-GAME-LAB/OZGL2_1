@@ -1951,6 +1951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27e76c0ddba7512986ddfd9e830b7293, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.AudioSettingsWire
+  _giveUpDialogPrefab: {fileID: 4330000540436047827, guid: ef551a56b1135f440831b0f3da401eca, type: 3}
 --- !u!114 &6666600027
 MonoBehaviour:
   m_ObjectHideFlags: 0

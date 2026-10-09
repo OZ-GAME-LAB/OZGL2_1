@@ -16,6 +16,8 @@ namespace OZGL2.UIBridge
     /// </summary>
     public sealed class AudioSettingsWire : MonoBehaviour
     {
+        [SerializeField] private TitleConfirmationView _giveUpDialogPrefab;
+
         private const BindingFlags Priv = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         private bool _wired;
         private float _next;
@@ -28,10 +30,10 @@ namespace OZGL2.UIBridge
         {
             if (_wired || Time.unscaledTime < _next) return;
             _next = Time.unscaledTime + 0.5f;
-            _wired = Wire();
+            _wired = Wire(_giveUpDialogPrefab);
         }
 
-        private static bool Wire()
+        private static bool Wire(TitleConfirmationView giveUpDialogPrefab)
         {
             bool any = false;
             foreach (var view in FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -49,7 +51,7 @@ namespace OZGL2.UIBridge
                     // 포기는 경고창에서 확인한 뒤에만 실행해야 하므로 그 두 연결을 끈다.
                     for (int i = 0; i < quit.GetPersistentEventCount(); i++) quit.SetPersistentListenerState(i, UnityEventCallState.Off);
                 }
-                if (type.GetField("_quitRequested", Priv)?.GetValue(view) is UnityEvent quit2) quit2.AddListener(name == "UIBattleMenuPopupView" ? (UnityAction)(() => ShowGiveUpDialog(view)) : Quit);
+                if (type.GetField("_quitRequested", Priv)?.GetValue(view) is UnityEvent quit2) quit2.AddListener(name == "UIBattleMenuPopupView" ? (UnityAction)(() => ShowGiveUpDialog(view, giveUpDialogPrefab)) : Quit);
                 // 「게임 종료」·「나가기」 단추는 팀 UI에서 비활성(interactable 꺼짐)으로 올라와 있어서, 이벤트를 연결해도 눌러지지 않았다. 켜 준다.
                 foreach (var button in view.GetComponentsInChildren<Button>(true))
                     for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
@@ -81,21 +83,34 @@ namespace OZGL2.UIBridge
 
         /// <summary>
         /// 「포기」를 누르면 먼저 경고창을 띄운다 — 포기하면 로비로 돌아간다는 것과 무엇이 남고 무엇이 사라지는지 알려 주고,
-        /// 창 안의 「포기」를 한 번 더 눌러야 실제로 포기한다(「취소」를 누르면 닫힌다). 단추는 전투 메뉴의 단추를 복제해 모양을 맞춘다.
+        /// 창 안의 「포기」를 한 번 더 눌러야 실제로 포기한다(「취소」를 누르면 닫힌다). 편집용 원본이 없으면 전투 메뉴 단추를 복제한다.
         /// </summary>
-        private static void ShowGiveUpDialog(MonoBehaviour view)
+        private static void ShowGiveUpDialog(MonoBehaviour view, TitleConfirmationView prefab)
         {
-            if (_giveUpDialog == null) _giveUpDialog = BuildGiveUpDialog(view);
+            if (_giveUpDialog == null) _giveUpDialog = BuildGiveUpDialog(view, prefab);
             if (_giveUpDialog == null) { ExecuteGiveUp(); return; } // 창을 못 만들 때만(템플릿 단추 없음) 바로 실행
             _giveUpDialog.transform.SetAsLastSibling();
             _giveUpDialog.SetActive(true);
+            // 비활성 원본에서 추가된 Canvas는 활성화한 뒤 정렬을 설정해야 유지된다.
+            if (_giveUpDialog.TryGetComponent<Canvas>(out var overlay))
+            {
+                overlay.overrideSorting = true;
+                overlay.sortingOrder = 5000;
+            }
         }
 
-        private static GameObject BuildGiveUpDialog(MonoBehaviour view)
+        private static GameObject BuildGiveUpDialog(MonoBehaviour view, TitleConfirmationView prefab)
         {
             var canvas = view.GetComponentInParent<Canvas>();
-            if (canvas == null || _quitTemplate == null) return null;
+            if (canvas == null) return null;
             canvas = canvas.rootCanvas;
+
+            if (prefab != null)
+            {
+                GameObject dialog = BuildPrefabGiveUpDialog(view, canvas, prefab);
+                if (dialog != null) return dialog;
+            }
+            if (_quitTemplate == null) return null;
 
             var root = new GameObject("GiveUpDialog", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster), typeof(Image), typeof(GiveUpDialogGuard));
             root.transform.SetParent(canvas.transform, false);
@@ -126,6 +141,42 @@ namespace OZGL2.UIBridge
             Clone("CancelButton", panelRect, "취소", new Vector2(150f, -140f), () => root.SetActive(false));
             root.SetActive(false);
             return root;
+        }
+
+        private static GameObject BuildPrefabGiveUpDialog(MonoBehaviour view, Canvas canvas, TitleConfirmationView prefab)
+        {
+            GameObject root = null;
+            try
+            {
+                var confirmation = Instantiate(prefab, canvas.transform, false);
+                root = confirmation.gameObject;
+                root.name = "GiveUpDialog";
+                root.SetActive(false);
+
+                var rootRect = (RectTransform)root.transform;
+                rootRect.anchorMin = Vector2.zero; rootRect.anchorMax = Vector2.one;
+                rootRect.offsetMin = rootRect.offsetMax = Vector2.zero;
+                if (!root.TryGetComponent<Canvas>(out var overlay)) overlay = root.AddComponent<Canvas>();
+                overlay.overrideSorting = true; overlay.sortingOrder = 5000;
+                if (!root.TryGetComponent<GraphicRaycaster>(out _)) root.AddComponent<GraphicRaycaster>();
+                if (!root.TryGetComponent<GiveUpDialogGuard>(out var guard)) guard = root.AddComponent<GiveUpDialogGuard>();
+                guard.View = view;
+
+                // 표시는 원본 프리팹이 소유하고, 실제 포기 처리는 기존 콜백을 그대로 사용한다.
+                if (!confirmation.Bind(ExecuteGiveUp, () => root.SetActive(false)))
+                    throw new System.InvalidOperationException("확인/취소 버튼 연결이 누락되었습니다.");
+                return root;
+            }
+            catch (System.Exception exception)
+            {
+                if (root != null)
+                {
+                    root.SetActive(false);
+                    Destroy(root);
+                }
+                Debug.LogWarning("포기 확인창 원본 연결을 확인하세요. 기존 확인창을 사용합니다: " + exception.Message, prefab);
+                return null;
+            }
         }
 
         private static void Text(string name, RectTransform parent, string text, float size, Color color, TMP_FontAsset font, Vector2 pos, Vector2 box, FontStyles style)
