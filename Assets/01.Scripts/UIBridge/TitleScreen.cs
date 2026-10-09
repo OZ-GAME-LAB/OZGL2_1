@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using OZGL2.Progression;
 using OZGL2.Tutorial;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,6 +33,17 @@ namespace OZGL2.UIBridge
         [SerializeField, Tooltip("모서리 마름모(Ornament_Diamond_Flat)")] private Sprite _cornerDiamond;
         [SerializeField, Tooltip("이름표 양옆 장식(Ornament_WaveTitle_Flat)")] private Sprite _titleOrnament;
         [SerializeField, Tooltip("배너 마름모 안 아이콘(Icon_CrossedSwords_Casual)")] private Sprite _swordsIcon;
+        [SerializeField, Tooltip("공통 설정창 프리팹. 미연결 시 기존 설정창을 사용합니다.")] private GameObject _settingsPopupPrefab;
+        [Header("타이틀 메뉴 문장 디자인")]
+        [SerializeField] private Sprite _titlePrimaryButton;
+        [SerializeField] private Sprite _titleSecondaryButton;
+        [SerializeField] private Sprite _titleSwordsIcon;
+        [SerializeField] private Sprite _titleSettingsIcon;
+        [SerializeField] private Sprite _titleExitIcon;
+        [SerializeField] private Sprite _titleConfirmFrame;
+        [SerializeField, Tooltip("처음부터 확인창의 설명 본문 글꼴. 제목과 버튼 글꼴은 유지합니다.")] private TMP_FontAsset _titleConfirmBodyFont;
+        [SerializeField, Tooltip("편집 가능한 처음부터 확인창. 미연결 시 기존 코드 생성 방식을 유지합니다.")] private TitleConfirmationView _titleConfirmPrefab;
+        [SerializeField, Min(0.1f), Tooltip("9분할 테두리의 표시 배율. 높이가 다른 버튼에서도 동일한 두께를 유지합니다.")] private float _titleBorderScale = 4f;
 
         private TMP_FontAsset _font;
         private RectTransform _logoRect, _sun, _mountains, _hillsFar, _forestFar, _castleNear, _village, _hillsNear, _forestNear;
@@ -48,6 +60,7 @@ namespace OZGL2.UIBridge
         private Sprite _dot, _glow, _round, _roundFlat, _roundRing, _chevron;
         private RectTransform _starsRoot;
         private GameObject _settingsPanel, _confirmPanel;
+        private UICommonSettingsView _commonSettingsView;
         private TMP_Text _volumeLabel, _tutorialLabel;
         private TMP_Text _fullscreenLabel, _bgmLabel, _sfxLabel;
         private bool _fullscreenOn;
@@ -124,9 +137,12 @@ namespace OZGL2.UIBridge
         private void OpenSettings()
         {
             if (_starting || _settingsPanel == null) return;
-            _fullscreenOn = Screen.fullScreen;
-            RefreshFullscreenLabel();
-            RefreshAudioLabels();
+            if (_commonSettingsView == null)
+            {
+                _fullscreenOn = Screen.fullScreen;
+                RefreshFullscreenLabel();
+                RefreshAudioLabels();
+            }
             _settingsPanel.SetActive(true);
         }
 
@@ -334,38 +350,44 @@ namespace OZGL2.UIBridge
             lg.SetSiblingIndex(logoRect.GetSiblingIndex());
             SpawnSparkles(root, logoRect.anchoredPosition);
 
-            // 9) 로고 아래 금빛 장식선 + 나무 단추 셋(게임 시작 · 설정 · 나가기)
+            // 9) 로고 아래 메뉴. 문장 아트 미연결 씬은 기존 배너 배치를 유지한다.
             BuildDivider(root, new Vector2(0f, -62f));
-            // 으뜸 단추는 희수의 붉은 배너(가로:세로 = 500:194), 나머지는 같은 폭의 어두운 프레임. 모두 가운데 정렬.
-            const float menuW = 400f;
-            float bannerH = _startBanner != null ? menuW * 194f / 500f : 120f;
+            bool useHeraldryButtons = _titlePrimaryButton != null && _titleSecondaryButton != null;
+            float menuW = useHeraldryButtons ? 520f : 400f;
+            float bannerH = useHeraldryButtons ? 120f : _startBanner != null ? menuW * 194f / 500f : 120f;
+            float secondaryW = useHeraldryButtons ? 500f : menuW;
+            float secondaryH = useHeraldryButtons ? 82f : 66f;
+            float utilityH = useHeraldryButtons ? 78f : 60f;
+            float utilityGap = useHeraldryButtons ? 28f : 12f;
+            float utilityW = (secondaryW - utilityGap) * 0.5f;
+            float primaryY = -62f - (useHeraldryButtons ? 24f : 34f) - bannerH * 0.5f;
             float utilityY;
             if (SaveGame.HasSave)
             {
                 // 저장이 있으면: 이어하기(으뜸) + 저장 요약 + 처음부터
-                float primaryY = -62f - 34f - bannerH * 0.5f;
-                RegisterIntro(ButtonRect(MakeButton(root, "이어하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 50f, true, ContinueGame)), 0.45f);
+                RegisterIntro(ButtonRect(MakeTitleMenuButton(root, "이어하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 50f, true, _titleSwordsIcon, ContinueGame)), 0.45f);
                 var summary = NewText("SaveSummary", root, 24f, new Color(0.93f, 0.87f, 0.75f, 0.95f), TextAlignmentOptions.Center);
                 summary.text = SaveGame.Summary();
                 summary.enableAutoSizing = true; summary.fontSizeMin = 16f; summary.fontSizeMax = 24f;
                 AddTextShadow(summary);
                 var sm = summary.rectTransform;
                 sm.anchorMin = sm.anchorMax = new Vector2(0.5f, 0.5f); sm.pivot = new Vector2(0.5f, 0.5f);
-                sm.sizeDelta = new Vector2(menuW + 120f, 34f); sm.anchoredPosition = new Vector2(0f, primaryY - bannerH * 0.5f - 24f);
+                float summaryY = primaryY - bannerH * 0.5f - (useHeraldryButtons ? 40f : 24f);
+                sm.sizeDelta = new Vector2(menuW + 120f, 34f); sm.anchoredPosition = new Vector2(0f, summaryY);
                 RegisterIntro(sm, 0.55f);
-                float secondY = primaryY - bannerH * 0.5f - 24f - 17f - 14f - 33f;
-                RegisterIntro(ButtonRect(MakeButton(root, "처음부터", new Vector2(0f, secondY), new Vector2(menuW, 66f), 38f, false, NewGameClicked)), 0.62f);
-                utilityY = secondY - 33f - 12f - 30f;
+                float secondY = summaryY - 17f - (useHeraldryButtons ? 16f : 14f) - secondaryH * 0.5f;
+                RegisterIntro(ButtonRect(MakeTitleMenuButton(root, "처음부터", new Vector2(0f, secondY), new Vector2(secondaryW, secondaryH), 38f, false, null, NewGameClicked)), 0.62f);
+                utilityY = secondY - secondaryH * 0.5f - (useHeraldryButtons ? 20f : 12f) - utilityH * 0.5f;
             }
             else
             {
                 // 저장이 없으면(처음 켠 경우): 시작하기 하나
-                float primaryY = -62f - 34f - bannerH * 0.5f;
-                RegisterIntro(ButtonRect(MakeButton(root, "시작하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 54f, true, BeginNewGame)), 0.45f);
-                utilityY = primaryY - bannerH * 0.5f - 12f - 30f;
+                RegisterIntro(ButtonRect(MakeTitleMenuButton(root, "시작하기", new Vector2(0f, primaryY), new Vector2(menuW, bannerH), 54f, true, _titleSwordsIcon, BeginNewGame)), 0.45f);
+                utilityY = primaryY - bannerH * 0.5f - (useHeraldryButtons ? 20f : 12f) - utilityH * 0.5f;
             }
-            RegisterIntro(ButtonRect(MakeButton(root, "설정", new Vector2(-(menuW * 0.25f + 6f), utilityY), new Vector2(menuW * 0.5f - 6f, 60f), 34f, false, OpenSettings)), 0.75f);
-            RegisterIntro(ButtonRect(MakeButton(root, "나가기", new Vector2(menuW * 0.25f + 6f, utilityY), new Vector2(menuW * 0.5f - 6f, 60f), 34f, false, QuitGame)), 0.85f);
+            float utilityX = useHeraldryButtons ? (secondaryW + utilityGap) * 0.25f : menuW * 0.25f + 6f;
+            RegisterIntro(ButtonRect(MakeTitleMenuButton(root, "설정", new Vector2(-utilityX, utilityY), new Vector2(utilityW, utilityH), 34f, false, _titleSettingsIcon, OpenSettings)), 0.75f);
+            RegisterIntro(ButtonRect(MakeTitleMenuButton(root, "나가기", new Vector2(utilityX, utilityY), new Vector2(utilityW, utilityH), 34f, false, _titleExitIcon, QuitGame)), 0.85f);
 
             // 10) 돌담 테두리 + 가장자리를 어둡게 하는 비네팅
             BuildFrame(root);
@@ -476,6 +498,78 @@ namespace OZGL2.UIBridge
             var shadow = text.gameObject.AddComponent<Shadow>();
             shadow.effectColor = new Color(0f, 0f, 0f, 0.75f);
             shadow.effectDistance = new Vector2(2f, -2f);
+        }
+
+        /// <summary>타이틀 메뉴·확인창의 문장 버튼. 아트가 없는 씬과 설정 fallback은 기존 MakeButton을 유지한다.</summary>
+        private TMP_Text MakeTitleMenuButton(RectTransform parent, string label, Vector2 pos, Vector2 size, float fontSize,
+            bool primary, Sprite iconSprite, UnityEngine.Events.UnityAction onClick)
+        {
+            if (_titlePrimaryButton == null || _titleSecondaryButton == null)
+                return MakeButton(parent, label, pos, size, fontSize, primary, onClick);
+
+            var hit = NewImage("Button_" + label, parent, null, Color.clear);
+            var rt = hit.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = size;
+            rt.anchoredPosition = pos;
+
+            Color glowColor = primary ? new Color(1f, 0.5f, 0.34f, 0.14f) : new Color(Cream.r, Cream.g, Cream.b, 0.12f);
+            var glow = NewImage("Glow", rt, _glow, glowColor);
+            glow.raycastTarget = false;
+            glow.rectTransform.anchorMin = glow.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            glow.rectTransform.sizeDelta = new Vector2(size.x * 1.12f, size.y * 1.5f);
+
+            Color baseColor = new Color(0.96f, 0.96f, 0.96f, 1f);
+            var body = NewImage("Body", rt, primary ? _titlePrimaryButton : _titleSecondaryButton, baseColor);
+            body.type = Image.Type.Sliced;
+            body.pixelsPerUnitMultiplier = Mathf.Max(0.1f, _titleBorderScale);
+            body.raycastTarget = false;
+            Stretch(body.rectTransform);
+
+            var labelText = NewText("Label", rt, fontSize, Cream, TextAlignmentOptions.Center);
+            labelText.text = label;
+            labelText.enableAutoSizing = true;
+            labelText.fontSizeMin = fontSize * 0.5f;
+            labelText.fontSizeMax = fontSize;
+            labelText.textWrappingMode = TextWrappingModes.NoWrap;
+            labelText.overflowMode = TextOverflowModes.Ellipsis;
+            AddTextShadow(labelText);
+            Stretch(labelText.rectTransform);
+            labelText.rectTransform.offsetMin = new Vector2(24f, 8f);
+            labelText.rectTransform.offsetMax = new Vector2(-24f, -8f);
+
+            if (iconSprite != null)
+            {
+                float iconSize = primary ? 60f : 34f;
+                float iconInset = primary ? 48f : 32f;
+                var icon = NewImage("Icon", rt, iconSprite, Color.white);
+                icon.preserveAspect = true;
+                icon.raycastTarget = false;
+                icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = new Vector2(0f, 0.5f);
+                icon.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                icon.rectTransform.sizeDelta = new Vector2(iconSize, iconSize);
+                icon.rectTransform.anchoredPosition = new Vector2(iconInset + iconSize * 0.5f, 0f);
+                float textInset = iconInset + iconSize + (primary ? 44f : 16f);
+                labelText.rectTransform.offsetMin = new Vector2(textInset, 8f);
+
+                if (primary)
+                {
+                    var divider = NewImage("IconDivider", rt, null, new Color(Gold.r, Gold.g, Gold.b, 0.72f));
+                    divider.raycastTarget = false;
+                    divider.rectTransform.anchorMin = divider.rectTransform.anchorMax = new Vector2(0f, 0.5f);
+                    divider.rectTransform.sizeDelta = new Vector2(1.5f, 54f);
+                    divider.rectTransform.anchoredPosition = new Vector2(iconInset + iconSize + 24f, 0f);
+                }
+            }
+
+            var button = hit.gameObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            button.onClick.AddListener(onClick);
+            hit.gameObject.AddComponent<TitleButtonFx>().Setup(body, null, glow, null, labelText,
+                baseColor, Color.white, Color.clear, Color.clear, Cream, primary ? Color.white : Gold, glowColor, primary);
+            return labelText;
         }
 
         /// <summary>
@@ -621,6 +715,21 @@ namespace OZGL2.UIBridge
         /// <summary>설정 창: 소리 크기 슬라이더, 배경음악·효과음 켜짐/꺼짐, 전체화면 켜짐/꺼짐, 마왕 설명 다시 보기. 줄마다 제목은 왼쪽, 조절은 오른쪽에 같은 선으로 맞춘다.</summary>
         private void BuildSettings(RectTransform root)
         {
+            if (_settingsPopupPrefab != null)
+            {
+                UICommonSettingsView prefabView;
+                if (_settingsPopupPrefab.TryGetComponent(out prefabView) && prefabView.IsConfigured)
+                {
+                    _commonSettingsView = Instantiate(prefabView, root, false);
+                    _settingsPanel = _commonSettingsView.gameObject;
+                    _settingsPanel.SetActive(false);
+                    _commonSettingsView.ConfigureStandalone(CloseSettings);
+                    return;
+                }
+
+                Debug.LogWarning("공통 설정창의 UICommonSettingsView 연결이 누락되어 기존 설정창을 사용합니다.", this);
+            }
+
             var dim = NewImage("SettingsDim", root, null, new Color(0f, 0f, 0f, 0.66f));
             Stretch(dim.rectTransform);
             _settingsPanel = dim.gameObject;
@@ -685,15 +794,63 @@ namespace OZGL2.UIBridge
         /// <summary>처음부터를 눌렀을 때 뜨는 확인 창: 저장된 진행이 사라진다고 알리고 「삭제하고 시작」/「취소」를 묻는다.</summary>
         private void BuildConfirm(RectTransform root)
         {
+            if (_titleConfirmPrefab != null)
+            {
+                var view = Instantiate(_titleConfirmPrefab, root, false);
+                if (view.Bind(BeginNewGame, () => _confirmPanel.SetActive(false)))
+                {
+                    _confirmPanel = view.gameObject;
+                    Stretch((RectTransform)view.transform);
+                    _confirmPanel.SetActive(false);
+                    return;
+                }
+
+                Debug.LogWarning("타이틀 확인창의 버튼 연결이 없어 기존 확인창을 사용합니다.", this);
+                Destroy(view.gameObject);
+            }
+
             var dim = NewImage("ConfirmDim", root, null, new Color(0f, 0f, 0f, 0.66f));
             Stretch(dim.rectTransform);
             _confirmPanel = dim.gameObject;
-            var panel = MakeFlatPanel(dim.rectTransform, new Vector2(920f, 480f), "처음부터 시작할까?", 560f);
-            var body = PlaceLabel(panel, "저장된 마왕 레벨, 특성, 스킬,\n마왕군 해금이 모두 사라지고\n튜토리얼도 처음부터 다시 나온다.", 38f, Cream, TextAlignmentOptions.Center, new Vector2(0f, 20f), new Vector2(780f, 170f));
+            bool useHeraldryConfirm = _titleConfirmFrame != null && _titlePrimaryButton != null && _titleSecondaryButton != null;
+            RectTransform panel;
+            if (useHeraldryConfirm)
+            {
+                var frame = NewImage("Panel", dim.rectTransform, _titleConfirmFrame, Color.white);
+                frame.type = Image.Type.Simple;
+                panel = frame.rectTransform;
+                panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
+                panel.pivot = new Vector2(0.5f, 0.5f);
+                panel.sizeDelta = new Vector2(920f, 676f);
+                var title = PlaceLabel(panel, "처음부터 시작할까요?", 46f, Cream, TextAlignmentOptions.Center,
+                    new Vector2(0f, 154f), new Vector2(760f, 76f));
+                title.gameObject.name = "Title";
+                title.textWrappingMode = TextWrappingModes.NoWrap;
+                title.enableAutoSizing = true;
+                title.fontSizeMin = 36f;
+                title.fontSizeMax = 46f;
+                Hairline(panel, 100f, 700f, new Color(Gold.r, Gold.g, Gold.b, 0.6f));
+            }
+            else
+            {
+                panel = MakeFlatPanel(dim.rectTransform, new Vector2(920f, 480f), "처음부터 시작할까요?", 560f);
+            }
+            var body = PlaceLabel(panel, "저장된 마왕 레벨, 특성, 스킬과\n마왕군 해금 정보가 모두 삭제됩니다.\n튜토리얼도 처음부터 다시 시작됩니다.", 38f, Cream, TextAlignmentOptions.Center,
+                new Vector2(0f, useHeraldryConfirm ? 4f : 20f), new Vector2(780f, 170f));
+            body.gameObject.name = "Description";
+            if (_titleConfirmBodyFont != null) body.font = _titleConfirmBodyFont;
             body.textWrappingMode = TextWrappingModes.Normal;
             body.lineSpacing = 8f;
-            MakeButton(panel, "삭제하고 시작", new Vector2(-200f, -150f), new Vector2(340f, 72f), 36f, false, BeginNewGame, true);
-            MakeButton(panel, "취소", new Vector2(200f, -150f), new Vector2(280f, 72f), 38f, false, () => _confirmPanel.SetActive(false));
+            if (useHeraldryConfirm)
+            {
+                MakeTitleMenuButton(panel, "삭제하고 시작", new Vector2(-188f, -210f), new Vector2(340f, 88f), 36f, true, null, BeginNewGame);
+                MakeTitleMenuButton(panel, "취소", new Vector2(188f, -210f), new Vector2(340f, 88f), 36f, false, null, () => _confirmPanel.SetActive(false));
+            }
+            else
+            {
+                MakeButton(panel, "삭제하고 시작", new Vector2(-200f, -150f), new Vector2(340f, 72f), 36f, false, BeginNewGame, true);
+                MakeButton(panel, "취소", new Vector2(200f, -150f), new Vector2(280f, 72f), 38f, false, () => _confirmPanel.SetActive(false));
+            }
             _confirmPanel.SetActive(false);
         }
 
