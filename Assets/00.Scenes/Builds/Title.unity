@@ -492,6 +492,15 @@ MonoBehaviour:
   _titleOrnament: {fileID: 21300000, guid: 15f239b3bd2ba1e46b68fd26506b3e8c, type: 3}
   _swordsIcon: {fileID: 21300000, guid: 90dfc9bd6f2c43642aee89bb1b8eda62, type: 3}
   _settingsPopupPrefab: {fileID: 690604068855340822, guid: 6a41942bd4a151641b3b8d1f89d2c637, type: 3}
+  _titlePrimaryButton: {fileID: 21300000, guid: af779f353ceea7a43807b6bb3245ab40, type: 2}
+  _titleSecondaryButton: {fileID: 21300000, guid: 9ffe02a5215c9db46a27ab68e9016bae, type: 2}
+  _titleSwordsIcon: {fileID: 21300000, guid: 8521ab4fcfd800e488f6e9cc81e2436f, type: 2}
+  _titleSettingsIcon: {fileID: 21300000, guid: 3a4180ec9323a9a43a9dd3cd71c5da83, type: 2}
+  _titleExitIcon: {fileID: 21300000, guid: 77cfb28eddc6c834fb4d29f0cd54f7fe, type: 2}
+  _titleConfirmFrame: {fileID: 21300000, guid: 38ee81368f57de64daf66671c66e2f51, type: 2}
+  _titleConfirmBodyFont: {fileID: 11400000, guid: 02fdbfbc11f69364785023cfc33679a6, type: 2}
+  _titleConfirmPrefab: {fileID: 4330000540436047827, guid: e2dda07ec60d5b24d886dfb5da626807, type: 3}
+  _titleBorderScale: 4
 --- !u!114 &7770000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
