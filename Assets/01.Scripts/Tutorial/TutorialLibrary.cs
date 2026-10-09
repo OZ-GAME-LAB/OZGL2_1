@@ -60,7 +60,7 @@ namespace OZGL2.Tutorial
     /// 마왕이 들려주는 설명 모음. 말투는 거만하지만 친절한 마왕.
     /// 게임 규칙이 바뀌면 이 표의 문장만 고치면 된다(코드·씬은 건드리지 않는다).
     /// Target 열쇠: reward(이번 라운드 보상 패널) · result.title/result.xp/result.confirm(웨이브 결과창) · wave(이번 웨이브) · grid(마왕성 칸) · hand(카드 손패) · synergy(시너지 목록) · augments(증강 리스트 단추) · start(전투 시작) ·
-    ///              skills(스킬 슬롯) · xp(경험치바) · currency(재화) · reroll(리롤) · king(마왕 자리)
+    ///              skills(스킬 슬롯) · speed(배속 막대) · xp(경험치바) · currency(재화) · reroll(리롤) · king(마왕 자리)
     /// 도감 성급: codex.stars(별 표시) · codex.next(다음 모습 화살표)
     /// 로비: level(레벨) · nav(하단 메뉴) · stage(스테이지) · startbtn(전투 준비) · codexlist(도감 목록) ·
     ///       btn.achievement/btn.traits/btn.skills/btn.codex(하단 메뉴 단추)
@@ -84,16 +84,18 @@ namespace OZGL2.Tutorial
             new TutorialStep("아래에 마왕군 카드가 있다. 이 카드를 끌어다 칸 위에 놓으면 마왕군이 배치되느니라.", "hand"),
             TutorialStep.WaitPlace("직접 해 보거라! 카드를 끌어다 칸 위에 놓아 보거라.", "hand"),
             new TutorialStep("잘했다! 잘못 놓았으면 마왕군을 카드 쪽으로 다시 끌어 보관할 수 있다.", "hand"),
+            new TutorialStep("카드를 끌고 있는 동안 R 키를 누르면 발판 모양이 돌아간다. 칸에 딱 맞게 돌려서 놓거라!", "grid"),
             new TutorialStep("같은 마왕군 두 기를 겹쳐 놓으면 합성되어 별(★)이 오른다. 별은 최대 3개, 2성은 능력치 1.7배, 3성은 무려 3.2배로 강해진다!", "hand"),
             new TutorialStep("같은 직업을 많이 모으면 시너지가 발동한다. 오른쪽 목록에 마우스를 올리면 효과를 볼 수 있다.", "synergy"),
             new TutorialStep("준비가 끝났으면 '전투 시작'을 눌러라. 짐은 뒤에서 지켜보고 있겠다!", "start", true));
 
         public static readonly TutorialSequence Battle = new TutorialSequence("battle", "전투와 스킬", "ingame", true, true,
             new TutorialStep("전투가 시작됐다! 우리 마왕군이 용사들과 싸우는 모습을 지켜보거라.", null, true),
+            new TutorialStep("전투 중에도 마우스 휠을 굴리면 맵을 확대·축소하고, 마우스 오른쪽 버튼을 누른 채 끌면 맵을 옮겨 볼 수 있다. Home 키를 누르면 원래 화면으로 돌아오느니라.", "grid"),
             new TutorialStep("아래 스킬 슬롯을 눌러 범위를 정하고 놓으면, 짐이 직접 마법을 쓴다. 쿨타임이 끝나면 다시 쓸 수 있느니라.", "skills"),
             new TutorialStep("용사를 쓰러뜨리면 영혼이 모여 경험치가 오른다. 레벨이 오를수록 짐이 강해지느니라.", "xp"),
             new TutorialStep("용사를 잡으면 금화가 날아와 재화 표시에 쌓인다. 재화는 보상 카드를 다시 뽑는 리롤에 쓰거라.", "currency"),
-            new TutorialStep("위쪽의 배속 버튼으로 전투를 빠르게 돌릴 수도 있다. 자, 용사들을 막아 보거라!", null, true));
+            new TutorialStep("위쪽 가운데의 배속 막대로 전투를 빠르게 돌릴 수도 있다. 자, 용사들을 막아 보거라!", "speed", true));
 
         public static readonly TutorialSequence WaveResult = new TutorialSequence("waveresult", "웨이브 결과", "ingame", false, false,
             new TutorialStep("웨이브 클리어! 이 창은 방금 끝난 웨이브의 결과다.", "result.title", true),
@@ -119,6 +121,10 @@ namespace OZGL2.Tutorial
             new TutorialStep("마우스 휠을 굴리면 화면을 확대하고 축소할 수 있다. 가리킨 곳으로 다가가느니라."),
             new TutorialStep("마우스 오른쪽 버튼(또는 휠 버튼)을 누른 채 끌면 맵을 둘러볼 수 있다. 너무 멀리까지는 볼 수 없다."),
             new TutorialStep("Home 키를 누르면 언제든 원래 화면으로 돌아온다. 웨이브가 바뀌면 화면도 알아서 제자리로 돌아오느니라."));
+
+        public static readonly TutorialSequence Place = new TutorialSequence("topic.place", "발판 배치와 회전", "ingame", false, true,
+            new TutorialStep("마왕군 카드를 끌면 발판 모양이 칸 위에 미리 보인다. 놓을 자리를 정해 마우스를 놓거라.", "grid"),
+            new TutorialStep("카드를 끌고 있는 동안 R 키를 누르면 발판 모양이 돌아간다. 모양이 안 맞을 때는 돌려서 맞추거라. 칸을 넓히는 확장 조각도 같은 방식이다."));
 
         public static readonly TutorialSequence AugmentList = new TutorialSequence("topic.augments", "증강 리스트", "ingame", false, true,
             new TutorialStep("보스를 쓰러뜨리고 고른 증강은 왼쪽 '증강 리스트'에 모인다.", "augments"),
@@ -160,12 +166,11 @@ namespace OZGL2.Tutorial
             TutorialStep.WaitClose("다 보았으면 '뒤로' 단추를 눌러 돌아오거라!", "@page"),
             TutorialStep.Press("이번에는 '스킬 세팅'이다. 눌러 보거라!", "btn.skills", "@page"),
             new TutorialStep("여기는 스킬 세팅이다. 전투 중에 짐이 직접 쓰는 마법을 해금하고 장착하는 곳이니라. 이것도 하나씩 짚어 주마!", null, true),
-            new TutorialStep("위쪽에는 짐의 현재 레벨과 경험치가 보인다.", "skill.level"),
-            new TutorialStep("'장착 스킬'은 전투에 들고 나갈 칸이다. 여기에 올린 스킬만 전투 아래 슬롯에 나오니, 쓸 스킬을 골라 끼워 두거라.", "skill.equipped"),
-            new TutorialStep("그 아래가 스킬 목록이다. 위의 전체·딜·버프·디버프 탭으로 종류별로 걸러 볼 수 있다.", "skill.category"),
+            new TutorialStep("가운데 동그란 칸들이 전투에 들고 나갈 장착 칸이다. 여기에 올린 스킬만 전투 아래 슬롯에 나오니, 쓸 스킬을 골라 끼워 두거라.", "skill.equipped"),
+            new TutorialStep("왼쪽이 보유 스킬 목록이다. 위의 전체·딜·버프·디버프 탭으로 종류별로 걸러 볼 수 있다.", "skill.category"),
             new TutorialStep("자물쇠가 걸린 스킬은 아직 잠겨 있다. SP를 내고 잠금을 풀어야 쓸 수 있는데, SP는 전투에서 웨이브를 깰 때 쌓이느니라.", "skill.grid"),
             TutorialStep.Press("스킬 카드를 아무거나 눌러서 자세히 보거라!", "skill.card", null, "skill.grid"),
-            new TutorialStep("오른쪽에 그 스킬의 설명, 피해량, 재사용 시간이 나온다. 쓸 만한지 여기서 확인하거라.", "skill.detail"),
+            new TutorialStep("오른쪽에 그 스킬의 설명, 피해량, 재사용 시간이 나온다. 마왕 레벨이 오를수록 스킬 피해가 레벨당 4%씩 늘어나는 것도 여기서 보이느니라.", "skill.detail"),
             new TutorialStep("마음에 들면 '장착'으로 칸에 끼우고, 빼려면 '해제'를 누른다. 잠긴 스킬은 이 자리에서 SP로 해금한다.", "skill.buttons"),
             new TutorialStep("바꾼 뒤에는 꼭 '저장'을 눌러야 전투에 반영된다. 안 누르고 나가면 한 번 더 물어보느니라.", "skill.save"),
             TutorialStep.WaitClose("다 보았으면 '뒤로'를 눌러 돌아오거라!", "@page"),
@@ -178,7 +183,7 @@ namespace OZGL2.Tutorial
             new TutorialStep("체력과 공격력은 1성이 기본이고, 2성은 1.7배, 3성은 무려 3.2배다! 별을 올릴수록 모습도 능력도 달라지니, 같은 마왕군을 모아 합성하거라.", "codex.list"),
             new TutorialStep("지금까지 발견한 유닛 수는 여기서 확인하거라.", "codex.count"),
             TutorialStep.WaitClose("다 보았으면 '뒤로' 단추를 눌러 돌아오거라. 마지막 설명이 남았다!", "@page"),
-            new TutorialStep("가운데에서 도전할 스테이지를 고른다.", "stage"),
+            new TutorialStep("가운데에서 도전할 난이도를 고른다. 카드 위에 마우스를 올리면 지금까지의 최고 웨이브와 클리어 기록이 나오느니라.", "stage"),
             new TutorialStep("준비가 끝났으면 '전투 준비'를 눌러라. 용사들이 기다리고 있다!", "startbtn", true));
 
         // 도움말(?)로 다시 볼 때: 화면이 열려 있으면 같은 곳을 화살표로 가리키고, 아니면 말로만 설명한다.
@@ -192,9 +197,9 @@ namespace OZGL2.Tutorial
 
         public static readonly TutorialSequence LobbySkills = new TutorialSequence("lobby.skills", "스킬", "lobby", false, true,
             new TutorialStep("여기는 스킬 세팅이다. 전투 중에 짐이 직접 쓰는 마법을 해금하고 장착하는 곳이니라.", null, true),
-            new TutorialStep("'장착 스킬'은 전투에 들고 나갈 칸이다. 여기에 올린 스킬만 전투 아래 슬롯에 나온다.", "skill.equipped"),
-            new TutorialStep("스킬 목록이다. 전체·딜·버프·디버프 탭으로 종류별로 걸러 볼 수 있고, 자물쇠가 걸린 스킬은 SP로 잠금을 풀어야 한다.", "skill.grid"),
-            new TutorialStep("스킬 카드를 누르면 오른쪽에 설명, 피해량, 재사용 시간이 나온다.", "skill.detail"),
+            new TutorialStep("가운데 동그란 칸들이 전투에 들고 나갈 장착 칸이다. 여기에 올린 스킬만 전투 아래 슬롯에 나온다.", "skill.equipped"),
+            new TutorialStep("왼쪽이 스킬 목록이다. 전체·딜·버프·디버프 탭으로 종류별로 걸러 볼 수 있고, 자물쇠가 걸린 스킬은 SP로 잠금을 풀어야 한다.", "skill.grid"),
+            new TutorialStep("스킬 카드를 누르면 오른쪽에 설명, 피해량, 재사용 시간이 나온다. 마왕 레벨이 오를수록 피해가 늘어난다.", "skill.detail"),
             new TutorialStep("'장착'으로 칸에 끼우고 '해제'로 뺀다. 바꾼 뒤에는 꼭 '저장'을 눌러야 전투에 반영된다.", "skill.buttons"));
 
         public static readonly TutorialSequence LobbyCodex = new TutorialSequence("lobby.codex", "도감", "lobby", false, true,
@@ -210,7 +215,7 @@ namespace OZGL2.Tutorial
 
         /// <summary>자동 설명 + 도움말 목록 순서.</summary>
         public static readonly TutorialSequence[] All =
-            { Intro, Battle, WaveResult, Reward, Augment, AugmentList, Synergy, Levels, View, Unlock, Boss, LobbyTour, LobbyAchievements, LobbyTraits, LobbySkills, LobbyCodex };
+            { Intro, Battle, WaveResult, Reward, Augment, Place, AugmentList, Synergy, Levels, View, Unlock, Boss, LobbyTour, LobbyAchievements, LobbyTraits, LobbySkills, LobbyCodex };
 
         public static TutorialSequence Find(string id)
         {

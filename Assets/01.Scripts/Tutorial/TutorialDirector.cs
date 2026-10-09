@@ -1063,13 +1063,14 @@ namespace OZGL2.Tutorial
             _topicCatcher.SetActive(open);
         }
 
+        /// <summary>오른쪽 위 「?」 단추(마왕에게 묻기) 표시 여부. 다시 쓰려면 true 로 바꾸고 _seq == null 조건을 함께 둔다.</summary>
+        private static readonly bool ShowHelpButton = false;
+
         private void UpdateHelp()
         {
             if (_helpCanvas == null) return;
-            var stage = _bootstrap != null ? _bootstrap.Stage : null;
-            bool inGame = stage != null && (stage.State == eStageState.PREPARATION || stage.State == eStageState.COMBAT ||
-                                            stage.State == eStageState.GENERAL_REWARD || stage.State == eStageState.AUGMENT);
-            bool show = (inGame || IsLobby) && _seq == null;
+            // 오른쪽 위 「?」(마왕에게 묻기)는 로비·인게임 모두 보이지 않게 했다(자동으로 나오는 설명은 그대로)
+            bool show = ShowHelpButton;
             if (_helpCanvas.enabled != show) _helpCanvas.enabled = show;
             if (!show) { SetTopicsOpen(false); return; }
 
@@ -1143,6 +1144,7 @@ namespace OZGL2.Tutorial
                 case "slots": return RectOfNamed(new[] { "Slot_1", "Slot_2", "Slot_3" }, out rect, true);
                 case "codexlist": return RectOfNamed(new[] { "UnitScroll" }, out rect);
                 case "reward": return RectOfUnder("ClearRewardPreview", new[] { "Box" }, out rect);
+                case "speed": return RectOfUnder("SpeedControl", new[] { "Bar" }, out rect);
                 case "result.title": return RectOfUnder("Popup_WaveResult", new[] { "Outcome" }, out rect);
                 case "result.xp": return RectOfUnder("Popup_WaveResult", new[] { "Experience", "XpTrack" }, out rect);
                 case "result.confirm": return RectOfUnder("Popup_WaveResult", new[] { "Confirm" }, out rect);
@@ -1160,6 +1162,7 @@ namespace OZGL2.Tutorial
                 case "trait.recenter": return RectOfNamed(new[] { "Recenter" }, out rect);
                 case "trait.reset": return RectOfNamed(new[] { "ResetTraits" }, out rect);
                 case "skill.level": return RectOfNamed(new[] { "AccountStatus" }, out rect);
+                case "skill.sp": return RectOfNamed(new[] { "RemainingSp" }, out rect);
                 case "skill.equipped": return RectOfNamed(new[] { "EquippedTitle", "EquippedSlot_0", "EquippedSlot_1", "EquippedSlot_2" }, out rect, true);
                 case "skill.category": return RectOfNamed(new[] { "Category_0", "Category_1", "Category_2", "Category_3" }, out rect, true);
                 case "skill.grid": return RectOfNamed(new[] { "OwnedSkillsPanel" }, out rect);

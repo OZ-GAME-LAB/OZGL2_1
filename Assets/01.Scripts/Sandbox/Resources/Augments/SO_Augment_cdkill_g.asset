@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Augment.AugmentData
   augmentId: cdkill_g
   displayName: "\uCC98\uD615 \uC7AC\uCDA9\uC804"
-  description: "\uC6A9\uC0AC \uCC98\uCE58 \uC2DC \uBAA8\uB4E0 \uC2A4\uD0AC \uCFE8\uD0D0 \u22121\uCD08"
+  description: "\uC6A9\uC0AC \uCC98\uCE58 \uC2DC \uBAA8\uB4E0 \uC2A4\uD0AC \uCFE8\uD0D0 \u22120.3\uCD08"
   tier: 2
   weight: 8
   effect: 21
-  value: 1
+  value: 0.3
   maxStack: 1
   isInstant: 0
   connStatus: "\uC2E4\uC81C"

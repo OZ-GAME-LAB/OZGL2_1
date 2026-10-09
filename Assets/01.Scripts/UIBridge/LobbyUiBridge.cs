@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using OZGL2.Progression;
 using OZGL2.Skill;
+using TMPro;
 using OZGL2.Synergy;
 using OZGL2.UIFlow;
 using UnityEngine;
@@ -148,6 +149,55 @@ namespace OZGL2.UIBridge
         private readonly Dictionary<string, SkillData> _realDataByEntryId = new Dictionary<string, SkillData>();
         private readonly Dictionary<string, int> _unlockCosts = new Dictionary<string, int>();
         private TraitTree _capacityTraits;
+
+        private static readonly FieldInfo FSelected = typeof(UISkillLoadoutPreview).GetField("_selected", Private),
+            FEffectLabel = typeof(UISkillLoadoutPreview).GetField("_effectLabel", Private),
+            FEffectValue = typeof(UISkillLoadoutPreview).GetField("_effectValue", Private),
+            FDetailDescription = typeof(UISkillLoadoutPreview).GetField("_detailDescription", Private);
+
+        /// <summary>
+        /// 스킬 세팅 화면의 피해 수치를 지금 마왕 레벨(레벨 1당 +4%)과 특성(파괴의 정수 등)이 반영된 값으로 보여 준다.
+        /// 카탈로그의 글자는 기본값(예: 40)이라 레벨이 올라도 그대로였다. 증강은 전투 중에 고르는 것이라 로비 화면에는 들어가지 않지만 전투에서는 즉시 적용된다.
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (_preview == null || _catalog == null || FSelected == null || FEffectLabel == null || FEffectValue == null) return;
+            var label = FEffectLabel.GetValue(_preview) as TMP_Text;
+            var value = FEffectValue.GetValue(_preview) as TMP_Text;
+            if (label == null || value == null) return;
+            int selected = (int)FSelected.GetValue(_preview);
+            var entries = _catalog.Entries;
+            if (selected < 0 || selected >= entries.Count || entries[selected] == null) return;
+            var entry = entries[selected];
+            string kind = entry.EffectLabel;
+            if (kind != "피해" && kind != "연쇄 피해" && kind != "지속 피해" && kind != "연속 피해") return;
+            if (label.text != kind) return;   // 잠긴 스킬처럼 정보를 숨기는 상태면 건드리지 않는다
+
+            float mult = SkillLevelScaling.CurrentPowerMult() * (_capacityTraits != null ? _capacityTraits.BuildModifiers().SkillPowerMult : 1f);
+            var match = System.Text.RegularExpressions.Regex.Match(entry.EffectValue, @"\d+(\.\d+)?");
+            if (!match.Success) return;
+            float scaled = float.Parse(match.Value, System.Globalization.CultureInfo.InvariantCulture) * mult;
+            string number = scaled >= 10f ? Mathf.RoundToInt(scaled).ToString() : scaled.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+            string text = entry.EffectValue.Remove(match.Index, match.Length).Insert(match.Index, number);
+            if (mult > 1.004f) text += "  (+" + Mathf.RoundToInt((mult - 1f) * 100f) + "%)";
+            if (value.text != text) value.text = text;
+
+            // 설명: 「N의 피해」의 N도 같은 배율로 올리고, 아래에 마왕 레벨 보너스를 한 줄 덧붙인다(레벨 1이어도 「+0%」로 보인다)
+            var description = FDetailDescription != null ? FDetailDescription.GetValue(_preview) as TMP_Text : null;
+            if (description == null) return;
+            string body = entry.Description;
+            if (mult > 1.004f)
+                body = System.Text.RegularExpressions.Regex.Replace(body, @"(\d+(?:\.\d+)?)(?=의 피해)", m =>
+                {
+                    float v = float.Parse(m.Value, System.Globalization.CultureInfo.InvariantCulture) * mult;
+                    return v >= 10f ? Mathf.RoundToInt(v).ToString() : v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+                });
+            var mawang = MawangXpBridge.Mawang;
+            int level = mawang != null ? mawang.Level : 1;
+            float levelBonus = (SkillLevelScaling.PowerMult(level) - 1f) * 100f;
+            body += "\n<color=#FFD27A>마왕 Lv " + level + " · 스킬 피해 +" + Mathf.RoundToInt(levelBonus) + "% (레벨당 +" + Mathf.RoundToInt(SkillLevelScaling.PerLevel * 100f) + "%)</color>";
+            if (description.text != body) description.text = body;
+        }
         private bool _applying;
         private bool _isUnlocking;
 

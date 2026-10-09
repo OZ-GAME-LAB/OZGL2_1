@@ -87,6 +87,24 @@ namespace OZGL2.Progression
             }
         }
 
+        /// <summary>디버그용: 일정에 있는 유닛(마법사·힐러·도적)의 해금을 켜거나 끈다. 기본 유닛은 항상 해금이라 바꾸지 않는다.</summary>
+        public static void SetUnlocked(string unitId, bool unlocked)
+        {
+            foreach (var e in Schedule)
+                if (e.UnitId == unitId)
+                {
+                    if (unlocked) PlayerPrefs.SetInt(KeyPrefix + unitId, 1); else PlayerPrefs.DeleteKey(KeyPrefix + unitId);
+                    PlayerPrefs.Save();
+                    return;
+                }
+        }
+
+        public static void UnlockAll()
+        {
+            foreach (var e in Schedule) PlayerPrefs.SetInt(KeyPrefix + e.UnitId, 1);
+            PlayerPrefs.Save();
+        }
+
         public static void ResetAll()
         {
             foreach (var e in Schedule) PlayerPrefs.DeleteKey(KeyPrefix + e.UnitId);

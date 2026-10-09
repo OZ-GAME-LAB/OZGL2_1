@@ -169,6 +169,18 @@ namespace OZGL2.UIBridge
             GUILayout.EndHorizontal();
             if (!string.IsNullOrEmpty(_message)) GUILayout.Label(_message);
 
+            GUILayout.Space(4f);
+            GUILayout.Label("도감 (발견 용사 " + CodexStore.SeenHeroCount + " / " + CodexStore.HeroIds.Length + ")");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("이번 웨이브 용사 등록", GUILayout.Height(24f)))
+            {
+                var recorder = _bootstrap != null ? _bootstrap.GetComponent<HeroCodexRecorder>() : null;
+                if (recorder != null) { recorder.RecordCurrentRound(); _message = "이번 웨이브에 나오는 용사를 도감에 등록했어요."; }
+            }
+            if (GUILayout.Button("용사 전부 등록", GUILayout.Height(24f))) { CodexStore.MarkAllHeroes(); _message = "용사 6종을 도감에 등록했어요."; }
+            if (GUILayout.Button("용사 등록 초기화", GUILayout.Height(24f))) { CodexStore.ResetAll(); _message = "용사 도감 등록을 지웠어요."; }
+            GUILayout.EndHorizontal();
+
             if (_augRun != null)
             {
                 GUILayout.Space(4f);

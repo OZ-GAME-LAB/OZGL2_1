@@ -19,7 +19,7 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 3
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -29,7 +29,7 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -39,7 +39,7 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -49,7 +49,7 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 9
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -59,7 +59,7 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 11
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -69,10 +69,10 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -82,10 +82,10 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -95,10 +95,10 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 9
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -108,10 +108,10 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 10
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 9
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -121,13 +121,13 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_BOSS_01
       _count: 1
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -137,13 +137,13 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -153,13 +153,13 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -169,13 +169,13 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -185,13 +185,13 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -201,13 +201,13 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -217,16 +217,16 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -236,16 +236,16 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -255,16 +255,16 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -274,16 +274,16 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -293,19 +293,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 3
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 3
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_BOSS_02
       _count: 1
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 0
@@ -315,19 +315,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -337,19 +337,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -359,19 +359,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 5
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -381,19 +381,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -403,19 +403,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 6
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -425,19 +425,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -447,19 +447,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -469,19 +469,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 7
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -491,19 +491,19 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 9
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 8
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 0
     _rewardId: reward_dummy_general
     _silverWeight: 100
@@ -513,22 +513,22 @@ MonoBehaviour:
     _spawns:
     - _heroId: H_WAR_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_SHD_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ROG_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_ARC_01
       _count: 4
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_MAG_01
       _count: 3
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     - _heroId: H_BOSS_FINAL_01
       _count: 1
-      _intervalSeconds: 0.5
+      _intervalSeconds: 0.3
     _isBossRound: 1
     _rewardId: reward_dummy_general
     _silverWeight: 0

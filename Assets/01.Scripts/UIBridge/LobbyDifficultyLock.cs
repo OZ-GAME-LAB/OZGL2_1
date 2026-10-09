@@ -33,6 +33,7 @@ namespace OZGL2.UIBridge
         private Button _start;
         private TMP_Text _startLabel;
         private string _startLabelOriginal;
+        private TextAlignmentOptions _startAlignOriginal;
         private bool _forcedOff;
         private float _nextFind;
 
@@ -61,15 +62,16 @@ namespace OZGL2.UIBridge
             {
                 if (_startLabel != null)
                 {
-                    if (!_forcedOff) _startLabelOriginal = _startLabel.text;
+                    if (!_forcedOff) { _startLabelOriginal = _startLabel.text; _startAlignOriginal = _startLabel.alignment; }
                     _startLabel.text = "잠김";
+                    _startLabel.alignment = TextAlignmentOptions.Center; // 짧은 글자가 한쪽으로 치우치지 않게 글자 칸 가운데에 둔다
                 }
                 _start.interactable = false;
                 _forcedOff = true;
             }
             else if (_forcedOff)
             {
-                if (_startLabel != null && _startLabelOriginal != null) _startLabel.text = _startLabelOriginal;
+                if (_startLabel != null && _startLabelOriginal != null) { _startLabel.text = _startLabelOriginal; _startLabel.alignment = _startAlignOriginal; }
                 _start.interactable = true;
                 _forcedOff = false;
             }

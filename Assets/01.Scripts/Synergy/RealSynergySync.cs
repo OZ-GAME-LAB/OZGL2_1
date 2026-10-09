@@ -57,6 +57,9 @@ namespace OZGL2.Synergy
         public AugmentRun Augments => _augments;
         public SkillManager SkillManager => _skillManager;
 
+        /// <summary>지금 적용 중인 스킬 피해 배율(마왕 레벨 · 특성 · 증강). 전투 화면의 스킬 설명이 실제 피해를 보여 주는 데 쓴다.</summary>
+        public float SkillPowerMultNow => _skillMods != null ? _skillMods.PowerMult : SkillLevelScaling.CurrentPowerMult();
+
         /// <summary>
         /// 마왕 위치. 인스펙터에 지정된 Transform이 있으면 그걸 쓰고, 없으면 RealDefenders가
         /// 라운드 시작마다 채워두는 UnitRegistry.KingWorldPosition(실제 그리드 King 앵커)을 쓴다.
@@ -87,6 +90,7 @@ namespace OZGL2.Synergy
             _augments.Picked += OnAugmentPicked;
             UnitBase.OnHeroKilled += OnHeroKilled;
             CombatModifierHub.AttackPerformed += OnAttackPerformed;
+            if (MawangXpBridge.Mawang != null) MawangXpBridge.Mawang.LeveledUp += OnMawangLeveledUp; // 레벨이 오르면 스킬 피해 배율을 다시 계산
 
             SetupSkills();
             Sync();
@@ -97,6 +101,7 @@ namespace OZGL2.Synergy
             StopCombat();
             UnitBase.OnHeroKilled -= OnHeroKilled;
             CombatModifierHub.AttackPerformed -= OnAttackPerformed;
+            if (MawangXpBridge.Mawang != null) MawangXpBridge.Mawang.LeveledUp -= OnMawangLeveledUp;
             if (_synergy != null) _synergy.Changed -= Sync;
             if (_traits != null) _traits.Changed -= Sync;
             if (_augments != null)
@@ -105,6 +110,8 @@ namespace OZGL2.Synergy
                 _augments.Picked -= OnAugmentPicked;
             }
         }
+
+        private void OnMawangLeveledUp(int level) => Sync();
 
         public void SetCount(SynergyJob job, int count) => _synergy.SetCount(job, count);
 
@@ -559,7 +566,8 @@ namespace OZGL2.Synergy
             if (_skillMods != null)
             {
                 // 절망 낙인(용사가 받는 스킬 피해 +%) — 스킬은 용사만 때리므로 스킬 피해 배율에 곱한다.
-                _skillMods.PowerMult = Combine(trait.SkillPowerMult, aug.SkillPowerMult) * aug.HeroIncomingSkillMult;
+                // 특성·증강 배율에 마왕 레벨 배율(레벨 1당 +4%)을 곱한다. 증강은 고르는 즉시 이 값에 반영된다.
+                _skillMods.PowerMult = Combine(trait.SkillPowerMult, aug.SkillPowerMult) * aug.HeroIncomingSkillMult * SkillLevelScaling.CurrentPowerMult();
                 _skillMods.CooldownMult = Mathf.Max(0.3f, Combine(trait.SkillCooldownMult, aug.SkillCooldownMult));
                 _skillMods.RadiusMult = Combine(trait.SkillRadiusMult, aug.SkillRadiusMult);
                 _skillMods.BuffDurationMult = Combine(trait.SkillBuffDurationMult, aug.SkillBuffDurationMult);

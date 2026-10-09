@@ -1810,6 +1810,7 @@ GameObject:
   - component: {fileID: 6666600044}
   - component: {fileID: 6666600045}
   - component: {fileID: 6666600046}
+  - component: {fileID: 6666600047}
   m_Layer: 0
   m_Name: ReleaseMode
   m_TagString: Untagged
@@ -2171,9 +2172,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 496211c7bdf959e8895e9834b4c2cc47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameSkillBarFit
-  _fillHeight: 0.88
+  _fillHeight: 0.78
   _fillWidth: 0.96
-  _verticalBias: -0.02
+  _verticalBias: -0.06
 --- !u!114 &6666600041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2274,6 +2275,20 @@ MonoBehaviour:
   _maxCoinsPerKill: 6
   _gainPerCoin: 4
   _maxActive: 80
+--- !u!114 &6666600047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6666600001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f220b5bce8b579f816921a99246a379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGamePlatformCardArt
+  _tile: {fileID: 21300000, guid: ce528c89fdab5a10b10719b02a2e7b51, type: 3}
+  _maxScale: 2.2
 --- !u!4 &347167958327096651
 Transform:
   m_ObjectHideFlags: 0

@@ -9,15 +9,17 @@ namespace OZGL2.UIBridge
     /// 슬롯·프레임·이름표의 고정 영역만 측정한다. 움직이는 쿨타임 효과는 배치에 참여하지 않는다.
     /// 슬롯 구성/화면 크기/화면 활성 상태가 바뀔 때 원래 배치에서 다시 계산하고 가로·세로 중심을 함께 보정한다.
     /// </summary>
-    [DefaultExecutionOrder(1000)]
+    [DefaultExecutionOrder(2000)]
     public sealed class InGameSkillBarFit : MonoBehaviour
     {
         private const string ContainerName = "SkillSlots";
         private const string BarName = "BottomSkillBackground";
+        private const float LEGACY_LAYOUT_CHECK_INTERVAL = 0.5f;
+        private const float LAYOUT_SLACK_PIXELS = 8f;
 
-        [SerializeField, Range(0.6f, 1f), Tooltip("바 높이 중 슬롯이 차지해도 되는 비율")] private float _fillHeight = 0.88f;
+        [SerializeField, Range(0.6f, 1f), Tooltip("바 높이 중 슬롯이 차지해도 되는 비율")] private float _fillHeight = 0.78f;
         [SerializeField, Range(0.6f, 1f), Tooltip("바 폭 중 슬롯이 차지해도 되는 비율")] private float _fillWidth = 0.96f;
-        [SerializeField, Range(-0.15f, 0.15f), Tooltip("바 가운데에서 위(+)/아래(-)로 옮기는 비율(바 높이 기준)")] private float _verticalBias = -0.02f;
+        [SerializeField, Range(-0.15f, 0.15f), Tooltip("바 가운데에서 위(+)/아래(-)로 옮기는 비율(바 높이 기준)")] private float _verticalBias = -0.06f;
 
         private RectTransform _container, _bar;
         private UIInGameSkillBarController _controller;
@@ -27,6 +29,7 @@ namespace OZGL2.UIBridge
         private Vector2Int _lastScreen;
         private Vector2 _lastContainerSize, _lastBarSize;
         private int _lastLayoutVersion = -1;
+        private float _nextLegacyLayoutCheckTime;
         private bool _wasActive;
         private bool _hasBaseLayout;
         private readonly Vector3[] _corners = new Vector3[4];
@@ -84,7 +87,19 @@ namespace OZGL2.UIBridge
             _lastLayoutVersion = version;
             _lastContainerSize = _container.rect.size;
             _lastBarSize = _bar.rect.size;
-            if (changed && slots.Length > 0) Solve(slots);
+            if (slots.Length == 0) return;
+            if (changed)
+            {
+                _nextLegacyLayoutCheckTime = Time.unscaledTime + LEGACY_LAYOUT_CHECK_INTERVAL;
+                Solve(slots);
+                return;
+            }
+
+            // 기존 씬 슬롯은 다른 배치 컴포넌트가 위치를 바꿀 수 있어 주기적으로 확인한다.
+            if (_controller != null && _controller.UsesSlotPrefab) return;
+            if (Time.unscaledTime < _nextLegacyLayoutCheckTime) return;
+            _nextLegacyLayoutCheckTime = Time.unscaledTime + LEGACY_LAYOUT_CHECK_INTERVAL;
+            if (!Fits(slots)) Solve(slots);
         }
 
         private static Vector2 Screen2(RectTransform rt, Vector3 world)
@@ -106,10 +121,9 @@ namespace OZGL2.UIBridge
             float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
             foreach (var view in views)
             {
-                Transform root = view.transform;
-                while (root.parent != null && root.parent != _container) root = root.parent;
-                if (root.parent != _container) continue;
-                IncludeRect(root as RectTransform, ref minX, ref minY, ref maxX, ref maxY);
+                RectTransform root = FindSlotRoot(view);
+                if (root == null) continue;
+                IncludeRect(root, ref minX, ref minY, ref maxX, ref maxY);
                 IncludeRect(view.FrameLayoutRect, ref minX, ref minY, ref maxX, ref maxY);
                 IncludeRect(view.SkillNameText != null ? view.SkillNameText.rectTransform : null,
                     ref minX, ref minY, ref maxX, ref maxY);
@@ -118,6 +132,41 @@ namespace OZGL2.UIBridge
             if (!any) return false;
             slots = Rect.MinMaxRect(minX, minY, maxX, maxY);
             return true;
+        }
+
+        /// <summary>이름표의 폭이나 위치와 무관하게 슬롯 칸들의 가로 중심을 구한다.</summary>
+        private bool MeasureRoots(UICombatSkillSlotView[] views, out Rect roots)
+        {
+            roots = default;
+            bool any = false;
+            float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+            foreach (var view in views)
+            {
+                RectTransform root = FindSlotRoot(view);
+                if (root == null) continue;
+                IncludeRect(root, ref minX, ref minY, ref maxX, ref maxY);
+                any = true;
+            }
+            if (!any) return false;
+            roots = Rect.MinMaxRect(minX, minY, maxX, maxY);
+            return true;
+        }
+
+        private RectTransform FindSlotRoot(UICombatSkillSlotView view)
+        {
+            if (view == null) return null;
+            Transform root = view.transform;
+            while (root.parent != null && root.parent != _container) root = root.parent;
+            return root.parent == _container && root.gameObject.activeInHierarchy ? root as RectTransform : null;
+        }
+
+        private bool Fits(UICombatSkillSlotView[] views)
+        {
+            if (!Measure(views, out var bar, out var slots)) return true;
+            if (slots.yMax > bar.yMax + LAYOUT_SLACK_PIXELS || slots.yMin < bar.yMin - LAYOUT_SLACK_PIXELS ||
+                slots.xMin < bar.xMin - LAYOUT_SLACK_PIXELS || slots.xMax > bar.xMax + LAYOUT_SLACK_PIXELS)
+                return false;
+            return !MeasureRoots(views, out var roots) || Mathf.Abs(roots.center.x - bar.center.x) <= LAYOUT_SLACK_PIXELS;
         }
 
         private void IncludeRect(RectTransform rect, ref float minX, ref float minY, ref float maxX, ref float maxY)
@@ -146,12 +195,14 @@ namespace OZGL2.UIBridge
             if (!Measure(views, out bar, out slots)) return;
 
             Vector2 target = bar.center + new Vector2(0f, bar.height * _verticalBias);
+            Vector2 currentCenter = slots.center;
+            if (MeasureRoots(views, out var roots)) currentCenter.x = roots.center.x;
             var parent = _container.parent as RectTransform;
             if (parent == null) return;
             var canvas = _container.GetComponentInParent<Canvas>();
             Camera camera = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
                 ? canvas.rootCanvas.worldCamera : null;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, slots.center, camera, out var currentLocal) &&
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, currentCenter, camera, out var currentLocal) &&
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, target, camera, out var targetLocal))
                 _container.anchoredPosition += targetLocal - currentLocal;
         }

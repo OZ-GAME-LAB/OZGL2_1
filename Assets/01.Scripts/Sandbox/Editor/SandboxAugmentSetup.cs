@@ -43,7 +43,7 @@ namespace OZGL2.Sandbox.EditorTools
             n += A("predator_g", "사냥 개시", "용사 처치 시 5초간 몬스터 공격력 +10%", 2, 8f, AugmentEffect.HuntStart, 0.10f, "실제");
             n += A("frost_g", "냉기 침식", "용사 이동속도 −4%, 방어력 −4%p 동시 감소", 2, 8f, AugmentEffect.FrostLance, 0.04f, "스텁");
             n += A("hero_vuln", "절망 낙인", "용사가 받는 스킬 피해 +9%", 2, 8f, AugmentEffect.HeroVulnerable, 0.09f, "샌드박스");
-            n += A("cdkill_g", "처형 재충전", "용사 처치 시 모든 스킬 쿨탐 −1초", 2, 8f, AugmentEffect.CooldownOnKill, 1f, "실제");
+            n += A("cdkill_g", "처형 재충전", "용사 처치 시 모든 스킬 쿨탐 −0.3초", 2, 8f, AugmentEffect.CooldownOnKill, 0.3f, "실제");
             n += A("eco_sp", "전리품 확대", "즉시 SP +2", 2, 7f, AugmentEffect.InstantSp, 2f, "실제", instant: true);
             n += A("util_reset", "재정비", "즉시 모든 스킬 쿨타임 초기화", 2, 6f, AugmentEffect.InstantResetCooldowns, 0f, "실제", instant: true);
 
@@ -53,7 +53,7 @@ namespace OZGL2.Sandbox.EditorTools
             n += A("crit_p", "치명의 폭풍", "스킬 시전 시 25% 확률로 피해 ×1.5", 3, 7f, AugmentEffect.CritChance, 0.25f, "실제");
             n += A("echo_p", "심판의 메아리", "스킬 시전 시 30% 확률로 쿨탐 없이 즉시 재시전", 3, 7f, AugmentEffect.EchoRecast, 0.30f, "실제");
             n += A("revive_p", "불사의 진영", "몬스터가 죽으면 30% 확률로 즉시 부활", 3, 6f, AugmentEffect.MonsterReviveChance, 0.30f, "실제");
-            n += A("cdkill_p", "학살 재충전", "용사 처치 시 모든 스킬 쿨탐 −2.5초", 3, 7f, AugmentEffect.CooldownOnKill, 2.5f, "실제");
+            n += A("cdkill_p", "학살 재충전", "용사 처치 시 모든 스킬 쿨탐 −0.8초", 3, 7f, AugmentEffect.CooldownOnKill, 0.8f, "실제");
             n += A("xpalive_p", "백성의 성원", "용사 처치 XP + 생존 몬스터 수 × 5", 3, 6f, AugmentEffect.XpPerAliveMonster, 5f, "실제");
             n += A("eco_xp_p", "위대한 깨달음", "XP 획득 +18%", 3, 6f, AugmentEffect.XpGain, 0.18f, "실제");
             n += A("explode_p", "연쇄 폭발", "용사가 죽으면 그 자리에서 주변 용사에게 40 피해", 3, 6f, AugmentEffect.ExplodeOnDeath, 40f, "실제");

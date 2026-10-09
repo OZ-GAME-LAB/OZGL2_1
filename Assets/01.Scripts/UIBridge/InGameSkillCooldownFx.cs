@@ -100,7 +100,7 @@ namespace OZGL2.UIBridge
             public TMP_Text text;
             public RectTransform[] sparkles = new RectTransform[SparkleCount];
             public Image[] sparkleImg = new Image[SparkleCount];
-            public float lastRatio, readyT = -1f;
+            public float lastRatio, lastRemaining, readyT = -1f;
             public Color textBase = Color.white;
             public Vector3 iconBaseScale = Vector3.one;
             public float ringRadius = 100f;
@@ -319,8 +319,10 @@ namespace OZGL2.UIBridge
             }
 
             // 쿨타임이 끝나는 순간
-            if (fx.lastRatio > 0.001f && !cooling && hasSkill && duration > 0.01f) fx.readyT = 0f;
+            // 쿨타임이 거의 다 돌아서 끝났을 때만 연출한다. 전투 시작처럼 한꺼번에 초기화된 것은 조용히 넘어간다
+            if (fx.lastRatio > 0.001f && !cooling && hasSkill && duration > 0.01f && fx.lastRemaining <= 0.35f) fx.readyT = 0f;
             fx.lastRatio = ratio;
+            fx.lastRemaining = remaining;
             AnimateReady(fx, dt);
         }
 

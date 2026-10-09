@@ -122,26 +122,46 @@ namespace OZGL2.UIBridge
             _group.blocksRaycasts = _fade > 0.5f; // 숨은 동안 시너지 설명이 카드 위에 뜨지 않게
         }
 
-        /// <summary>시너지 목록 전체를 키우고, 화면 오른쪽(왼쪽) 밖으로 나가면 안쪽으로 당겨 놓는다.</summary>
+        private bool _loggedMove;
+
+        /// <summary>
+        /// 시너지 목록 크기를 맞추고, 목록의 오른쪽 끝을 화면 오른쪽 끝(여백 12px, 오른쪽 깃발 폭 포함)에 붙인다.
+        /// 예전에는 화면 밖으로 나갈 때만 안쪽으로 당겼고 오버레이 캔버스에서만 동작해서, 화면 크기나 캔버스 방식에 따라 목록이 가운데로 밀려 나와
+        /// 배치 영역을 가리는 일이 있었다. 이제는 캔버스 방식(오버레이·카메라)과 상관없이 화면 좌표로 재서 가로 위치만 항상 오른쪽 끝에 맞춘다.
+        /// </summary>
         private void ScaleTracker()
         {
             if (_container == null) return;
             if (!Mathf.Approximately(_container.localScale.x, TrackerScale)) _container.localScale = new Vector3(TrackerScale, TrackerScale, 1f);
             RowScreenScale = _container.lossyScale.x;
             var canvas = _container.GetComponentInParent<Canvas>();
-            if (canvas == null || canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay) return; // 오버레이 캔버스에서는 월드 좌표 = 화면 픽셀
-            float minX = float.MaxValue, maxX = float.MinValue;
+            if (canvas == null) return;
+            Camera cam = canvas.rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.rootCanvas.worldCamera;
+
+            float maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
             var corners = new Vector3[4];
             for (int i = 0; i < Slots; i++)
             {
                 if (_rows[i] == null || !_rows[i].activeInHierarchy) continue;
                 ((RectTransform)_rows[i].transform).GetWorldCorners(corners);
-                minX = Mathf.Min(minX, corners[0].x); maxX = Mathf.Max(maxX, corners[2].x);
+                Vector2 a = RectTransformUtility.WorldToScreenPoint(cam, corners[0]), b = RectTransformUtility.WorldToScreenPoint(cam, corners[2]);
+                maxX = Mathf.Max(maxX, Mathf.Max(a.x, b.x));
+                minY = Mathf.Min(minY, Mathf.Min(a.y, b.y)); maxY = Mathf.Max(maxY, Mathf.Max(a.y, b.y));
             }
-            if (maxX < minX) return;
-            float margin = 12f;
-            if (maxX > Screen.width - margin) _container.position += new Vector3(Screen.width - margin - maxX, 0f, 0f);
-            else if (minX < margin) _container.position += new Vector3(margin - minX, 0f, 0f);
+            if (maxX == float.MinValue) return;
+
+            float flag = 30f * Mathf.Max(0.01f, _container.lossyScale.x);       // 줄 오른쪽 깃발이 줄 바깥으로 나온 폭
+            float dx = (Screen.width - 12f - flag) - maxX;
+            if (Mathf.Abs(dx) < 0.75f) return;
+            var parent = _container.parent as RectTransform;
+            if (parent == null) return;
+            float midY = (minY + maxY) * 0.5f;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, new Vector2(maxX, midY), cam, out var from) &&
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, new Vector2(maxX + dx, midY), cam, out var to))
+            {
+                if (!_loggedMove && Mathf.Abs(dx) > 40f) { _loggedMove = true; Debug.Log("[시너지 UI] 목록을 화면 오른쪽 끝으로 옮겼어요(가로 " + dx.ToString("0") + "px)"); }
+                _container.anchoredPosition += to - from;
+            }
         }
 
         private void FindRows()

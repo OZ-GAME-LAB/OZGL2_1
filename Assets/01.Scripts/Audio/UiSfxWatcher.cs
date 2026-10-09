@@ -59,8 +59,18 @@ internal sealed class UiSfxWatcher : MonoBehaviour
 
         if (pressed && under != null)
         {
-            Sfx.Play(IsCancelLike(under) ? SfxId.UiCancel : SfxId.UiClick);
+            // 리롤 버튼은 전용 소리, 닫기·취소 류는 취소음, 나머지는 일반 클릭음.
+            Sfx.Play(IsReroll(under) ? SfxId.UiReroll : IsCancelLike(under) ? SfxId.UiCancel : SfxId.UiClick);
         }
+    }
+
+    // InGameCurrencyHud가 이름에 "Reroll"이 들어간 UI에 Button을 붙여 리롤로 쓰므로, 같은 이름 규칙(또는 "리롤" 글자)으로 판별한다.
+    private static bool IsReroll(Selectable selectable)
+    {
+        if (selectable.gameObject.name.IndexOf("reroll", System.StringComparison.OrdinalIgnoreCase) >= 0) return true;
+
+        TMP_Text label = selectable.GetComponentInChildren<TMP_Text>(true);
+        return label != null && label.text != null && label.text.Contains("리롤");
     }
 
     private Selectable FindSelectableUnderPointer(EventSystem eventSystem, Vector2 screenPosition)

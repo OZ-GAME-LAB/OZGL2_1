@@ -4,6 +4,7 @@ using OZGL2.UIBridge;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace OZGL2.UIFlow
@@ -18,6 +19,12 @@ namespace OZGL2.UIFlow
         [Header("소리 크기")]
         [SerializeField] private Slider _volumeSlider;
         [SerializeField] private TMP_Text _volumeLabel;
+
+        [Header("배경음악 / 효과음 크기")]
+        [SerializeField] private Slider _bgmVolumeSlider;
+        [SerializeField] private TMP_Text _bgmVolumeLabel;
+        [SerializeField] private Slider _sfxVolumeSlider;
+        [SerializeField] private TMP_Text _sfxVolumeLabel;
 
         [Header("전체화면")]
         [SerializeField] private Toggle _fullscreenToggle;
@@ -38,12 +45,16 @@ namespace OZGL2.UIFlow
         private const string VOLUME_KEY = "OZGL2.Volume";
         private const string TUTORIAL_DEFAULT_TEXT = "다시 보기";
         private const string TUTORIAL_FEEDBACK_TEXT = "초기화됨!";
+        private const float VOLUME_COMMIT_DELAY_SECONDS = 0.25f;
 
         private bool _isFullscreen;
         private bool _isStandalone;
         private bool _hasBoundListeners;
+        private bool _hasPendingIndividualVolumeChanges;
+        private bool _hasPendingSfxVolumePreview;
         private UnityAction _closeAction;
         private Coroutine _tutorialFeedbackRoutine;
+        private Coroutine _individualVolumeCommitRoutine;
 
         public bool IsConfigured => _volumeSlider != null && _volumeLabel != null &&
                                     _fullscreenToggle != null && _fullscreenState != null &&
@@ -53,6 +64,15 @@ namespace OZGL2.UIFlow
                                     Mathf.Approximately(_volumeSlider.minValue, 0f) &&
                                     Mathf.Approximately(_volumeSlider.maxValue, 1f) &&
                                     !_volumeSlider.wholeNumbers;
+
+        public bool IsIndividualVolumeConfigured =>
+            IsVolumeSliderConfigured(_bgmVolumeSlider, _bgmVolumeLabel) &&
+            IsVolumeSliderConfigured(_sfxVolumeSlider, _sfxVolumeLabel) &&
+            _bgmVolumeSlider != _sfxVolumeSlider && _bgmVolumeLabel != _sfxVolumeLabel;
+
+        private static bool IsVolumeSliderConfigured(Slider slider, TMP_Text label) =>
+            slider != null && label != null && Mathf.Approximately(slider.minValue, 0f) &&
+            Mathf.Approximately(slider.maxValue, 1f) && !slider.wholeNumbers;
 
         // 설정창은 시작 비활성이므로 Awake 이전에도 직접 실행한 씬에 저장 음량을 적용한다.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -85,15 +105,24 @@ namespace OZGL2.UIFlow
         private void OnDisable()
         {
             UnbindListeners();
+            CommitIndividualVolumeChanges();
             StopTutorialFeedback();
             if (_tutorialState != null) _tutorialState.text = TUTORIAL_DEFAULT_TEXT;
         }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus) CommitIndividualVolumeChanges();
+        }
+
+        private void OnApplicationQuit() => CommitIndividualVolumeChanges();
 
         private void RefreshControls()
         {
             float volume = Mathf.Clamp01(AudioListener.volume);
             if (_volumeSlider != null) _volumeSlider.SetValueWithoutNotify(volume);
             RefreshVolumeLabel(volume);
+            RefreshIndividualVolumeControls();
 
             _isFullscreen = Screen.fullScreen;
             if (_fullscreenToggle != null) _fullscreenToggle.SetIsOnWithoutNotify(_isFullscreen);
@@ -106,6 +135,8 @@ namespace OZGL2.UIFlow
         {
             if (_hasBoundListeners) return;
             if (_volumeSlider != null) _volumeSlider.onValueChanged.AddListener(SetVolume);
+            if (_bgmVolumeSlider != null) _bgmVolumeSlider.onValueChanged.AddListener(SetBgmVolume);
+            if (_sfxVolumeSlider != null) _sfxVolumeSlider.onValueChanged.AddListener(SetSfxVolume);
             if (_fullscreenToggle != null) _fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
             if (_tutorialButton != null) _tutorialButton.onClick.AddListener(ResetTutorial);
 
@@ -124,6 +155,8 @@ namespace OZGL2.UIFlow
         {
             if (!_hasBoundListeners) return;
             if (_volumeSlider != null) _volumeSlider.onValueChanged.RemoveListener(SetVolume);
+            if (_bgmVolumeSlider != null) _bgmVolumeSlider.onValueChanged.RemoveListener(SetBgmVolume);
+            if (_sfxVolumeSlider != null) _sfxVolumeSlider.onValueChanged.RemoveListener(SetSfxVolume);
             if (_fullscreenToggle != null) _fullscreenToggle.onValueChanged.RemoveListener(SetFullscreen);
             if (_tutorialButton != null) _tutorialButton.onClick.RemoveListener(ResetTutorial);
             if (_isStandalone)
@@ -147,6 +180,84 @@ namespace OZGL2.UIFlow
         private void RefreshVolumeLabel(float volume)
         {
             if (_volumeLabel != null) _volumeLabel.text = Mathf.RoundToInt(volume * 100f) + "%";
+        }
+
+        private void RefreshIndividualVolumeControls()
+        {
+            float bgmVolume = NormalizeVolume(GameAudioSettings.BgmVolume);
+            float sfxVolume = NormalizeVolume(GameAudioSettings.SfxVolume);
+            if (_bgmVolumeSlider != null) _bgmVolumeSlider.SetValueWithoutNotify(bgmVolume);
+            if (_sfxVolumeSlider != null) _sfxVolumeSlider.SetValueWithoutNotify(sfxVolume);
+            RefreshIndividualVolumeLabel(_bgmVolumeLabel, bgmVolume);
+            RefreshIndividualVolumeLabel(_sfxVolumeLabel, sfxVolume);
+        }
+
+        private void SetBgmVolume(float value)
+        {
+            float volume = NormalizeVolume(value);
+            RefreshIndividualVolumeLabel(_bgmVolumeLabel, volume);
+            if (Mathf.Approximately(GameAudioSettings.BgmVolume, volume)) return;
+            GameAudioSettings.SetBgmVolume(volume);
+            ScheduleIndividualVolumeCommit();
+        }
+
+        private void SetSfxVolume(float value)
+        {
+            float volume = NormalizeVolume(value);
+            RefreshIndividualVolumeLabel(_sfxVolumeLabel, volume);
+            if (Mathf.Approximately(GameAudioSettings.SfxVolume, volume)) return;
+            GameAudioSettings.SetSfxVolume(volume);
+            _hasPendingSfxVolumePreview = true;
+            ScheduleIndividualVolumeCommit();
+        }
+
+        private static float NormalizeVolume(float value) =>
+            float.IsNaN(value) || float.IsInfinity(value) ? 1f : Mathf.Clamp01(value);
+
+        private static void RefreshIndividualVolumeLabel(TMP_Text label, float volume)
+        {
+            if (label != null) label.text = Mathf.RoundToInt(volume * 100f) + "%";
+        }
+
+        private void ScheduleIndividualVolumeCommit()
+        {
+            _hasPendingIndividualVolumeChanges = true;
+            if (_individualVolumeCommitRoutine != null)
+            {
+                StopCoroutine(_individualVolumeCommitRoutine);
+                _individualVolumeCommitRoutine = null;
+            }
+            if (!isActiveAndEnabled)
+            {
+                CommitIndividualVolumeChanges();
+                return;
+            }
+            _individualVolumeCommitRoutine = StartCoroutine(CommitIndividualVolumesAfterInput());
+        }
+
+        private IEnumerator CommitIndividualVolumesAfterInput()
+        {
+            // 드래그 중 디스크 저장을 반복하지 않고, 키보드 조작도 마지막 변경 뒤 확정한다.
+            yield return new WaitForSecondsRealtime(VOLUME_COMMIT_DELAY_SECONDS);
+            while ((Mouse.current != null && Mouse.current.leftButton.isPressed) ||
+                   (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed))
+                yield return null;
+            _individualVolumeCommitRoutine = null;
+            CommitIndividualVolumeChanges(true);
+        }
+
+        private void CommitIndividualVolumeChanges(bool playSfxPreview = false)
+        {
+            if (_individualVolumeCommitRoutine != null)
+            {
+                StopCoroutine(_individualVolumeCommitRoutine);
+                _individualVolumeCommitRoutine = null;
+            }
+            if (!_hasPendingIndividualVolumeChanges) return;
+            _hasPendingIndividualVolumeChanges = false;
+            GameAudioSettings.CommitVolumes();
+            if (playSfxPreview && _hasPendingSfxVolumePreview) Sfx.Play(SfxId.UnitPlace);
+            _hasPendingSfxVolumePreview = false;
         }
 
         private void SetFullscreen(bool isEnabled)
