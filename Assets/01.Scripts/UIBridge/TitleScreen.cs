@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using OZGL2.Progression;
 using OZGL2.Tutorial;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -32,6 +33,7 @@ namespace OZGL2.UIBridge
         [SerializeField, Tooltip("모서리 마름모(Ornament_Diamond_Flat)")] private Sprite _cornerDiamond;
         [SerializeField, Tooltip("이름표 양옆 장식(Ornament_WaveTitle_Flat)")] private Sprite _titleOrnament;
         [SerializeField, Tooltip("배너 마름모 안 아이콘(Icon_CrossedSwords_Casual)")] private Sprite _swordsIcon;
+        [SerializeField, Tooltip("공통 설정창 프리팹. 미연결 시 기존 설정창을 사용합니다.")] private GameObject _settingsPopupPrefab;
 
         private TMP_FontAsset _font;
         private RectTransform _logoRect, _sun, _mountains, _hillsFar, _forestFar, _castleNear, _village, _hillsNear, _forestNear;
@@ -48,6 +50,7 @@ namespace OZGL2.UIBridge
         private Sprite _dot, _glow, _round, _roundFlat, _roundRing, _chevron;
         private RectTransform _starsRoot;
         private GameObject _settingsPanel, _confirmPanel;
+        private UICommonSettingsView _commonSettingsView;
         private TMP_Text _volumeLabel, _tutorialLabel;
         private TMP_Text _fullscreenLabel, _bgmLabel, _sfxLabel;
         private bool _fullscreenOn;
@@ -124,9 +127,12 @@ namespace OZGL2.UIBridge
         private void OpenSettings()
         {
             if (_starting || _settingsPanel == null) return;
-            _fullscreenOn = Screen.fullScreen;
-            RefreshFullscreenLabel();
-            RefreshAudioLabels();
+            if (_commonSettingsView == null)
+            {
+                _fullscreenOn = Screen.fullScreen;
+                RefreshFullscreenLabel();
+                RefreshAudioLabels();
+            }
             _settingsPanel.SetActive(true);
         }
 
@@ -621,6 +627,21 @@ namespace OZGL2.UIBridge
         /// <summary>설정 창: 소리 크기 슬라이더, 배경음악·효과음 켜짐/꺼짐, 전체화면 켜짐/꺼짐, 마왕 설명 다시 보기. 줄마다 제목은 왼쪽, 조절은 오른쪽에 같은 선으로 맞춘다.</summary>
         private void BuildSettings(RectTransform root)
         {
+            if (_settingsPopupPrefab != null)
+            {
+                UICommonSettingsView prefabView;
+                if (_settingsPopupPrefab.TryGetComponent(out prefabView) && prefabView.IsConfigured)
+                {
+                    _commonSettingsView = Instantiate(prefabView, root, false);
+                    _settingsPanel = _commonSettingsView.gameObject;
+                    _settingsPanel.SetActive(false);
+                    _commonSettingsView.ConfigureStandalone(CloseSettings);
+                    return;
+                }
+
+                Debug.LogWarning("공통 설정창의 UICommonSettingsView 연결이 누락되어 기존 설정창을 사용합니다.", this);
+            }
+
             var dim = NewImage("SettingsDim", root, null, new Color(0f, 0f, 0f, 0.66f));
             Stretch(dim.rectTransform);
             _settingsPanel = dim.gameObject;
