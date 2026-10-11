@@ -3,6 +3,7 @@ using System.Text;
 using OZGL2.InGame;
 using OZGL2.Stage;
 using OZGL2.Synergy;
+using OZGL2.UI;
 using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
@@ -55,6 +56,9 @@ namespace OZGL2.UIBridge
         private string _lastSignature;
 
         // 호버 설명 팝업
+        [SerializeField, Tooltip("시너지 설명창의 표시 전용 프리팹. 비어 있으면 기존 설명창을 유지합니다.")]
+        private UIAdaptiveTooltipPanel _tooltipPanelPrefab;
+        private UIAdaptiveTooltipPanel _tooltipPanel;
         private Canvas _tipCanvas;
         private RectTransform _tipBox;
         private RectTransform _tipContent;
@@ -265,8 +269,8 @@ namespace OZGL2.UIBridge
             // 시너지 줄의 왼쪽에, 줄과 위쪽을 맞춰 띄운다(화면 밖으로 나가지 않게 보정)
             float x = rowRect.xMin - size.x - 14f * scale;
             float y = rowRect.yMax - size.y;
-            x = Mathf.Clamp(x, 8f, Screen.width - size.x - 8f);
-            y = Mathf.Clamp(y, 8f, Screen.height - size.y - 8f);
+            x = Mathf.Clamp(x, 8f, Mathf.Max(8f, Screen.width - size.x - 8f));
+            y = Mathf.Clamp(y, 8f, Mathf.Max(8f, Screen.height - size.y - 8f));
             _tipBox.anchoredPosition = new Vector2(x, y);
             _tipCanvas.enabled = true;
             _hoverSlot = slot;
@@ -275,7 +279,8 @@ namespace OZGL2.UIBridge
         private string SignatureOf(SynergyTracker tracker, SynergyData def, int slot)
         {
             var sb = new StringBuilder();
-            sb.Append(slot).Append('|').Append(def.job).Append('|').Append(tracker.CountOf(def.job)).Append('|').Append(Screen.height);
+            sb.Append(slot).Append('|').Append(def.job).Append('|').Append(tracker.CountOf(def.job))
+              .Append('|').Append(Screen.width).Append('|').Append(Screen.height);
             foreach (var combo in tracker.ComboDefs)
                 if (combo != null && (combo.jobA == def.job || combo.jobB == def.job)) sb.Append('|').Append(tracker.IsComboActive(combo) ? 1 : 0);
             return sb.ToString();
@@ -365,42 +370,66 @@ namespace OZGL2.UIBridge
         private void LayoutTip(int slot, string titleBody, List<TipRow> rows, List<TipRow> combos)
         {
             float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            float padX = 46f * s, padTop = 40f * s, padBottom = 40f * s, pip = 40f * s, gap = 14f * s, rowGap = 10f * s;
+            bool usesPanel = _tooltipPanel != null;
+            Vector4 padding = usesPanel ? _tooltipPanel.GetPadding(s) : new Vector4(46f * s, 40f * s, 46f * s, 40f * s);
+            float padX = padding.x, padTop = padding.y, padRight = padding.z, padBottom = padding.w;
+            float pip = 40f * s, gap = 14f * s, rowGap = 10f * s;
             float fontSize = 27f * s, titleIcon = 66f * s;
+            float width = usesPanel ? _tooltipPanel.GetWidth(s, Screen.width) : 0f;
+            float rowWidth = Mathf.Max(1f, width - padX - padRight - pip - gap);
+            float titleWidth = Mathf.Max(1f, rowWidth - (titleIcon - pip) * 0.5f);
 
-            for (int i = _tipContent.childCount - 1; i >= 0; i--) Destroy(_tipContent.GetChild(i).gameObject);
+            for (int i = _tipContent.childCount - 1; i >= 0; i--)
+            {
+                var previous = _tipContent.GetChild(i).gameObject;
+                previous.SetActive(false);
+                Destroy(previous);
+            }
 
-            // 글 먼저 만들어 폭을 잰다
-            var titleText = TipText(titleBody, fontSize, Color.white);
-            Vector2 titlePref = titleText.GetPreferredValues();
+            // 새 패널은 기준 폭 안에서 줄바꿈하고, 기존 표시 방식은 내용 폭을 그대로 유지한다.
+            var titleText = TipText(titleBody, fontSize, Color.white, true);
+            Vector2 titlePref = MeasureTipText(titleText, titleWidth);
             float maxText = titlePref.x + titleIcon - pip; // 제목은 아이콘이 더 크다
             var items = new List<(TipRow row, TMP_Text text, Vector2 size)>();
-            foreach (var row in rows) { var tx = TipText(row.body, fontSize, Color.white); var sz = tx.GetPreferredValues(); maxText = Mathf.Max(maxText, sz.x); items.Add((row, tx, sz)); }
+            foreach (var row in rows)
+            {
+                var tx = TipText(row.body, fontSize, Color.white);
+                var sz = MeasureTipText(tx, rowWidth);
+                maxText = Mathf.Max(maxText, sz.x);
+                items.Add((row, tx, sz));
+            }
             TMP_Text headerText = null; Vector2 headerSize = default;
             var comboItems = new List<(TipRow row, TMP_Text text, Vector2 size)>();
             if (combos.Count > 0)
             {
-                headerText = TipText("<b><color=#F2DC8C>조합 시너지</color></b>", fontSize * 0.85f, Color.white);
-                headerSize = headerText.GetPreferredValues();
-                foreach (var row in combos) { var tx = TipText(row.body, fontSize, Color.white); var sz = tx.GetPreferredValues(); maxText = Mathf.Max(maxText, sz.x); comboItems.Add((row, tx, sz)); }
+                headerText = TipText("<b><color=#F2DC8C>조합 시너지</color></b>", fontSize * 0.85f, Color.white, true);
+                headerSize = MeasureTipText(headerText, Mathf.Max(1f, width - padX - padRight));
+                foreach (var row in combos)
+                {
+                    var tx = TipText(row.body, fontSize, Color.white);
+                    var sz = MeasureTipText(tx, rowWidth);
+                    maxText = Mathf.Max(maxText, sz.x);
+                    comboItems.Add((row, tx, sz));
+                }
             }
 
-            float width = padX * 2f + pip + gap + maxText;
+            if (!usesPanel) width = padX + padRight + pip + gap + maxText;
             float y = -padTop;
+            float titleHeight = usesPanel ? Mathf.Max(titleIcon, titlePref.y) : titleIcon;
 
             // 제목 줄
             var diamond = TipImage("TitleDiamond", Spr("Frame_DiamondNeutral"), RowDiamondColor(slot), titleIcon);
-            Place(diamond.rectTransform, padX - (titleIcon - pip) * 0.5f, y - titleIcon * 0.5f, 0f, 0.5f);
+            Place(diamond.rectTransform, padX - (titleIcon - pip) * 0.5f, y - titleHeight * 0.5f, 0f, 0.5f);
             var icon = _icons[slot] != null ? _icons[slot].sprite : null;
             if (icon != null)
             {
                 var ic = TipImage("TitleIcon", icon, Color.white, titleIcon * 0.52f);
-                Place(ic.rectTransform, padX - (titleIcon - pip) * 0.5f + titleIcon * 0.5f, y - titleIcon * 0.5f, 0.5f, 0.5f);
+                Place(ic.rectTransform, padX - (titleIcon - pip) * 0.5f + titleIcon * 0.5f, y - titleHeight * 0.5f, 0.5f, 0.5f);
             }
             var tr = titleText.rectTransform;
             tr.sizeDelta = titlePref;
-            Place(tr, padX + pip + gap + (titleIcon - pip) * 0.5f, y - titleIcon * 0.5f, 0f, 0.5f);
-            y -= titleIcon + 14f * s;
+            Place(tr, padX + pip + gap + (titleIcon - pip) * 0.5f, y - titleHeight * 0.5f, 0f, 0.5f);
+            y -= titleHeight + 14f * s;
 
             foreach (var (row, text, size) in items) y = PlaceRow(row, text, size, padX, y, pip, gap, rowGap);
 
@@ -413,7 +442,16 @@ namespace OZGL2.UIBridge
                 foreach (var (row, text, size) in comboItems) y = PlaceRow(row, text, size, padX, y, pip, gap, rowGap);
             }
 
-            _tipBox.sizeDelta = new Vector2(width, -y - rowGap + padBottom);
+            float height = -y - rowGap + padBottom;
+            if (usesPanel) _tooltipPanel.ApplySize(width, height, s);
+            else _tipBox.sizeDelta = new Vector2(width, height);
+        }
+
+        private Vector2 MeasureTipText(TMP_Text text, float width)
+        {
+            if (_tooltipPanel == null) return text.GetPreferredValues();
+            Vector2 preferred = text.GetPreferredValues(text.text, width, Mathf.Infinity);
+            return new Vector2(width, preferred.y);
         }
 
         private float PlaceRow(TipRow row, TMP_Text text, Vector2 size, float padX, float y, float pip, float gap, float rowGap)
@@ -443,18 +481,20 @@ namespace OZGL2.UIBridge
             return img != null ? img.color : Color.white;
         }
 
-        private TMP_Text TipText(string body, float size, Color color)
+        private TMP_Text TipText(string body, float size, Color color, bool isTitle = false)
         {
             var go = new GameObject("Text", typeof(RectTransform));
             go.transform.SetParent(_tipContent, false);
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            if (_font != null) tmp.font = _font;
+            TMP_FontAsset font = _tooltipPanel != null ? (isTitle ? _tooltipPanel.TitleFont : _tooltipPanel.BodyFont) : _font;
+            if (font == null) font = _font;
+            if (font != null) tmp.font = font;
             tmp.fontSize = size;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Left;
             tmp.richText = true;
             tmp.raycastTarget = false;
-            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.textWrappingMode = _tooltipPanel != null ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             tmp.lineSpacing = -4f;
             tmp.text = body;
             tmp.ForceMeshUpdate();
@@ -499,6 +539,29 @@ namespace OZGL2.UIBridge
             _tipCanvas = go.AddComponent<Canvas>();
             _tipCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _tipCanvas.sortingOrder = 30; // 손패(10~11)·드롭 존(15)보다 위, 결과/증강 팝업(100)보다 아래
+
+            if (_tooltipPanelPrefab != null)
+            {
+                var panel = Instantiate(_tooltipPanelPrefab, go.transform, false);
+                if (panel.RectTransform != null && panel.ContentRoot != null &&
+                    panel.ContentRoot != panel.RectTransform && panel.ContentRoot.IsChildOf(panel.RectTransform))
+                {
+                    _tooltipPanel = panel;
+                    panel.gameObject.name = "Box";
+                    _tipBox = panel.RectTransform;
+                    _tipBox.anchorMin = _tipBox.anchorMax = Vector2.zero;
+                    _tipBox.pivot = Vector2.zero;
+                    _tipBox.anchoredPosition = Vector2.zero;
+                    _tipContent = panel.ContentRoot;
+                    panel.gameObject.SetActive(true);
+                    _font = FindKoreanFont("시너지현재명배치단계발동중아직전달성대기조합이상각궁수전사방패병마법사도적힐러");
+                    _tipSignature = null;
+                    _tipCanvas.enabled = false;
+                    return;
+                }
+                panel.gameObject.SetActive(false);
+                Destroy(panel.gameObject);
+            }
 
             var boxGo = new GameObject("Box", typeof(RectTransform), typeof(Image));
             boxGo.transform.SetParent(go.transform, false);

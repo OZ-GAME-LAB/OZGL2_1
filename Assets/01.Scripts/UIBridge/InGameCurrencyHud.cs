@@ -5,6 +5,7 @@ using OZGL2.Progression;
 using OZGL2.Synergy;
 using OZGL2.InGame;
 using OZGL2.Stage;
+using OZGL2.UI;
 using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
@@ -70,8 +71,11 @@ namespace OZGL2.UIBridge
         [SerializeField] private Sprite _augmentIcon;
         [SerializeField] private Sprite _clearIcon;
         [SerializeField] private Sprite _unlockIcon;
+        [Header("라운드 보상 패널 (미연결 시 기존 패널 사용)")]
+        [SerializeField] private UIAdaptiveTooltipPanel _summaryPanelPrefab;
 
         private Canvas _summaryCanvas;
+        private UIAdaptiveTooltipPanel _summaryPanel;
         private RectTransform _summaryContent;
         private RectTransform _summaryBox;
         /// <summary>왼쪽 열(이번 웨이브 · 이번 라운드 보상 · 고른 증강)이 함께 쓰는 기준: 왼쪽 x(화면 픽셀), 폭, 보상 패널의 아래 y. 보상 패널이 한 번 놓인 뒤부터 값이 있다(없으면 음수).</summary>
@@ -129,6 +133,11 @@ namespace OZGL2.UIBridge
             _buttonHooked = false;
             if (_summaryCanvas != null) Destroy(_summaryCanvas.gameObject);
             _summaryCanvas = null;
+            _summaryPanel = null;
+            _summaryBox = null;
+            _summaryContent = null;
+            _previewSignature = _previewText = null;
+            _summaryMinWidth = 0f;
             foreach (var portrait in _portraits.Values) if (portrait != null) portrait.Release();
             _portraits.Clear();
             if (_widgetCanvas != null) Destroy(_widgetCanvas.gameObject);
@@ -454,7 +463,7 @@ namespace OZGL2.UIBridge
                 return;
             }
             int round = Mathf.Max(1, stage.CurrentRoundNumber);
-            string signature = (stage.Progress != null ? stage.Progress.StageId : "") + "#" + round + "#" + SkillTreeStore.HighestMilestone + "#" + SkillTreeStore.HighestDripStep + "#" + UnitUnlockStore.UnlockedCount;
+            string signature = (stage.Progress != null ? stage.Progress.StageId : "") + "#" + round + "#" + SkillTreeStore.HighestMilestone + "#" + SkillTreeStore.HighestDripStep + "#" + UnitUnlockStore.UnlockedCount + "#" + Screen.width + "x" + Screen.height;
             if (signature != _previewSignature || _summaryCanvas == null) BuildPreviewText(stage, round, signature);
             if (_summaryCanvas == null || string.IsNullOrEmpty(_previewText)) return;
             PlaceSummaryUnderWavePanel();
@@ -737,17 +746,37 @@ namespace OZGL2.UIBridge
             { this.icon = icon; this.tint = tint; this.title = title; this.value = value; this.sub = sub; this.titleColor = titleColor; portrait = null; }
         }
 
-        /// <summary>보상 행마다 아이콘 + 두 줄 글(제목·값 / 설명)로 배치한다. 프레임은 "이번 웨이브" 패널과 같은 이미지다.</summary>
+        /// <summary>보상 행을 배치한다. 새 프리팹은 폭을 유지하고 줄바꿈에 따라 높이만 늘리며, 미연결 시 기존 배치를 유지한다.</summary>
         private void LayoutSummary(List<RewardRow> rows)
         {
+            if (_summaryContent == null || _summaryBox == null) return;
             float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            float padX = 30f * s, padTop = 26f * s, padBottom = 26f * s, iconSize = 36f * s, gap = 10f * s, rowGap = 8f * s;
+            bool adaptive = _summaryPanel != null;
+            Vector4 padding = adaptive ? _summaryPanel.GetPadding(s) : new Vector4(30f, 26f, 30f, 26f) * s;
+            float padLeft = padding.x, padTop = padding.y, padRight = padding.z, padBottom = padding.w;
+            float iconSize = 36f * s, gap = 10f * s, rowGap = 8f * s;
             float titleSize = 23f * s, mainSize = 19f * s;
+            float iconCol = iconSize;
+            foreach (var row in rows) if (row.portrait != null) iconCol = iconSize * 2.0f;
+            float fixedWidth = adaptive ? _summaryPanel.GetWidth(s, Screen.width) : 0f;
+            float titleWidth = adaptive ? Mathf.Max(1f, fixedWidth - padLeft - padRight) : 0f;
+            float rowTextWidth = adaptive ? Mathf.Max(1f, titleWidth - iconCol - gap) : 0f;
 
-            for (int i = _summaryContent.childCount - 1; i >= 0; i--) Destroy(_summaryContent.GetChild(i).gameObject);
+            // 갱신 대상은 내용만이다. 배경·프레임·고정 장식은 프리팹의 형제 오브젝트로 보존한다.
+            for (int i = _summaryContent.childCount - 1; i >= 0; i--)
+            {
+                var previous = _summaryContent.GetChild(i).gameObject;
+                previous.SetActive(false);
+                Destroy(previous);
+            }
 
-            var title = NewSummaryText("Title", "<b>이번 라운드 보상</b>", titleSize, new Color(0.95f, 0.86f, 0.55f));
-            Vector2 titleSizePref = title.GetPreferredValues();
+            var title = NewSummaryText("Title", "<b>이번 라운드 보상</b>", titleSize, new Color(0.95f, 0.86f, 0.55f), true);
+            Vector2 titleSizePref = adaptive ? title.GetPreferredValues(title.text, titleWidth, Mathf.Infinity) : title.GetPreferredValues();
+            if (adaptive)
+            {
+                titleSizePref.x = titleWidth;
+                title.alignment = TextAlignmentOptions.Top;
+            }
 
             var items = new List<(RewardRow row, TMP_Text text, Vector2 size)>();
             float maxTextW = 0f;
@@ -756,15 +785,14 @@ namespace OZGL2.UIBridge
                 string body = "<size=100%><b><color=" + row.titleColor + ">" + row.title + "</color></b>  <color=#F5F2E8><b>" + row.value + "</b></color></size>\n"
                               + "<size=74%><color=#BDB8AE>" + row.sub + "</color></size>";
                 var text = NewSummaryText("Row", body, mainSize, Color.white);
-                Vector2 size = text.GetPreferredValues();
+                Vector2 size = adaptive ? text.GetPreferredValues(body, rowTextWidth, Mathf.Infinity) : text.GetPreferredValues();
+                if (adaptive) size.x = rowTextWidth;
                 maxTextW = Mathf.Max(maxTextW, size.x);
                 items.Add((row, text, size));
             }
 
-            float iconCol = iconSize;
-            foreach (var it in items) if (it.row.portrait != null) iconCol = iconSize * 2.0f;
-            float contentW = padX + iconCol + gap + maxTextW + padX;
-            float width = Mathf.Max(_summaryMinWidth, contentW, titleSizePref.x + 2f * padX + 60f * s);
+            float contentW = padLeft + iconCol + gap + maxTextW + padRight;
+            float width = adaptive ? fixedWidth : Mathf.Max(_summaryMinWidth, contentW, titleSizePref.x + padLeft + padRight + 60f * s);
             float y = -padTop;
 
             // 제목 + 양옆 장식
@@ -772,8 +800,8 @@ namespace OZGL2.UIBridge
             titleRect.anchorMin = titleRect.anchorMax = new Vector2(0f, 1f);
             titleRect.pivot = new Vector2(0.5f, 1f);
             titleRect.sizeDelta = titleSizePref;
-            titleRect.anchoredPosition = new Vector2(width * 0.5f, y);
-            if (_ornamentSprite != null)
+            titleRect.anchoredPosition = new Vector2(adaptive ? padLeft + titleWidth * 0.5f : width * 0.5f, y);
+            if (!adaptive && _ornamentSprite != null)
             {
                 float o = 20f * s;
                 for (int side = -1; side <= 1; side += 2)
@@ -802,7 +830,7 @@ namespace OZGL2.UIBridge
                     pr.sizeDelta = new Vector2(iconCol, iconCol);
                     pr.anchorMin = pr.anchorMax = new Vector2(0f, 1f);
                     pr.pivot = new Vector2(0f, 0.5f);
-                    pr.anchoredPosition = new Vector2(padX, y - rowH * 0.5f);
+                    pr.anchoredPosition = new Vector2(padLeft, y - rowH * 0.5f);
                 }
                 else if (row.icon != null)
                 {
@@ -810,31 +838,35 @@ namespace OZGL2.UIBridge
                     var ir = (RectTransform)icon.transform;
                     ir.anchorMin = ir.anchorMax = new Vector2(0f, 1f);
                     ir.pivot = new Vector2(0f, 0.5f);
-                    ir.anchoredPosition = new Vector2(padX, y - rowH * 0.5f);
+                    ir.anchoredPosition = new Vector2(padLeft, y - rowH * 0.5f);
                 }
                 var tr = (RectTransform)text.transform;
                 tr.anchorMin = tr.anchorMax = new Vector2(0f, 1f);
                 tr.pivot = new Vector2(0f, 0.5f);
                 tr.sizeDelta = size;
-                tr.anchoredPosition = new Vector2(padX + iconCol + gap, y - rowH * 0.5f);
+                tr.anchoredPosition = new Vector2(padLeft + iconCol + gap, y - rowH * 0.5f);
                 y -= rowH + rowGap;
             }
 
-            _summaryBox.sizeDelta = new Vector2(width, -y - rowGap + padBottom);
+            float height = -y - rowGap + padBottom;
+            if (adaptive) _summaryPanel.ApplySize(width, height, s);
+            else _summaryBox.sizeDelta = new Vector2(width, height);
         }
 
-        private TMP_Text NewSummaryText(string name, string text, float size, Color color)
+        private TMP_Text NewSummaryText(string name, string text, float size, Color color, bool isTitle = false)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(_summaryContent, false);
             var tmp = go.AddComponent<TextMeshProUGUI>();
-            if (_font != null) tmp.font = _font;
+            var font = _summaryPanel != null ? (isTitle ? _summaryPanel.TitleFont : _summaryPanel.BodyFont) : null;
+            if (font == null) font = _font;
+            if (font != null) tmp.font = font;
             tmp.fontSize = size;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.Left;
             tmp.richText = true;
             tmp.raycastTarget = false;
-            tmp.textWrappingMode = TextWrappingModes.NoWrap;
+            tmp.textWrappingMode = _summaryPanel != null ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
             tmp.text = text;
             tmp.ForceMeshUpdate();
             return tmp;
@@ -972,9 +1004,7 @@ namespace OZGL2.UIBridge
             return traits.BuildModifiers().MilestoneSpBonus;
         }
 
-        private RectTransform _wavePanel, _waveBottomPanel;
-        private float _waveBottomLowest = float.MaxValue;
-        private int _waveBottomHeight;
+        private RectTransform _wavePanel;
         private readonly List<CanvasGroup> _waveGroups = new List<CanvasGroup>();
         private bool _waveHidden;
         private float _waveShownAlpha = 1f;
@@ -1011,7 +1041,7 @@ namespace OZGL2.UIBridge
 
         /// <summary>
         /// 보상 패널을 "이번 웨이브" 패널 아래 왼쪽 줄에 놓는다. 폭은 가운데 손패 카드(왼쪽 끝)를 가리지 않게 좁게 고정한다.
-        /// 웨이브 패널은 이름이 바뀌어도 찾도록 제목 글자("이번 웨이브")로 찾고, 패널 안 그림 중 가장 아래·가장 왼쪽을 기준으로 삼는다.
+        /// 현재 마스크 안에 보이는 내용의 바닥을 따라가며, 완전히 접히면 Viewport 상단에 붙인다.
         /// </summary>
         private void PlaceSummaryUnderWavePanel()
         {
@@ -1027,45 +1057,57 @@ namespace OZGL2.UIBridge
                 var gc = new Vector3[4];
                 // 웨이브 패널은 화살표로 접으면 내용이 마스크(WavePreviewViewport) 위쪽 바깥으로 올라간다. 그 바깥 그림까지 재면 바닥이 오르내리므로
                 // 마스크 안에 보이는 부분만 잰다.
-                Rect clip = default; bool hasClip = false;
-                foreach (var r in _wavePanel.GetComponentsInChildren<RectTransform>(true))
-                    if (r.name == "WavePreviewViewport")
-                    {
-                        r.GetWorldCorners(gc);
-                        Vector2 v0 = RectTransformUtility.WorldToScreenPoint(cam, gc[0]), v1 = RectTransformUtility.WorldToScreenPoint(cam, gc[2]);
-                        clip = Rect.MinMaxRect(Mathf.Min(v0.x, v1.x), Mathf.Min(v0.y, v1.y), Mathf.Max(v0.x, v1.x), Mathf.Max(v0.y, v1.y)); hasClip = true;
-                        break;
-                    }
+                Rect clip = default;
+                var mask = _wavePanel.GetComponentInParent<RectMask2D>();
+                if (mask == null)
+                    foreach (var candidate in _wavePanel.GetComponentsInChildren<RectMask2D>(true))
+                        if (candidate.name == "WavePreviewViewport") { mask = candidate; break; }
+                RectTransform viewport = mask != null ? mask.rectTransform : null;
+                bool hasClip = viewport != null;
+                if (hasClip)
+                {
+                    viewport.GetWorldCorners(gc);
+                    Vector2 v0 = RectTransformUtility.WorldToScreenPoint(cam, gc[0]), v1 = RectTransformUtility.WorldToScreenPoint(cam, gc[2]);
+                    clip = Rect.MinMaxRect(Mathf.Min(v0.x, v1.x), Mathf.Min(v0.y, v1.y), Mathf.Max(v0.x, v1.x), Mathf.Max(v0.y, v1.y));
+                    // 内容が全てマスクの外に出ても、画面中央の仮座標には戻さない。
+                    topLeft = new Vector2(Mathf.Max(8f * s, clip.xMin), clip.yMax - 28f * s);
+                }
                 foreach (var g in _wavePanel.GetComponentsInChildren<Graphic>(false))
                 {
-                    if (g == null || !g.enabled || g.color.a < 0.05f) continue;
+                    if (g == null || !g.enabled || g.color.a < 0.05f || g.canvasRenderer.GetInheritedAlpha() < 0.05f) continue;
                     g.rectTransform.GetWorldCorners(gc);
                     Vector2 a0 = RectTransformUtility.WorldToScreenPoint(cam, gc[0]), b0 = RectTransformUtility.WorldToScreenPoint(cam, gc[2]);
                     if (Mathf.Abs(b0.x - a0.x) > Screen.width * 0.9f) continue; // 화면 전체를 덮는 막은 제외
                     float gy0 = Mathf.Min(a0.y, b0.y), gy1 = Mathf.Max(a0.y, b0.y);
-                    if (hasClip && g.rectTransform.GetComponentInParent<RectMask2D>() != null)
+                    if (hasClip && g.rectTransform.IsChildOf(viewport))
                     {
-                        if (gy1 <= clip.yMin || gy0 >= clip.yMax) continue; // 접혀서 마스크 밖으로 올라간 그림
+                        float gx0 = Mathf.Min(a0.x, b0.x), gx1 = Mathf.Max(a0.x, b0.x);
+                        if (gy1 <= clip.yMin || gy0 >= clip.yMax || gx1 <= clip.xMin || gx0 >= clip.xMax) continue; // 마스크 밖의 그림
                         gy0 = Mathf.Max(gy0, clip.yMin);
                     }
                     left = Mathf.Min(left, Mathf.Min(a0.x, b0.x));
                     bottom = Mathf.Min(bottom, gy0);
                 }
-                // 펼침·접힘 연출 중에도(화면 크기가 같은 동안) 가장 낮았던 바닥을 유지해 아래 보상 패널·증강 목록이 따라 움직이지 않게 한다
-                if (_wavePanel != _waveBottomPanel || Screen.height != _waveBottomHeight) { _waveBottomPanel = _wavePanel; _waveBottomHeight = Screen.height; _waveBottomLowest = float.MaxValue; }
-                if (bottom < float.MaxValue) _waveBottomLowest = Mathf.Min(_waveBottomLowest, bottom);
-                if (_waveBottomLowest < float.MaxValue) bottom = _waveBottomLowest;
-                if (left < float.MaxValue) topLeft = new Vector2(Mathf.Max(8f * s, left), bottom - 28f * s);
+                if (left < float.MaxValue && bottom < float.MaxValue)
+                    topLeft = new Vector2(Mathf.Max(8f * s, hasClip ? clip.xMin : left), bottom - 28f * s);
             }
 
-            float width = 380f * s;
+            float width = _summaryPanel != null ? _summaryPanel.GetWidth(s, Screen.width) : 380f * s;
             if (Mathf.Abs(width - _summaryMinWidth) > 1f)
             {
                 _summaryMinWidth = width;
                 _previewSignature = null; // 폭이 바뀌면 크기를 다시 계산
             }
+            if (_summaryPanel != null)
+            {
+                float margin = 8f * s;
+                topLeft.x = Mathf.Clamp(topLeft.x, margin, Mathf.Max(margin, Screen.width - _summaryBox.sizeDelta.x - margin));
+                float topLimit = Mathf.Max(margin, Screen.height - margin);
+                float bottomLimit = Mathf.Min(_summaryBox.sizeDelta.y + margin, topLimit);
+                topLeft.y = Mathf.Clamp(topLeft.y, bottomLimit, topLimit);
+            }
             _summaryBox.anchoredPosition = topLeft;
-            ColumnLeft = topLeft.x; ColumnWidth = width; SummaryBottom = topLeft.y - _summaryBox.sizeDelta.y;
+            ColumnLeft = topLeft.x; ColumnWidth = _summaryBox.sizeDelta.x; SummaryBottom = topLeft.y - _summaryBox.sizeDelta.y;
         }
 
         private RectTransform FindWavePanel()
@@ -1103,6 +1145,26 @@ namespace OZGL2.UIBridge
             _summaryCanvas = go.AddComponent<Canvas>();
             _summaryCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             _summaryCanvas.sortingOrder = 12; // 손패·드롭 존보다 아래, 시너지 팝업·결과 팝업보다 아래
+
+            if (_summaryPanelPrefab != null)
+            {
+                _summaryPanel = Instantiate(_summaryPanelPrefab, go.transform, false);
+                _summaryPanel.name = "Box";
+                _summaryBox = _summaryPanel.RectTransform;
+                _summaryContent = _summaryPanel.ContentRoot;
+                if (_summaryBox != null && _summaryContent != null && _summaryContent != _summaryBox && _summaryContent.IsChildOf(_summaryBox))
+                {
+                    _summaryBox.anchorMin = _summaryBox.anchorMax = Vector2.zero;
+                    _summaryBox.pivot = new Vector2(0f, 1f);
+                    _summaryCanvas.enabled = false;
+                    return;
+                }
+                Debug.LogWarning("라운드 보상 패널의 ContentRoot 연결이 올바르지 않아 기존 패널을 사용합니다.", this);
+                _summaryPanel.gameObject.SetActive(false);
+                Destroy(_summaryPanel.gameObject);
+                _summaryPanel = null;
+                _summaryBox = _summaryContent = null;
+            }
 
             var boxGo = new GameObject("Box", typeof(RectTransform), typeof(Image));
             boxGo.transform.SetParent(go.transform, false);

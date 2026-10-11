@@ -1691,6 +1691,7 @@ MonoBehaviour:
   _augmentIcon: {fileID: 21300000, guid: 4fdd34170a3cdec4289dbe11e83ffb48, type: 3}
   _clearIcon: {fileID: 21300000, guid: 22ae4e917e6b42c41a8e06a67fa941d1, type: 3}
   _unlockIcon: {fileID: 21300000, guid: 2f12b84e4bbda69439e99dbded359930, type: 3}
+  _summaryPanelPrefab: {fileID: 3870797230765256861, guid: 1c563ff326c566b4596768ea056391d1, type: 3}
 --- !u!4 &1785560818
 Transform:
   m_ObjectHideFlags: 0
@@ -4266,6 +4267,7 @@ GameObject:
   - component: {fileID: 6233679468464584454}
   - component: {fileID: 7230900990765987874}
   - component: {fileID: 3477559246294883596}
+  - component: {fileID: 7230900990765987875}
   m_Layer: 0
   m_Name: UI_BattleScreens
   m_TagString: Untagged
@@ -7516,6 +7518,19 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &7230900990765987875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3365292648559391583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8d6cb6a4ab25b7c95ec04290a8f0d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameSynergyHudBridge
+  _tooltipPanelPrefab: {fileID: 6869368734513492363, guid: 573831a63118b4c42ab6bcff0f0a8cd8, type: 3}
 --- !u!114 &7361457195068106183
 MonoBehaviour:
   m_ObjectHideFlags: 0
