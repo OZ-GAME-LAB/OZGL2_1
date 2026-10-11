@@ -135,6 +135,8 @@ public static class HeraldryTooltipValidation
         var results = new List<object>();
         float normalSynergyHeight = 0f;
         Scene original = SceneManager.GetActiveScene();
+        string before = SceneFingerprint(original);
+        bool wasDirty = original.isDirty;
         var sourceHud = original.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<InGameCurrencyHud>(true)).SingleOrDefault();
         Scene test = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
         try
@@ -153,20 +155,24 @@ public static class HeraldryTooltipValidation
             foreach (var def in defs)
             {
                 var owner = new GameObject("SynergyTest");
+                owner.SetActive(false);
                 var bridge = owner.AddComponent<InGameSynergyHudBridge>();
                 bridge.enabled = false;
                 Set(bridge, "_tooltipPanelPrefab", synergyPrefab);
                 SetSynergyIcons(bridge, owner, def.job);
+                owner.SetActive(true);
                 Invoke(bridge, "EnsureTooltip");
                 var panel = Get<UIAdaptiveTooltipPanel>(bridge, "_tooltipPanel");
                 ClearPreview(panel);
                 var tracker = new SynergyTracker(defs, combos);
                 tracker.SetCount(def.job, 1);
                 Invoke(bridge, "BuildTip", tracker, def, 0);
+                RenderSynergyAtReferenceSize(panel, bridge, tracker, def);
                 if (def.job == SynergyJob.Shield) normalSynergyHeight = panel.RectTransform.sizeDelta.y;
                 results.Add(Report(def.displayName, panel));
                 if (def.job == SynergyJob.Shield || def.job == SynergyJob.Archer)
                     Capture(Get<Canvas>(bridge, "_tipCanvas"), panel, camera, "Synergy_" + def.job);
+                DetachTestCanvases(owner);
                 Object.DestroyImmediate(owner);
             }
 
@@ -180,10 +186,12 @@ public static class HeraldryTooltipValidation
                     + "전선에서 아군을 보호하며 함께 배치한 직업에 적용되는 효과를 여러 줄로 안내합니다. "
                     + "이 문장은 실제 게임 데이터가 아닌 줄바꿈 검증용입니다.";
                 var owner = new GameObject("LongSynergyTest");
+                owner.SetActive(false);
                 var bridge = owner.AddComponent<InGameSynergyHudBridge>();
                 bridge.enabled = false;
                 Set(bridge, "_tooltipPanelPrefab", synergyPrefab);
                 SetSynergyIcons(bridge, owner, shield.job);
+                owner.SetActive(true);
                 Invoke(bridge, "EnsureTooltip");
                 var panel = Get<UIAdaptiveTooltipPanel>(bridge, "_tooltipPanel");
                 ClearPreview(panel);
@@ -193,10 +201,12 @@ public static class HeraldryTooltipValidation
                 tracker.SetCount(extended.jobA, 5);
                 tracker.SetCount(extended.jobB, 5);
                 Invoke(bridge, "BuildTip", tracker, shield, 0);
+                RenderSynergyAtReferenceSize(panel, bridge, tracker, shield);
                 if (panel.RectTransform.sizeDelta.y <= normalSynergyHeight)
                     throw new InvalidOperationException("긴 설명의 높이 증가가 확인되지 않았습니다.");
                 results.Add(Report("SynergyLong", panel));
                 Capture(Get<Canvas>(bridge, "_tipCanvas"), panel, camera, "Synergy_Long");
+                DetachTestCanvases(owner);
                 Object.DestroyImmediate(owner);
             }
             finally { Object.DestroyImmediate(extended); }
@@ -206,9 +216,11 @@ public static class HeraldryTooltipValidation
             foreach (int count in new[]{2, 3, 4})
             {
                 var owner = new GameObject("RewardTest");
+                owner.SetActive(false);
                 var hud = owner.AddComponent<InGameCurrencyHud>();
                 hud.enabled = false;
                 Set(hud, "_summaryPanelPrefab", rewardPrefab);
+                owner.SetActive(true);
                 Invoke(hud, "EnsureSummary");
                 var panel = Get<UIAdaptiveTooltipPanel>(hud, "_summaryPanel");
                 ClearPreview(panel);
@@ -230,14 +242,43 @@ public static class HeraldryTooltipValidation
                 Invoke(hud, "LayoutSummary", rows);
                 results.Add(Report("Reward" + count, panel));
                 Capture(Get<Canvas>(hud, "_summaryCanvas"), panel, camera, "Reward" + count);
+                DetachTestCanvases(owner);
                 Object.DestroyImmediate(owner);
             }
+            if (before != SceneFingerprint(original))
+                throw new InvalidOperationException("UI 검증 중 원본 씬의 직렬화 상태가 변경되었습니다. 원본 변경을 보존해 확인해 주세요.");
+            Debug.Log("UI 검증 후 원본 씬의 직렬화 상태가 유지되었습니다. 미저장 상태: " + wasDirty + " → " + original.isDirty
+                + ". 원본 씬은 저장하거나 다시 열지 않았습니다.");
             return Newtonsoft.Json.JsonConvert.SerializeObject(results);
         }
         finally
         {
+            foreach (GameObject root in test.GetRootGameObjects()) DetachTestCanvases(root);
             SceneManager.SetActiveScene(original);
             EditorSceneManager.CloseScene(test, true);
+        }
+    }
+
+    private static void RenderSynergyAtReferenceSize(UIAdaptiveTooltipPanel panel, InGameSynergyHudBridge bridge,
+        SynergyTracker tracker, SynergyData definition)
+    {
+        var renderer = panel.GetComponent<UISynergyTooltipView>();
+        if (renderer == null) return;
+        if (!renderer.IsConfigured) throw new InvalidOperationException("시너지 프리팹의 표시 참조를 먼저 연결해 주세요.");
+        // 이 메뉴는 직업별 깃발 행을 복제하지 않으므로 중립 헤더색으로 구조와 높이만 검증합니다.
+        var icon = Get<Image[]>(bridge, "_icons")[0];
+        renderer.Render(tracker, definition, icon != null ? icon.sprite : null, new Color32(155, 151, 143, 255), 1f, 1920f);
+    }
+
+    private static void DetachTestCanvases(GameObject owner)
+    {
+        // Edit Mode 정리에서 Runtime의 Destroy 호출이나 전투 이벤트 구독이 실행되지 않게 합니다.
+        foreach (var bridge in owner.GetComponentsInChildren<InGameSynergyHudBridge>(true)) Set(bridge, "_tipCanvas", null);
+        foreach (var hud in owner.GetComponentsInChildren<InGameCurrencyHud>(true))
+        {
+            Set(hud, "_summaryCanvas", null);
+            Set(hud, "_widgetCanvas", null);
+            Set(hud, "_canvas", null);
         }
     }
 
@@ -252,19 +293,21 @@ public static class HeraldryTooltipValidation
             overflow=labels.Any(t=>t.isTextOverflowing), wrappedLines=labels.Sum(t=>t.textInfo.lineCount),
             fixedOrnament=panel.transform.Find("HeaderOrnament") != null,
             icons=panel.ContentRoot.GetComponentsInChildren<Image>().Count(i=>i.sprite != null),
-            portraits=panel.ContentRoot.GetComponentsInChildren<RawImage>().Length,
+            portraits=panel.ContentRoot.GetComponentsInChildren<RawImage>().Count(i => i.name == "Portrait"),
             frameType=panel.transform.Find("Frame").GetComponent<Image>().type.ToString(),
             crestSize=((RectTransform)panel.transform.Find("HeaderOrnament")).sizeDelta.ToString() };
     }
 
     private static void SetSynergyIcons(InGameSynergyHudBridge bridge, GameObject owner, SynergyJob job)
     {
-        string name = job == SynergyJob.Shield ? "Icon_BoneShield" : job == SynergyJob.Archer ? "Icon_Bow"
-            : job == SynergyJob.Mage ? "Icon_Arcane" : job == SynergyJob.Rogue ? "Icon_CursedEye"
-            : job == SynergyJob.Healer ? "Icon_Flame" : "Icon_CrossedSwords";
+        string name = "synergy_" + job.ToString().ToLowerInvariant() + "_v1";
         var image = new GameObject("TestIcon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
         image.transform.SetParent(owner.transform, false);
-        image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/06.UI/BattleMutedPreview/Sprites/" + name + ".png");
+        image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(HeraldryTooltipPrefabBuilder.ROOT + "/SynergyIcons/" + name + ".png");
+        if (image.sprite == null) throw new InvalidOperationException("시너지 검증 아이콘이 없습니다: " + name);
+        image.color = Color.white;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
         Get<Image[]>(bridge, "_icons")[0] = image;
         var sprites = Get<Dictionary<string,Sprite>>(bridge, "_sprites");
         foreach (string pip in new[]{"Frame_DiamondRed", "Frame_DiamondNeutral"})
@@ -304,6 +347,8 @@ public static class HeraldryTooltipValidation
 
     private static void ClearPreview(UIAdaptiveTooltipPanel panel)
     {
+        // 새 시너지 프리팹은 정적 표시 참조를 유지하고 Render로 내용만 갱신합니다.
+        if (panel.GetComponent<UISynergyTooltipView>() != null) return;
         for (int i=panel.ContentRoot.childCount-1;i>=0;i--) Object.DestroyImmediate(panel.ContentRoot.GetChild(i).gameObject);
     }
     private static void Set(object obj,string name,object value) => obj.GetType().GetField(name,PRIVATE).SetValue(obj,value);

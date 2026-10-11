@@ -266,6 +266,22 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.87
       objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 39.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -17.599998
+      objectReference: {fileID: 0}
     - target: {fileID: 2175036669207870683, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1072,6 +1088,22 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.69
       objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 39.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -17.599998
+      objectReference: {fileID: 0}
     - target: {fileID: 2175036669207870683, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1237,6 +1269,22 @@ PrefabInstance:
     - target: {fileID: 1436021515574656058, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
       propertyPath: m_Color.r
       value: 0.82
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 39.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -17.599998
       objectReference: {fileID: 0}
     - target: {fileID: 2175036669207870683, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
       propertyPath: m_Pivot.x
@@ -1437,6 +1485,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1934130148}
     m_Modifications:
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 72.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 39.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734383767612124940, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -17.599998
+      objectReference: {fileID: 0}
     - target: {fileID: 2175036669207870683, guid: 8c6075fcc92c4784a9848baa7b443b06, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -7530,7 +7594,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8d6cb6a4ab25b7c95ec04290a8f0d94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIBridge.InGameSynergyHudBridge
+  _warriorIcon: {fileID: 21300000, guid: 3cd45819dd583e541a0f3368cb19184f, type: 3}
+  _shieldIcon: {fileID: 21300000, guid: da54d8de727216c4496005f57895fbcf, type: 3}
+  _archerIcon: {fileID: 21300000, guid: 48fc1935667d0c748a7a986cfc7124ef, type: 3}
+  _mageIcon: {fileID: 21300000, guid: b257e23f0496d7d45a34a307f806e634, type: 3}
+  _rogueIcon: {fileID: 21300000, guid: 120f0bdfd430a8644a0e38896e703d68, type: 3}
+  _healerIcon: {fileID: 21300000, guid: 20681755980bba74798aafd2db2dc63e, type: 3}
   _tooltipPanelPrefab: {fileID: 6869368734513492363, guid: 573831a63118b4c42ab6bcff0f0a8cd8, type: 3}
+  _tooltipDisplayScale: 0.7
 --- !u!114 &7361457195068106183
 MonoBehaviour:
   m_ObjectHideFlags: 0
