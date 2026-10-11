@@ -1685,12 +1685,12 @@ MonoBehaviour:
   _rerollRepeatStep: 5
   _frameSprite: {fileID: 21300000, guid: 3d40549f2cfef7c46af22f5c48a31250, type: 3}
   _ornamentSprite: {fileID: 21300000, guid: e448f556a530282458ffeaa6ea507255, type: 3}
-  _gemIcon: {fileID: 21300000, guid: 5b60d4d1192005541a4aeb691b38b3fc, type: 3}
-  _spIcon: {fileID: 21300000, guid: e0d49650fa268d542937aa3ed7487a10, type: 3}
-  _cardIcon: {fileID: 21300000, guid: 10ab51bead245dd41840fcf6b7346221, type: 3}
-  _augmentIcon: {fileID: 21300000, guid: 4fdd34170a3cdec4289dbe11e83ffb48, type: 3}
-  _clearIcon: {fileID: 21300000, guid: 22ae4e917e6b42c41a8e06a67fa941d1, type: 3}
-  _unlockIcon: {fileID: 21300000, guid: 2f12b84e4bbda69439e99dbded359930, type: 3}
+  _gemIcon: {fileID: 21300000, guid: e2fd8aceae7bf5a4fbaf62731e4c725a, type: 3}
+  _spIcon: {fileID: 21300000, guid: 0279dbd1bd80c9d4ea1befc025d497fe, type: 3}
+  _cardIcon: {fileID: 21300000, guid: e5af84818ab140d40a2a3423825190db, type: 3}
+  _augmentIcon: {fileID: 21300000, guid: 1d81ab0d274887b4a9532bdbe461f8c6, type: 3}
+  _clearIcon: {fileID: 21300000, guid: cd3c3ce69b1baa741944bb86a47f29e3, type: 3}
+  _unlockIcon: {fileID: 21300000, guid: e5af84818ab140d40a2a3423825190db, type: 3}
   _summaryPanelPrefab: {fileID: 3870797230765256861, guid: 1c563ff326c566b4596768ea056391d1, type: 3}
 --- !u!4 &1785560818
 Transform:
