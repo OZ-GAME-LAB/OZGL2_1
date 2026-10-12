@@ -31,6 +31,8 @@ namespace OZGL2.UIBridge
         private static readonly Color Off = new Color(0.62f, 0.58f, 0.60f, 1f);
         private static readonly Color Ring = new Color(0.88f, 0.68f, 0.36f, 0.95f);
 
+        [SerializeField, Tooltip("상단 바 아래 기준 위치에서 더 위로 올리는 정도(기준 해상도 픽셀). 클수록 위로 간다")] private float _extraLift = 34f;
+
         private int _chosen = 1;
         private Canvas _canvas;
         private RectTransform _bar, _camBar, _selector;
@@ -370,7 +372,7 @@ namespace OZGL2.UIBridge
             float camW = pad * 2f + togW * ToggleCount;
             float total = speedW + Gap + camW;
             // 맨 위 상단 바(재화·레벨·경험치) 바로 아래에 붙이되 겹치지 않게 조금 띄운다. 바를 못 찾으면 화면 비율로 정한다.
-            float topY = _hudBottom > 0f ? -(Screen.height - _hudBottom) - 8f * s : -Screen.height * 0.08f - 10f * s;
+            float topY = (_hudBottom > 0f ? -(Screen.height - _hudBottom) - 8f * s : -Screen.height * 0.08f - 10f * s) + _extraLift * s;   // _extraLift 만큼 더 위로
 
             PlacePanel(_bar, new Vector2(-total * 0.5f + speedW * 0.5f, topY), new Vector2(speedW, height));
             PlacePanel(_camBar, new Vector2(total * 0.5f - camW * 0.5f, topY), new Vector2(camW, height));

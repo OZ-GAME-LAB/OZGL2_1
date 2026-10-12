@@ -811,18 +811,18 @@ namespace OZGL2.UIBridge
             _label.rectTransform.sizeDelta = new Vector2(320f, 70f);
             _label.rectTransform.anchoredPosition = new Vector2(0f, 74f);
             _label.characterSpacing = 8f;
-            StyleText(_label, new Color32(24, 6, 12, 255), 0.34f, 0.3f);
+            StyleText(_label, new Color32(24, 6, 12, 255), 0.3f, 0f);
             _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _number.rectTransform.sizeDelta = new Vector2(300f, 190f);
             _number.rectTransform.anchoredPosition = new Vector2(0f, -22f);
-            StyleText(_number, new Color32(24, 6, 12, 255), 0.4f, 0.38f);
+            StyleText(_number, new Color32(24, 6, 12, 255), 0.34f, 0f);
 
             _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _title.rectTransform.sizeDelta = new Vector2(1500f, 140f);
-            StyleText(_title, new Color32(24, 6, 12, 255), 0.4f, 0.36f);
+            StyleText(_title, new Color32(24, 6, 12, 255), 0.34f, 0f);
             _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal, _art != null ? _art.bodyFont : null);
             _sub.rectTransform.sizeDelta = new Vector2(1500f, 72f);
-            StyleText(_sub, new Color32(24, 6, 12, 255), 0.34f, 0.25f);
+            StyleText(_sub, new Color32(24, 6, 12, 255), 0.3f, 0f);
             _canvas.enabled = false;
         }
 
