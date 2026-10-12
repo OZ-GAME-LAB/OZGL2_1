@@ -2,6 +2,7 @@ using System;
 using OZGL2.InGame;
 using OZGL2.Stage;
 using OZGL2.Tutorial;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -50,6 +51,7 @@ namespace OZGL2.UIBridge
         private int _lastScreenHeight;
         private InGamePrototypeBootstrap _bootstrap;
         private bool _inCombat, _applyPending;
+        private float _hudBottom = -1f, _nextHudScan;   // 맨 위 상단 바 아래쪽 끝(화면 픽셀, 아래가 0). 찾기 전에는 -1
 
         private float S => Mathf.Max(0.8f, Screen.height / 1080f);
 
@@ -66,6 +68,12 @@ namespace OZGL2.UIBridge
         private void Update()
         {
             if (_bar == null) return;
+            if (Time.unscaledTime >= _nextHudScan)
+            {
+                _nextHudScan = Time.unscaledTime + 0.5f;
+                float bottom = FindHudBottom();
+                if (Mathf.Abs(bottom - _hudBottom) > 1f) { _hudBottom = bottom; _lastScreenHeight = 0; }
+            }
             if (_lastScreenHeight != Screen.height) Layout();
 
             if (_tutorial == null) _tutorial = FindFirstObjectByType<TutorialDirector>();
@@ -300,6 +308,27 @@ namespace OZGL2.UIBridge
 
         private float SegmentCenterX(int i) => Pad + SegW * (i + 0.5f);
 
+        /// <summary>
+        /// 전투 화면 맨 위 상단 바(레벨 글자를 품은 가로로 넓은 띠)의 아래쪽 끝을 화면 픽셀로 돌려준다. 팀 UI(UIBattleMutedPreviewView)는 건드리지 않고 읽기만 한다.
+        /// 못 찾으면 -1.
+        /// </summary>
+        private static float FindHudBottom()
+        {
+            var hud = FindFirstObjectByType<UIBattleMutedPreviewView>();
+            if (hud == null) return -1f;
+            var field = typeof(UIBattleMutedPreviewView).GetField("_levelText", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var text = field != null ? field.GetValue(hud) as Graphic : null;
+            if (text == null || !text.gameObject.activeInHierarchy) return -1f;
+            var corners = new Vector3[4];
+            for (var rt = text.rectTransform.parent as RectTransform; rt != null; rt = rt.parent as RectTransform)
+            {
+                rt.GetWorldCorners(corners);
+                float width = corners[2].x - corners[0].x;
+                if (width >= Screen.width * 0.6f && corners[0].y > Screen.height * 0.5f) return corners[0].y;   // 위쪽 절반에 있는 넓은 띠
+            }
+            return -1f;
+        }
+
         private void Layout()
         {
             _lastScreenHeight = Screen.height;
@@ -307,7 +336,8 @@ namespace OZGL2.UIBridge
             float speedW = pad * 2f + segW * Speeds.Length;
             float camW = pad * 2f + togW * ToggleCount;
             float total = speedW + Gap + camW;
-            float topY = -Screen.height * 0.105f - 24f * s;   // 맨 위 상단 바(재화·레벨·경험치)와 겹치지 않게 그 아래로 띄운다
+            // 맨 위 상단 바(재화·레벨·경험치) 바로 아래에 붙이되 겹치지 않게 조금 띄운다. 바를 못 찾으면 화면 비율로 정한다.
+            float topY = _hudBottom > 0f ? -(Screen.height - _hudBottom) - 12f * s : -Screen.height * 0.105f - 24f * s;
 
             PlacePanel(_bar, new Vector2(-total * 0.5f + speedW * 0.5f, topY), new Vector2(speedW, height));
             PlacePanel(_camBar, new Vector2(total * 0.5f - camW * 0.5f, topY), new Vector2(camW, height));
