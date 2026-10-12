@@ -8,8 +8,8 @@ using UnityEngine.UI;
 namespace OZGL2.UIBridge
 {
     /// <summary>
-    /// 로비 난이도 카드에 잠금을 건다(팀 UI·프리팹은 수정하지 않고 실행 중에 얹는다).
-    /// - 보통을 깨야 어려움, 어려움을 깨야 지옥이 열린다(StageClearStore). 잠긴 카드는 희수 UI의 잠금 표시(자물쇠·어두운 막)가 나온다.
+    /// 기존 진행 기록으로 로비 난이도 카드의 잠금 표시와 시작 버튼 상태를 맞춘다.
+    /// - 보통을 깨야 어려움, 어려움을 깨야 지옥이 열린다(StageClearStore). 잠긴 카드의 실루엣·봉인 표시와 해금 안내를 맞춘다.
     /// - 잠긴 난이도가 선택돼 있으면 시작 단추를 누를 수 없게 하고 글자를 잠금 안내로 바꾼다.
     /// - 디버그 열기(F8 패널의 「난이도 전부 열기」)를 켜면 전부 열린다.
     /// 슬롯이 다시 그려질 때마다 잠금이 풀리므로 매 프레임 상태를 다시 맞춘다.
@@ -24,10 +24,7 @@ namespace OZGL2.UIBridge
             FStart = typeof(UILobbyDifficultySelector).GetField("_startButton", Priv),
             FCard = typeof(UILobbyDifficultySlotView).GetField("_card", Priv),
             FName = typeof(UILobbyDifficultySlotView).GetField("_nameLabel", Priv),
-            FFrameGroup = typeof(UILobbyDifficultySlotView).GetField("_frameGroup", Priv),
-            FLockGroup = typeof(UILobbyStageCardView).GetField("_lockGroup", Priv),
-            FShade = typeof(UILobbyStageCardView).GetField("_lockedShade", Priv),
-            FShadeColor = typeof(UILobbyStageCardView).GetField("_lockedShadeColor", Priv);
+            FFrameGroup = typeof(UILobbyDifficultySlotView).GetField("_frameGroup", Priv);
 
         private UILobbyDifficultySelector _selector;
         private Button _start;
@@ -87,18 +84,14 @@ namespace OZGL2.UIBridge
             if (card == null || label == null) return;
             int difficultyIndex = System.Array.IndexOf(StageClearStore.DifficultyNames, label.text);
             bool locked = difficultyIndex > 0 && !StageClearStore.IsDifficultyUnlocked(difficultyIndex);
+            // 편집기에서 잠긴 상태로 저장한 카드도 현재 슬롯 난이도에 맞는 안내를 갱신한다.
+            card.SetLockCondition(locked ? StageClearStore.DifficultyNames[difficultyIndex - 1] + " 난이도 클리어 시 해금" : string.Empty);
             if (card.IsLocked != locked) card.SetLocked(locked);
 
             // 자물쇠·어두운 막은 팀 카드의 전환 투명도(테두리·그림이 사라졌다 나타나는 값)를 따르지 않아 혼자 계속 떠 있었다.
             // 슬롯이 보여 주는 전환 투명도에 맞춰 같이 사라졌다 나타나게 한다.
             float fade = FFrameGroup?.GetValue(slot) is CanvasGroup frame && frame != null ? frame.alpha : 1f;
-            if (FLockGroup?.GetValue(card) is CanvasGroup lockGroup && lockGroup != null) lockGroup.alpha = locked ? fade : 0f;
-            if (FShade?.GetValue(card) is Image shade && shade != null)
-            {
-                Color shadeColor = FShadeColor != null ? (Color)FShadeColor.GetValue(card) : shade.color;
-                shadeColor.a = locked ? shadeColor.a * fade : 0f;
-                shade.color = shadeColor;
-            }
+            card.SetLockTransitionAlpha(fade);
         }
     }
 }

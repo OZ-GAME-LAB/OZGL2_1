@@ -27,6 +27,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private bool _useInlineDisplay;
         [SerializeField] private CanvasGroup _descriptionGroup;
         [SerializeField] private CanvasGroup _shadeGroup;
+        [SerializeField] private UILobbyStageCardView _stageCard;
 
         [Header("하단 기준 확장 레이아웃")]
         [SerializeField] private RectTransform _panelRect;
@@ -65,6 +66,7 @@ namespace OZGL2.UIFlow
         private RectTransform _hitArea;
         private Canvas _canvas;
         private UILobbyDifficultySelector _subscribedSelector;
+        private UILobbyStageCardView _subscribedStageCard;
         private EventSystem _pointerEventSystem;
         private PointerEventData _raycastPointer;
         private Tween _motion;
@@ -200,14 +202,16 @@ namespace OZGL2.UIFlow
         {
             // 표시용 captionGroup 밖에 둔 HitArea만 입력을 받는다. 전환 중에는 아래 UI도 차단하지 않는다.
             return Application.isPlaying && isActiveAndEnabled && _hasEntry && !_isTransitionLocked
-                && IsInlineInputAllowed();
+                && !IsInlineCardLocked() && IsInlineInputAllowed();
         }
 
         private bool CanExpand()
         {
             return Application.isPlaying && isActiveAndEnabled && _hasFocus && _hasEntry && !_isTransitionLocked
-                && IsInlineInputAllowed();
+                && !IsInlineCardLocked() && IsInlineInputAllowed();
         }
+
+        private bool IsInlineCardLocked() => _useInlineDisplay && _stageCard != null && _stageCard.IsLocked;
 
         private bool IsInlineInputAllowed()
         {
@@ -336,8 +340,11 @@ namespace OZGL2.UIFlow
             _expansion = Mathf.Clamp01(expansion);
             if (_useInlineDisplay)
             {
+                // 봉인 조건을 기록 호버가 덮어쓰지 않도록 잠금 전환 시에도 같은 표시 규칙을 적용한다.
+                bool isLocked = IsInlineCardLocked();
+                if (isLocked) _expansion = 0f;
                 // 상위 Caption의 난이도 전환 alpha는 유지하고 표시 전용 자식만 교차 전환한다.
-                if (_descriptionGroup != null) _descriptionGroup.alpha = 1f - _expansion;
+                if (_descriptionGroup != null) _descriptionGroup.alpha = isLocked ? 0f : 1f - _expansion;
                 if (_shadeGroup != null) _shadeGroup.alpha = _expansion;
                 if (_recordGroup != null) _recordGroup.alpha = _expansion;
                 return;
@@ -383,6 +390,17 @@ namespace OZGL2.UIFlow
             else _needsPointerRefresh = true;
         }
 
+        private void HandleLockStateChanged(bool isLocked)
+        {
+            if (!_useInlineDisplay) return;
+            _externalOpen = false;
+            _hasPendingPointerRequest = false;
+            _pointerRecheckRemaining = 0f;
+            CancelMotion();
+            SetExpansion(0f);
+            _needsPointerRefresh = !isLocked;
+        }
+
         private void CacheLayoutReferences()
         {
             if (_hitArea == null) _hitArea = transform as RectTransform;
@@ -409,6 +427,9 @@ namespace OZGL2.UIFlow
             _subscribedSelector = _selector;
             if (_subscribedSelector != null)
                 _subscribedSelector.TransitionStateChanged += HandleTransitionStateChanged;
+            _subscribedStageCard = _stageCard;
+            if (_subscribedStageCard != null)
+                _subscribedStageCard.LockStateChanged += HandleLockStateChanged;
         }
 
         private void Unsubscribe()
@@ -416,6 +437,9 @@ namespace OZGL2.UIFlow
             if (_subscribedSelector != null)
                 _subscribedSelector.TransitionStateChanged -= HandleTransitionStateChanged;
             _subscribedSelector = null;
+            if (_subscribedStageCard != null)
+                _subscribedStageCard.LockStateChanged -= HandleLockStateChanged;
+            _subscribedStageCard = null;
         }
 
         private void CancelMotion()
