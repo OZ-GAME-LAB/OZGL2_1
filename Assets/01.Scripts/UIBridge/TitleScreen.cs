@@ -196,7 +196,23 @@ namespace OZGL2.UIBridge
         {
             if (_starting) return;
             _starting = true;
-            StartCoroutine(FadeAndLoad());
+            StartCoroutine(StoryThenLoad());
+        }
+
+        /// <summary>처음 시작이면(스토리를 아직 안 봤으면) 오프닝 스토리를 보여 준 뒤 로비로 간다. 이미 봤으면 바로 로비로.</summary>
+        private IEnumerator StoryThenLoad()
+        {
+            if (!StoryStore.Seen)
+            {
+                bool done = false;
+                StoryIntro.Play(() => done = true);
+                while (!done) yield return null;
+                _fade.color = Color.black; // 스토리가 끝난 어두운 화면 그대로 로비로 넘어간다
+                yield return null;
+                yield return StartCoroutine(FadeAndLoad());
+                yield break;
+            }
+            yield return StartCoroutine(FadeAndLoad());
         }
 
         private IEnumerator FadeAndLoad()

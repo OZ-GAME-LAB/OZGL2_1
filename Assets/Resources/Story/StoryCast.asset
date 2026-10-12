@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59e68f64662050588ca39bee331f1059, type: 3}
+  m_Name: StoryCast
+  m_EditorClassIdentifier: 
+  _entries:
+  - id: king
+    prefab: {fileID: 7784438773992661821, guid: e454046cbb79c8a45bd042d39355d3f8, type: 3}
+  - id: d_war
+    prefab: {fileID: 1618230868218323821, guid: 9728d335277fd144db214a5d0eefb5ce, type: 3}
+  - id: d_shd
+    prefab: {fileID: 5147224116857179827, guid: f4018b3b963675e42b3925f51857c93b, type: 3}
+  - id: d_arc
+    prefab: {fileID: 8145912676186694169, guid: 53fa62fee364391488d8fe3289f83ada, type: 3}
+  - id: d_mag
+    prefab: {fileID: 4188032789114302485, guid: a70dd952e8478ad44bf4a71c155b9def, type: 3}
+  - id: d_hel
+    prefab: {fileID: 1282961753808237050, guid: 4dae3fe064c496a46a0c58b0a0026e2b, type: 3}
+  - id: d_rog
+    prefab: {fileID: 938902573260018031, guid: 9d5a349d992d29445866dae11fd6405d, type: 3}
+  - id: h_war
+    prefab: {fileID: 1279840019893266538, guid: e5118c48eadbe244e96f46686537facf, type: 3}
+  - id: h_shd
+    prefab: {fileID: 9180512763855493605, guid: c4bf161337ebb874097aa31e054b2c3b, type: 3}
+  - id: h_arc
+    prefab: {fileID: 5974033147166546982, guid: 145ab7023b5f9b04e9f503bcc6509b8f, type: 3}
+  - id: h_mag
+    prefab: {fileID: 5598504928114146890, guid: 9f738bd460fa55e4da2214e84c69cd6a, type: 3}
+  - id: h_rog
+    prefab: {fileID: 3147221314500484933, guid: dccfbd361a7621046b01e3163bf923a4, type: 3}
+  - id: h_hel
+    prefab: {fileID: 8396025578230140869, guid: 0b77c536f5bf5a84aa72d7eda8c701b0, type: 3}
+  - id: h_war2
+    prefab: {fileID: 6774065929812205638, guid: 8162daf5c3c99be45948392dcd9a81ac, type: 3}
+  - id: h_war3
+    prefab: {fileID: 5616672183215556594, guid: 3f0c910c220684b4bbb2e8305a14922d, type: 3}
+  - id: h_shd2
+    prefab: {fileID: 8403924883201368723, guid: aebe9c0ec4a15f1409e6854fe1ceff0d, type: 3}
+  - id: h_arc2
+    prefab: {fileID: 5970256131091310474, guid: d53bb802e3d62014db4ff8fc0d2a1390, type: 3}
+  - id: h_arc3
+    prefab: {fileID: 9200354493972836640, guid: a989c8b9a8ed75747b86fbcc1bf84ae5, type: 3}
+  - id: h_mag2
+    prefab: {fileID: 8873173196267656181, guid: 8e73c3632d70bc8439bc29d28987d116, type: 3}
+  - id: h_mag3
+    prefab: {fileID: 7177949199928719012, guid: c9e14322f304c8440972da32da219836, type: 3}
+  - id: h_rog2
+    prefab: {fileID: 2439018553001832487, guid: 71abe8db1ff453949aef3ad0a708c031, type: 3}
+  - id: h_rog3
+    prefab: {fileID: 8940222441422043709, guid: 716435ddebd441647832c5b298cd192b, type: 3}
+  - id: h_hel2
+    prefab: {fileID: 5153136095332640475, guid: c575d9666d312504089ca72018dc4835, type: 3}

@@ -23,6 +23,14 @@ namespace OZGL2.Tutorial
 
         public bool IsReady => Texture != null && _root != null;
 
+        /// <summary>Build 전에 불러 쓴다. 한 화면에 여럿을 띄울 때 서로 겹치지 않게 그리는 자리(stage)와 그림 크기를 정한다.</summary>
+        public void Configure(Vector3 stage, int size)
+        {
+            if (IsReady) return;
+            _stage = stage;
+            _size = Mathf.Max(64, size);
+        }
+
         public void Build(GameObject prefab)
         {
             if (IsReady) return;

@@ -13,6 +13,7 @@ namespace OZGL2.UIBridge
     /// - 지옥: 불타는 대지. 용암 웅덩이와 갈라진 틈, 타 버린 나무, 뼈 무더기, 붉은 횃불, 피어오르는 불씨, 붉게 가라앉은 하늘빛.
     /// 장식은 천막·용사가 지나는 길·배치 영역·성벽을 피해서 놓고, 난이도마다 같은 자리에 같은 모양이 나오게(고정 시드) 한다.
     /// 그림은 RF Castle 의 소품 시트에서 자른 것과 코드로 만든 도트(꽃·바위·용암·불꽃)를 섞어 쓴다.
+    /// 휑한 빈 땅이 없도록, 새 그림을 더하지 않고 원래 쓰던 요소(바위·그루터기·마른 가지와 덤불·해골과 뼈·갈라진 틈·용암)를 훨씬 촘촘히 깐다.
     /// </summary>
     public sealed class InGameBattlefieldDecor : MonoBehaviour
     {
@@ -21,6 +22,11 @@ namespace OZGL2.UIBridge
                 [SerializeField, Range(0.3f, 2f), Tooltip("장식 개수 배율")] private float _density = 1f;
 
         private enum Mood { Normal, Hard, Hell }
+
+        /// <summary>장식을 깐 맵의 월드 범위. 카메라가 이 밖의 빈 땅을 비추지 않도록 InGameCameraControl 이 읽는다. 장식이 만들어진 뒤에만 유효하다.</summary>
+        public static bool HasMapBounds { get; private set; }
+        public static Rect MapBounds { get; private set; }
+        private const float MapHalfWidthCells = 26f, MapBottomCells = -40f, MapTopCells = 25f;   // 아래쪽은 마왕성 벽과 화면 아래 UI 띠 쪽이라 막지 않는다(막으면 마왕·배치판이 UI 뒤로 밀린다)
 
         private const float SheetPpu = 22f;
         private Mood _mood;
@@ -39,6 +45,8 @@ namespace OZGL2.UIBridge
 
         private struct Ambient { public Transform tf; public SpriteRenderer sr; public Vector2 home; public float speed, sway, phase, size; public Vector2 span; }
         private struct Flicker { public SpriteRenderer glow; public Transform flame; public float baseAlpha, baseScale, phase; }
+
+        private void OnDestroy() => HasMapBounds = false;
 
         private void Awake()
         {
@@ -76,6 +84,10 @@ namespace OZGL2.UIBridge
             _gridTopY = size.y;
             _rng = new System.Random(_stageId.GetHashCode() ^ 0x5F3759DF);
             _root = new GameObject("BattlefieldDecor_" + _mood).transform;
+            var lo = World(new Vector2(_cx - MapHalfWidthCells, MapBottomCells));
+            var hi = World(new Vector2(_cx + MapHalfWidthCells, MapTopCells));
+            MapBounds = Rect.MinMaxRect(Mathf.Min(lo.x, hi.x), Mathf.Min(lo.y, hi.y), Mathf.Max(lo.x, hi.x), Mathf.Max(lo.y, hi.y));
+            HasMapBounds = true;
             _root.SetParent(transform, false);
             _soft = MakeSoft();
             _dot = MakeDot();
@@ -107,9 +119,12 @@ namespace OZGL2.UIBridge
         {
             var rocks = new[] { MakeRock(0), MakeRock(1), MakeRock(2) };
             var stump = Cut(164, 132, 26, 20, 0.5f, 0f);
-            Scatter(Scaled(12), 2.2f, p => AddProp(rocks[_rng.Next(rocks.Length)], p, 1.5f, true));
-            Scatter(Scaled(3), 3.4f, p => AddProp(stump, p, 1f, true));
-            BoneField(Scaled(10), 3, 1.0f, Color.white);
+            var stumps = SheetStumps();
+            var twigs = SheetTwigs();
+            Scatter(Scaled(34), 1.9f, p => AddProp(rocks[_rng.Next(rocks.Length)], p, 1.5f, true));
+            Scatter(Scaled(12), 2.8f, p => AddProp(_rng.Next(3) == 0 ? stump : stumps[_rng.Next(stumps.Length)], p, 1f, true));
+            ScatterSmall(Scaled(46), 1.5f, p => AddSmall(twigs[_rng.Next(twigs.Length)], p, 1f));
+            BoneField(Scaled(30), 3, 1.0f, Color.white);
         }
 
         // 어려움 — 오래된 전장: 해골과 뼈가 훨씬 많고, 마른 가지와 그루터기가 섞인다
@@ -117,9 +132,15 @@ namespace OZGL2.UIBridge
         {
             var branch = Cut(199, 28, 22, 22, 0.5f, 0f);
             var stumps = new[] { Cut(214, 131, 34, 26, 0.5f, 0f), Cut(164, 132, 26, 20, 0.5f, 0f), Cut(194, 160, 26, 26, 0.5f, 0f), Cut(280, 131, 38, 27, 0.5f, 0f) };
-            Scatter(Scaled(6), 2.6f, p => AddProp(branch, p, 1f, true));
-            Scatter(Scaled(7), 3.2f, p => AddProp(stumps[_rng.Next(stumps.Length)], p, 1f, true));
-            BoneField(Scaled(22), 4, 1.15f, new Color(0.95f, 0.93f, 0.88f));
+            var twigs = SheetTwigs();
+            var clumps = SheetClumps();
+            var rocks = new[] { MakeRock(0), MakeRock(1), MakeRock(2) };
+            Scatter(Scaled(14), 2.4f, p => AddProp(branch, p, 1f, true));
+            Scatter(Scaled(22), 2.5f, p => AddProp(stumps[_rng.Next(stumps.Length)], p, 1f, true));
+            Scatter(Scaled(40), 2.0f, p => AddProp(clumps[_rng.Next(clumps.Length)], p, 1f, true));
+            Scatter(Scaled(18), 2.4f, p => AddProp(rocks[_rng.Next(rocks.Length)], p, 1.5f, true, new Color(0.88f, 0.84f, 0.8f)));
+            ScatterSmall(Scaled(90), 1.2f, p => AddSmall(twigs[_rng.Next(twigs.Length)], p, 1f));
+            BoneField(Scaled(60), 4, 1.15f, new Color(0.95f, 0.93f, 0.88f));
         }
 
         // 지옥 — 불타는 대지: 용암과 갈라진 틈, 타 버린 그루터기, 뼈 무더기가 빽빽하다
@@ -129,14 +150,22 @@ namespace OZGL2.UIBridge
             var cracks = new[] { MakeCrack(0), MakeCrack(1), MakeCrack(2) };
             var lavas = new[] { MakeLava(0), MakeLava(1) };
 
-            Scatter(Scaled(26), 1.6f, p => AddGround(cracks[_rng.Next(cracks.Length)], p, -191, new Color(1f, 0.55f, 0.2f, 0.95f), 0f));
-            Scatter(Scaled(14), 3.2f, p =>
+            var burnt = new Color(0.5f, 0.32f, 0.3f);
+            var allStumps = SheetStumps();
+            var twigs = SheetTwigs();
+            var clumps = SheetClumps();
+            var rocks = new[] { MakeRock(0), MakeRock(1), MakeRock(2) };
+            Scatter(Scaled(60), 1.3f, p => AddGround(cracks[_rng.Next(cracks.Length)], p, -191, new Color(1f, 0.55f, 0.2f, 0.95f), 0f));
+            Scatter(Scaled(28), 2.6f, p =>
             {
                 AddGlow(p, new Color(1f, 0.45f, 0.1f, 0.40f), 3.6f, -190);
                 AddGround(lavas[_rng.Next(lavas.Length)], p, -189, Color.white, 0.5f);
             });
-            Scatter(Scaled(4), 3.4f, p => AddProp(stumps[_rng.Next(stumps.Length)], p, 1f, true, new Color(0.5f, 0.32f, 0.3f)));
-            BoneField(Scaled(32), 4, 1.25f, new Color(1f, 0.86f, 0.80f));
+            Scatter(Scaled(14), 2.8f, p => AddProp(allStumps[_rng.Next(allStumps.Length)], p, 1f, true, burnt));
+            Scatter(Scaled(24), 2.4f, p => AddProp(clumps[_rng.Next(clumps.Length)], p, 1f, true, burnt));
+            Scatter(Scaled(18), 2.4f, p => AddProp(rocks[_rng.Next(rocks.Length)], p, 1.5f, true, new Color(0.62f, 0.5f, 0.48f)));
+            ScatterSmall(Scaled(60), 1.3f, p => AddSmall(twigs[_rng.Next(twigs.Length)], p, 1f, burnt));
+            BoneField(Scaled(76), 4, 1.25f, new Color(1f, 0.86f, 0.80f));
             for (int i = 0; i < 70; i++) AddMote(new Color(1f, 0.55f, 0.18f), 0.08f, 0.17f, 0.9f, 1.5f, false, true);
         }
 
@@ -161,6 +190,9 @@ namespace OZGL2.UIBridge
         }
 
         private int Scaled(int count) => Mathf.Max(1, Mathf.RoundToInt(count * _density));
+
+        // 작은 장식은 큰 소품과 따로 간격을 잰다(촘촘히 깔기 위해)
+        private readonly List<Vector2> _placedSmall = new List<Vector2>();
 
         // ───────────── 배치
 
@@ -285,6 +317,51 @@ namespace OZGL2.UIBridge
                 else f.glow.transform.localScale = Vector3.one * f.baseScale * (0.96f + 0.06f * n);
             }
         }
+
+        /// <summary>작은 장식(마른 가지 등)을 촘촘히 깐다. 큰 소품과는 조금만 떨어뜨리고 같은 종류끼리는 spacing 만큼 띄운다.</summary>
+        private void ScatterSmall(int count, float spacing, Action<Vector2> place)
+        {
+            int placedCount = 0;
+            for (int attempt = 0; attempt < count * 14 && placedCount < count; attempt++)
+            {
+                var p = new Vector2(_cx + (float)(_rng.NextDouble() * 2 - 1) * 26f, -0.4f + (float)_rng.NextDouble() * 25f);
+                if (!Allowed(p, 0f)) continue;
+                bool blocked = false;
+                foreach (var q in _placed) if ((q - p).sqrMagnitude < 1.0f) { blocked = true; break; }
+                if (blocked) continue;
+                foreach (var q in _placedSmall) if ((q - p).sqrMagnitude < spacing * spacing) { blocked = true; break; }
+                if (blocked) continue;
+                _placedSmall.Add(p);
+                place(p);
+                placedCount++;
+            }
+        }
+
+        private SpriteRenderer AddSmall(Sprite sprite, Vector2 cellPos, float scale, Color? tint = null)
+        {
+            var sr = AddProp(sprite, cellPos, scale, true, tint);
+            sr.sortingOrder = OrderFor(cellPos.y) - 4;   // 큰 소품 뒤, 바닥 위
+            return sr;
+        }
+
+        // 소품 시트(RF Castle/decorative.png)에 원래 있는 그림들 — 좌표는 시트에서 자른 위치
+        private Sprite[] SheetTwigs() => new[]
+        {
+            Cut(200, 29, 18, 19, 0.5f, 0f), Cut(257, 37, 15, 18, 0.5f, 0f), Cut(320, 37, 15, 18, 0.5f, 0f), Cut(377, 21, 18, 19, 0.5f, 0f),
+            Cut(240, 48, 15, 15, 0.5f, 0f), Cut(272, 49, 13, 15, 0.5f, 0f), Cut(307, 49, 13, 15, 0.5f, 0f), Cut(337, 48, 15, 15, 0.5f, 0f),
+            Cut(270, 73, 18, 19, 0.5f, 0f), Cut(304, 73, 18, 19, 0.5f, 0f),
+        };
+
+        private Sprite[] SheetClumps() => new[]
+        {
+            Cut(192, 67, 28, 25, 0.5f, 0f), Cut(372, 67, 28, 25, 0.5f, 0f), Cut(240, 82, 16, 12, 0.5f, 0f), Cut(336, 82, 16, 12, 0.5f, 0f),
+        };
+
+        private Sprite[] SheetStumps() => new[]
+        {
+            Cut(164, 133, 26, 18, 0.5f, 0f), Cut(338, 134, 26, 18, 0.5f, 0f), Cut(211, 131, 37, 27, 0.5f, 0f), Cut(280, 132, 37, 27, 0.5f, 0f),
+            Cut(165, 165, 20, 23, 0.5f, 0f), Cut(343, 166, 20, 23, 0.5f, 0f), Cut(193, 161, 26, 26, 0.5f, 0f), Cut(309, 162, 26, 26, 0.5f, 0f),
+        };
 
         // ───────────── 그림 만들기
 

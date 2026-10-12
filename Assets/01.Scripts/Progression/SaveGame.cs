@@ -92,6 +92,7 @@ namespace OZGL2.Progression
             new TraitTree(Resources.LoadAll<TraitData>("Traits")).ResetAll();
             UnitUnlockStore.ResetAll();
             CodexStore.ResetAll();
+            StoryStore.ResetAll(); // 처음부터 다시 하면 오프닝 스토리도 다시 나온다
             StageClearStore.ResetAll();
             AchievementStore.ResetAll();
             StageRecordStore.ResetAll();
