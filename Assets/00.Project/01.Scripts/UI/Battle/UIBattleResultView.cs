@@ -94,6 +94,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Image _bannerTailRight;
         [SerializeField] private Image _rune;
         [SerializeField] private Image _titleAccent;
+        [SerializeField] private UIRadialGlow _titleGlow;
 
         [Header("상태별 교체 아트 / 강조색")]
         [SerializeField] private Sprite _victoryCrown;
@@ -106,6 +107,8 @@ namespace OZGL2.UIFlow
         [SerializeField] private Color _defeatAccent = new Color32(153, 111, 117, 255);
         [SerializeField] private Color _titleColor = new Color32(230, 217, 194, 255);
         [SerializeField] private Color _difficultyAccent = new Color32(183, 55, 47, 255);
+        [SerializeField] private Color _victoryGlow = new Color32(200, 167, 104, 58);
+        [SerializeField] private Color _defeatGlow = new Color32(143, 21, 51, 68);
 
         [Header("로비 이동 연결")]
         [SerializeField] private Button _lobbyButton;
@@ -184,6 +187,7 @@ namespace OZGL2.UIFlow
             SetSprite(_bannerTailRight, bannerTail);
             SetColor(_rune, accent);
             SetColor(_titleAccent, accent);
+            if (_titleGlow != null) _titleGlow.color = isVictory ? _victoryGlow : _defeatGlow;
 
             BattleResultDisplayData data = DisplayData;
             SetText(_difficultyText, FormatDifficulty(data != null ? data.Difficulty : string.Empty));

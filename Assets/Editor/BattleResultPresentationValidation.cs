@@ -17,7 +17,7 @@ public static class BattleResultPresentationValidation
 {
     private const string PREFAB_PATH = "Assets/06.UI/BattleMutedPreview/Heraldry_Result_v1/Prefabs/Canvas_BattleResult_Heraldry.prefab";
     private const float TOLERANCE = 0.002f;
-    private static readonly string[] GROUPS = { "_titleGroup", "_timeRow", "_killsRow", "_deploymentsRow", "_rewardRow" };
+    private static readonly string[] GROUPS = { "_titleGroup", "_titleGlowGroup", "_timeRow", "_killsRow", "_deploymentsRow", "_rewardRow" };
     private static bool _isRunning;
     private static int _caseId;
     public static string LastResult { get; private set; } = "아직 실행하지 않았습니다.";
@@ -53,6 +53,7 @@ public static class BattleResultPresentationValidation
             fixture.View.SetState(eBattleResultState.VICTORY);
             await NextFrame();
 
+            await ValidateGlowStates(fixture);
             await ValidateNaturalCompletion(fixture);
             await ValidateSkips(fixture);
             await ValidateExperienceCases(fixture);
@@ -60,6 +61,8 @@ public static class BattleResultPresentationValidation
             await ValidatePointerInput(fixture);
             LastResult = "결과 연출 Play Mode 검증 통과\n" +
                 "- Prefab 참조·노란 Fill 겹침 순서 및 Raycast 설정\n" +
+                "- 승리/패배 글로우 색상·제목 알파 동기화·겹침 순서\n" +
+                "- 경험치 입자 시작/흡수/정리·획득량 0 미출력·원본 TMP 표시 유지\n" +
                 "- timeScale 0 자연 재생·최종 표시·로비 이동 차단/허용\n" +
                 "- 제목/기록/숫자/Fill 단계 스킵 및 로비 버튼 지연·중복 스킵\n" +
                 "- 경험치 0/최대 정수/다중 레벨업, 숫자 고정 시간과 노랑 선행\n" +
@@ -94,6 +97,38 @@ public static class BattleResultPresentationValidation
         Need(Near(f.Yellow.anchorMin.y, 0f) && Near(f.Yellow.anchorMax.y, 1f) &&
             Near(f.Yellow.offsetMin.y, 0f) && Near(f.Yellow.offsetMax.y, 0f), "노란 Fill의 세로 Stretch/높이 설정");
         Need(f.Yellow.TryGetComponent(out Image image) && !image.raycastTarget && image.color.r > .5f && image.color.g > .4f && image.color.b < .5f, "노란 Fill 색상/Raycast");
+        Need(f.Glow != null && f.GlowGroup != null && f.Particles != null && f.Particles.HasTargets, "글로우/경험치 입자 참조");
+        Need(f.GlowGroup.transform == f.Glow.transform && !f.Glow.raycastTarget, "글로우 CanvasGroup/Raycast 설정");
+        Need(f.Glow.transform.parent == f.Title.parent && f.Glow.transform.GetSiblingIndex() < f.Title.GetSiblingIndex(), "글로우가 제목 뒤에 있어야 함");
+        Need(Field<TMP_Text>(f.Particles, "_source") == f.Reward, "경험치 입자의 exp 출발 텍스트 참조");
+        Need(Field<RectTransform>(f.Particles, "_destination") == f.Slider.fillRect.parent, "경험치 입자의 FillArea 도착 참조");
+        Need(f.Particles.TryGetComponent(out Graphic particleGraphic) && !particleGraphic.raycastTarget, "경험치 입자 Raycast 설정");
+        Need(f.Particles.VisibleParticleCount == 0, "재생 전 경험치 입자가 남아 있음");
+    }
+
+    private static async Task ValidateGlowStates(Fixture f)
+    {
+        foreach (eBattleResultState state in new[] { eBattleResultState.VICTORY, eBattleResultState.DEFEAT })
+        {
+            f.View.SetState(state);
+            Color expected = Field<Color>(f.View, state == eBattleResultState.VICTORY ? "_victoryGlow" : "_defeatGlow");
+            Need(Near(f.Glow.color, expected), state + ": 글로우 색상");
+            Need(state == eBattleResultState.VICTORY ? expected.r > expected.g && expected.g > expected.b :
+                expected.r > expected.g * 2f && expected.r > expected.b * 2f, state + ": 고금색/진홍색 설정");
+            BattleResultDisplayData data = Data(300, 2, .6f, 2, .1f);
+            Begin(f, data);
+            Need(Near(f.GlowGroup.alpha, 0f) && f.Particles.VisibleParticleCount == 0, state + ": 초기 VFX 숨김");
+            Sequence sequence = CurrentSequence(f).Pause();
+            sequence.GotoWithCallbacks(Field<float>(f.Presentation, "_titleDuration") * .5f, false);
+            float titleAlpha = Field<CanvasGroup>(f.Presentation, "_titleGroup").alpha;
+            Need(titleAlpha > 0f && titleAlpha < 1f && Near(titleAlpha, f.GlowGroup.alpha), state + ": 제목과 글로우 중간 알파 동기화");
+            sequence.GotoWithCallbacks(Field<float>(f.Presentation, "_titleDuration") + .01f, false);
+            Need(Near(f.GlowGroup.alpha, 1f) && f.Particles.VisibleParticleCount == 0, state + ": 제목 등장 완료/입자 대기");
+            f.Presentation.Skip();
+            AssertFinal(f, data);
+            await WaitUntil(() => !f.Presentation.IsPlaying, 3d);
+        }
+        f.View.SetState(eBattleResultState.VICTORY);
     }
 
     private static async Task ValidateNaturalCompletion(Fixture f)
@@ -111,16 +146,22 @@ public static class BattleResultPresentationValidation
         Need(f.ReturnCount == returns, "연출 중 로비 이동 차단");
         bool sawYellowLead = false;
         bool sawVisibleCount = false;
+        bool sawParticles = false;
         await WaitUntil(() => !f.Presentation.IsPlaying, 10d, () =>
         {
+            Need(Near(Field<CanvasGroup>(f.Presentation, "_titleGroup").alpha, f.GlowGroup.alpha), "자연 재생 제목/글로우 알파 동기화");
+            AssertRewardStyle(f);
             Need(f.Yellow.rect.height > 0f && Near(f.Yellow.rect.height, f.Slider.fillRect.rect.height), "노란 Fill 실제 표시 높이");
             Need(f.Yellow.anchorMax.x + TOLERANCE >= f.Slider.normalizedValue, "노란 Fill 선행 순서");
             if (f.Yellow.anchorMax.x > f.Slider.normalizedValue + .01f) sawYellowLead = true;
             if (Field<CanvasGroup>(f.Presentation, "_rewardRow").alpha > .9f &&
                 f.Reward.text != "0 exp" && f.Reward.text != "2,400 exp") sawVisibleCount = true;
+            if (f.Reward.text != "2,400 exp") Need(f.Particles.VisibleParticleCount == 0, "획득량 집계 이전에 입자 출력");
+            if (f.Particles.VisibleParticleCount > 0) sawParticles = true;
         });
         Need(sawYellowLead, "자연 재생에서 노란 Fill 선행을 관찰하지 못함");
         Need(sawVisibleCount, "자연 재생에서 획득량 숫자 증가가 보이지 않음");
+        Need(sawParticles, "자연 재생에서 경험치 입자를 관찰하지 못함");
         AssertFinal(f, data);
         Need(f.Button.interactable && f.Presentation.CanReturnToLobby, "자연 완료 후 버튼 허용");
         f.View.ReturnToLobby();
@@ -135,7 +176,7 @@ public static class BattleResultPresentationValidation
         {
             BattleResultDisplayData data = Data(2400, 5, .7f, 3, .1f);
             Begin(f, data);
-            CurrentSequence(f).Pause().Goto(checkpoint, false);
+            CurrentSequence(f).Pause().GotoWithCallbacks(checkpoint, false);
             int returns = f.ReturnCount;
             f.Presentation.Skip();
             AssertFinal(f, data);
@@ -159,15 +200,17 @@ public static class BattleResultPresentationValidation
             Begin(f, data);
             Sequence sequence = CurrentSequence(f).Pause();
             float fillDuration = sequence.Duration() - fillStart;
-            sequence.Goto(countStart + countDuration * .5f, false);
+            sequence.GotoWithCallbacks(countStart + countDuration * .5f, false);
             if (data.EarnedXp > 0)
                 Need(f.Reward.text != "0 exp" && f.Reward.text != data.EarnedXp.ToString("N0", CultureInfo.InvariantCulture) + " exp", "획득량 숫자 중간 진행");
-            sequence.Goto(countStart + countDuration + .001f, false);
+            sequence.GotoWithCallbacks(countStart + countDuration + .001f, false);
             Need(f.Reward.text == data.EarnedXp.ToString("N0", CultureInfo.InvariantCulture) + " exp", "고정 시간 내 획득량 도달");
             for (int step = 1; step <= 60; step++)
             {
-                sequence.Goto(fillStart + fillDuration * step / 61f, false);
+                sequence.GotoWithCallbacks(fillStart + fillDuration * step / 61f, false);
                 Need(f.Yellow.anchorMax.x + TOLERANCE >= f.Slider.normalizedValue, "다중 레벨 노랑/빨강 순서");
+                if (data.EarnedXp == 0) Need(f.Particles.VisibleParticleCount == 0, "획득량 0일 때 입자 출력");
+                AssertRewardStyle(f);
             }
             f.Presentation.Skip();
             AssertFinal(f, data);
@@ -178,10 +221,13 @@ public static class BattleResultPresentationValidation
     private static async Task ValidateReentry(Fixture f)
     {
         Begin(f, Data(120, 2, .7f, 1, .3f));
+        JumpToVisibleParticles(f);
         Sequence previous = CurrentSequence(f);
         BattleResultDisplayData replacement = Data(330, 4, .4f, 2, .1f);
         Begin(f, replacement);
         Need(!previous.IsActive() && CurrentSequence(f) != previous, "새 결과 교체 시 이전 Tween 정리");
+        Need(f.Particles.VisibleParticleCount == 0, "새 결과 교체 시 이전 입자 정리");
+        JumpToVisibleParticles(f);
         Sequence interrupted = CurrentSequence(f);
         f.Instance.SetActive(false);
         Need(!interrupted.IsActive() && !f.Presentation.IsPlaying, "OnDisable Tween 정리");
@@ -192,8 +238,25 @@ public static class BattleResultPresentationValidation
         Need(!f.Presentation.IsPlaying, "동일 결과 재오픈 시 중복 재생");
         Begin(f, Data(30, 1, .5f, 1, 0f));
         Need(f.Presentation.IsPlaying && f.Reward.text == "0 exp", "새 결과 재시작");
+        JumpToVisibleParticles(f);
+        f.View.SetState(eBattleResultState.DEFEAT);
+        Need(!f.Presentation.IsPlaying && f.Particles.VisibleParticleCount == 0 && Near(f.Glow.color, Field<Color>(f.View, "_defeatGlow")), "승리→패배 전환 시 입자 정리/글로우 갱신");
+        AssertFinal(f, f.View.DisplayData);
+        f.View.SetState(eBattleResultState.VICTORY);
+        Begin(f, Data(40, 2, .5f, 2, .1f));
         f.Presentation.Skip();
         await WaitUntil(() => !f.Presentation.IsPlaying, 3d);
+    }
+
+    private static void JumpToVisibleParticles(Fixture f)
+    {
+        float fillStart = Field<float>(f.Presentation, "_titleDuration") + 3f * Field<float>(f.Presentation, "_rowInterval") +
+            Field<float>(f.Presentation, "_rewardPause") + Field<float>(f.Presentation, "_countDuration") +
+            Field<float>(f.Presentation, "_fillStartDelay");
+        Sequence sequence = CurrentSequence(f).Pause();
+        // 시작 콜백도 실행해야 실제 재생처럼 입자의 방출 상태가 준비된다.
+        sequence.GotoWithCallbacks(fillStart + (sequence.Duration() - fillStart) * .5f, false);
+        Need(f.Particles.VisibleParticleCount > 0, "입자 정리 검증의 중간 재생 상태");
     }
 
     private static async Task ValidatePointerInput(Fixture f)
@@ -293,12 +356,25 @@ public static class BattleResultPresentationValidation
         Need((f.Title.localScale - f.BaseScale).sqrMagnitude < TOLERANCE, "제목 최종 크기");
         Need(f.Reward.text == data.EarnedXp.ToString("N0", CultureInfo.InvariantCulture) + " exp", "최종 경험치 숫자");
         Need(f.Level.text == "LV." + data.Level && Near(f.Slider.normalizedValue, data.NormalizedXp) && Near(f.Yellow.anchorMax.x, data.NormalizedXp), "최종 레벨/두 Fill 일치");
+        Need(f.Particles.VisibleParticleCount == 0, "완료/스킵/비활성화 뒤 경험치 입자 잔류");
+        AssertRewardStyle(f);
+    }
+
+    private static void AssertRewardStyle(Fixture f)
+    {
+        Need(f.Reward.font == f.RewardFont && f.Reward.fontSharedMaterial == f.RewardMaterial &&
+            f.Reward.enableAutoSizing == f.RewardAutoSizing &&
+            Near(f.Reward.fontSizeMin, f.RewardFontSizeMin) && Near(f.Reward.fontSizeMax, f.RewardFontSizeMax) &&
+            (f.RewardAutoSizing || Near(f.Reward.fontSize, f.RewardFontSize)) && Near(f.Reward.color, f.RewardColor) &&
+            f.Reward.alignment == f.RewardAlignment && f.Reward.richText == f.RewardRichText,
+            "입자 연출이 원본 exp 텍스트의 글꼴/색상/정렬을 변경함");
     }
 
     private static BattleResultDisplayData Data(int xp, int level, float normalized, int start, float startNormalized) =>
         new BattleResultDisplayData("보통", 318f, 73, 9, xp, level, normalized, level > start, start, startNormalized, "presentation-validation-" + ++_caseId);
     private static Sequence CurrentSequence(Fixture f) => Field<Sequence>(f.Presentation, "_sequence");
     private static bool Near(float a, float b) => Mathf.Abs(a - b) <= TOLERANCE;
+    private static bool Near(Color a, Color b) => Near(a.r, b.r) && Near(a.g, b.g) && Near(a.b, b.b) && Near(a.a, b.a);
     private static T Field<T>(object target, string name)
     {
         FieldInfo field = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
@@ -335,6 +411,17 @@ public static class BattleResultPresentationValidation
         public readonly TMP_Text Reward, Level;
         public readonly RectTransform Title, Yellow;
         public readonly Slider Slider;
+        public readonly UIRadialGlow Glow;
+        public readonly CanvasGroup GlowGroup;
+        public readonly UIBattleRewardParticles Particles;
+        public readonly TMP_FontAsset RewardFont;
+        public readonly Material RewardMaterial;
+        public readonly float RewardFontSize;
+        public readonly float RewardFontSizeMin, RewardFontSizeMax;
+        public readonly bool RewardAutoSizing;
+        public readonly Color RewardColor;
+        public readonly TextAlignmentOptions RewardAlignment;
+        public readonly bool RewardRichText;
         public readonly Vector3 BaseScale;
         public int ReturnCount;
         public Fixture(GameObject instance)
@@ -353,6 +440,19 @@ public static class BattleResultPresentationValidation
             BaseScale = Title.localScale;
             Yellow = Field<RectTransform>(Presentation, "_rewardFill");
             Slider = Field<Slider>(View, "_experience");
+            Glow = Field<UIRadialGlow>(View, "_titleGlow");
+            GlowGroup = Field<CanvasGroup>(Presentation, "_titleGlowGroup");
+            Particles = Field<UIBattleRewardParticles>(Presentation, "_rewardParticles");
+            Need(Reward != null, "경험치 텍스트 참조");
+            RewardFont = Reward.font;
+            RewardMaterial = Reward.fontSharedMaterial;
+            RewardFontSize = Reward.fontSize;
+            RewardFontSizeMin = Reward.fontSizeMin;
+            RewardFontSizeMax = Reward.fontSizeMax;
+            RewardAutoSizing = Reward.enableAutoSizing;
+            RewardColor = Reward.color;
+            RewardAlignment = Reward.alignment;
+            RewardRichText = Reward.richText;
         }
     }
 }

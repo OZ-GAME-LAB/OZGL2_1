@@ -20,6 +20,8 @@ namespace OZGL2.UIFlow
         [SerializeField] private CanvasGroup _rewardRow;
         [SerializeField] private CanvasGroup _lobbyGroup;
         [SerializeField] private RectTransform _rewardFill;
+        [SerializeField] private CanvasGroup _titleGlowGroup;
+        [SerializeField] private UIBattleRewardParticles _rewardParticles;
 
         [Header("제목 / 기록 / 획득량")]
         [SerializeField, Min(1f)] private float _titleStartScale = 1.2f;
@@ -110,6 +112,11 @@ namespace OZGL2.UIFlow
                 1f, Duration(_countDuration)).SetEase(Ease.OutQuad));
             sequence.AppendCallback(() => _view.SetAnimatedReward(_data.EarnedXp));
             sequence.AppendInterval(Mathf.Max(0f, _fillStartDelay));
+            sequence.AppendCallback(() =>
+            {
+                if (_rewardParticles != null && _data.EarnedXp > 0)
+                    _rewardParticles.Begin((float)(ExperienceSegmentCount() * ExperienceSegmentDuration()));
+            });
             sequence.Append(DOTween.To(() => 0f, UpdateExperience, 1f,
                 (float)(ExperienceSegmentCount() * ExperienceSegmentDuration())).SetEase(Ease.Linear));
             sequence.OnComplete(() =>
@@ -172,6 +179,9 @@ namespace OZGL2.UIFlow
         private void UpdateTitle(float progress)
         {
             SetAlpha(_titleGroup, progress);
+            SetAlpha(_titleGlowGroup, progress);
+            if (_titleGlowGroup != null)
+                _titleGlowGroup.transform.localScale = Vector3.one * Mathf.Lerp(Mathf.Max(1f, _titleStartScale), 1f, progress);
             if (_view != null && _view.TitleTransform != null)
                 _view.TitleTransform.localScale = _titleBaseScale * Mathf.Lerp(Mathf.Max(1f, _titleStartScale), 1f, progress);
         }
@@ -185,6 +195,7 @@ namespace OZGL2.UIFlow
         private void UpdateExperience(float progress)
         {
             if (_data == null || _view == null) return;
+            if (_rewardParticles != null) _rewardParticles.SetProgress(progress);
             if (progress >= 1f)
             {
                 _view.SetAnimatedExperience(_data.Level, _data.NormalizedXp, _data.DidLevelUp);
@@ -241,6 +252,8 @@ namespace OZGL2.UIFlow
 
         private void ApplyFinalValues()
         {
+            if (_rewardParticles != null) _rewardParticles.Clear();
+            if (_titleGlowGroup != null) _titleGlowGroup.transform.localScale = Vector3.one;
             SetAllGroups(1f);
             if (_view == null) return;
             if (_hasBaseScale && _view.TitleTransform != null) _view.TitleTransform.localScale = _titleBaseScale;
@@ -253,6 +266,7 @@ namespace OZGL2.UIFlow
         private void SetAllGroups(float alpha)
         {
             SetAlpha(_titleGroup, alpha);
+            SetAlpha(_titleGlowGroup, alpha);
             SetAlpha(_timeRow, alpha);
             SetAlpha(_killsRow, alpha);
             SetAlpha(_deploymentsRow, alpha);
@@ -291,6 +305,7 @@ namespace OZGL2.UIFlow
 
         private void StopSequence()
         {
+            if (_rewardParticles != null) _rewardParticles.Clear();
             Sequence sequence = _sequence;
             _sequence = null;
             if (sequence != null && sequence.IsActive()) sequence.Kill(false);
