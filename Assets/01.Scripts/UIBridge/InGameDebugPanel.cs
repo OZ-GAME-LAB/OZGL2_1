@@ -170,6 +170,12 @@ namespace OZGL2.UIBridge
             if (!string.IsNullOrEmpty(_message)) GUILayout.Label(_message);
 
             GUILayout.Space(4f);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("튜토리얼 전부 건너뛰기(다음 판부터)", GUILayout.Height(24f))) { OZGL2.Tutorial.TutorialStore.MarkAllSeen(); _message = "마왕 설명을 모두 본 것으로 표시했어요. 지금 나오는 설명은 화면의 건너뛰기 단추로 넘기세요."; }
+            if (GUILayout.Button("튜토리얼 초기화", GUILayout.Height(24f))) { OZGL2.Tutorial.TutorialStore.ResetAll(); _message = "마왕 설명을 처음 상태로 되돌렸어요."; }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(4f);
             GUILayout.Label("도감 (발견 용사 " + CodexStore.SeenHeroCount + " / " + CodexStore.HeroIds.Length + ")");
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("이번 웨이브 용사 등록", GUILayout.Height(24f)))

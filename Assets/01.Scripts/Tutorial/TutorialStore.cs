@@ -23,6 +23,13 @@ namespace OZGL2.Tutorial
             set { PlayerPrefs.SetInt(KeyDisabled, value ? 1 : 0); PlayerPrefs.Save(); }
         }
 
+        /// <summary>모든 설명을 본 것으로 표시한다(디버그용 — 자동으로 뜨는 마왕 설명을 전부 건너뛴다).</summary>
+        public static void MarkAllSeen()
+        {
+            foreach (var s in TutorialLibrary.All) PlayerPrefs.SetInt(SeenPrefix + s.Id, 1);
+            PlayerPrefs.Save();
+        }
+
         public static void ResetAll()
         {
             foreach (var s in TutorialLibrary.All) PlayerPrefs.DeleteKey(SeenPrefix + s.Id);

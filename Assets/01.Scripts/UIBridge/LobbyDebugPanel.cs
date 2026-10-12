@@ -181,6 +181,7 @@ namespace OZGL2.UIBridge
             if (GUILayout.Button("SP 0")) SkillTreeStore.SkillPoints = 0;
             if (GUILayout.Button("마왕군 해금 초기화")) UnitUnlockStore.ResetAll();
             if (GUILayout.Button("튜토리얼 초기화")) OZGL2.Tutorial.TutorialStore.ResetAll();
+            if (GUILayout.Button("튜토리얼 전부 건너뛰기")) OZGL2.Tutorial.TutorialStore.MarkAllSeen();
             if (GUILayout.Button(StoryStore.Seen ? "스토리 다시 보기(다음 시작 때)" : "스토리 대기 중(다음 시작 때 나옴)")) StoryStore.ResetAll();
             if (GUILayout.Button(StageClearStore.DebugUnlockAll ? "난이도 잠금 복원" : "난이도 전부 열기")) StageClearStore.DebugUnlockAll = !StageClearStore.DebugUnlockAll;
             if (GUILayout.Button("클리어 기록 삭제")) StageClearStore.ResetAll();
