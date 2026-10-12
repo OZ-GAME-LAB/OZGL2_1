@@ -77,6 +77,7 @@ namespace OZGL2.UIBridge
         private Canvas _canvas;
         private TMP_Text _title, _sub, _label, _number;
         private Image _band, _warn, _warnLeft, _warnRight, _bannerRing, _bannerCrest, _bannerPlate, _bannerCrown, _bannerDivider;
+        private RectTransform _dividerMask;
         private BattleBannerArt _art;
     private RawImage _hazardTop, _hazardBottom;
         private CanvasGroup _bannerGroup;
@@ -486,12 +487,8 @@ namespace OZGL2.UIBridge
             _bannerRoutine = StartCoroutine(BannerRoutine(title, sub, kind, number));
         }
 
-        private static float EaseOutBack(float k)
-        {
-            const float c = 1.70158f;
-            k = Mathf.Clamp01(k) - 1f;
-            return 1f + (c + 1f) * k * k * k + c * k * k;
-        }
+        /// <summary>끝으로 갈수록 부드럽게 느려지는 곡선(되튐 없음). 배너가 출렁이지 않고 자리 잡게 한다.</summary>
+        private static float EaseOut(float k) { k = 1f - Mathf.Clamp01(k); return 1f - k * k * k; }
 
         /// <summary>
         /// 배너 한 번. 팀 결과창과 같은 그림으로 꾸민다 —
@@ -508,7 +505,7 @@ namespace OZGL2.UIBridge
 
             // 무엇을 보일지
             _bannerRing.gameObject.SetActive(hasArt);
-            _bannerDivider.gameObject.SetActive(hasArt);
+            _dividerMask.gameObject.SetActive(hasArt);
             _bannerCrest.gameObject.SetActive(hasArt && !clear);
             _bannerPlate.gameObject.SetActive(!clear);
             _bannerCrown.gameObject.SetActive(hasArt && clear);
@@ -534,46 +531,43 @@ namespace OZGL2.UIBridge
             _band.color = new Color(0f, 0f, 0f, 0f);
             _canvas.enabled = true;
 
-            float total = boss ? 2.8f : clear ? 2.6f : 1.9f;
+            float total = boss ? 3.0f : clear ? 2.8f : 2.3f;
             for (float t = 0f; t < total; t += Time.unscaledDeltaTime)
             {
-                float inK = Mathf.Clamp01(t / 0.38f);                        // 들어오기
-                float outK = Mathf.Clamp01((t - (total - 0.5f)) / 0.5f);      // 나가기
-                float a = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 0.22f)) * (1f - outK);
+                float inK = EaseOut(t / 0.7f);                                // 들어오기(천천히 자리 잡음)
+                float outK = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - (total - 0.6f)) / 0.6f));   // 나가기는 크기 변화 없이 서서히 사라진다
+                float a = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 0.35f)) * (1f - outK);
                 _bannerGroup.alpha = a;
-                _bannerRoot.localScale = Vector3.one * (1f + outK * 0.1f);
-                float spread = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.05f) / 0.5f));
+                float spread = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.05f) / 0.85f));
                 _band.color = new Color(0.04f, 0.01f, 0.03f, 0.55f * a);
 
-                // 구분선: 가운데에서 양옆으로
-                _bannerDivider.rectTransform.localScale = new Vector3(spread, 1f, 1f);
-                // 룬 고리: 커지며 천천히 돈다(보스는 빠르게)
-                float ringScale = Mathf.Lerp(0.55f, 1f, EaseOutBack(inK));
-                _bannerRing.rectTransform.localScale = Vector3.one * ringScale;
-                _bannerRing.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -t * (boss ? 55f : 24f));
+                // 구분선: 가운데에서 양옆으로 열린다(그림을 늘리지 않고 가리개를 넓혀 일그러지지 않게)
+                _dividerMask.sizeDelta = new Vector2(1500f * spread, 510f);
+                // 룬 고리: 살짝 커지며 천천히 돈다(보스는 빠르게)
+                _bannerRing.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.9f, 1f, inK);
+                _bannerRing.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -t * (boss ? 55f : 22f));
 
                 if (!clear)
                 {
-                    // 문장 틀·바탕이 크게 튀어나왔다 자리 잡는다
-                    float pop = Mathf.Lerp(1.55f, 1f, EaseOutBack(inK));
+                    // 문장 틀·바탕이 살짝 커졌다가 자리 잡는다
+                    float pop = Mathf.Lerp(1.1f, 1f, inK);
                     _bannerCrest.rectTransform.localScale = _bannerPlate.rectTransform.localScale = Vector3.one * pop;
-                    // 번호가 한 박자 늦게 쾅 찍힌다
-                    float numK = Mathf.Clamp01((t - 0.18f) / 0.3f);
-                    float numScale = Mathf.Lerp(2.2f, 1f, EaseOutBack(numK));
-                    _number.rectTransform.localScale = Vector3.one * numScale;
-                    _number.alpha = Mathf.Clamp01(numK * 2f);
-                    _label.alpha = Mathf.Clamp01((t - 0.1f) / 0.3f);
+                    // 글자는 크기를 바꾸지 않고(작은 크기 변화는 글자가 일렁여 보인다) 제자리로 떠오르며 나타난다
+                    float labelK = EaseOut((t - 0.15f) / 0.6f), numK = EaseOut((t - 0.3f) / 0.7f);
+                    _label.alpha = labelK; _number.alpha = numK;
+                    _label.rectTransform.anchoredPosition = new Vector2(0f, 74f + (1f - labelK) * -14f);
+                    _number.rectTransform.anchoredPosition = new Vector2(0f, -22f + (1f - numK) * -22f);
                 }
                 else
                 {
-                    // 왕관이 위에서 떨어져 튕긴다
-                    float drop = Mathf.Clamp01(t / 0.55f);
-                    float bounce = 1f - Mathf.Pow(1f - drop, 2.2f) * Mathf.Cos(drop * 9f);   // 0→1 로 가며 위아래로 흔들린다
-                    _bannerCrown.rectTransform.anchoredPosition = new Vector2(0f, Mathf.LerpUnclamped(340f, 105f, bounce));
-                    _bannerCrown.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.3f, 1f, drop);
-                    float words = Mathf.Clamp01((t - 0.45f) / 0.35f);
-                    _title.alpha = words; _sub.alpha = Mathf.Clamp01((t - 0.7f) / 0.35f);
-                    _title.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.25f, 1f, EaseOutBack(words));
+                    // 왕관이 위에서 내려와 한 번 가볍게 튕기며 자리 잡는다
+                    float drop = Mathf.Clamp01(t / 0.7f);
+                    float bounce = 1f - Mathf.Pow(1f - drop, 2.4f) * Mathf.Cos(drop * 6f);
+                    _bannerCrown.rectTransform.anchoredPosition = new Vector2(0f, Mathf.LerpUnclamped(300f, 105f, bounce));
+                    float titleK = EaseOut((t - 0.5f) / 0.6f), subK = EaseOut((t - 0.8f) / 0.6f);
+                    _title.alpha = titleK; _sub.alpha = subK;
+                    _title.rectTransform.anchoredPosition = new Vector2(0f, -120f + (1f - titleK) * -16f);
+                    _sub.rectTransform.anchoredPosition = new Vector2(0f, -215f + (1f - subK) * -12f);
                 }
 
                 if (boss)
@@ -650,7 +644,13 @@ namespace OZGL2.UIBridge
             _warnRight.rectTransform.anchoredPosition = new Vector2(620f, 0f);
 
             // 팀 결과창 그림: 구분선 · 룬 고리 · (어두운 바탕 + 문장 틀) · 왕관
+            _dividerMask = NewRect("DividerMask", _bannerRoot);
+            _dividerMask.anchorMin = _dividerMask.anchorMax = new Vector2(0.5f, 0.5f);
+            _dividerMask.pivot = new Vector2(0.5f, 0.5f);
+            _dividerMask.sizeDelta = new Vector2(0f, 510f);
+            _dividerMask.gameObject.AddComponent<RectMask2D>();
             _bannerDivider = NewArt("Divider", _art != null ? _art.divider : null, 1500f, 510f, new Vector2(0f, 0f));
+            _bannerDivider.rectTransform.SetParent(_dividerMask, false);
             _bannerRing = NewArt("Ring", _art != null ? _art.ring : null, 640f, 640f, new Vector2(0f, 0f));
             _bannerPlate = NewImage("Plate", _bannerRoot, null, new Color(0.07f, 0.04f, 0.1f, 0.86f));
             _bannerPlate.rectTransform.anchorMin = _bannerPlate.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
