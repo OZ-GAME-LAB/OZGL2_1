@@ -50,7 +50,6 @@ namespace OZGL2.UIFlow
         private double _runTimerStartedAt;
         private float _elapsedRunSeconds;
         private int _shownElapsedSecond = -1;
-        private int _runStartLevel = 1;
         private int _killCount;
         private int _maximumDeploymentCount;
         private string _shownEnemyStageId;
@@ -221,7 +220,6 @@ namespace OZGL2.UIFlow
             _maximumDeploymentCount = 0;
             _shownEnemyStageId = null;
             _shownEnemyRound = 0;
-            _runStartLevel = MawangXpBridge.Mawang?.Level ?? 1;
             RefreshElapsedTimeDisplay(true);
         }
 
@@ -357,7 +355,6 @@ namespace OZGL2.UIFlow
             {
                 _hasStartedRunTimer = true;
                 _runTimerStartedAt = Time.realtimeSinceStartupAsDouble;
-                _runStartLevel = MawangXpBridge.Mawang?.Level ?? _runStartLevel;
                 _elapsedRunSeconds = 0f;
             }
 
@@ -439,8 +436,13 @@ namespace OZGL2.UIFlow
             if (view == null || popup == null) return;
 
             MawangLevel mawang = MawangXpBridge.Mawang;
-            int xpToNext = mawang != null ? mawang.XpToNext : 1;
+            int xpToNext = result.CurrentLevelXpToNext > 0
+                ? result.CurrentLevelXpToNext
+                : mawang?.XpToNext ?? 1;
             float normalizedXp = xpToNext > 0 ? (float)result.CurrentLevelXp / xpToNext : 0f;
+            float startNormalizedXp = result.StartLevelXpToNext > 0
+                ? (float)result.StartLevelXp / result.StartLevelXpToNext
+                : normalizedXp;
             int earnedXp = result.Progress.EarnedExperience > int.MaxValue
                 ? int.MaxValue
                 : (int)result.Progress.EarnedExperience;
@@ -453,8 +455,12 @@ namespace OZGL2.UIFlow
                 earnedXp,
                 result.Level,
                 normalizedXp,
-                result.Level > _runStartLevel));
+                result.Level > result.StartLevel,
+                result.StartLevel,
+                startNormalizedXp,
+                result.RunId));
             _popupController.OpenPopup(popup);
+            if (_popupController.IsTopPopup(popup)) view.PlayPresentation();
         }
 
         private void RefreshElapsedTimeDisplay(bool force)

@@ -114,6 +114,11 @@ namespace OZGL2.InGame
                 OZGL2.Progression.RunResume.Catalog = _config.Catalog;
                 _runSynergy = RealCombatBootstrap.EnsureInitialized();
                 _runSynergy.BeginRun();
+                // UI 활성화 시점과 무관하게 실제 런 초기화 직후의 경험치를 보관한다.
+                MawangLevel startMawang = MawangXpBridge.Mawang;
+                int startLevel = startMawang?.Level ?? 1;
+                int startLevelXp = startMawang?.Xp ?? 0;
+                int startLevelXpToNext = startMawang?.XpToNext ?? 1;
                 _runSynergy.SetExternalSkillUiActive(_usesExternalSkillUi);
                 _runSynergy.SetUiInputBlocked(_isUiInputBlocked);
                 _skillConnection = new InGameSkillConnection(_runSynergy);
@@ -164,8 +169,11 @@ namespace OZGL2.InGame
                 if (_isDestroyed) return;
                 Error = _presentationError ?? _host.Error;
                 bool canReturn = lobby.Result != null && lobby.Result.IsSettled && Error == null;
+                // 자원 해제/증강 초기화가 필요 경험치를 바꾸기 전에 표시용 최종값을 확정한다.
+                MawangLevel resultMawang = MawangXpBridge.Mawang;
                 var result = canReturn ? new InGameRunResult(lobby.Result, Stage.TotalRounds,
-                    MawangXpBridge.Mawang?.Level ?? 1, MawangXpBridge.Mawang?.Xp ?? 0) : null;
+                    resultMawang?.Level ?? 1, resultMawang?.Xp ?? 0, resultMawang?.XpToNext ?? 1,
+                    startLevel, startLevelXp, startLevelXpToNext) : null;
                 await ReleaseAsync();
                 if (_isDestroyed) return;
                 // Host 종료가 완료된 뒤 표시한다. 결과 UI를 기다리는 동안 실행 자원을 보유하지 않는다.

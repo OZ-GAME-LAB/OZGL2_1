@@ -24,6 +24,9 @@ namespace OZGL2.UIFlow
         [SerializeField, Min(1)] private int _level = 20;
         [SerializeField, Range(0f, 1f)] private float _normalizedXp = 0.6f;
         [SerializeField] private bool _didLevelUp = true;
+        [SerializeField, Min(1)] private int _startLevel = 1;
+        [SerializeField, Range(0f, 1f)] private float _startNormalizedXp;
+        private string _runId;
 
         public string Difficulty => _difficulty ?? string.Empty;
         public float Seconds => IsFinite(_seconds) ? Mathf.Max(0f, _seconds) : 0f;
@@ -33,11 +36,21 @@ namespace OZGL2.UIFlow
         public int Level => Mathf.Max(1, _level);
         public float NormalizedXp => IsFinite(_normalizedXp) ? Mathf.Clamp01(_normalizedXp) : 0f;
         public bool DidLevelUp => _didLevelUp;
+        public int StartLevel => Mathf.Clamp(_startLevel, 1, Level);
+        public float StartNormalizedXp => IsFinite(_startNormalizedXp)
+            ? Mathf.Clamp(_startNormalizedXp, 0f, StartLevel == Level ? NormalizedXp : 1f) : 0f;
+        public string RunId => _runId ?? string.Empty;
 
         public BattleResultDisplayData() { }
 
         public BattleResultDisplayData(string difficulty, float seconds, int kills, int deployments,
             int earnedXp, int level, float normalizedXp, bool didLevelUp)
+            : this(difficulty, seconds, kills, deployments, earnedXp, level, normalizedXp,
+                didLevelUp, level, normalizedXp, string.Empty) { }
+
+        public BattleResultDisplayData(string difficulty, float seconds, int kills, int deployments,
+            int earnedXp, int level, float normalizedXp, bool didLevelUp,
+            int startLevel, float startNormalizedXp, string runId)
         {
             _difficulty = difficulty;
             _seconds = seconds;
@@ -47,6 +60,9 @@ namespace OZGL2.UIFlow
             _level = level;
             _normalizedXp = normalizedXp;
             _didLevelUp = didLevelUp;
+            _startLevel = startLevel;
+            _startNormalizedXp = startNormalizedXp;
+            _runId = runId;
         }
 
         private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
@@ -68,6 +84,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private TMP_Text _levelText;
         [SerializeField] private TMP_Text _levelUpText;
         [SerializeField] private Slider _experience;
+        [SerializeField] private UIBattleResultPresentation _presentation;
 
         [Header("승리 / 패배 공통 배치")]
         [SerializeField] private Image _crown;
@@ -108,16 +125,22 @@ namespace OZGL2.UIFlow
         public eBattleResultState State => _state;
         public UIPopupPanel Popup => _popup;
         public BattleResultDisplayData DisplayData => _runtimeData ?? _previewData;
+        internal RectTransform TitleTransform => _resultTitleText != null ? _resultTitleText.rectTransform : null;
+        internal Button LobbyButton => _lobbyButton;
+        internal bool HasPresentationTargets => _resultTitleText != null && _rewardText != null &&
+            _levelText != null && _experience != null && _lobbyButton != null;
 
         // 전달된 값은 런타임에서만 보유하여 Inspector 미리보기 원본을 덮어쓰지 않는다.
         public void SetData(BattleResultDisplayData data)
         {
+            if (_runtimeData != data && _presentation != null) _presentation.ResetToFinal(data ?? _previewData);
             _runtimeData = data;
             RefreshView();
         }
 
         public void SetState(eBattleResultState state)
         {
+            if (_state != state && _presentation != null) _presentation.ResetToFinal(DisplayData);
             _state = state;
             RefreshView();
         }
@@ -139,6 +162,8 @@ namespace OZGL2.UIFlow
         {
             _needsRefresh = false;
             SyncButtonSubscription();
+            // OnEnable/Inspector 갱신이 재생 중인 숫자와 막대를 최종값으로 덮지 않게 한다.
+            if (_presentation != null && _presentation.IsPlaying) return;
 
             bool isVictory = _state == eBattleResultState.VICTORY;
             Color accent = isVictory ? _victoryAccent : _defeatAccent;
@@ -178,11 +203,35 @@ namespace OZGL2.UIFlow
                 _experience.maxValue = 1f;
                 _experience.SetValueWithoutNotify(data != null ? data.NormalizedXp : 0f);
             }
+            if (_presentation != null)
+            {
+                _presentation.Bind(this);
+                _presentation.ResetToFinal(data);
+            }
+        }
+
+        // 데이터 설정과 팝업 활성화가 끝난 뒤 한 번 호출한다. 기존 미리보기 API는 즉시 표시를 유지한다.
+        public void PlayPresentation()
+        {
+            if (!Application.IsPlaying(gameObject) || !isActiveAndEnabled || _presentation == null) return;
+            RefreshView();
+            _presentation.Play(DisplayData);
+        }
+
+        internal void SetAnimatedReward(int earnedXp) =>
+            SetText(_rewardText, FormatNumber(Mathf.Max(0, earnedXp), true) + " exp");
+
+        internal void SetAnimatedExperience(int level, float normalizedXp, bool showLevelUp)
+        {
+            SetText(_levelText, "LV." + FormatNumber(Mathf.Max(1, level)));
+            SetText(_levelUpText, showLevelUp ? "LV UP!" : string.Empty);
+            if (_experience != null) _experience.SetValueWithoutNotify(Mathf.Clamp01(normalizedXp));
         }
 
         public void ReturnToLobby()
         {
             if (!Application.IsPlaying(gameObject)) return;
+            if (_presentation != null && !_presentation.CanReturnToLobby) return;
             if (_popup != null && _popup.Controller != null && !_popup.Controller.IsTopPopup(_popup)) return;
             if (_returnToLobbyHandler != null)
             {
