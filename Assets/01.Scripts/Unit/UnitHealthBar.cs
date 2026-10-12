@@ -15,16 +15,16 @@ using UnityEngine;
 /// </summary>
 public class UnitHealthBar : MonoBehaviour
 {
-    private const float BarHeight = 0.18f;
+    private const float BarHeight = 0.12f;
     private const float MaxBarWidth = 0.7f;     // 한 칸(월드 1) 안에 들어오게 — 옆 칸 유닛의 막대와 겹치지 않는다
     private const float MinBarWidth = 0.5f;
-    private const float Frame = 0.022f;          // 안쪽 밝은 테두리 두께
-    private const float Outline = 0.04f;         // 바깥 어두운 외곽선 두께
+    private const float Frame = 0.014f;          // 안쪽 밝은 테두리 두께
+    private const float Outline = 0.032f;         // 바깥 어두운 외곽선 두께
     private const float TrailDelay = 0.14f;       // 맞은 뒤 노란 잔상이 그대로 머무는 시간(연속으로 맞으면 그때마다 다시 센다)
     private const float TrailSmooth = 12f;       // 잔상이 따라 줄어드는 부드러움(클수록 빨리) — 남은 간격에 비례해 줄어 처음엔 빠르고 끝은 천천히 닿는다
     private const float TrailMinSpeed = 0.9f;   // 끝에서 너무 오래 끌지 않도록 최소로 줄어드는 속도(초당 비율)
     private const float FullHpAlpha = 0.9f;      // 마왕군 막대가 가득 찼을 때의 투명도(거의 그대로)
-    private const float HeroHeight = 0.14f;      // 용사 막대는 떼로 몰려오므로 마왕군(0.18)보다 얇게
+    private const float HeroHeight = 0.095f;     // 용사 막대는 떼로 몰려오므로 마왕군(0.12)보다 얇게
     private const float HeroWidthScale = 0.85f;  // 용사 막대 폭 배율
     private const float LowHpRatio = 0.3f;
     private const int SortStep = 16;             // 막대 한 개가 쓰는 정렬 칸 수(겹겹이 쌓인 층 수보다 크게)
@@ -110,7 +110,7 @@ public class UnitHealthBar : MonoBehaviour
         SetRect(_frame, 0f, _barWidth + Frame * 2f, h + Frame * 2f, 0f);
         SetRect(_background, 0f, _barWidth, h, 0f);
         for (int i = 0; i < _ticks.Length; i++)
-            SetRect(_ticks[i], (-0.5f + 0.25f * (i + 1)) * _barWidth, 0.014f, h * 0.9f, 0f);
+            SetRect(_ticks[i], (-0.5f + 0.25f * (i + 1)) * _barWidth, 0.01f, h * 0.9f, 0f);
 
         foreach (var sr in _all) sr.sortingOrder = sr.sortingOrder - 1000 + SortBase;
         transform.localPosition = new Vector3(0f, heightOffset, 0f);
