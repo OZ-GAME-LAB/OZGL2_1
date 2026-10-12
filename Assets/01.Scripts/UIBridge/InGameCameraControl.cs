@@ -218,10 +218,17 @@ namespace OZGL2.UIBridge
             xy.y = map.height <= halfH * 2f ? map.center.y : Mathf.Clamp(xy.y, map.yMin + halfH, map.yMax - halfH);
         }
 
+        /// <summary>전투 중에 휠·끌기로 직접 카메라를 만지면 「자동」을 끈다(수동 카메라). 단추가 OFF 로 바뀌고, 다시 켜거나 Home 을 누르면 자동으로 돌아간다.</summary>
+        private void SwitchToManual()
+        {
+            var stage = _bootstrap != null ? _bootstrap.Stage : null;
+            if (stage != null && stage.State == eStageState.COMBAT && AutoEnabled) AutoEnabled = false;
+        }
+
         private void HandleInput(Mouse mouse)
         {
             var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.homeKey.wasPressedThisFrame) { _targetXY = _baseXY; _targetDist = _baseDist; _manualUntil = 0f; _autoActive = false; }
+            if (keyboard != null && keyboard.homeKey.wasPressedThisFrame) { _targetXY = _baseXY; _targetDist = _baseDist; _manualUntil = 0f; _autoActive = false; AutoEnabled = true; }   // Home: 원래 구도로, 자동 카메라도 다시 켠다
 
             Vector2 pointer = mouse.position.ReadValue();
             bool inside = pointer.x >= 0f && pointer.y >= 0f && pointer.x <= Screen.width && pointer.y <= Screen.height;
@@ -231,6 +238,7 @@ namespace OZGL2.UIBridge
             if (inside && Mathf.Abs(scroll) > 0.01f)
             {
                 _manualUntil = Time.unscaledTime + _manualHold;
+                SwitchToManual();
                 // 장치에 따라 휠 한 칸이 1 또는 120 으로 들어온다 — 어느 쪽이든 한 칸은 한 칸으로 센다
                 float notches = Mathf.Sign(scroll) * Mathf.Clamp(Mathf.Abs(scroll) >= 1f ? Mathf.Max(1f, Mathf.Abs(scroll) / 120f) : Mathf.Abs(scroll), 0f, 3f);
                 float newDist = Mathf.Clamp(_targetDist * Mathf.Pow(1f - _wheelStep, notches), _baseDist * _closestScale, _baseDist * _farthestScale);
@@ -244,7 +252,7 @@ namespace OZGL2.UIBridge
 
             // 오른쪽·가운데 버튼 드래그: 잡은 전장이 커서를 따라오게 옮긴다
             bool holding = mouse.rightButton.isPressed || mouse.middleButton.isPressed;
-            if (holding && !_dragging && inside) { _dragging = true; _manualUntil = Time.unscaledTime + _manualHold; }
+            if (holding && !_dragging && inside) { _dragging = true; _manualUntil = Time.unscaledTime + _manualHold; SwitchToManual(); }
             if (!holding) _dragging = false;
             if (_dragging)
             {

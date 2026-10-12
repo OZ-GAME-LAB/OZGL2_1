@@ -324,7 +324,19 @@ namespace OZGL2.UIBridge
             {
                 rt.GetWorldCorners(corners);
                 float width = corners[2].x - corners[0].x;
-                if (width >= Screen.width * 0.6f && corners[0].y > Screen.height * 0.5f) return corners[0].y;   // 위쪽 절반에 있는 넓은 띠
+                if (width < Screen.width * 0.6f || corners[0].y <= Screen.height * 0.5f) continue;   // 위쪽 절반에 있는 넓은 띠만
+                // 띠를 담은 칸이 눈에 보이는 막대보다 아래로 더 길 수 있어서, 그 안에서 실제로 그려지는 넓은 그림의 아래쪽 끝을 쓴다
+                float lowest = -1f;
+                foreach (var graphic in rt.GetComponentsInChildren<Graphic>(false))
+                {
+                    if (graphic == null || !graphic.enabled || graphic.color.a < 0.5f) continue;
+                    graphic.rectTransform.GetWorldCorners(corners);
+                    if (corners[2].x - corners[0].x < Screen.width * 0.6f || corners[0].y <= Screen.height * 0.5f) continue;
+                    if (lowest < 0f || corners[0].y < lowest) lowest = corners[0].y;
+                }
+                if (lowest > 0f) return lowest;
+                rt.GetWorldCorners(corners);
+                return corners[0].y;
             }
             return -1f;
         }
@@ -337,7 +349,7 @@ namespace OZGL2.UIBridge
             float camW = pad * 2f + togW * ToggleCount;
             float total = speedW + Gap + camW;
             // 맨 위 상단 바(재화·레벨·경험치) 바로 아래에 붙이되 겹치지 않게 조금 띄운다. 바를 못 찾으면 화면 비율로 정한다.
-            float topY = _hudBottom > 0f ? -(Screen.height - _hudBottom) - 12f * s : -Screen.height * 0.105f - 24f * s;
+            float topY = _hudBottom > 0f ? -(Screen.height - _hudBottom) - 8f * s : -Screen.height * 0.105f - 24f * s;
 
             PlacePanel(_bar, new Vector2(-total * 0.5f + speedW * 0.5f, topY), new Vector2(speedW, height));
             PlacePanel(_camBar, new Vector2(total * 0.5f - camW * 0.5f, topY), new Vector2(camW, height));
