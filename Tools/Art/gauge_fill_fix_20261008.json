@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-08",
+  "mode": "built-in image_gen edit",
+  "status": "Applied and saved to Lobby and InGame through Unity MCP; original v2 resources, C#, shared prefabs and other scenes preserved.",
+  "source": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/Sprites/xp_fill_v2.png",
+  "shapeReference": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/Sprites/xp_track_v2.png",
+  "generatedOriginal": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-b73d06d3-c1fb-463c-b483-232bd26ecda7.png",
+  "preparedOutput": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/Sprites/xp_fill_v3.png",
+  "spriteAsset": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/Sprites/xp_fill_v3.asset",
+  "spriteGuid": "e1c3bf129d04d6b409f0c9002b05df97",
+  "spriteRect": { "x": 56, "y": 276, "width": 2054, "height": 172 },
+  "textureImport": { "width": 2172, "height": 724, "maxTextureSize": 4096, "npotScale": "None", "compression": "Uncompressed", "mipmaps": false },
+  "pixelEditing": "None; generated PNG retained byte-for-byte. Only the Unity Sprite rect crops the tips and vertical margins to match the track interior.",
+  "sceneLayout": [
+    { "scene": "Assets/00.Scenes/Builds/Lobby.unity", "object": "Canvas_Lobby/AccountStatus/HeraldryExperienceSlider/Fill", "position": [0, -0.08252427], "size": [408.350067, 24.5922337] },
+    { "scene": "Assets/00.Scenes/Builds/InGame.unity", "object": "BattleInGameUI/UI_BattleScreens/Canvas_GetReady/BattleHUD/ExperienceFill", "position": [796.8757, -53.7864075], "size": [622.247742, 24.5922337] }
+  ],
+  "colorCorrection": {
+    "status": "Applied and saved through Unity MCP after user approval.",
+    "cause": "Lobby Image.color darkened the source with (0.8, 0.75, 0.75, 1). InGameXpBarStyle independently boosted the SoulAbsorb clone with brightness 1.6 and saturation 1.45.",
+    "changes": [
+      { "scene": "Assets/00.Scenes/Builds/Lobby.unity", "object": "Canvas_Lobby/AccountStatus/HeraldryExperienceSlider/Fill", "property": "Image.color", "before": [0.8, 0.75, 0.75, 1], "after": [1, 1, 1, 1] },
+      { "scene": "Assets/00.Scenes/Builds/InGame.unity", "object": "ReleaseMode", "component": "InGameXpBarStyle", "property": "enabled", "before": true, "after": false }
+    ],
+    "preserved": "InGameImportedFeatures/InGameSoulAbsorb stays enabled. Root active states, XP rules, arrival flash, Sprite/PNG, geometry, C#, shared prefabs and other scenes remain unchanged.",
+    "componentComparison": "Lobby: 6852 components checked, only Fill Image changed. InGame: 2939 components checked, only InGameXpBarStyle changed. Compared with before-color backups, each Scene has exactly one changed serialized line.",
+    "runtimeValidation": "Isolated temporary HUD scene using existing Lobby/Battle views plus InGameSoulAbsorb and a disabled InGameXpBarStyle. Five 0/1/5/50/100% view-ratio and base-color checks passed. Soul clone uses the original v3 Sprite, white tint and matching layout; OverrideFillSprite stays null. Existing arrival punch brightens/scales the clone and returns to white at rest. No hero-kill event or XP mutation was invoked; existing runtime bootstrap still initializes the account bridge.",
+    "consoleAfterPlayMode": { "errors": 0, "warnings": 0 },
+    "fullGameplayPlayMode": "Not checked; the actual battle and complete soul-flight sequence still require an in-game check.",
+    "cleanup": "Returned to the original Title scene and removed the temporary validation Scene through Unity AssetDatabase tooling.",
+    "pngSha256": "A9315F901975A411FD9934491ABBB67941D9D144DABFFAC41A2BEAC54CA4CC16",
+    "pngIntegrity": "Current xp_fill_v3.png matches the generated original byte-for-byte. No image regeneration or pixel edits were performed for color correction."
+  },
+  "validation": {
+    "renderRatios": [0, 0.01, 0.05, 0.5, 1],
+    "playMode": "Isolated HUD-only scene using existing UILobbyLevelHudView and UIBattleMutedPreviewView; no gameplay, account or save bridge. 10 checks passed, 0 failed. Temporary test scene removed after returning to the original Title scene.",
+    "fullGameplayPlayMode": "Not checked; actual gameplay, XP calculation and soul absorption behavior were not modified.",
+    "consoleAfterPlayMode": { "errors": 0, "warnings": 0 },
+    "sceneReload": "Both saved scenes retain the new Sprite, layout and original View-to-Fill references; no dirty scene remains.",
+    "componentComparison": "Lobby: 6852 components checked, only Fill Image and RectTransform changed in memory. InGame: 2939 components checked, only ExperienceFill Image and RectTransform changed in memory.",
+    "sceneSerialization": "Unity reordered existing YAML documents. No document/object additions or deletions. Current C# default fields were serialized and obsolete _dimAlpha fields dropped on save; existing runtime behavior and references unchanged.",
+    "unchanged": ["C#", "shared prefabs", "InGame_UIIntegration", "original xp_fill_v2 PNG/Sprite", "xp_track_v2", "ProjectSettings", "Packages"],
+    "captures": ["Temp/GaugeFillFix_20261008/Gauge_preview_0_1_5_50_100.png", "Temp/GaugeFillFix_20261008/Runtime_HUD_50.png", "Temp/GaugeFillFix_20261008/Runtime_HUD_100.png"],
+    "gitDiffCheck": "Unity scene serialization has trailing whitespace on empty m_Name/value fields; left unchanged to avoid direct Scene text edits."
+  },
+  "prompt": "Use case: precise-object-edit. Asset type: Unity UI experience gauge fill sprite, separate transparent PNG.\nInput image 1 is the edit target, the red segmented xp_fill_v2 fill ribbon. Input image 2 is only the silhouette reference for the INSIDE of the gold track, not an element to include.\nPrimary request: fix ONLY the far-left edge of the red ribbon so it has NO concave chevron notch. Instead make the outer left end convex, with one centered left-pointing end and two short diagonal clipped corners, following the interior contour of the reference track. Keep the top and bottom perfectly straight and horizontal. The right end remains the existing outward right point. This produces a slim elongated hexagonal filled ribbon, NOT an arrow with a fork or missing triangle at its left.\nInvariants: preserve the edit target's muted crimson-to-dark-burgundy left-to-right gradient, the approximately six subtle repeated rightward chevron bands, the smooth flat illustrated finish, long horizontal proportions, placement, and height. Change no other style or elements. Preserve truly transparent exterior background. The entire red ribbon interior must be solid fully opaque alpha 255. Do not add gold outline, track, black background, halo, lighting, glossy bevel, icon, typography, text, or frame. Output exactly one standalone wide thin red fill ribbon centered on a transparent canvas, no assembled UI screenshot, no annotations."
+}

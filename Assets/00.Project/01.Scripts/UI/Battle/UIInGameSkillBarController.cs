@@ -20,8 +20,10 @@ namespace OZGL2.UIFlow
         [Header("InGame 연결")]
         [SerializeField] private InGamePrototypeBootstrap _bootstrap;
 
-        [Header("Scene 전용 슬롯")]
+        [Header("HUD 슬롯 원본 / 편집 미리보기")]
         [SerializeField] private RectTransform _slotContainer;
+        [SerializeField, Tooltip("연결하면 씬 미리보기 대신 이 원본에서 장착 개수만큼 생성한다.")]
+        private UICombatSkillSlotView _slotPrefab;
         [SerializeField] private UICombatSkillSlotView[] _sceneSlots = Array.Empty<UICombatSkillSlotView>();
         [SerializeField] private UISkillPreviewCatalogSO _catalog;
 
@@ -39,7 +41,10 @@ namespace OZGL2.UIFlow
         private bool _isExternalSkinActive;
 
         public bool IsConfigured => _bootstrap != null && _slotContainer != null &&
-            _sceneSlots != null && _sceneSlots.Length > 0;
+            (_slotPrefab != null || (_sceneSlots != null && _sceneSlots.Length > 0));
+        public RectTransform SlotContainer => _slotContainer;
+        public bool UsesSlotPrefab => _slotPrefab != null;
+        public int LayoutVersion { get; private set; }
 
         public void Configure(
             InGamePrototypeBootstrap bootstrap,
@@ -117,7 +122,29 @@ namespace OZGL2.UIFlow
             layout.childForceExpandWidth = false;
             layout.childForceExpandHeight = false;
 
-            if (_slots.Count == 0) CacheSceneSlots();
+            if (_slots.Count == 0)
+            {
+                if (_slotPrefab != null) RemoveScenePreviewSlots();
+                else CacheSceneSlots();
+            }
+        }
+
+        private void RemoveScenePreviewSlots()
+        {
+            if (!Application.isPlaying || _slotContainer == null) return;
+            if (_catalog == null) _catalog = FindCatalog(_sceneSlots) ?? _slotPrefab.PreviewCatalog;
+
+            // 씬의 편집 미리보기는 생성 템플릿으로 사용하지 않는다.
+            var roots = new HashSet<Transform>();
+            foreach (UICombatSkillSlotView view in _slotContainer.GetComponentsInChildren<UICombatSkillSlotView>(true))
+            {
+                Transform root = FindDirectChild(view.transform, _slotContainer);
+                if (root == null || !roots.Add(root)) continue;
+                root.gameObject.SetActive(false);
+                Destroy(root.gameObject);
+            }
+            _sceneSlots = Array.Empty<UICombatSkillSlotView>();
+            LayoutVersion++;
         }
 
         private void CacheSceneSlots()
@@ -137,7 +164,7 @@ namespace OZGL2.UIFlow
                 if (root == null || (!hasConfiguredSlots && !root.gameObject.activeSelf) ||
                     root.name.StartsWith("Legacy_", StringComparison.Ordinal) || !roots.Add(root)) continue;
 
-                AddBinding(root.GetComponent<RectTransform>(), view);
+                AddBinding(root.GetComponent<RectTransform>(), view, false);
                 if (_slots.Count >= Mathf.Max(1, _maximumSlots)) break;
             }
 
@@ -147,8 +174,35 @@ namespace OZGL2.UIFlow
         private void EnsureSlotCount(int count)
         {
             int targetCount = Mathf.Min(Mathf.Max(0, count), Mathf.Max(1, _maximumSlots));
+            if (_slotContainer == null) return;
+
+            if (_slotPrefab != null)
+            {
+                while (_slots.Count > targetCount)
+                {
+                    int last = _slots.Count - 1;
+                    ReleaseBinding(_slots[last]);
+                    _slots.RemoveAt(last);
+                    LayoutVersion++;
+                }
+                while (_slots.Count < targetCount)
+                {
+                    GameObject clone = Instantiate(_slotPrefab.gameObject, _slotContainer, false);
+                    clone.name = "SkillSlot_Runtime_" + (_slots.Count + 1);
+                    UICombatSkillSlotView view = clone.GetComponent<UICombatSkillSlotView>();
+                    if (!AddBinding(clone.GetComponent<RectTransform>(), view, true))
+                    {
+                        clone.SetActive(false);
+                        Destroy(clone);
+                        Debug.LogError("전투 스킬 슬롯 원본의 View/Button 연결을 확인하세요.", this);
+                        break;
+                    }
+                }
+                return;
+            }
+
             if (_slots.Count == 0) CacheSceneSlots();
-            if (_slots.Count == 0 || _slotContainer == null) return;
+            if (_slots.Count == 0) return;
 
             SlotBinding template = _slots[0];
             while (_slots.Count < targetCount)
@@ -156,23 +210,28 @@ namespace OZGL2.UIFlow
                 GameObject clone = Instantiate(template.Root.gameObject, _slotContainer, false);
                 clone.name = "SkillSlot_Runtime_" + (_slots.Count + 1);
                 UICombatSkillSlotView view = clone.GetComponentInChildren<UICombatSkillSlotView>(true);
-                AddBinding(clone.GetComponent<RectTransform>(), view);
+                if (!AddBinding(clone.GetComponent<RectTransform>(), view, true))
+                {
+                    clone.SetActive(false);
+                    Destroy(clone);
+                    break;
+                }
             }
         }
 
-        private void AddBinding(RectTransform root, UICombatSkillSlotView view)
+        private bool AddBinding(RectTransform root, UICombatSkillSlotView view, bool ownsRoot)
         {
-            if (root == null || view == null) return;
+            if (root == null || view == null) return false;
             Button button = root.GetComponentInChildren<Button>(true);
-            if (button == null) return;
+            if (button == null) return false;
             UIInGameSkillInputRelay inputRelay = button != null
                 ? button.GetComponent<UIInGameSkillInputRelay>()
                 : root.GetComponentInChildren<UIInGameSkillInputRelay>(true);
             if (inputRelay == null && button != null)
                 inputRelay = button.gameObject.AddComponent<UIInGameSkillInputRelay>();
-            if (inputRelay == null) return;
+            if (inputRelay == null) return false;
 
-            var binding = new SlotBinding(root, view, button, inputRelay);
+            var binding = new SlotBinding(root, view, button, inputRelay, ownsRoot);
             if (button != null)
             {
                 button.enabled = true;
@@ -180,6 +239,8 @@ namespace OZGL2.UIFlow
             }
             inputRelay?.Configure(_ => TryBeginCast(binding));
             _slots.Add(binding);
+            LayoutVersion++;
+            return true;
         }
 
         private void RefreshBinding(bool force)
@@ -241,14 +302,24 @@ namespace OZGL2.UIFlow
 
             _cancelAreas.Clear();
             foreach (SlotBinding slot in _slots)
-                if (slot.Root != null && slot.Root.gameObject.activeInHierarchy)
-                    _cancelAreas.Add(slot.Root);
+            {
+                if (slot.Root == null || !slot.Root.gameObject.activeInHierarchy) continue;
+                _cancelAreas.Add(slot.Root);
+
+                // 원형 슬롯 아래 이름표에서도 놓으면 전장 시전이 아닌 취소로 처리한다.
+                RectTransform nameRect = slot.View != null && slot.View.SkillNameText != null
+                    ? slot.View.SkillNameText.rectTransform
+                    : null;
+                if (nameRect != null && nameRect != slot.Root && nameRect.gameObject.activeInHierarchy)
+                    _cancelAreas.Add(nameRect);
+            }
             _bootstrap.TryBeginSkillInput(skill, _cancelAreas);
         }
 
         private void RefreshExternalSkinState()
         {
-            bool shouldUseExternalSkin = isActiveAndEnabled && _bootstrap != null && _slots.Count > 0;
+            bool shouldUseExternalSkin = isActiveAndEnabled && _bootstrap != null && _slotContainer != null &&
+                (_slotPrefab != null || _slots.Count > 0);
             if (_isExternalSkinActive == shouldUseExternalSkin) return;
 
             _bootstrap?.SetExternalSkillUiActive(shouldUseExternalSkin);
@@ -298,28 +369,28 @@ namespace OZGL2.UIFlow
 
         private void ClearBindings()
         {
-            foreach (SlotBinding binding in _slots)
-            {
-                binding.InputRelay?.Clear();
-                if (binding.Root != null && binding.Root.name.StartsWith("SkillSlot_Runtime_", StringComparison.Ordinal))
-                {
-                    if (Application.isPlaying) Destroy(binding.Root.gameObject);
-                    else DestroyImmediate(binding.Root.gameObject);
-                }
-                else if (binding.Root != null)
-                {
-                    if (binding.Button != null)
-                    {
-                        binding.Button.enabled = false;
-                        if (binding.Button.targetGraphic != null)
-                            binding.Button.targetGraphic.raycastTarget = false;
-                    }
-                    binding.Root.gameObject.SetActive(false);
-                }
-            }
+            foreach (SlotBinding binding in _slots) ReleaseBinding(binding);
             _slots.Clear();
             _equipped.Clear();
             _cancelAreas.Clear();
+            LayoutVersion++;
+        }
+
+        private void ReleaseBinding(SlotBinding binding)
+        {
+            binding.InputRelay?.Clear();
+            if (binding.Root == null) return;
+            binding.Root.gameObject.SetActive(false);
+            if (binding.OwnsRoot)
+            {
+                if (Application.isPlaying) Destroy(binding.Root.gameObject);
+                else DestroyImmediate(binding.Root.gameObject);
+            }
+            else if (binding.Button != null)
+            {
+                binding.Button.enabled = false;
+                if (binding.Button.targetGraphic != null) binding.Button.targetGraphic.raycastTarget = false;
+            }
         }
 
         private sealed class SlotBinding
@@ -328,18 +399,21 @@ namespace OZGL2.UIFlow
             public UICombatSkillSlotView View { get; }
             public Button Button { get; }
             public UIInGameSkillInputRelay InputRelay { get; }
+            public bool OwnsRoot { get; }
             public SkillRuntime Skill { get; set; }
 
             public SlotBinding(
                 RectTransform root,
                 UICombatSkillSlotView view,
                 Button button,
-                UIInGameSkillInputRelay inputRelay)
+                UIInGameSkillInputRelay inputRelay,
+                bool ownsRoot)
             {
                 Root = root;
                 View = view;
                 Button = button;
                 InputRelay = inputRelay;
+                OwnsRoot = ownsRoot;
             }
         }
     }

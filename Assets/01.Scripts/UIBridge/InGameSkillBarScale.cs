@@ -54,6 +54,8 @@ namespace OZGL2.UIBridge
         private void LateUpdate()
         {
             if (_container == null && !FindContainer()) return;
+            var controller = _container.GetComponentInParent<UIInGameSkillBarController>();
+            if (controller != null && controller.UsesSlotPrefab) { HideLabels(); return; }
             if (_currentScale <= 0f) _currentScale = _scale;
 
             var slots = ActiveSlots();
@@ -211,6 +213,10 @@ namespace OZGL2.UIBridge
         private void UpdateLabels(List<UICombatSkillSlotView> slots)
         {
             if (!_showSkillNames) { HideLabels(); return; }
+            // 이름표가 있는 새 슬롯은 View가 표시를 소유한다.
+            HideLabels();
+            bool needsLegacyLabels = slots.Exists(view => view.SkillNameText == null);
+            if (!needsLegacyLabels) return;
             EnsureLabelRoot();
             if (_labelRoot == null) return;
 
@@ -220,6 +226,7 @@ namespace OZGL2.UIBridge
             foreach (var label in _labels.Values) if (label != null) label.enabled = false;
             foreach (var view in slots)
             {
+                if (view.SkillNameText != null) continue;
                 string title = SkillName(view);
                 if (string.IsNullOrEmpty(title)) continue;
                 var root = DirectChild(view.transform, _container);

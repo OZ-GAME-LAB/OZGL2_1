@@ -52,6 +52,8 @@ namespace OZGL2.UIFlow
         private volatile bool _needsRefresh;
 
         public UISkillPreviewCatalogSO PreviewCatalog => _previewCatalog;
+        public TMP_Text SkillNameText => _skillNameText;
+        public RectTransform FrameLayoutRect => _frame != null ? _frame.rectTransform : null;
 
         public void ShowSkill(UISkillPreviewCatalogSO.Entry entry)
         {

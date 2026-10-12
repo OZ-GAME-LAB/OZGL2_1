@@ -1,4 +1,5 @@
 using System;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,11 +26,16 @@ namespace OZGL2.UIBridge
         /// <summary>view 아래에서 「BgmLabel」을 가진 설정 패널을 찾아 슬라이더를 붙인다. 이미 붙어 있거나 해당 패널이 없으면 아무것도 하지 않는다.</summary>
         public static void AttachTo(Transform view)
         {
+            if (view == null) return;
             foreach (var rect in view.GetComponentsInChildren<RectTransform>(true))
             {
                 if (rect.name != "BgmLabel") continue;
                 var panel = rect.parent as RectTransform;
-                if (panel != null && panel.Find("BgmVolume") == null) Attach(panel);
+                if (panel == null) continue;
+                var commonSettings = panel.GetComponentInParent<UICommonSettingsView>(true);
+                // 공통 Prefab에 연결된 슬라이더와 행 배치는 그대로 사용한다.
+                if (commonSettings != null && commonSettings.IsIndividualVolumeConfigured) continue;
+                if (panel.Find("BgmVolume") == null) Attach(panel);
             }
         }
 

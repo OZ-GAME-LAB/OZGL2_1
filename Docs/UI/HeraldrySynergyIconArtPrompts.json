@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-12",
+  "tool_mode": "built-in image_gen",
+  "transparency": true,
+  "reference_style": "기존 라운드 보상 아이콘의 크림색 실루엣. 참조 이미지는 스타일 확인용이며 공용 원본은 변경하지 않음.",
+  "final_asset_directory": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons",
+  "output": {
+    "size": [
+      512,
+      512
+    ],
+    "rgb": "#E9DFC6",
+    "longest_visible_dimension": 384,
+    "pivot": [
+      0.5,
+      0.5
+    ],
+    "alpha": "투명 내부/배경, 본체 불투명, 가장자리 안티앨리어싱"
+  },
+  "approved_cleanup": "생성 도안을 유지하며 RGB·알파·미세 잡티·여백·정렬을 직접 정리. 원본 생성 파일은 보존.",
+  "prompts": [
+    {
+      "job": "warrior",
+      "intent": "generate",
+      "prompt": "Use case: logo-brand. Asset type: one production-ready dark fantasy heraldry game UI synergy glyph, raster PNG with true alpha transparency. Create a single isolated warm ivory cream (#E9DFC6) monochrome silhouette icon, elegant flowing flame-like tapers combined with crisp medieval pointed geometry, like the game's recent currency flame, open spellbook, three crystal and crossed blade reward icons. Fully opaque solid fill, clean bold filled forms and deliberate transparent negative-space cutouts. No outline-only drawing. Smooth precise antialiased contours, no surface texture, no lighting, no highlights, no gradients, no speckles, no glow, no shadow. The silhouette must be simple and readable at 34px. Center both axes within a square canvas, visible artwork longest dimension approximately 75% of canvas, generous equal clear margins on the dominant axis, balanced visual mass. The only visible pixels belong to the glyph; absolutely zero extra marks outside it. Interior holes are completely transparent. No tile, panel, badge, circular frame, letters, numbers, text, label, decorative background, color besides cream, or watermark. Transparent background, not a checkerboard illustration.\nSubject: WARRIOR. Two identical broad medieval sword blades crossing diagonally in an X, both sharp tips pointing upward, substantial angular handguards and short handles below. One crisp narrow negative-space slash inside each blade. Flame-like swept/tapered blade silhouette. Recognizable crossed swords, symmetric overall, bold simple shapes.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-5b7439da-d62d-4f41-83bd-66b273b183bb.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_warrior_v1.png"
+    },
+    {
+      "job": "shield",
+      "intent": "generate",
+      "prompt": "Use case: logo-brand. Asset type: one production-ready dark fantasy heraldry game UI synergy glyph, raster PNG with true alpha transparency. Create a single isolated warm ivory cream (#E9DFC6) monochrome silhouette icon, elegant flowing flame-like tapers combined with crisp medieval pointed geometry, like the game's recent currency flame, open spellbook, three crystal and crossed blade reward icons. Fully opaque solid fill, clean bold filled forms and deliberate transparent negative-space cutouts. No outline-only drawing. Smooth precise antialiased contours, no surface texture, no lighting, no highlights, no gradients, no speckles, no glow, no shadow. The silhouette must be simple and readable at 34px. Center both axes within a square canvas, visible artwork longest dimension approximately 75% of canvas, generous equal clear margins on the dominant axis, balanced visual mass. The only visible pixels belong to the glyph; absolutely zero extra marks outside it. Interior holes are completely transparent. No tile, panel, badge, circular frame, letters, numbers, text, label, decorative background, color besides cream, or watermark. Transparent background, not a checkerboard illustration.\nSubject: SHIELD SOLDIER. A bold pointed medieval shield whose solid cream thick outer rim encloses transparent dark negative space. Inside, an abstract simplified ivory backbone with three thick pairs of arched rib bars forms a bone-shield crest. Symmetric shield body, squared upper shoulders and sharp lower tip. Large simple structural shapes, no tiny bones, no skull face.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-bd2f020e-06ef-48f2-90a1-474c6dba0aaf.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_shield_v1.png"
+    },
+    {
+      "job": "archer",
+      "intent": "generate",
+      "prompt": "Use case: logo-brand. Asset type: one production-ready dark fantasy heraldry game UI synergy glyph, raster PNG with true alpha transparency. Create a single isolated warm ivory cream (#E9DFC6) monochrome silhouette icon, elegant flowing flame-like tapers combined with crisp medieval pointed geometry, like the game's recent currency flame, open spellbook, three crystal and crossed blade reward icons. Fully opaque solid fill, clean bold filled forms and deliberate transparent negative-space cutouts. No outline-only drawing. Smooth precise antialiased contours, no surface texture, no lighting, no highlights, no gradients, no speckles, no glow, no shadow. The silhouette must be simple and readable at 34px. Center both axes within a square canvas, visible artwork longest dimension approximately 75% of canvas, generous equal clear margins on the dominant axis, balanced visual mass. The only visible pixels belong to the glyph; absolutely zero extra marks outside it. Interior holes are completely transparent. No tile, panel, badge, circular frame, letters, numbers, text, label, decorative background, color besides cream, or watermark. Transparent background, not a checkerboard illustration.\nSubject: ARCHER. A strongly curved recurved bow and ONE horizontal arrow pointing right. Bow arms are thick bold curved ivory forms with graceful flame-like tapered tips. A clean taut string as a sturdy straight ivory stroke, arrow shaft bold and arrowhead broad diamond-pointed. Three distinct recognizable bow parts; keep thin features wide enough to survive 34px display.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-b47d6b9b-7030-42b2-9e08-da6468a5e992.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_archer_v1.png"
+    },
+    {
+      "job": "mage",
+      "intent": "generate",
+      "prompt": "Use case: logo-brand. Asset type: one production-ready dark fantasy heraldry game UI synergy glyph, raster PNG with true alpha transparency. Create a single isolated warm ivory cream (#E9DFC6) monochrome silhouette icon, elegant flowing flame-like tapers combined with crisp medieval pointed geometry, like the game's recent currency flame, open spellbook, three crystal and crossed blade reward icons. Fully opaque solid fill, clean bold filled forms and deliberate transparent negative-space cutouts. No outline-only drawing. Smooth precise antialiased contours, no surface texture, no lighting, no highlights, no gradients, no speckles, no glow, no shadow. The silhouette must be simple and readable at 34px. Center both axes within a square canvas, visible artwork longest dimension approximately 75% of canvas, generous equal clear margins on the dominant axis, balanced visual mass. The only visible pixels belong to the glyph; absolutely zero extra marks outside it. Interior holes are completely transparent. No tile, panel, badge, circular frame, letters, numbers, text, label, decorative background, color besides cream, or watermark. Transparent background, not a checkerboard illustration.\nSubject: MAGE. A bold vertical fantasy staff with short tapered handle below and large open diamond-shaped arcane crown above. A simple four-point luminous star in the center of the crown, not light glow. The star and staff/crown are filled cream shapes with roomy transparent separation. Symmetric bold geometric/flame-like contours, readable as staff with arcane focus, no book.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-1ebc1ee8-3a05-40d9-9437-ebccc4143824.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_mage_v1.png"
+    },
+    {
+      "job": "rogue",
+      "intent": "generate",
+      "prompt": "Use case: logo-brand. Asset type: one production-ready dark fantasy heraldry game UI synergy glyph, raster PNG with true alpha transparency. Create a single isolated warm ivory cream (#E9DFC6) monochrome silhouette icon, elegant flowing flame-like tapers combined with crisp medieval pointed geometry, like the game's recent currency flame, open spellbook, three crystal and crossed blade reward icons. Fully opaque solid fill, clean bold filled forms and deliberate transparent negative-space cutouts. No outline-only drawing. Smooth precise antialiased contours, no surface texture, no lighting, no highlights, no gradients, no speckles, no glow, no shadow. The silhouette must be simple and readable at 34px. Center both axes within a square canvas, visible artwork longest dimension approximately 75% of canvas, generous equal clear margins on the dominant axis, balanced visual mass. The only visible pixels belong to the glyph; absolutely zero extra marks outside it. Interior holes are completely transparent. No tile, panel, badge, circular frame, letters, numbers, text, label, decorative background, color besides cream, or watermark. Transparent background, not a checkerboard illustration.\nSubject: ROGUE. A bold almond-shaped vigilant eye crest with a central solid diamond pupil separated by transparent negative space. The upper and lower eyelid contours have slightly swept pointed flame-like outer corners. A short simple downward dagger-like point beneath the eye conveys stealth. One eye only, no eyelashes, no tiny sparkles, no circular halo.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-e47937a8-972d-4581-bf54-82e71f1c3b8a.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_rogue_v1.png"
+    },
+    {
+      "job": "healer",
+      "intent": "generate",
+      "prompt": "Use case: logo-brand. Asset type: one production-ready dark fantasy heraldry game UI synergy glyph, raster PNG with true alpha transparency. Create a single isolated warm ivory cream (#E9DFC6) monochrome silhouette icon, elegant flowing flame-like tapers combined with crisp medieval pointed geometry, like the game's recent currency flame, open spellbook, three crystal and crossed blade reward icons. Fully opaque solid fill, clean bold filled forms and deliberate transparent negative-space cutouts. No outline-only drawing. Smooth precise antialiased contours, no surface texture, no lighting, no highlights, no gradients, no speckles, no glow, no shadow. The silhouette must be simple and readable at 34px. Center both axes within a square canvas, visible artwork longest dimension approximately 75% of canvas, generous equal clear margins on the dominant axis, balanced visual mass. The only visible pixels belong to the glyph; absolutely zero extra marks outside it. Interior holes are completely transparent. No tile, panel, badge, circular frame, letters, numbers, text, label, decorative background, color besides cream, or watermark. Transparent background, not a checkerboard illustration.\nSubject: HEALER. A recognizable bold equal-armed healing cross, NOT a staff or book, held by two symmetric upward-curving flame/wing-like ivory forms which cradle the cross from below. Large filled silhouette and roomy negative space. Gentle curved lower base and sharp graceful tips give dark-fantasy heraldry styling. No religious scene, no character, no heart, no flame identical to currency.",
+      "generated_source": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-dbe0dc26-ca20-4d33-93b4-3e1703572a74.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_healer_v1.png"
+    }
+  ],
+  "refinements": [
+    {
+      "job": "mage",
+      "intent": "edit",
+      "reason": "실제 27~52px 표시에서 가는 머리/별의 가독성을 보완",
+      "prompt": "Use case: precise-object-edit. This image is the edit target: a game mage synergy icon, ivory solid silhouette, open flame/diamond crown with four-point star above a pointed staff handle. Keep exactly this subject, symmetry, flat warm cream #E9DFC6 palette, sharp flame tapers, negative-space star separation, clean edges, and true transparent background. Change only its proportions and stroke boldness for readability at 27 to 52 pixels: make the crown much broader (overall visible width at least 65 percent of overall visible height), the center star 3 times larger, the crown structure thick and substantial rather than spindly, shorten the handle to one third of total height and make the handle solid thick taper with no tiny internal diamond cutouts. Crown occupies upper two thirds. Keep recognizable arcane staff, not a healer cross or currency flame. One centered glyph on square canvas, longest visible dimension75 percent of canvas. Fully opaque monochrome fill with antialiased edges, no RGB noise, white speckles, texture, lighting, glow, border, badge, text, checkerboard, or background. Only the symbol on alpha.",
+      "edit_target": "C:\\Users\\sudea\\.codex\\generated_images\\01a0f702-1891-7683-918c-b595822b3998\\exec-1ebc1ee8-3a05-40d9-9437-ebccc4143824.png",
+      "selected_generated_source": "C:/Users/sudea/.codex/generated_images/01a0f702-1891-7683-918c-b595822b3998/exec-81f1c9ef-f1ec-4280-86f1-724c4a03621d.png",
+      "final_asset": "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1/SynergyIcons/synergy_mage_v1.png"
+    }
+  ]
+}

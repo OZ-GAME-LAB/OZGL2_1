@@ -12,8 +12,8 @@
 ```text
 Canvas_LobbyOverlays                 # 공용 루트 / CanvasScaler / UILobbyOverlayView
 ├─ TraitsScreen                     # 기존 특성
-├─ MenuPopup                        # 기존 메뉴
-├─ SettingsPopup                    # 기존 설정
+├─ MenuPopup                        # MenuPopup_Heraldry_Common 중첩 Prefab
+├─ SettingsPopup                    # SettingsPopup_Heraldry_Common 중첩 Prefab
 ├─ Canvas_SkillSettings              # 부모 Prefab에 포함된 일반 자식 화면, 19종 v2
 │  └─ ExitConfirmation              # 미저장 확인창
 ├─ Canvas_UnitCodex                  # 유닛 도감 중첩 Prefab
@@ -44,6 +44,30 @@ Canvas_LobbyOverlays                 # 공용 루트 / CanvasScaler / UILobbyOve
 - `Screen Group`, 기존 로비/Legacy Controller/Raycaster 참조는 **Scene 인스턴스 override**이다. 부모 전체 Apply로 다른 Scene 참조나 수동 조정을 밀어 넣지 않는다.
 - 시작 시 화면/확인창은 비활성, 공용 루트는 활성이다.
 - 아트·TMP·그라데이션·분류색·저장 상태 규칙은 유지한다. [SkillCategoryVisualRules.md](SkillCategoryVisualRules.md)를 함께 따른다.
+
+### 로비·전투 공통 메뉴/설정 — 2026-10-09
+
+- 공통 외형 편집 원본은 `Assets/06.UI/SharedMenu/Heraldry_Menu_v1/Prefabs/MenuPopup_Heraldry_Common.prefab`과 `SettingsPopup_Heraldry_Common.prefab`이다. 크기·배치·이미지·폰트는 현재 `Builds/Lobby` 화면 기준이며, 각 Scene에서 같은 외형을 별도로 override하지 않는다.
+- `Canvas_LobbyOverlays.prefab`과 `BattleMutedPreview/Menu_v1/Prefabs/Popup_BattleMenu.prefab`은 위 두 원본을 중첩해서 사용한다. `Builds/Lobby`, `Builds/InGame`, `Builds/InGame_UIIntegration`에도 연결했다. Lobby 전체 Overlay의 의도된 연결 해제는 유지하고 메뉴·설정 하위 두 화면만 연결했다.
+- 공통 원본의 Button/Toggle 이벤트는 비워 둔다. 기존 로비/전투 View와 첫 선택·토글·상태 라벨 참조, 클릭 이벤트는 각 부모/Scene에 남긴다. 공통 Prefab에 Scene 객체나 특정 View를 연결하지 않는다.
+- 로비의 `게임 종료`와 전투의 `메인로비로` 문구·아이콘·기능은 개별 연결이다. 전투 Scene의 `CancelRun` → `LoadScene("Assets/00.Scenes/Builds/Lobby.unity")` 이벤트를 유지한다. 메뉴를 여는 로비/전투 버튼의 다른 크기·위치·연결도 유지한다.
+- 설정의 켜짐 Image는 `Panel/BGMToggle/On`, `Panel/SFXToggle/On`이다. Toggle.graphic은 이 직접 자식을 참조하며, 비활성 `Track` 아래에 다시 넣지 않는다. 켜짐은 붉은 버튼, 꺼짐은 검정 버튼을 사용한다.
+- 전체 부모 Apply/재생성 대신 공통 원본을 편집한다. 구형 메뉴 생성 도구를 재실행하면 독립 복사본과 옛 Track/On 구조가 다시 생길 수 있으므로 현행 메뉴 갱신에 사용하지 않는다.
+- 검증: 분리된 Preview Scene의 기존 API·컨트롤 이벤트 재검사 83항목 통과. 세 Scene의 메뉴 표시 크기가 같고, 설정 렌더 PNG는 세 Scene 모두 동일했다. 씬별 출력 버튼·종료 이벤트 및 대상 밖 직렬화 블록은 사전 대조와 동일하며, Missing Script/끊긴 참조는 0개였다. 최초 검증 코드가 Edit Mode에서 미등록 임시 EventSystem을 current로 지정하며 도구 오류 2개를 기록했다. 이 지정 경로를 제거한 재검사에서는 추가 오류가 없었고, 최초 로그 2개는 숨기거나 삭제하지 않았다. 실제 게임 Play Mode·계정 저장·하드웨어 입력·비 16:9·빌드는 실행하지 않았다.
+- 저장 후 재로드한 원본/Scene 7개에서 공통 연결·전체 RectTransform·8개 컨트롤 이벤트·필수 View 참조 등 738항목을 확인했다. `git diff --check`에는 Unity가 자동 직렬화한 빈 `value:`/`m_Name:` 등의 trailing-whitespace 경고가 남아 있으며, Scene/Prefab 텍스트 직접 편집 금지에 따라 손으로 제거하지 않았다. 변경 파일은 Scene 3개, 기존 부모 Prefab 2개, 새 공통 Prefab 2개와 Unity 생성 `.meta`, 이 문서이다. Runtime C#·ProjectSettings·Packages·원본 아트는 변경하지 않았다.
+
+### Title·Lobby·InGame 공통 설정 항목 — 2026-10-09
+
+- 편집 원본은 `Assets/06.UI/SharedMenu/Heraldry_Menu_v1/Prefabs/SettingsPopup_Heraldry_Common.prefab` 하나이다. 소리 크기, 배경음악, 효과음, 전체화면, 마왕의 설명 다시 보기와 돌아가기 버튼을 같은 640×730 패널에 배치했다. 시작 시 닫힘이며 패널은 부모 Canvas의 중앙에 정렬한다.
+- `UICommonSettingsView`는 음량·전체화면·설명 기록 초기화와 표시만 담당한다. 음량은 기존 Title의 `OZGL2.Volume` 키와 `AudioListener.volume`을 재사용하며, Scene을 직접 실행해도 `BeforeSceneLoad`에서 저장 음량을 적용한다. BGM/SFX의 계산·저장 및 TutorialStore 원본은 수정하지 않았다.
+- Lobby/InGame의 BGM/SFX와 Back은 기존 View 및 이벤트를 유지한다. Title만 `TitleScreen._settingsPopupPrefab`에 공통 원본을 연결하고 `ConfigureStandalone(CloseSettings)`로 BGM/SFX·닫기를 연결한다. 미연결 또는 필수 참조가 빠진 다른 Title 인스턴스에는 기존 코드 생성 설정창을 fallback으로 남겼다.
+- `UICommonSettingsView`의 Inspector 참조는 VolumeSlider/Label, FullscreenToggle/State, TutorialButton/State, 기존 BGM/SFX Toggle/State, Back의 11곳이다. VolumeSlider는 0~1, Whole Numbers 꺼짐이다. 공통 원본의 기존 BGM/SFX·Back Persistent 이벤트는 비어 있으며 부모/Scene의 연결을 전체 Apply하지 않는다.
+- `Textures/settings_volume_{track,fill,handle}_v1.png`와 대응 `Sprites/*.asset`을 추가했다. 생성 이미지의 닫힌 내부 알파만 255로 보정했고 RGB·바깥 투명 영역·안티앨리어싱은 보존했다. 별도 Sprite Rect로 생성 이미지 여백을 제외하고 슬라이더를 배치했다. 기존 이미지 원본은 수정하지 않았다.
+- Title Play Mode에서 공통 설정 1개와 구형 SettingsDim 미생성, 음량 0/10/50/100%의 실제 값·문구·Fill, 반복 활성화 시 초기화 이벤트 미발생, BGM/SFX 전환, 10회 열기/Back과 가상 Enter 입력 차단·ESC 닫기를 확인했다. 튜토리얼은 완료 표시만 검사하고 실제 기록 초기화는 실행하지 않았다.
+- 분리된 Preview Scene에서는 기존 로비 메뉴→설정→메뉴→입력 복원을 10회, 전투 설정/Back/닫기 가드와 배속 0/1/8 보존을 확인했다. 계층·Missing Script·직렬화 참조 검사 포함 8,210항목을 통과했다. 검증 도구가 처음 메뉴의 Resume를 Back 경로로 찾으면서 오류 1회를 반환했으며 올바른 경로로 재검사했다. 게임 코드의 예외는 없었고 최종 Console 오류·경고 0개이다.
+- 테스트로 바꾼 음량/BGM/SFX의 값과 키 존재 여부를 복원했다. Title 테스트 직전의 PlayerPrefs 레지스트리 42개 중 게임 설정·튜토리얼·계정 값은 동일하며 Unity의 그래픽 품질/플레이 세션 내부 키 3개만 달라졌다. 초기 진단 중 짧은 Lobby Play 진입이 있어 기존 자동 저장 시각은 갱신됐을 수 있다. 실제 게임 시작·보상·SP·해금·계정 초기화는 실행하지 않았다.
+- 이번 작업으로 저장한 Scene은 Title이다. Unity 저장 과정의 Lightmap/Light/URP 기본 필드 버전 갱신이 함께 포함됐다. Lobby/InGame/InGame_UIIntegration과 기존 부모 Prefab 2개는 작업 시작 백업과 바이트 단위로 동일하며 공통 원본 변경만 상속한다. ProjectSettings/Packages는 수정하지 않았다.
+- 실제 마우스 드래그·하드웨어 키보드·실전 전투·비 16:9·전체화면의 실제 창 전환·플레이어 빌드는 미확인이다. 마왕의 설명 다시 보기는 기존과 같이 기록 초기화이며 즉시 재생 기능이 아니다. 백업은 Git 제외 `Assets/98.ExternalAssets/00.LocalStaging/UI_Cleanup_Backups/20261009_SharedSettings_01`이다.
 
 ## Editor 도구
 
