@@ -538,6 +538,10 @@ namespace OZGL2.Synergy
             CombatModifierHub.SetMoveSpeedMult(UnitSide.Hero, Mathf.Max(0.3f, Combine(trait.HeroMoveSpeedMult, aug.HeroMoveSpeedMult)));
             CombatModifierHub.SetDefenseAdd(UnitSide.Hero, aug.HeroDefenseAdd + trait.HeroDefenseAdd);
             CombatModifierHub.SetDefenseAdd(UnitSide.DemonArmy, trait.MonsterDefenseAdd);
+            // 사거리·처형 보정(특성): 관통 사격·마왕군의 진격 → 마왕군 사거리, 절망의 낙인 → 용사 사거리, 처형 본능 → 마왕군 추가 피해
+            CombatModifierHub.SetRangeMult(UnitSide.DemonArmy, Mathf.Max(0.5f, trait.MonsterRangeMult));
+            CombatModifierHub.SetRangeMult(UnitSide.Hero, Mathf.Max(0.3f, trait.HeroRangeMult));
+            CombatModifierHub.SetExecuteBonus(UnitSide.DemonArmy, trait.MonsterExecuteBonus);
 
             foreach (var job in AllJobs)
             {
@@ -567,12 +571,12 @@ namespace OZGL2.Synergy
             {
                 // 절망 낙인(용사가 받는 스킬 피해 +%) — 스킬은 용사만 때리므로 스킬 피해 배율에 곱한다.
                 // 특성·증강 배율에 마왕 레벨 배율(레벨 1당 +4%)을 곱한다. 증강은 고르는 즉시 이 값에 반영된다.
-                _skillMods.PowerMult = Combine(trait.SkillPowerMult, aug.SkillPowerMult) * aug.HeroIncomingSkillMult * SkillLevelScaling.CurrentPowerMult();
-                _skillMods.CooldownMult = Mathf.Max(0.3f, Combine(trait.SkillCooldownMult, aug.SkillCooldownMult));
+_skillMods.PowerMult = Combine(trait.SkillPowerMult, aug.SkillPowerMult) * Combine(trait.HeroIncomingSkillMult, aug.HeroIncomingSkillMult) * SkillLevelScaling.CurrentPowerMult();
+                _skillMods.CooldownMult = Mathf.Max(0.3f, Combine(trait.SkillCooldownMult, aug.SkillCooldownMult) * syn.ComboSkillCooldownMult); // 현자의 결속(힐러+마법사) 포함
                 _skillMods.RadiusMult = Combine(trait.SkillRadiusMult, aug.SkillRadiusMult);
                 _skillMods.BuffDurationMult = Combine(trait.SkillBuffDurationMult, aug.SkillBuffDurationMult);
                 _skillMods.UltCooldownMult = trait.SkillUltCooldownMult;
-                _skillMods.CritChance = aug.CritChance;
+                _skillMods.CritChance = aug.CritChance + syn.ComboCritChanceBonus; // 원거리 포격대(궁수+마법사) 포함
                 _skillMods.EchoChance = aug.EchoChance;
                 _skillMods.OnHitSlowAmount = aug.OnHitSlowAmount;
                 _skillMods.ReviveBonus = 0;

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Progression.TraitData
   id: 22
   displayName: "\uB9C8\uB825 \uAD00\uD1B5"
-  description: "\uC2A4\uD0AC\uC774 \uC6A9\uC0AC \uBC29\uC5B4\uB825 10% \uBB34\uC2DC
-    / \uB7AD\uD06C"
+  description: "\uBC29\uC5B4\uB825\uC744 \uAD00\uD1B5\uD574 \uC2A4\uD0AC \uD53C\uD574 +5% / \uB7AD\uD06C"
   branch: 2
   line: 0
   effect: 17

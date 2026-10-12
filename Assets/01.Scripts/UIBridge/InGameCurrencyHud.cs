@@ -109,6 +109,19 @@ namespace OZGL2.UIBridge
         private TMP_FontAsset _font;
         private readonly List<Floating> _floats = new List<Floating>();
 
+        private const int FlamePerDeployRank = 8; // 특성 "효율 편성" 1랭크당 시작 불꽃
+
+        /// <summary>새 판의 시작 재화 = 기본 시작값 + 특성 "효율 편성" 랭크 × 8.</summary>
+        private int StartBalance
+        {
+            get
+            {
+                var sync = FindFirstObjectByType<RealSynergySync>();
+                int bonus = sync != null && sync.Traits != null ? sync.Traits.BuildModifiers().DeployCostBonus : 0;
+                return _startAmount + bonus * FlamePerDeployRank;
+            }
+        }
+
         public int Balance => _balance;
         private int CurrentRound => Mathf.Max(1, _bootstrap?.Stage != null ? _bootstrap.Stage.CurrentRoundNumber : 1);
         private int CurrentRerollCost =>
@@ -116,7 +129,7 @@ namespace OZGL2.UIBridge
 
         private void OnEnable()
         {
-            _balance = _startAmount;
+            _balance = StartBalance;
             _pushed = false;
             PendingFlight = 0;
             _live = this;
@@ -159,7 +172,7 @@ namespace OZGL2.UIBridge
             if (stage != null && !ReferenceEquals(stage, _stage))
             {
                 _stage = stage;
-                _balance = _startAmount;
+                _balance = StartBalance;
                 _pushed = false;
             }
             // 저장된 판을 이어하면 저장된 재화로 시작한다(판마다 한 번만)

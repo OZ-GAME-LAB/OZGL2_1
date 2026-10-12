@@ -49,6 +49,18 @@ namespace OZGL2.Contracts
         /// <summary>라운드 시작마다 호출 — 보호막을 다시 두른 상태로 되돌린다.</summary>
         public static void ResetShields() => _shieldConsumed.Clear();
 
+        // ─────────── 특성 전용 보정 (진영 단위) — 값이 없으면 항상 무효과.
+        private static readonly Dictionary<UnitSide, float> _rangeMult = new Dictionary<UnitSide, float>();
+        private static readonly Dictionary<UnitSide, float> _executeBonus = new Dictionary<UnitSide, float>();
+
+        /// <summary>해당 진영 공격 사거리 배율 (1.15 = +15%). 관통 사격·마왕군의 진격(마왕군), 절망의 낙인(용사).</summary>
+        public static void SetRangeMult(UnitSide side, float mult) => _rangeMult[side] = mult;
+        public static float GetRangeMult(UnitSide side) => _rangeMult.TryGetValue(side, out var v) ? v : 1f;
+
+        /// <summary>해당 진영이 체력 30% 이하 대상에게 주는 추가 피해 비율 (0.24 = +24%). 처형 본능.</summary>
+        public static void SetExecuteBonus(UnitSide side, float bonus) => _executeBonus[side] = bonus;
+        public static float GetExecuteBonus(UnitSide side) => _executeBonus.TryGetValue(side, out var v) ? v : 0f;
+
         public static float GetMoveSpeedMult(UnitSide side) => _moveSpeedMult.TryGetValue(side, out var v) ? v : 1f;
         public static float GetDefenseAdd(UnitSide side) => _defenseAdd.TryGetValue(side, out var v) ? v : 0f;
 

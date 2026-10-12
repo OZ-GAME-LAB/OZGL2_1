@@ -31,7 +31,7 @@ namespace OZGL2.UIFlow
                 case TraitEffect.SkillCooldown: return "스킬 쿨타임 " + Percent(m.SkillCooldownMult - 1);
                 case TraitEffect.SkillRadius: return "스킬 반경 " + Percent(m.SkillRadiusMult - 1);
                 case TraitEffect.SkillUltCooldown: return "궁극기 쿨타임 " + Percent(m.SkillUltCooldownMult - 1);
-                case TraitEffect.SkillArmorPen: return "용사 방어력 " + Number(m.SkillArmorPen * 100) + "% 무시";
+                case TraitEffect.SkillArmorPen: return "방어력을 관통해 스킬 피해 +" + Number(m.SkillArmorPen * TraitTree.SkillArmorPenDamageFactor * 100) + "%";
                 case TraitEffect.SkillBuffDuration: return "버프·오라 지속시간 " + Percent(m.SkillBuffDurationMult - 1);
                 case TraitEffect.SkillSlot: return "스킬 장착 슬롯 +" + m.ExtraSkillSlots;
                 case TraitEffect.XpGain: return "XP 획득 " + Percent(m.XpGainMult - 1);
@@ -40,7 +40,7 @@ namespace OZGL2.UIFlow
                 case TraitEffect.LevelSurge: return "레벨 5의 배수마다\n즉시 XP +" + m.SurgeXpPer5Level;
                 case TraitEffect.MilestoneLp: return "레벨 5의 배수\n보너스 LP +" + m.MilestoneBonusLp;
                 case TraitEffect.Grid: return "전투 그리드 +" + m.GridBonus + "칸";
-                case TraitEffect.DeployCost: return "시작 배치 코스트 +" + m.DeployCostBonus;
+                case TraitEffect.DeployCost: return "시작 불꽃 +" + (m.DeployCostBonus * 8);
                 case TraitEffect.CapMonster:
                     return "몬스터 공격력·체력\n공격속도·사거리 " + Percent(m.MonsterAttackMult - 1);
                 case TraitEffect.CapHero:

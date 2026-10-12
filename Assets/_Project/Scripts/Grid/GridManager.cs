@@ -537,6 +537,35 @@ namespace OZGL2.Grid
         }
         private void ClearSelection() { _selectedId = null; DragKind = eGridDragKind.NONE; _previewIsMirrored = false; HoveredExpansionId = null; }
         private void UpdateFloorView() => _floorView = new List<Vector2Int>(_floor).AsReadOnly();
+        /// <summary>
+        /// 특성(규모 확장·대군세)이 주는 보너스 바닥 칸. 현재 바닥에 이어 붙는 칸을 시작 바닥의 중앙에 가까운 쪽부터 count개 추가한다
+        /// (움직일 수 있는 확장 조각이 아니라 처음부터 있던 바닥으로 취급). 새 판 시작(준비 전)에만 부른다. 실제로 늘린 칸 수를 돌려준다.
+        /// </summary>
+        internal int GrantBonusFloor(int count)
+        {
+            if (count <= 0 || _isNotifying || Phase != eGridPhase.WAITING) return 0;
+            float cx = (Definition.InitialOrigin.x + (Definition.InitialSize.x - 1) * 0.5f);
+            float cy = (Definition.InitialOrigin.y + (Definition.InitialSize.y - 1) * 0.5f);
+            int added = 0;
+            while (added < count)
+            {
+                bool found = false; Vector2Int best = default; float bestScore = float.MaxValue;
+                for (int y = 0; y < Definition.MaximumSize.y; y++)
+                    for (int x = 0; x < Definition.MaximumSize.x; x++)
+                    {
+                        var cell = new Vector2Int(x, y);
+                        if (_floor.Contains(cell)) continue;
+                        if (!(_floor.Contains(cell + Vector2Int.left) || _floor.Contains(cell + Vector2Int.right) ||
+                              _floor.Contains(cell + Vector2Int.up) || _floor.Contains(cell + Vector2Int.down))) continue;
+                        float score = Mathf.Abs(x - cx) + 1.2f * Mathf.Abs(y - cy);
+                        if (score < bestScore) { bestScore = score; best = cell; found = true; }
+                    }
+                if (!found) break;
+                _floor.Add(best); added++;
+            }
+            if (added > 0) { UpdateFloorView(); Notify(); }
+            return added;
+        }
         private void Notify(bool hasLayoutChanged = false)
         {
             bool previous = _isNotifying; _isNotifying = true;

@@ -85,7 +85,7 @@ namespace OZGL2.Tutorial
             TutorialStep.WaitPlace("직접 해 보거라! 카드를 끌어다 칸 위에 놓아 보거라.", "hand"),
             new TutorialStep("잘했다! 잘못 놓았으면 마왕군을 카드 쪽으로 다시 끌어 보관할 수 있다.", "hand"),
             new TutorialStep("카드를 끌고 있는 동안 R 키를 누르면 발판 모양이 돌아간다. 칸에 딱 맞게 돌려서 놓거라!", "grid"),
-            new TutorialStep("같은 마왕군 두 기를 겹쳐 놓으면 합성되어 별(★)이 오른다. 별은 최대 3개, 2성은 능력치 1.7배, 3성은 무려 3.2배로 강해진다!", "hand"),
+            new TutorialStep("같은 마왕군 두 기를 겹쳐 놓으면 합성되어 별(★)이 오른다. 별은 최대 3개, 2성은 능력치 1.7배, 3성은 무려 3.6배로 강해진다!", "hand"),
             new TutorialStep("같은 직업을 많이 모으면 시너지가 발동한다. 오른쪽 목록에 마우스를 올리면 효과를 볼 수 있다.", "synergy"),
             new TutorialStep("준비가 끝났으면 '전투 시작'을 눌러라. 짐은 뒤에서 지켜보고 있겠다!", "start", true));
 
@@ -180,7 +180,7 @@ namespace OZGL2.Tutorial
             new TutorialStep("카드마다 유닛의 이름과 모습이 나온다. 자물쇠가 걸린 카드는 아직 만나지 못한 유닛이니라. 해금된 마왕군만 전투 보상 카드로 나온다!", "codex.list"),
             new TutorialStep("카드 아래의 별(★)은 그 마왕군의 성급이다. 같은 마왕군을 합성해 별이 오르면 모습이 바뀌고, 능력치도 함께 강해지느니라!", "codex.stars"),
             TutorialStep.Press("옆의 화살표를 눌러 1성, 2성, 3성의 모습을 직접 바꿔 보거라!", "codex.next", null, "codex.list"),
-            new TutorialStep("체력과 공격력은 1성이 기본이고, 2성은 1.7배, 3성은 무려 3.2배다! 별을 올릴수록 모습도 능력도 달라지니, 같은 마왕군을 모아 합성하거라.", "codex.list"),
+            new TutorialStep("체력과 공격력은 1성이 기본이고, 2성은 1.7배, 3성은 무려 3.6배다! 별을 올릴수록 모습도 능력도 달라지니, 같은 마왕군을 모아 합성하거라.", "codex.list"),
             new TutorialStep("지금까지 발견한 유닛 수는 여기서 확인하거라.", "codex.count"),
             TutorialStep.WaitClose("다 보았으면 '뒤로' 단추를 눌러 돌아오거라. 마지막 설명이 남았다!", "@page"),
             new TutorialStep("가운데에서 도전할 난이도를 고른다. 카드 위에 마우스를 올리면 지금까지의 최고 웨이브와 클리어 기록이 나오느니라.", "stage"),
@@ -206,7 +206,7 @@ namespace OZGL2.Tutorial
             new TutorialStep("도감에는 마왕군과 용사들의 정보가 모여 있다.", null, true),
             new TutorialStep("위쪽 두 문장으로 마왕군과 용사 진영을 바꿔 볼 수 있다.", "codex.factions"),
             new TutorialStep("자물쇠가 걸린 카드는 아직 만나지 못한 유닛이다. 해금된 마왕군만 전투 보상 카드로 나온다.", "codex.list"),
-            new TutorialStep("카드 아래의 별(★)은 성급이다. 화살표로 1성, 2성, 3성의 모습을 볼 수 있고, 능력치는 2성이 1.7배, 3성이 3.2배다.", "codex.stars"));
+            new TutorialStep("카드 아래의 별(★)은 성급이다. 화살표로 1성, 2성, 3성의 모습을 볼 수 있고, 능력치는 2성이 1.7배, 3성이 3.6배다.", "codex.stars"));
 
         public static readonly TutorialSequence LobbyAchievements = new TutorialSequence("lobby.achievements", "업적", "lobby", false, true,
             new TutorialStep("업적은 전투에서 이룬 일들이 기록되는 곳이다.", null, true),

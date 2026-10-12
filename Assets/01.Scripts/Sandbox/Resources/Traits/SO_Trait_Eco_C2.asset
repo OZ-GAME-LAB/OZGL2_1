@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OZGL2.Progression.TraitData
   id: 37
   displayName: "\uD6A8\uC728 \uD3B8\uC131"
-  description: "\uC2DC\uC791 \uBC30\uCE58 \uCF54\uC2A4\uD2B8 +1 / \uB7AD\uD06C"
+  description: "\uC2DC\uC791 \uBD88\uAF43(\uC7AC\uD654) +8 / \uB7AD\uD06C"
   branch: 3
   line: 2
   effect: 26
@@ -22,4 +22,4 @@ MonoBehaviour:
   maxRank: 3
   rankCosts: 010000000200000003000000
   parents: 24000000
-  connStatus: "\uC2A4\uD141"
+  connStatus: "\uC2E4\uC81C"
