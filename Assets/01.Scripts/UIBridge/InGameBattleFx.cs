@@ -655,27 +655,19 @@ namespace OZGL2.UIBridge
 
                 // 뒤의 은은한 빛무리(숨 쉬듯 일렁인다)
                 _bannerGlow.color = new Color(main.r, main.g, main.b, (0.38f + 0.1f * Mathf.Sin(t * 3f)) * inK);
-                _bannerGlow.rectTransform.sizeDelta = new Vector2(1300f, 780f) * (0.9f + 0.1f * inK);
+                _bannerGlow.rectTransform.sizeDelta = new Vector2(1300f, 780f);
 
                 // 구분선: 가운데에서 양옆으로 열린다(그림을 늘리지 않고 가리개를 넓혀 일그러지지 않게)
                 _dividerMask.sizeDelta = new Vector2(1500f * spread, 510f);
-                // 룬 고리 둘: 서로 반대로 천천히 돈다(보스는 빠르게)
-                float speed = boss ? 55f : 22f;
-                _bannerRing.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.9f, 1f, inK);
-                _bannerRing.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -t * speed);
-                _bannerRing2.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.85f, 1f, inK) * 1.22f;
-                _bannerRing2.rectTransform.localRotation = Quaternion.Euler(0f, 0f, t * speed * 0.6f);
+                // 룬 고리 둘: 크기·각도를 바꾸지 않고 제자리에서 서서히 나타난다(가는 선이 돌거나 커지면 일렁여 보인다)
+                _bannerRing.rectTransform.localScale = Vector3.one;
+                _bannerRing2.rectTransform.localScale = Vector3.one * 1.22f;
 
                 if (!clear)
                 {
-                    // 문장 틀·바탕이 살짝 커졌다가 자리 잡는다
-                    float pop = Mathf.Lerp(1.1f, 1f, inK);
-                    _bannerCrest.rectTransform.localScale = _bannerPlate.rectTransform.localScale = Vector3.one * pop;
+                    // 문장 틀·바탕은 크기를 바꾸지 않고 서서히 나타난다
                     float labelK = EaseOut((t - 0.15f) / 0.6f), numK = EaseOut((t - 0.3f) / 0.7f), subK = EaseOut((t - 0.7f) / 0.6f);
                     _label.alpha = labelK; _number.alpha = numK; _sub.alpha = subK;
-                    _label.rectTransform.anchoredPosition = new Vector2(0f, 74f + (1f - labelK) * -14f);
-                    _number.rectTransform.anchoredPosition = new Vector2(0f, -22f + (1f - numK) * -22f);
-                    _sub.rectTransform.anchoredPosition = new Vector2(0f, -245f + (1f - subK) * -10f);
                     // 번호가 자리 잡는 순간 불똥이 사방으로 퍼진다
                     if (!burst && t > 0.45f)
                     {
@@ -692,12 +684,9 @@ namespace OZGL2.UIBridge
                 {
                     // 왕관이 위에서 내려와 한 번 가볍게 튕기며 자리 잡는다
                     float drop = Mathf.Clamp01(t / 0.7f);
-                    float bounce = 1f - Mathf.Pow(1f - drop, 2.4f) * Mathf.Cos(drop * 6f);
-                    _bannerCrown.rectTransform.anchoredPosition = new Vector2(0f, Mathf.LerpUnclamped(300f, 105f, bounce));
+                    _bannerCrown.rectTransform.anchoredPosition = new Vector2(0f, Mathf.Round(Mathf.Lerp(300f, 105f, EaseOut(drop))));   // 되튐 없이 내려앉는다
                     float titleK = EaseOut((t - 0.5f) / 0.6f), subK = EaseOut((t - 0.8f) / 0.6f);
                     _title.alpha = titleK; _sub.alpha = subK;
-                    _title.rectTransform.anchoredPosition = new Vector2(0f, -120f + (1f - titleK) * -16f);
-                    _sub.rectTransform.anchoredPosition = new Vector2(0f, -215f + (1f - subK) * -12f);
                     // 왕관이 내려앉으면 금빛 불똥이 위에서 흩날린다
                     if (t > 0.35f && t < 1.7f && t >= nextRain)
                     {
