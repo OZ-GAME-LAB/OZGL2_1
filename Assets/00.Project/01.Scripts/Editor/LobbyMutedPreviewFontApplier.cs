@@ -36,7 +36,6 @@ internal static class LobbyMutedPreviewFontApplier
     private static readonly string[] _myungjoPaths =
     {
         "AccountStatus/Level",
-        "StageSelection/CurrentStage/StartButton/Label",
         "BottomNavigation/ReservedButton/Label",
         "BottomNavigation/TraitsButton/Label",
         "BottomNavigation/SkillsButton/Label",
@@ -58,26 +57,40 @@ internal static class LobbyMutedPreviewFontApplier
             throw new InvalidOperationException("Canvas_Lobby를 찾을 수 없습니다.");
         }
 
+        string[] myungjoPaths = GetMyungjoPaths(canvas.transform);
         ValidateTargets(canvas.transform, _gothicPaths);
-        ValidateTargets(canvas.transform, _myungjoPaths);
+        ValidateTargets(canvas.transform, myungjoPaths);
         EnsureOutputFolder();
 
         TMP_FontAsset gothic = GetOrCreateBitmap("DOSGothic.ttf", GOTHIC_ASSET,
             CollectCharacters(canvas.transform, _gothicPaths));
         TMP_FontAsset myungjo = GetOrCreateBitmap("DOSMyungjo.ttf", MYUNGJO_ASSET,
-            CollectCharacters(canvas.transform, _myungjoPaths));
+            CollectCharacters(canvas.transform, myungjoPaths));
         Material gothicMaterial = GetOrCreateOutlineMaterial(gothic, GOTHIC_OUTLINE_MATERIAL);
         Material myungjoMaterial = GetOrCreateOutlineMaterial(myungjo, MYUNGJO_OUTLINE_MATERIAL);
 
         int undoGroup = Undo.GetCurrentGroup();
         Undo.SetCurrentGroupName("Apply preview lobby pixel fonts");
         ApplyFont(canvas.transform, _gothicPaths, gothic, gothicMaterial);
-        ApplyFont(canvas.transform, _myungjoPaths, myungjo, myungjoMaterial);
+        ApplyFont(canvas.transform, myungjoPaths, myungjo, myungjoMaterial);
         FitMyungjoLabels(canvas.transform);
         EditorSceneManager.MarkSceneDirty(scene);
         Undo.CollapseUndoOperations(undoGroup);
         AssetDatabase.SaveAssets();
-        Debug.Log("Muted lobby preview: 4 DOSGothic and 6 DOSMyungjo pixel TMP labels applied.");
+        Debug.Log("Muted lobby preview: 4 DOSGothic and " + myungjoPaths.Length + " DOSMyungjo pixel TMP labels applied.");
+    }
+
+    private static string[] GetMyungjoPaths(Transform root)
+    {
+        const string startPath = "StageSelection/CurrentStage/StartButton/";
+        var paths = new List<string>(_myungjoPaths);
+        if (root.Find(startPath + "UnLockLabel") != null && root.Find(startPath + "LockLabel") != null)
+        {
+            paths.Add(startPath + "UnLockLabel");
+            paths.Add(startPath + "LockLabel");
+        }
+        else paths.Add(startPath + "Label");
+        return paths.ToArray();
     }
 
     private static void ValidateTargets(Transform root, IEnumerable<string> paths)
