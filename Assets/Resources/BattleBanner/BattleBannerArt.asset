@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a676c2d416752ab96814a58e185cafb, type: 3}
+  m_Name: BattleBannerArt
+  m_EditorClassIdentifier: 
+  ring: {fileID: 21300000, guid: b8344760addadf0468152b2fb007a645, type: 3}
+  crest: {fileID: 21300000, guid: 3208d05d293b92d4491798d3d3bc9a92, type: 3}
+  crown: {fileID: 21300000, guid: d464874e268c5114cbcb3b5da2cca80f, type: 3}
+  divider: {fileID: 21300000, guid: 5a934eeb3e780d141bc6be69b0defe1c, type: 3}

@@ -13,10 +13,10 @@ namespace OZGL2.UIBridge
 {
     /// <summary>
     /// 인게임에 게임다운 손맛을 얹는 연출 모음. 팀 코드(전투·스테이지)는 건드리지 않고 상태·체력·시전 이벤트를 읽어서 그 위에 덧붙인다.
-    /// 1) 웨이브 시작 배너(「WAVE 5」+ 한 줄 안내, 보스 웨이브는 붉은 경고 비네트와 「BOSS」)
+    /// 1) 웨이브 시작 배너(희수의 승리 결과창 그림 — 룬 고리·문장 틀·구분선 — 위에 「WAVE 5」, 보스 웨이브는 붉은 경고 비네트와 「DANGER」)
     /// 2) 피격 연출: 대미지 숫자(크게 맞으면 노랗고 크게), 맞은 자리의 번쩍임, 쓰러질 때의 먼지 구름
     /// 3) 배치·합성 연출용 먼지·별 폭발 (InGameBoardStyle 이 부른다)
-    /// 4) 웨이브 클리어: 마지막 용사를 쓰러뜨리는 순간 슬로모션과 화면 다가감, 「WAVE CLEAR」 배너
+    /// 4) 웨이브 클리어: 마지막 용사를 쓰러뜨리는 순간 슬로모션과 화면 다가감, 승리 왕관이 떨어지는 「WAVE CLEAR」 배너
     /// 5) 스킬 시전: 화면이 살짝 다가갔다 돌아온다(흔들림은 InGameKingCastFx 가 이미 한다)
     /// 그림은 전부 코드로 만든 부드러운 원·고리·별이라 별도 이미지가 없다. InGamePrototypeBootstrap 이 있는 씬이 열리면 자동으로 붙는다.
     /// </summary>
@@ -75,8 +75,9 @@ namespace OZGL2.UIBridge
 
         // 배너(화면 위에 덮는 캔버스)
         private Canvas _canvas;
-        private TMP_Text _title, _sub;
-        private Image _band, _lineTop, _lineBottom, _warn, _warnLeft, _warnRight;
+        private TMP_Text _title, _sub, _label, _number;
+        private Image _band, _warn, _warnLeft, _warnRight, _bannerRing, _bannerCrest, _bannerPlate, _bannerCrown, _bannerDivider;
+        private BattleBannerArt _art;
     private RawImage _hazardTop, _hazardBottom;
         private CanvasGroup _bannerGroup;
         private RectTransform _bannerRoot;
@@ -166,13 +167,13 @@ namespace OZGL2.UIBridge
                 _combatTotal = 0;
                 if (round != null) foreach (var spawn in round.Spawns) _combatTotal += spawn.Count;
                 bool boss = round != null && round.IsBossRound;
-                if (_waveBanner) ShowBanner("WAVE " + stage.CurrentRoundNumber, boss ? "DANGER" : string.Empty, boss ? BannerKind.Boss : BannerKind.Wave);
+                if (_waveBanner) ShowBanner("WAVE " + stage.CurrentRoundNumber, boss ? "DANGER" : string.Empty, boss ? BannerKind.Boss : BannerKind.Wave, stage.CurrentRoundNumber);
             }
             else if (previous == eStageState.COMBAT)
             {
                 EndSlowMo(false);
                 if (_waveBanner && stage.ClearedRoundCount > _clearedAtStart && state != eStageState.FAILED)
-                    ShowBanner("WAVE CLEAR", "마왕군의 승리!", BannerKind.Clear);
+                    ShowBanner("WAVE CLEAR", "마왕군의 승리!", BannerKind.Clear, 0);
             }
         }
 
@@ -478,49 +479,109 @@ namespace OZGL2.UIBridge
 
         private enum BannerKind { Wave, Boss, Clear }
 
-        private void ShowBanner(string title, string sub, BannerKind kind)
+        private void ShowBanner(string title, string sub, BannerKind kind, int number)
         {
             EnsureBannerUi();
             if (_bannerRoutine != null) StopCoroutine(_bannerRoutine);
-            _bannerRoutine = StartCoroutine(BannerRoutine(title, sub, kind));
+            _bannerRoutine = StartCoroutine(BannerRoutine(title, sub, kind, number));
         }
 
-        private IEnumerator BannerRoutine(string title, string sub, BannerKind kind)
+        private static float EaseOutBack(float k)
         {
-            Color main = kind == BannerKind.Boss ? new Color(1f, 0.36f, 0.28f) : kind == BannerKind.Clear ? new Color(0.72f, 1f, 0.6f) : new Color(1f, 0.84f, 0.42f);
-            _title.text = title; _sub.text = sub;
-            bool hasSub = !string.IsNullOrEmpty(sub);
-            _sub.gameObject.SetActive(hasSub);
-            _title.rectTransform.anchoredPosition = new Vector2(0f, hasSub ? 22f : 0f);   // 글이 하나뿐이면 가운데
-            _title.color = main; _sub.color = kind == BannerKind.Boss ? new Color(1f, 0.82f, 0.25f) : new Color(1f, 0.95f, 0.85f);
-            _band.color = new Color(0f, 0f, 0f, 0f);
-            var line = new Color(main.r, main.g, main.b, 0.9f);
-            _lineTop.color = _lineBottom.color = line;
-            bool boss = kind == BannerKind.Boss;
-            float total = boss ? 2.5f : 1.5f;
-            // 보스: 노랑·검정 빗금 띠와 경고 삼각형, 일반: 가는 선
-            _lineTop.gameObject.SetActive(!boss); _lineBottom.gameObject.SetActive(!boss);
+            const float c = 1.70158f;
+            k = Mathf.Clamp01(k) - 1f;
+            return 1f + (c + 1f) * k * k * k + c * k * k;
+        }
+
+        /// <summary>
+        /// 배너 한 번. 팀 결과창과 같은 그림으로 꾸민다 —
+        /// 웨이브: 룬 고리가 돌고 문장 틀이 튀어나오며 구분선이 양옆으로 펼쳐지고 「WAVE」 위에 번호가 찍힌다.
+        /// 보스: 같은 모양이 붉게 물들고 빗금 띠·경고 삼각형·「DANGER」가 깜빡인다.
+        /// 클리어: 승리 왕관이 위에서 떨어져 튕기고 「WAVE CLEAR」와 한마디가 나온다.
+        /// </summary>
+        private IEnumerator BannerRoutine(string title, string sub, BannerKind kind, int number)
+        {
+            bool boss = kind == BannerKind.Boss, clear = kind == BannerKind.Clear;
+            Color gold = new Color(1f, 0.82f, 0.4f), red = new Color(1f, 0.3f, 0.24f), cream = new Color(1f, 0.95f, 0.85f);
+            Color main = boss ? red : gold;
+            bool hasArt = _art != null;
+
+            // 무엇을 보일지
+            _bannerRing.gameObject.SetActive(hasArt);
+            _bannerDivider.gameObject.SetActive(hasArt);
+            _bannerCrest.gameObject.SetActive(hasArt && !clear);
+            _bannerPlate.gameObject.SetActive(!clear);
+            _bannerCrown.gameObject.SetActive(hasArt && clear);
+            _label.gameObject.SetActive(!clear);
+            _number.gameObject.SetActive(!clear);
+            _title.gameObject.SetActive(clear);
+            _sub.gameObject.SetActive(clear || boss);
             _hazardTop.gameObject.SetActive(boss); _hazardBottom.gameObject.SetActive(boss);
             _warnLeft.gameObject.SetActive(boss); _warnRight.gameObject.SetActive(boss);
+
+            _label.text = "WAVE"; _number.text = number.ToString();
+            _label.color = boss ? new Color(1f, 0.82f, 0.4f) : cream; _number.color = main;
+            _title.text = title; _title.color = new Color(1f, 0.9f, 0.55f);
+            _sub.text = sub; _sub.color = boss ? new Color(1f, 0.82f, 0.25f) : cream;
+            _bannerRing.color = new Color(main.r, main.g, main.b, 0.7f);
+            _bannerCrest.color = main;
+            _bannerDivider.color = new Color(main.r, main.g, main.b, 0.95f);
+            _bannerPlate.color = boss ? new Color(0.22f, 0.02f, 0.04f, 0.88f) : new Color(0.07f, 0.04f, 0.1f, 0.86f);
+            _bannerCrown.color = Color.white;
+            // 승리 배너는 글이 아래로 내려가고, 시작 배너는 문장 한가운데에 번호가 선다
+            _title.rectTransform.anchoredPosition = new Vector2(0f, -120f);
+            _sub.rectTransform.anchoredPosition = new Vector2(0f, clear ? -215f : -240f);
+            _band.color = new Color(0f, 0f, 0f, 0f);
             _canvas.enabled = true;
+
+            float total = boss ? 2.8f : clear ? 2.6f : 1.9f;
             for (float t = 0f; t < total; t += Time.unscaledDeltaTime)
             {
-                float k = t / total;
-                float inK = Mathf.Clamp01(t / 0.28f);                       // 들어오기
-                float outK = Mathf.Clamp01((t - (total - 0.45f)) / 0.45f);   // 나가기
-                float a = Mathf.SmoothStep(0f, 1f, inK) * (1f - outK);
+                float inK = Mathf.Clamp01(t / 0.38f);                        // 들어오기
+                float outK = Mathf.Clamp01((t - (total - 0.5f)) / 0.5f);      // 나가기
+                float a = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 0.22f)) * (1f - outK);
                 _bannerGroup.alpha = a;
-                float pop = Mathf.Lerp(1.7f, 1f, 1f - Mathf.Pow(1f - inK, 3f)) * (1f + outK * 0.12f);
-                _bannerRoot.localScale = new Vector3(pop, pop, 1f);
-                // 가운데에서 양옆으로 펼쳐지는 띠
-                float spread = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 0.35f));
-                _lineTop.rectTransform.sizeDelta = _lineBottom.rectTransform.sizeDelta = new Vector2(1800f * spread, 5f);
+                _bannerRoot.localScale = Vector3.one * (1f + outK * 0.1f);
+                float spread = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.05f) / 0.5f));
+                _band.color = new Color(0.04f, 0.01f, 0.03f, 0.55f * a);
+
+                // 구분선: 가운데에서 양옆으로
+                _bannerDivider.rectTransform.localScale = new Vector3(spread, 1f, 1f);
+                // 룬 고리: 커지며 천천히 돈다(보스는 빠르게)
+                float ringScale = Mathf.Lerp(0.55f, 1f, EaseOutBack(inK));
+                _bannerRing.rectTransform.localScale = Vector3.one * ringScale;
+                _bannerRing.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -t * (boss ? 55f : 24f));
+
+                if (!clear)
+                {
+                    // 문장 틀·바탕이 크게 튀어나왔다 자리 잡는다
+                    float pop = Mathf.Lerp(1.55f, 1f, EaseOutBack(inK));
+                    _bannerCrest.rectTransform.localScale = _bannerPlate.rectTransform.localScale = Vector3.one * pop;
+                    // 번호가 한 박자 늦게 쾅 찍힌다
+                    float numK = Mathf.Clamp01((t - 0.18f) / 0.3f);
+                    float numScale = Mathf.Lerp(2.2f, 1f, EaseOutBack(numK));
+                    _number.rectTransform.localScale = Vector3.one * numScale;
+                    _number.alpha = Mathf.Clamp01(numK * 2f);
+                    _label.alpha = Mathf.Clamp01((t - 0.1f) / 0.3f);
+                }
+                else
+                {
+                    // 왕관이 위에서 떨어져 튕긴다
+                    float drop = Mathf.Clamp01(t / 0.55f);
+                    float bounce = 1f - Mathf.Pow(1f - drop, 2.2f) * Mathf.Cos(drop * 9f);   // 0→1 로 가며 위아래로 흔들린다
+                    _bannerCrown.rectTransform.anchoredPosition = new Vector2(0f, Mathf.LerpUnclamped(340f, 105f, bounce));
+                    _bannerCrown.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.3f, 1f, drop);
+                    float words = Mathf.Clamp01((t - 0.45f) / 0.35f);
+                    _title.alpha = words; _sub.alpha = Mathf.Clamp01((t - 0.7f) / 0.35f);
+                    _title.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.25f, 1f, EaseOutBack(words));
+                }
+
                 if (boss)
                 {
                     float w = 1900f * spread;
                     _hazardTop.rectTransform.sizeDelta = _hazardBottom.rectTransform.sizeDelta = new Vector2(w, 26f);
-                    float tiles = w / 52f;                                         // 빗금 한 주기가 52px
-                    float scroll = t * 0.9f;                                       // 위 띠는 오른쪽, 아래 띠는 왼쪽으로 흐른다
+                    float tiles = w / 52f;
+                    float scroll = t * 0.9f;
                     _hazardTop.uvRect = new Rect(scroll, 0f, tiles, 1f);
                     _hazardBottom.uvRect = new Rect(-scroll, 0f, tiles, 1f);
                     float blink = 0.55f + 0.45f * Mathf.Abs(Mathf.Sin(t * 7f));
@@ -528,10 +589,9 @@ namespace OZGL2.UIBridge
                     var wc = new Color(1f, 1f, 1f, a * blink);
                     _warnLeft.color = _warnRight.color = wc;
                     _warnLeft.rectTransform.localScale = _warnRight.rectTransform.localScale = new Vector3(sc, sc, 1f);
+                    _sub.alpha = blink;
+                    _warn.color = new Color(0.9f, 0.05f, 0.05f, a * (0.25f + 0.3f * Mathf.Abs(Mathf.Sin(t * 5f))));
                 }
-                _band.color = new Color(0.04f, 0.01f, 0.03f, 0.62f * a);
-                // 보스: 붉은 경고 비네트가 두 번 맥동한다
-                if (boss) _warn.color = new Color(0.9f, 0.05f, 0.05f, a * (0.25f + 0.3f * Mathf.Abs(Mathf.Sin(t * 5f))));
                 yield return null;
             }
             _warn.color = Color.clear;
@@ -542,6 +602,8 @@ namespace OZGL2.UIBridge
         private void EnsureBannerUi()
         {
             if (_canvas != null) return;
+            _art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
+            if (_art == null) Debug.LogWarning("[전투 연출] Resources/BattleBanner/BattleBannerArt 를 찾지 못해 글자만 보여 줍니다.");
             var go = new GameObject("WaveBannerCanvas", typeof(RectTransform));
             go.transform.SetParent(transform, false);
             _canvas = go.AddComponent<Canvas>();
@@ -560,50 +622,73 @@ namespace OZGL2.UIBridge
             _bannerRoot = NewRect("Banner", root);
             _bannerRoot.anchorMin = _bannerRoot.anchorMax = new Vector2(0.5f, 0.5f);
             _bannerRoot.pivot = new Vector2(0.5f, 0.5f);
-            _bannerRoot.sizeDelta = new Vector2(1920f, 300f);
-            _bannerRoot.anchoredPosition = new Vector2(0f, 150f);
+            _bannerRoot.sizeDelta = new Vector2(1920f, 560f);
+            _bannerRoot.anchoredPosition = new Vector2(0f, 120f);
             _bannerGroup = _bannerRoot.gameObject.AddComponent<CanvasGroup>();
             _bannerGroup.interactable = false; _bannerGroup.blocksRaycasts = false;
 
             _band = NewImage("Band", _bannerRoot, _soft, new Color(0f, 0f, 0f, 0f));
             _band.rectTransform.anchorMin = new Vector2(0f, 0.5f); _band.rectTransform.anchorMax = new Vector2(1f, 0.5f);
-            _band.rectTransform.sizeDelta = new Vector2(0f, 260f);
-            _lineTop = NewImage("LineTop", _bannerRoot, null, Color.white);
-            _lineTop.rectTransform.anchorMin = _lineTop.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _lineTop.rectTransform.anchoredPosition = new Vector2(0f, 96f);
-            _lineBottom = NewImage("LineBottom", _bannerRoot, null, Color.white);
-            _lineBottom.rectTransform.anchorMin = _lineBottom.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _lineBottom.rectTransform.anchoredPosition = new Vector2(0f, -96f);
+            _band.rectTransform.sizeDelta = new Vector2(0f, 420f);
 
             // 보스 웨이브용 위험 표시: 빗금 띠 둘, 경고 삼각형 둘
             _stripe = MakeStripe();
             _hazardTop = NewRaw("HazardTop", _bannerRoot, _stripe);
             _hazardTop.rectTransform.anchorMin = _hazardTop.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _hazardTop.rectTransform.anchoredPosition = new Vector2(0f, 102f);
+            _hazardTop.rectTransform.anchoredPosition = new Vector2(0f, 214f);
             _hazardBottom = NewRaw("HazardBottom", _bannerRoot, _stripe);
             _hazardBottom.rectTransform.anchorMin = _hazardBottom.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _hazardBottom.rectTransform.anchoredPosition = new Vector2(0f, -102f);
+            _hazardBottom.rectTransform.anchoredPosition = new Vector2(0f, -250f);
             _warnIcon = MakeWarnIcon();
             _warnLeft = NewImage("WarnLeft", _bannerRoot, _warnIcon, Color.white);
             _warnLeft.rectTransform.anchorMin = _warnLeft.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _warnLeft.rectTransform.sizeDelta = new Vector2(120f, 120f);
-            _warnLeft.rectTransform.anchoredPosition = new Vector2(-560f, 8f);
+            _warnLeft.rectTransform.sizeDelta = new Vector2(130f, 130f);
+            _warnLeft.rectTransform.anchoredPosition = new Vector2(-620f, 0f);
             _warnRight = NewImage("WarnRight", _bannerRoot, _warnIcon, Color.white);
             _warnRight.rectTransform.anchorMin = _warnRight.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            _warnRight.rectTransform.sizeDelta = new Vector2(120f, 120f);
-            _warnRight.rectTransform.anchoredPosition = new Vector2(560f, 8f);
+            _warnRight.rectTransform.sizeDelta = new Vector2(130f, 130f);
+            _warnRight.rectTransform.anchoredPosition = new Vector2(620f, 0f);
 
-            _title = NewText("Title", _bannerRoot, 150f, FontStyles.Bold);
-            _title.rectTransform.anchorMin = new Vector2(0f, 0.5f); _title.rectTransform.anchorMax = new Vector2(1f, 0.5f);
-            _title.rectTransform.sizeDelta = new Vector2(0f, 170f);
-            _title.rectTransform.anchoredPosition = new Vector2(0f, 22f);
+            // 팀 결과창 그림: 구분선 · 룬 고리 · (어두운 바탕 + 문장 틀) · 왕관
+            _bannerDivider = NewArt("Divider", _art != null ? _art.divider : null, 1500f, 510f, new Vector2(0f, 0f));
+            _bannerRing = NewArt("Ring", _art != null ? _art.ring : null, 640f, 640f, new Vector2(0f, 0f));
+            _bannerPlate = NewImage("Plate", _bannerRoot, null, new Color(0.07f, 0.04f, 0.1f, 0.86f));
+            _bannerPlate.rectTransform.anchorMin = _bannerPlate.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            _bannerPlate.rectTransform.sizeDelta = new Vector2(262f, 262f);
+            _bannerPlate.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            _bannerCrest = NewArt("Crest", _art != null ? _art.crest : null, 430f, 430f, new Vector2(0f, 0f));
+            _bannerCrown = NewArt("Crown", _art != null ? _art.crown : null, 420f, 420f, new Vector2(0f, 78f));
+
+            _label = NewText("Label", _bannerRoot, 56f, FontStyles.Bold);
+            _label.rectTransform.sizeDelta = new Vector2(320f, 70f);
+            _label.rectTransform.anchoredPosition = new Vector2(0f, 74f);
+            _label.characterSpacing = 8f;
+            _label.outlineWidth = 0.2f; _label.outlineColor = new Color32(30, 8, 14, 255);
+            _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold);
+            _number.rectTransform.sizeDelta = new Vector2(300f, 190f);
+            _number.rectTransform.anchoredPosition = new Vector2(0f, -22f);
+            _number.outlineWidth = 0.28f; _number.outlineColor = new Color32(40, 8, 14, 255);
+
+            _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold);
+            _title.rectTransform.sizeDelta = new Vector2(1500f, 140f);
             _title.outlineWidth = 0.28f; _title.outlineColor = new Color32(40, 8, 14, 255);
-            _sub = NewText("Sub", _bannerRoot, 54f, FontStyles.Normal);
-            _sub.rectTransform.anchorMin = new Vector2(0f, 0.5f); _sub.rectTransform.anchorMax = new Vector2(1f, 0.5f);
-            _sub.rectTransform.sizeDelta = new Vector2(0f, 70f);
-            _sub.rectTransform.anchoredPosition = new Vector2(0f, -66f);
+            _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal);
+            _sub.rectTransform.sizeDelta = new Vector2(1500f, 72f);
             _sub.outlineWidth = 0.2f; _sub.outlineColor = new Color32(30, 8, 12, 255);
             _canvas.enabled = false;
+        }
+
+        /// <summary>배너 한가운데 기준으로 놓는 그림 한 장(원본 그림 비율 유지).</summary>
+        private Image NewArt(string name, Sprite sprite, float w, float h, Vector2 pos)
+        {
+            var img = NewImage(name, _bannerRoot, sprite, Color.white);
+            img.preserveAspect = true;
+            var rt = img.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(w, h);
+            rt.anchoredPosition = pos;
+            return img;
         }
 
         private static RawImage NewRaw(string name, Transform parent, Texture texture)
@@ -626,6 +711,8 @@ namespace OZGL2.UIBridge
             t.alignment = TextAlignmentOptions.Center;
             t.raycastTarget = false;
             t.textWrappingMode = TextWrappingModes.NoWrap;
+            t.rectTransform.anchorMin = t.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            t.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             return t;
         }
 
