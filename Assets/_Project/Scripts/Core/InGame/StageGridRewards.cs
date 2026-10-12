@@ -22,6 +22,9 @@ namespace OZGL2.InGame
         {
             token.ThrowIfCancellationRequested();
             if (_applied.Contains(request.RequestId)) return;
+            // 웨이브 클리어 배너가 끝난 뒤에 보상 카드를 연다(결과창이 있으면 그 확인 뒤라 바로 지나간다).
+            await OZGL2.UIBridge.InGameBattleFx.WaitForClearBannerAsync(token);
+            token.ThrowIfCancellationRequested();
             if (Pending != null) throw new InvalidOperationException("Another reward is pending.");
             var session = _session.Require(request.RunId);
             var candidates = _source.Draw(session.Grid.GetPlaceableExpansionShapes());

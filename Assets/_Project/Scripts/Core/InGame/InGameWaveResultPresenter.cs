@@ -29,6 +29,10 @@ namespace OZGL2.InGame
             ValidateSetup();
             if (Pending != null) throw new InvalidOperationException("A wave result is already displayed.");
             cancellationToken.ThrowIfCancellationRequested();
+            // 웨이브 클리어 배너(InGameBattleFx)가 먼저 보이고, 그 연출이 끝난 뒤에 결과창을 연다.
+            await OZGL2.UIBridge.InGameBattleFx.WaitForClearBannerAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (Pending != null) throw new InvalidOperationException("A wave result is already displayed.");
             var wait = _confirmation.ShowAsync(result, cancellationToken);
             bool hasOpened = false;
             try
