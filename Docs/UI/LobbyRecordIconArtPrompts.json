@@ -1,0 +1,21 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-10-12",
+  "purpose": "Lobby difficulty inline record icons",
+  "prompts": {
+    "hourglass": "Use case: logo-brand. Asset type: production transparent PNG Unity game UI icon. Create exactly one simple solid PURE WHITE (#FFFFFF) upright hourglass glyph, flat two-dimensional silhouette, broad top and bottom caps, symmetrical gently pinched hourglass body with simple negative space sand chambers. Plain and readable at 36 pixels. Square 1024x1024 canvas, symbol centered, occupies 70 percent of canvas height, generous equal margins. Background genuinely transparent, transparent holes, not a checkerboard image. No gray, no gold, no texture, no shading, no shadow, no stroke border, no glow, no letters, no other objects. Smooth antialiased edges.",
+    "sword": "Use case: logo-brand. Asset type: production transparent PNG Unity game UI icon. Create exactly ONE simple solid PURE WHITE (#FFFFFF) medieval sword glyph pointing straight up, symmetric blade with pointed tip, small broad crossguard, grip and simple diamond pommel. Bold flat two-dimensional silhouette readable at 36 pixels, very minimal, one blade NOT crossed swords. Square 1024x1024 canvas, symbol centered, occupies 70 percent of canvas height with equal margins. Background genuinely transparent. No gray, no gold, no texture, no shading, no shadow, no border, no glow, no letters, no other objects. Smooth antialiased edges."
+  },
+  "assets": [
+    {
+      "file": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/RecordIcons/record_hourglass_white_v1.png",
+      "source": "exec-479923d8-c715-4538-98bc-bdeddba91834.png"
+    },
+    {
+      "file": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/RecordIcons/record_sword_white_v1.png",
+      "source": "exec-a4ed3fc6-c7e7-4b2a-ab42-e7247fb5b2d8.png"
+    }
+  ],
+  "approvedCleanup": "User approved direct pixel cleanup. Pure white RGB, remove small alpha islands and speckles, preserve major silhouette components including the hourglass inner sand, center with 64px vertical margins on 512x512 transparent PNG. Original generated files retained.",
+  "hourglassCorrection": "Restored the original inner sand component incorrectly removed by largest-component-only cleanup. Verified upper/lower sand alpha is opaque in Unity after reimport. Sprite GUID, scene layout and sword icon remain unchanged."
+}

@@ -1,0 +1,83 @@
+{
+  "mode": "built-in image_gen edit",
+  "date": "2026-10-12",
+  "file": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/StageLocks_v1/Sprites/stage_lock_seal_ribbon_v1.png",
+  "source": "exec-f17ddb83-f6e0-4c79-bf9f-0f846761f28c.png",
+  "prompt": "Use case: precise-object-edit.\nInput image1: the existing transparent burgundy-and-gold production seal ribbon PNG, EDIT TARGET. Input image2: cropped in-game UI reference of the desired STRAIGHT ribbon beneath lock, style/shape reference only.\nPrimary request: edit image1 into a straight rectangular medieval banner like the ribbon in image2. The front center panel's TOP and BOTTOM gold edge lines must be PERFECTLY STRAIGHT, horizontal, parallel, with absolutely NO upward arc, NO downward arc, NO bowed bulge. The central burgundy face is a flat straight rectangle, not a curved scroll. Keep the central top and bottom edges the same y-height all the way from left to right. Sharp angular bevels, fine warm-gold outline, dark black edging, burgundy face, simple folded ribbon tails at either end with angular swallowtail notches. Keep clean existing 2D fantasy UI hand-paintedfaceted style, current gold/red palette, symmetrical straight-on view. Thin folds only at left/righttail ends, NOT a curved bend across center. \nOutput one complete isolated ribbon asset on a genuinelytransparentalpha background. NO lettering anywhere (the game draws '봉인됨' with TMP); no lock, chain, skull, card, background or otherUI. Preserve the sourcecanvas2172×724, broad center position and generous transparentmargins. No blurred shadow, no glow, no ornate new details. The important change is straight parallel central gold borders and flatfront panel; do not return another curved/bowedribbon.",
+  "processing": "Generated transparent PNG retained. Native Sprite content/alpha crop refreshed with EditorUtility.CopySerialized, keeping asset identity and GUID4fe90341d46a0624f8a417f4ad344a80. Canvas2172x724, Unitymax2048(2048x683), newnativeSpriteRect(75,172,1898,352). No direct pixel recoloring/cleanup.",
+  "playModeLayout": {
+    "currentCardWidth": 530,
+    "ribbon": {
+      "position": [
+        0,
+        -112
+      ],
+      "size": [
+        166.1,
+        68.3
+      ],
+      "imageType": "Simple",
+      "preserveAspect": false,
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "raycast": false
+    },
+    "label": {
+      "position": [
+        0,
+        7.2
+      ],
+      "size": [
+        96.7,
+        34
+      ],
+      "fontSize": 26,
+      "autoSize": false,
+      "font": "Assets/98.ExternalAssets/00.LocalStaging/01.Font/02.SDF_File/HeirofLightBold_SDF.asset",
+      "alignment": "Center"
+    },
+    "sideScale": "430/530",
+    "snapshot": "Temp/LobbySealStraight_20261012/PlayModeSealSnapshot.json"
+  },
+  "backup": "Temp/LobbySealStraight_20261012/stage_lock_seal_ribbon_before.png",
+  "latestPlayRibbonYEdit": {
+    "date": "2026-10-12",
+    "target": "CurrentStage/VisualLayers/LockOverlay/SealRibbon",
+    "beforeY": -112,
+    "capturedPlayModeY": -104.4,
+    "snapshot": "Temp/LobbySealPlayY_20261012/PlayYSnapshot.json",
+    "scope": "Central ribbon anchoredPosition.y only. Side ribbons, all SealLabel Y3.66, size, Image settings, art and other UI retained. Scene saved through Unity Editor with Undo support."
+  },
+  "mutedGoldAndCommonLabelYEdit": {
+    "date": "2026-10-12",
+    "mode": "built-in image_gen edit",
+    "source": "exec-4121e0b7-9fa4-41e2-a0cb-2b04bcf9f6a7.png",
+    "prompt": "Use case: precise-object-edit.\nAsset type: existing transparent 2D fantasy game UI seal ribbon.\nInput image 1: EDIT TARGET, production straight burgundy ribbon PNG. Input image 2: palette reference only, current in-game locked difficulty card. In image2 use the softer pale gold frame, not the overly bright ribbon gold.\nPrimary request: Change ONLY the gold metal on image1 to a softer lower-saturation warm gold matching the pale gold frame of image2. Reduce the orange/yellow saturation noticeably, about 25-30%, keeping readable light cream-gold highlights and muted ochre/brass shadows. It must remain warm gold, not gray or silver.\nConstraints: preserve image1's exact straight horizontal top and bottom edges, angular folds, swallowtail ends, proportions, position, transparent margins and 2172x724 canvas. Burgundy face, burgundy folds, black outlines, shading shapes and alpha silhouette must remain exactly unchanged. This is a color-only edit of the gold, NOT a redesign. No letters, no text, no new decoration, no chains, no lock, no card, no glow or new shadows. Keep genuine transparent alpha background.",
+    "processing": "Unity Texture2D constrained composition: copied generated RGB only where original and generated pixels both identify warm gold (alpha>0, G>20, R-B>8, G-B>3). Retained original alpha for every pixel and retained original RGB outside gold. 151200 gold pixels changed; non-gold and alpha differences both zero. Canvas2172x724; native Sprite contents and PNG/Sprite metadata unchanged.",
+    "goldSaturationMedian": {
+      "before": 0.7772511848341233,
+      "after": 0.5112359550561798
+    },
+    "finalLabelY": {
+      "PreviousStage": 3.66,
+      "CurrentStage": 3.66,
+      "NextStage_Locked": 3.66,
+      "scaledByCardRatio": false
+    },
+    "preserved": "Straight ribbon geometry, burgundy face/folds, outlines, dimensions, Image settings, native Sprite crop/GUID and all other manual UI placement.",
+    "backup": "Temp/LobbySealMutedGold_20261012/stage_lock_seal_ribbon_before.png",
+    "validation": "PASS: 18 isolated card/difficulty/lock states, common label Y3.66 and actual glyph bounds. No real account API or Play Mode used. Unity compiled; Console Error0.",
+    "changedFiles": [
+      "Assets/00.Scenes/Builds/Lobby.unity",
+      "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/StageLocks_v1/Sprites/stage_lock_seal_ribbon_v1.png",
+      "Assets/Editor/LobbyStageLockBuilder.cs",
+      "Assets/Editor/LobbyStageLockValidation.cs",
+      "Docs/UI/SealRibbonArtEdits.json",
+      "Docs/UI/LobbyStageLocks.md"
+    ]
+  }
+}

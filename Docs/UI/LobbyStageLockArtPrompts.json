@@ -1,0 +1,23 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-10-12",
+  "reference": "exec-c7235b45-0c0f-4c3d-8f2d-53d10835d66b.png",
+  "assets": [
+    {
+      "file": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/StageLocks_v1/Sprites/stage_lock_chains_v1.png",
+      "source": "exec-937bfe69-8958-4bc1-b6fc-0052a20767ed.png",
+      "prompt": "Use case: background-extraction. Input image 1 is approved UI STYLE reference. Production Unity transparent PNG asset. Extract and recreate ONLY the two diagonal crossing chains with their four circular bronze anchor studs from the RIGHT card. Exactly one centered X-shaped chain assembly, each strand from its own corner anchor to opposite corner anchor. Use same muted dark iron/antique warm brass edge highlights, simple elongated interlocking oval links, crisp hand-painted 2D beveled game UI style. Fill roughly85% square canvas width and65%height, consistent perspective-flat front view, adequate transparent margins. Chains uninterrupted at center; a separate lock will cover crossing. Absolutely NO padlock, NO keyhole, NO ribbon, NO heroes, NO card frame, NO text, NO background plane or rectangular backdrop, NO glow or shadow outside chain shapes. Genuinely transparent alpha background, also transparent in every chain-link hole. Use crisp clean silhouettes and restrained warm goldmatching reference, notphotorealisticjewelry or neon/whitechain. Asset only, not a mockup."
+    },
+    {
+      "file": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/StageLocks_v1/Sprites/stage_lock_padlock_gray_v1.png",
+      "source": "exec-d81c90c5-96ee-4639-8f22-3f24b949eb80.png",
+      "prompt": "Use case: background-extraction. Input image1 isapproved UI style reference. Production Unity transparent PNG asset. Extract and faithfully recreate ONLY the compact ordinary gray closed iron padlock in the center of the RIGHT card: mid-gray matte rectangular steel body with small chamfered corners, darker charcoal bevel/outline, closed rounded U-shaped graymetal shackle, 4 tinycornerstuds, darkblack simple keyhole centered. Smooth high resolution hand-painted 2D gameUI, frontal flatprojection, 2-3clean graytones, restraintmetal highlights. NO gold, NOred, NO horns, NO shield, NO ornateengraving. One isolated lock centered occupying70%canvasheight on squarecanvas, equalgeneroustransparent margins. Genuinelytransparentalpha background including inside shackleloop, no rectangular backdrop. NO chains, NO ribbon, NO extra objects, NO text, NO glow or castshadow, NO whitebackground."
+    },
+    {
+      "file": "Assets/06.UI/LobbyMutedPreview/Heraldry_v1/StageLocks_v1/Sprites/stage_lock_seal_ribbon_v1.png",
+      "source": "exec-b4b12904-0aee-48d8-b66e-0936caa3992e.png",
+      "prompt": "Use case: background-extraction. Input image1 isapproved theme reference. Production Unity transparent PNG asset. Extract and redraw ONLY the small burgundy seal ribbon banner BELOW gray lock in RIGHT card, but leave its central label area completely BLANK with NO text. Straight centered medieval crimson/burgundy rectangular ribbon with folded swallowtail ends atleft/right, fine antique warmgold rim matching approvedframe, crisp2D hand-painted UI, simple facets and black contour. Wide banner approximately3:1aspect, occupying90%canvaswidthwith transparentmargins. Canvas landscape orsquareacceptable. Absolutely NO letters, NO chains, NOpadlock, NOframe, NOskull, NO background plane. Genuinelytransparentalpha background; no white orcheckerboardbackground. Clean typography willbe UnityTMP notbaked."
+    }
+  ],
+  "processing": "Generated PNG RGB and alpha retained. Unity TextureImporter uses Single/Bilinear/Clamp/no mipmaps/Uncompressed and max2048. Separate native Sprite assets crop transparent margins from alpha >=12/255 with2px margin; no direct pixel cleanup/recolor. Source generated images retained."
+}

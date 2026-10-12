@@ -1,3 +1,5 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,12 +28,23 @@ namespace OZGL2.UIFlow
         [SerializeField] private bool _isLocked;
         [SerializeField] private Color _lockedShadeColor = new Color(0f, 0f, 0f, 0.3f);
 
+        [Header("봉인 카드 표시 / 미연결 카드의 기존 표시 유지")]
+        [SerializeField] private Image[] _silhouetteImages = Array.Empty<Image>();
+        [SerializeField] private Color[] _unlockedPortraitColors = Array.Empty<Color>();
+        [SerializeField] private Color _silhouetteColor = new Color(0.045f, 0.035f, 0.055f, 1f);
+        [SerializeField] private CanvasGroup _descriptionGroup;
+        [SerializeField] private TMP_Text _lockConditionLabel;
+
         private bool _needsRefresh;
+        private bool _hasDescriptionState;
+        private bool _descriptionWasLocked;
+        private float _lockTransitionAlpha = 1f;
 
         public Sprite ArtworkSprite => _artworkSprite;
         public Sprite FrameSprite => _frameSprite;
         public Sprite LockSprite => _lockSprite;
         public bool IsLocked => _isLocked;
+        public event Action<bool> LockStateChanged;
 
         public void SetArtwork(Sprite sprite)
         {
@@ -54,8 +67,30 @@ namespace OZGL2.UIFlow
         /// <summary>실제 해금 상태를 저장하거나 버튼 기능을 바꾸지 않고 잠금 표시만 전환한다.</summary>
         public void SetLocked(bool isLocked)
         {
+            bool hasChanged = _isLocked != isLocked;
             _isLocked = isLocked;
             RefreshVisuals();
+            if (hasChanged) LockStateChanged?.Invoke(_isLocked);
+        }
+
+        /// <summary>해금 판정 시스템이 제공한 안내만 표시한다. 카드가 진행 기록을 읽거나 저장하지 않는다.</summary>
+        public void SetLockCondition(string condition)
+        {
+            if (_lockConditionLabel != null && _lockConditionLabel.text != condition)
+                _lockConditionLabel.text = condition ?? string.Empty;
+        }
+
+        /// <summary>슬롯의 전환 투명도만 잠금 표시와 맞춘다. 해금 여부나 난이도는 바꾸지 않는다.</summary>
+        public void SetLockTransitionAlpha(float alpha)
+        {
+            _lockTransitionAlpha = Mathf.Clamp01(alpha);
+            if (_lockGroup != null) _lockGroup.alpha = _isLocked ? _lockTransitionAlpha : 0f;
+            if (_lockedShade != null)
+            {
+                Color shadeColor = _lockedShadeColor;
+                shadeColor.a = _isLocked ? shadeColor.a * _lockTransitionAlpha : 0f;
+                _lockedShade.color = shadeColor;
+            }
         }
 
         public void RefreshVisuals()
@@ -99,17 +134,41 @@ namespace OZGL2.UIFlow
 
             if (_lockGroup != null)
             {
-                _lockGroup.alpha = _isLocked ? 1f : 0f;
                 _lockGroup.interactable = false;
                 _lockGroup.blocksRaycasts = false;
             }
 
             if (_lockedShade != null)
             {
-                Color shadeColor = _lockedShadeColor;
-                if (!_isLocked) shadeColor.a = 0f;
-                _lockedShade.color = shadeColor;
                 _lockedShade.raycastTarget = false;
+            }
+            SetLockTransitionAlpha(_lockTransitionAlpha);
+
+            // 그림이나 잠금 Sprite의 재적용은 열려 있는 카드의 호버 진행률을 초기화하지 않는다.
+            if (_descriptionGroup != null && (_isLocked || !_hasDescriptionState || _descriptionWasLocked))
+                _descriptionGroup.alpha = _isLocked ? 0f : 1f;
+            _hasDescriptionState = true;
+            _descriptionWasLocked = _isLocked;
+            RefreshPortraitTints();
+        }
+
+        private void RefreshPortraitTints()
+        {
+            // 원래 색도 저장해 두어 잠긴 상태로 씬을 저장하거나 다시 열어도 검정을 원색으로 기억하지 않는다.
+            if (_silhouetteImages == null || _unlockedPortraitColors == null
+                || _silhouetteImages.Length != _unlockedPortraitColors.Length) return;
+            for (int i = 0; i < _silhouetteImages.Length; i++)
+            {
+                Image image = _silhouetteImages[i];
+                if (image == null) continue;
+                Color color = _unlockedPortraitColors[i];
+                if (_isLocked)
+                {
+                    Color silhouette = _silhouetteColor;
+                    silhouette.a *= color.a;
+                    color = silhouette;
+                }
+                image.color = color;
             }
         }
 

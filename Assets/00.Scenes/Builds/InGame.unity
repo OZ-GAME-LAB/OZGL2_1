@@ -881,10 +881,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas_BattleResult_Heraldry
       objectReference: {fileID: 0}
+    - target: {fileID: 3578239330048679013, guid: 976fb2d629a5ff8468800e2c61cf269b, type: 3}
+      propertyPath: m_text
+      value: LV.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5431570896902747516, guid: 976fb2d629a5ff8468800e2c61cf269b, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 5559914816643206434, guid: 976fb2d629a5ff8468800e2c61cf269b, type: 3}
       propertyPath: _navigator
       value: 
       objectReference: {fileID: 7147582541643262787}
+    - target: {fileID: 6179220566101790447, guid: 976fb2d629a5ff8468800e2c61cf269b, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6179220566101790447, guid: 976fb2d629a5ff8468800e2c61cf269b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2047,6 +2063,11 @@ MonoBehaviour:
   _follow: 18
   _panRange: 0.4
   _panSpeed: 0.4
+  _combatAutoFrame: 1
+  _autoClosest: 0.5
+  _autoHeroCount: 6
+  _autoPadding: 2.1
+  _manualHold: 6
 --- !u!114 &6666600029
 MonoBehaviour:
   m_ObjectHideFlags: 0

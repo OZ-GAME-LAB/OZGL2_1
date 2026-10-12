@@ -11,7 +11,19 @@ namespace OZGL2.InGame
         public int TotalRounds { get; }
         public int Level { get; }
         public int CurrentLevelXp { get; }
+        public int CurrentLevelXpToNext { get; }
+        public int StartLevel { get; }
+        public int StartLevelXp { get; }
+        public int StartLevelXpToNext { get; }
+
+        // 기존 호출부는 시작 상태를 알 수 없으므로 증가 연출 없이 최종 상태를 표시한다.
         public InGameRunResult(StageRunResult progress, int totalRounds, int level, int currentLevelXp)
+            : this(progress, totalRounds, level, currentLevelXp, 0, level, currentLevelXp, 0)
+        {
+        }
+
+        public InGameRunResult(StageRunResult progress, int totalRounds, int level, int currentLevelXp,
+            int currentLevelXpToNext, int startLevel, int startLevelXp, int startLevelXpToNext)
         {
             if (progress == null || !progress.IsSettled ||
                 (progress.Status != eRunStatus.CLEARED && progress.Status != eRunStatus.FAILED))
@@ -20,6 +32,10 @@ namespace OZGL2.InGame
             TotalRounds = totalRounds;
             Level = level;
             CurrentLevelXp = currentLevelXp;
+            CurrentLevelXpToNext = currentLevelXpToNext;
+            StartLevel = startLevel;
+            StartLevelXp = startLevelXp;
+            StartLevelXpToNext = startLevelXpToNext;
         }
     }
 
