@@ -11,6 +11,8 @@ namespace OZGL2.Contracts
         float CurrentHp { get; }
         float MaxHp { get; }
         bool IsDead { get; }
+        /// <summary>보스 여부 — 최대체력 비례 스킬 피해가 보스에게는 줄어서 들어간다. 구현하지 않으면 일반 유닛.</summary>
+        bool IsBoss => false;
         Vector3 Position { get; }
 
         void TakeDamage(float amount);

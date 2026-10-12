@@ -75,6 +75,8 @@ namespace OZGL2.Skill
         [Header("공통 수치")]
         [Tooltip("피해량 / 넉백 스킬의 부가 피해")]
         public float skillPower = 100f;
+        [Range(0f, 1f), Tooltip("피해 = skillPower(고정) + 대상 최대체력 × 이 비율. 0이면 고정 피해만. 보스에게는 이 비율 부분이 30%만 적용된다. 마왕 레벨·특성·증강 배율은 고정 부분에 전부, 이 비율 부분에는 절반만 곱해진다.")]
+        public float maxHpPercentDamage = 0f;
         [Tooltip("효과 반경(칸)")]
         public float radius = 1.5f;
         [Tooltip("지속시간(초) — Zone·Stun·Buff / 회복 비율(0~1) — Heal")]

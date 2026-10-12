@@ -129,6 +129,29 @@ namespace OZGL2.Skill
             StartCoroutine(ExpandFade(point, radius, new Color(1f, 0.35f, 0.1f), 0.3f, false));
         }
 
+        // ─────────────────────────────────────────── 스킬 피해 공식
+
+        private const float BossPercentFactor = 0.3f;     // 보스에게는 최대체력 비례 부분을 이 비율만 적용
+        private const float PercentModifierShare = 0.5f;  // 마왕 레벨·특성·증강 배율이 최대체력 비례 부분에 반영되는 비율
+
+        /// <summary>
+        /// 스킬 피해 한 번: 피해 = power(고정, 보정 배율 포함) + 대상 최대체력 × maxHpPercentDamage.
+        /// 비례 부분은 보정 배율(power ÷ 기본 skillPower)의 절반만 반영하고, 보스는 30%만 적용한다.
+        /// scale 은 궁극기 한 발/한 번의 비중(유성우 낙하 배율 등), sideMult 는 주변 피격 감쇠.
+        /// </summary>
+        private static void DealSkillDamage(IDamageable e, SkillData d, float power, float scale = 1f, float sideMult = 1f)
+        {
+            float amount = power * scale * sideMult;
+            if (d.maxHpPercentDamage > 0f && d.skillPower > 0f)
+            {
+                float modifier = power / d.skillPower;
+                float percentMod = Mathf.Max(0f, 1f + (modifier - 1f) * PercentModifierShare);
+                float bossFactor = e.IsBoss ? BossPercentFactor : 1f;
+                amount += e.MaxHp * d.maxHpPercentDamage * percentMod * bossFactor * scale * sideMult;
+            }
+            e.TakeDamage(amount);
+        }
+
         // ─────────────────────────────────────────── 라우팅
 
         private void OnCast(SkillCastRequest req)
@@ -317,14 +340,14 @@ namespace OZGL2.Skill
         /// <summary>착탄 폭발 이펙트 — 전투 종료 정리(CancelActiveEffects)에서 지우지 않고 자기 수명대로 재생되게 둔다.</summary>
         private readonly HashSet<GameObject> _impactVfx = new HashSet<GameObject>();
 
-        private void Impact(SkillData d, float power, Vector3 point, float radiusOverride = -1f)
+        private void Impact(SkillData d, float power, Vector3 point, float radiusOverride = -1f, float scale = 1f)
         {
             float r = radiusOverride > 0f ? radiusOverride : d.radius;
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, Mathf.Max(r, 0.5f) + _hitMargin, _enemyBuf);
             foreach (var e in _enemyBuf)
             {
-                e.TakeDamage(power);
+                DealSkillDamage(e, d, power, scale);
                 if (_mods.OnHitSlowAmount > 0f) (e as IStatusReceiver)?.ApplySlow(_mods.OnHitSlowAmount, 2f);
                 ApplySkillHitSlow(d, e);
             }
@@ -362,7 +385,7 @@ namespace OZGL2.Skill
             {
                 IDamageable next = NearestUnhit(cursor, hit, from, radius);
                 if (next == null) break;
-                next.TakeDamage(power);
+                DealSkillDamage(next, d, power);
                 ApplySkillHitSlow(d, next);
                 hit.Add(next);
                 if (d.perTargetVfx != null)
@@ -416,7 +439,7 @@ namespace OZGL2.Skill
                     if (e.IsDead || hit.Contains(e)) continue;
                     if ((e.Position - cur).sqrMagnitude <= hitR * hitR)
                     {
-                        e.TakeDamage(power);
+                        DealSkillDamage(e, d, power);
                         ApplySkillHitSlow(d, e);
                         hit.Add(e);
                         if (d.perTargetVfx != null) AutoDestroy(SpawnVfx(d.perTargetVfx, e.Position, Quaternion.identity, d.vfxIsUi));
@@ -474,7 +497,7 @@ namespace OZGL2.Skill
             Vector3 aim = target != null ? target.Position : point;
             yield return Move(proj.transform, from, aim, _projectileTravelTime);
             KillVfx(proj);
-            target?.TakeDamage(power);
+            if (target != null) DealSkillDamage(target, d, power);
             if (d.castVfx != null) AutoDestroy(SpawnVfx(d.castVfx, aim, Quaternion.identity, d.vfxIsUi));
             else StartCoroutine(ExpandFade(aim, 0.7f, new Color(1f, 0.95f, 0.7f), 0.25f, false));
         }
@@ -495,7 +518,7 @@ namespace OZGL2.Skill
                     float distance = Mathf.Min(_knockbackMaxDistance, d.force * _knockbackDistanceScale * Mathf.Lerp(1f, 0.55f, near));
                     StartCoroutine(SmoothKnockback(e, receiver, away.normalized, distance));
                 }
-                if (power > 0f) e.TakeDamage(power);
+                if (power > 0f) DealSkillDamage(e, d, power);
             }
 
             if (d.castVfx != null) { var fx = SpawnVfx(d.castVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi); ScaleAreaVfx(fx, radius); AutoDestroy(fx); }
@@ -548,7 +571,7 @@ namespace OZGL2.Skill
 
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, radius + _hitMargin, _enemyBuf);
-            foreach (var e in _enemyBuf) { e.TakeDamage(power); ApplySkillHitSlow(d, e); }
+            foreach (var e in _enemyBuf) { DealSkillDamage(e, d, power); ApplySkillHitSlow(d, e); }
 
             if (fx != null) AutoDestroy(fx);
             if (d.finishVfx != null) AutoDestroy(SpawnVfx(d.finishVfx, VfxPoint(d, point), Quaternion.identity, d.vfxIsUi));
@@ -608,7 +631,7 @@ namespace OZGL2.Skill
                 {
                     var target = order[cursor++];
                     if (target != null && !(target is Object gone && gone == null) && !target.IsDead)
-                        StartCoroutine(MeteorFall(d, power * _meteorDropScale, target.Position + (Vector3)(Random.insideUnitCircle * 0.5f)));
+                        StartCoroutine(MeteorFall(d, power, target.Position + (Vector3)(Random.insideUnitCircle * 0.5f)));
                 }
                 yield return new WaitForSeconds(seconds / drops);
             }
@@ -624,7 +647,7 @@ namespace OZGL2.Skill
                 yield return null;
             }
             Destroy(fire);
-            Impact(d, power, point, 1.7f);
+            Impact(d, power, point, 1.7f, _meteorDropScale);
         }
 
         // ───────────── 절대영도: 모두 얼려 세우고(정지), 얼어 있는 동안 서리 피해, 풀리는 순간 깨뜨린다
@@ -633,7 +656,6 @@ namespace OZGL2.Skill
         {
             float seconds = UltimateVisualSeconds(d);
             float freeze = Mathf.Max(1f, d.duration);
-            float budget = power * _ultimateTotalDamageScale;
             StunHit(d, radius, point);
             var targets = new List<IDamageable>();
             LiveEnemies(targets);
@@ -645,14 +667,14 @@ namespace OZGL2.Skill
             for (int i = 0; i < ticks; i++)
             {
                 LiveEnemies(targets);
-                foreach (var e in targets) e.TakeDamage(budget * 0.35f / ticks);
+                foreach (var e in targets) DealSkillDamage(e, d, power, _ultimateTotalDamageScale * 0.35f / ticks);
                 yield return new WaitForSeconds(freeze / ticks);
             }
             // 풀리는 순간: 얼음이 깨지며 한 번에 큰 피해(총 피해의 65%)
             LiveEnemies(targets);
             foreach (var e in targets)
             {
-                e.TakeDamage(budget * 0.65f);
+                DealSkillDamage(e, d, power, _ultimateTotalDamageScale * 0.65f);
                 StartCoroutine(ExpandFade(e.Position, 1.6f, new Color(0.75f, 0.95f, 1f), 0.45f, true));
                 StartCoroutine(ExpandFade(e.Position, 0.9f, new Color(0.4f, 0.75f, 1f), 0.3f, false));
             }
@@ -697,13 +719,13 @@ namespace OZGL2.Skill
                 {
                     var target = order[cursor++];
                     if (target != null && !(target is Object gone && gone == null) && !target.IsDead)
-                        yield return StartCoroutine(JudgmentStrike(d, target, power * _judgmentStrikeScale));
+                        yield return StartCoroutine(JudgmentStrike(d, target, power, _judgmentStrikeScale));
                 }
                 yield return new WaitForSeconds(Mathf.Max(0.05f, seconds / strikes - 0.35f));
             }
         }
 
-        private IEnumerator JudgmentStrike(SkillData d, IDamageable target, float power)
+        private IEnumerator JudgmentStrike(SkillData d, IDamageable target, float power, float scale)
         {
             // 0.35초 예고(금빛 고리가 조여 든다) → 벼락
             Vector3 point = target.Position;
@@ -719,7 +741,7 @@ namespace OZGL2.Skill
             // 주 대상은 전부, 주변은 절반 피해
             _enemyBuf.Clear();
             _enemies.QueryInRadius(point, 1.4f, _enemyBuf);
-            foreach (var e in _enemyBuf) e.TakeDamage(ReferenceEquals(e, target) ? power : power * 0.5f);
+            foreach (var e in _enemyBuf) DealSkillDamage(e, d, power, scale, ReferenceEquals(e, target) ? 1f : 0.5f);
 
             var bolt = Code(Disc(), new Color(1f, 0.97f, 0.75f, 1f), point + Vector3.up * 5f, 1f, 23);
             bolt.transform.localScale = new Vector3(0.45f, 11f, 1f);

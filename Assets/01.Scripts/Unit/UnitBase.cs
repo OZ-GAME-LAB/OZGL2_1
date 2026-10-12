@@ -53,7 +53,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     // IDamageable (OZGL2.Contracts) — 성민 파트 스킬 시스템 전용 진입점. 기존 int 기반 API와 별개.
     float IDamageable.CurrentHp => currentHealth;
-    float IDamageable.MaxHp => statData != null ? statData.maxHealth : 0f;
+    // 실제 최대체력(라운드 배율이 이미 들어간 statData.maxHealth × 특성·증강 체력 배율) — 최대체력 비례 스킬 피해가 쓴다.
+    float IDamageable.MaxHp => statData != null ? statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side) : 0f;
+    bool IDamageable.IsBoss => statData != null && statData.unitId != null && statData.unitId.IndexOf("BOSS", System.StringComparison.OrdinalIgnoreCase) >= 0;
     bool IDamageable.IsDead => currentState == UnitState.Dead;
     Vector3 IDamageable.Position => transform.position;
     // 스킬 시스템(성민 파트) 진입점 — 스킬 피해는 마법 피격음으로 처리한다.
