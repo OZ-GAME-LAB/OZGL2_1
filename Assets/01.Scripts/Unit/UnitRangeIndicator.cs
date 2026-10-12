@@ -39,7 +39,7 @@ public class UnitRangeIndicator : MonoBehaviour
     {
         if (visible && _unit != null && _unit.statData != null)
         {
-            DrawCircle(_unit.statData.attackRange);
+            DrawCircle(_unit.EffectiveAttackRange);
         }
         gameObject.SetActive(visible);
     }

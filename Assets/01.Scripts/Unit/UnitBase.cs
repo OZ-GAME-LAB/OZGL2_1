@@ -53,7 +53,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
 
     // IDamageable (OZGL2.Contracts) — 성민 파트 스킬 시스템 전용 진입점. 기존 int 기반 API와 별개.
     float IDamageable.CurrentHp => currentHealth;
-    float IDamageable.MaxHp => statData != null ? statData.maxHealth : 0f;
+    // 실제 최대체력(라운드 배율이 이미 들어간 statData.maxHealth × 특성·증강 체력 배율) — 최대체력 비례 스킬 피해가 쓴다.
+    float IDamageable.MaxHp => statData != null ? statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side) : 0f;
+    bool IDamageable.IsBoss => statData != null && statData.unitId != null && statData.unitId.IndexOf("BOSS", System.StringComparison.OrdinalIgnoreCase) >= 0;
     bool IDamageable.IsDead => currentState == UnitState.Dead;
     Vector3 IDamageable.Position => transform.position;
     // 스킬 시스템(성민 파트) 진입점 — 스킬 피해는 마법 피격음으로 처리한다.
@@ -771,15 +773,16 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     //  - 쏜 뒤 쿨다운 중에는 사거리의 이 비율 거리까지 계속 다가온다(이동 중에도 쿨다운은 흐른다).
     private const float RangedHeroEngageRatio = 0.7f;
     private const float RangedEngageMinRange = 1.5f; // 이 사거리 이하(근접)는 해당 없음
+    private const float ExecuteHealthThreshold = 0.30f; // 처형 본능이 발동하는 대상 체력 비율
     private float _swingEndTime; // 마지막 평타 모션이 끝나(실제 피해가 나가) 이동을 다시 시작해도 되는 시각
 
     private bool UsesAdvanceWhileOnCooldown()
-        => statData != null && Side == UnitSide.Hero && statData.healAmount <= 0f && statData.attackRange > RangedEngageMinRange;
+        => statData != null && Side == UnitSide.Hero && statData.healAmount <= 0f && EffectiveAttackRange > RangedEngageMinRange;
 
     /// <summary>이동을 멈추고 교전을 시작하는 거리. 기본은 사거리 그대로, 용사 원거리 딜러는 쿨다운 중일 때만 더 가까이.</summary>
     protected virtual float GetEngageRange()
     {
-        float range = statData.attackRange;
+        float range = EffectiveAttackRange;
         if (UsesAdvanceWhileOnCooldown() && attackCooldownTimer > 0f)
         {
             range *= RangedHeroEngageRatio;
@@ -847,7 +850,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             if (statData != null)
             {
                 float distSqr = (unit.transform.position - transform.position).sqrMagnitude;
-                if (distSqr > statData.attackRange * statData.attackRange)
+                if (distSqr > EffectiveAttackRange * EffectiveAttackRange)
                 {
                     continue;
                 }
@@ -868,6 +871,9 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     /// 지금까지는 순수 최근접이라 방패·전사·도적이 "막아주는" 역할을 못 했음 — 근접 밸류 보완(1번) 반영.
     /// </summary>
     public bool IsTaunting => Side == UnitSide.DemonArmy && statData != null && statData.attackRange <= 1f;
+
+    /// <summary>특성(관통 사격·마왕군의 진격·절망의 낙인)의 사거리 배율이 반영된 실제 사거리. 도발 판정은 기본 사거리 그대로 쓴다.</summary>
+    public float EffectiveAttackRange => statData != null ? statData.attackRange * CombatModifierHub.GetRangeMult(Side) : 0f;
     public float TauntRangeSqr => statData != null ? statData.attackRange * statData.attackRange : 0f;
 
     protected virtual UnitBase FindNearestEnemy()
@@ -932,7 +938,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             if (statData != null)
             {
                 float distSqr = (unit.transform.position - transform.position).sqrMagnitude;
-                if (distSqr > statData.attackRange * statData.attackRange)
+                if (distSqr > EffectiveAttackRange * EffectiveAttackRange)
                 {
                     continue;
                 }
@@ -966,7 +972,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         var candidates = UnitRegistry.GetUnits(Side);
         UnitBase lowest = null;
         float lowestRatio = float.MaxValue;
-        float rangeSqr = statData.attackRange * statData.attackRange;
+        float rangeSqr = EffectiveAttackRange * EffectiveAttackRange;
 
         for (int i = 0; i < candidates.Count; i++)
         {
@@ -1014,7 +1020,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
         }
 
         float dist = Vector3.Distance(transform.position, currentTarget.transform.position);
-        if (statData != null && dist > statData.attackRange)
+        if (statData != null && dist > EffectiveAttackRange)
         {
             // 대상이 사거리를 벗어남 (이동형 대상 등) — 재탐색 상태로 복귀
             currentTarget = null;
@@ -1179,6 +1185,14 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             rawAttackPower *= 1f + statData.executeDamageBonusPerMissingHealth * Mathf.Clamp01(missingRatio);
         }
 
+        // 특성 "처형 본능": 체력 30% 이하인 대상에게 주는 피해 증가(마왕군 한정, 값이 없으면 무효과).
+        float executeBonus = CombatModifierHub.GetExecuteBonus(Side);
+        if (executeBonus > 0f && target.statData != null && target.statData.maxHealth > 0 &&
+            target.currentHealth <= target.statData.maxHealth * ExecuteHealthThreshold)
+        {
+            rawAttackPower *= 1f + executeBonus;
+        }
+
         int damage = CalculateDamage(rawAttackPower, targetDefense);
 
         // 도적 3성: 적중마다 대상 최대 체력 비례 추가 피해. 보스처럼 체력이 큰 대상에게 폭주하지 않게 일반 피해의 2배까지만.
@@ -1240,7 +1254,7 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
     {
         UnitSide enemySide = Side == UnitSide.Hero ? UnitSide.DemonArmy : UnitSide.Hero;
         var candidates = UnitRegistry.GetUnits(enemySide);
-        float rangeSqr = statData.attackRange * statData.attackRange;
+        float rangeSqr = EffectiveAttackRange * EffectiveAttackRange;
         UnitBase best = null;
         float bestRatio = float.MaxValue;
 

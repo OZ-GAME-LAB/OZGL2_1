@@ -15,6 +15,8 @@ namespace OZGL2.InGame
         private readonly GridDefinition _definition;
         private readonly DummyRewardLedger _settlements;
         public GridRunSession Session { get; private set; }
+        /// <summary>새 판 시작 때 시작 바닥에 더해 줄 보너스 칸 수(특성). BeginAsync 전에 정한다.</summary>
+        public int BonusFloorCells { get; set; }
         public event Action Changed;
         public InGameGridSession(GridDefinition definition, DummyRewardLedger settlements)
         { _definition = definition; _settlements = settlements; }
@@ -25,11 +27,13 @@ namespace OZGL2.InGame
             Session = new GridRunSession(context.RunId, _definition, GridFusionPolicy.CanFuse);
             // 저장된 판을 이어하는 경우: 깬 웨이브 수와 마왕성 배치·증강을 되돌린 뒤 준비를 연다
             var resume = RunResume.Active;
-            if (resume != null && resume.stageId == context.StageId)
+            bool resumed = resume != null && resume.stageId == context.StageId;
+            if (resumed)
             {
                 RunSnapshotCodec.Restore(resume, Session, RunResume.Catalog);
                 RunSnapshotCodec.RestoreAugments(resume, OZGL2.Synergy.RealCombatBootstrap.EnsureInitialized()?.Augments);
             }
+            if (!resumed && BonusFloorCells > 0) Session.Grid.GrantBonusFloor(BonusFloorCells); // 이어하기는 저장된 바닥에 이미 포함 // 특성 "규모 확장"·"대군세"
             Session.Grid.Changed += Notify;
             Notify();
             return Task.CompletedTask;

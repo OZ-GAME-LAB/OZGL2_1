@@ -182,6 +182,9 @@ namespace OZGL2.Progression
             return modifiers;
         }
 
+        /// <summary>마력 관통의 표시 수치(방어 무시 %)에 곱해 스킬 피해 증가분으로 바꾸는 비율(10% → +5%).</summary>
+        public const float SkillArmorPenDamageFactor = 0.5f;
+
         private static void ApplyEffect(ref TraitModifiers m, TraitEffect e, float v, int rank)
         {
             float t = v * rank;
@@ -206,7 +209,7 @@ namespace OZGL2.Progression
                 case TraitEffect.SkillCooldown: m.SkillCooldownMult = Mathf.Max(0.4f, m.SkillCooldownMult - t); break;
                 case TraitEffect.SkillRadius: m.SkillRadiusMult += t; break;
                 case TraitEffect.SkillUltCooldown: m.SkillUltCooldownMult = Mathf.Max(0.4f, m.SkillUltCooldownMult - t); break;
-                case TraitEffect.SkillArmorPen: m.SkillArmorPen += t; break;
+                case TraitEffect.SkillArmorPen: m.SkillArmorPen += t; m.SkillPowerMult += t * SkillArmorPenDamageFactor; break; // 스킬 피해는 원래 방어 무시라서, 마력 관통은 스킬 피해 증가로 적용한다(표시되는 수치의 절반, 랭크당 +5%)
                 case TraitEffect.SkillBuffDuration: m.SkillBuffDurationMult += t; break;
                 case TraitEffect.SkillSlot: m.ExtraSkillSlots += rank; break;
 

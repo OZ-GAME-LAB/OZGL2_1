@@ -17,9 +17,10 @@ MonoBehaviour:
   category: 3
   tier: 4
   castMode: 0
-  cooldown: 60
+  cooldown: 120
   effectType: 0
-  skillPower: 55
+  skillPower: 38
+  maxHpPercentDamage: 0.019
   radius: 99
   duration: 2
   castDelay: 0

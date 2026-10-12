@@ -120,6 +120,7 @@ namespace OZGL2.InGame
                 string directory = Path.Combine(Application.persistentDataPath, "InGamePrototype");
                 _session = new InGameGridSession(_config.Catalog.CreateDefinition(),
                     new DummyRewardLedger(Path.Combine(directory, "settlements.json")));
+                _session.BonusFloorCells = _runSynergy != null && _runSynergy.Traits != null ? _runSynergy.Traits.BuildModifiers().GridBonus : 0; // 특성 "규모 확장"·"대군세"
                 _synergyConnection = new InGameSynergyConnection(_config.DemonArmyCatalog, _runSynergy);
                 _session.Changed += OnSessionChanged;
                 var participants = new List<IInGameCombatParticipant>();

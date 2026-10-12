@@ -56,7 +56,7 @@ namespace OZGL2.Sandbox.EditorTools
             B = TraitBranch.Skill;
             n += N(TraitId.Sk_A1, "파괴의 정수", "스킬 피해 +5% / 랭크", B, TraitLine.A, TraitEffect.SkillDamage, 0.05f, 3, Line, "실제");
             n += N(TraitId.Sk_A2, "정밀 주문", "스킬 피해 +5% / 랭크", B, TraitLine.A, TraitEffect.SkillDamage, 0.05f, 3, Line, "실제", TraitId.Sk_A1);
-            n += N(TraitId.Sk_A3, "마력 관통", "스킬이 용사 방어력 10% 무시 / 랭크", B, TraitLine.A, TraitEffect.SkillArmorPen, 0.10f, 3, Line, "스텁", TraitId.Sk_A2);
+            n += N(TraitId.Sk_A3, "마력 관통", "방어력을 관통해 스킬 피해 +5% / 랭크", B, TraitLine.A, TraitEffect.SkillArmorPen, 0.10f, 3, Line, "스텁", TraitId.Sk_A2);
             n += N(TraitId.Sk_B1, "신속한 주문", "스킬 쿨타임 −3% / 랭크", B, TraitLine.B, TraitEffect.SkillCooldown, 0.03f, 3, Line, "실제");
             n += N(TraitId.Sk_B2, "가속", "스킬 쿨타임 −3% / 랭크", B, TraitLine.B, TraitEffect.SkillCooldown, 0.03f, 3, Line, "실제", TraitId.Sk_B1);
             n += N(TraitId.Sk_B3, "시간 왜곡", "궁극기(4티어) 쿨타임 −15% / 랭크", B, TraitLine.B, TraitEffect.SkillUltCooldown, 0.15f, 3, Line, "실제", TraitId.Sk_B2);

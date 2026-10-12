@@ -140,7 +140,10 @@ namespace OZGL2.Skill
 
         private void OnDestroy()
         {
-            if (_disc != null) { Destroy(_disc.texture); Destroy(_disc); }
+            if (_disc == null) return;
+            // 에디터에서 씬을 닫거나 플레이를 빠져나올 때도 호출되는데, 편집 모드에서는 Destroy 가 금지라 DestroyImmediate 를 써야 한다.
+            if (Application.isPlaying) { Destroy(_disc.texture); Destroy(_disc); }
+            else { DestroyImmediate(_disc.texture); DestroyImmediate(_disc); }
         }
 
         // ─────────────────────────────── UI 생성

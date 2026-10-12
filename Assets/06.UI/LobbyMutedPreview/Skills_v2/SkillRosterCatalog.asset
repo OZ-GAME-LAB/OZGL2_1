@@ -79,9 +79,7 @@ MonoBehaviour:
     _cooldown: "22\uCD08"
   - _id: ui_preview_meteor
     _displayName: "\uC6B4\uC11D \uB099\uD558"
-    _description: "\uC9C0\uC815\uD55C \uC704\uCE58\uC5D0 0.8\uCD08 \uB4A4 \uC6B4\uC11D\uC774
-      \uB5A8\uC5B4\uC838, \uBC18\uACBD 4 \uC548\uC5D0 \uC788\uB294 \uC801\uC5D0\uAC8C
-      400\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _description: "\uC9C0\uC815 \uC704\uCE58\uC5D0 0.8\uCD08 \uB4A4 \uC6B4\uC11D\uC774 \uB5A8\uC5B4\uC838 \uBC18\uACBD 4 \uC548\uC758 \uC801\uC5D0\uAC8C 50\uC758 \uD53C\uD574\uB97C \uC8FC\uACE0, \uB300\uC0C1 \uCD5C\uB300\uCCB4\uB825\uC758 18%\uB9CC\uD07C \uCD94\uAC00 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uBCF4\uC2A4\uC5D0\uAC8C\uB294 \uCD94\uAC00 \uD53C\uD574\uAC00 30%\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
     _category: 0
     _icon: {fileID: 21300000, guid: fd4d2b67a083d224dab466ed11228603, type: 3}
     _defaultUnlocked: 1
@@ -91,7 +89,7 @@ MonoBehaviour:
     _activation: "\uC9C0\uC815"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 140
+    _effectValue: "50 + 18%"
     _cooldown: "30\uCD08"
   - _id: ui_preview_abyss
     _displayName: "\uACF5\uD5C8 \uBD95\uAD34"
@@ -266,8 +264,7 @@ MonoBehaviour:
     _cooldown: "35\uCD08"
   - _id: ui_preview_meteor_shower
     _displayName: "\uC720\uC131\uC6B0"
-    _description: "\uD654\uBA74 \uC804\uCCB4\uC5D0 \uC720\uC131\uC744 20\uD68C \uC5F0\uC18D\uC73C\uB85C
-      \uB5A8\uC5B4\uB728\uB824, \uBC1C\uB2F9 150\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _description: "\uD654\uBA74 \uC804\uCCB4\uC5D0 \uC720\uC131\uC744 \uC5F0\uB2EC\uC544 \uB5A8\uC5B4\uB728\uB9BD\uB2C8\uB2E4. \uC720\uC131 \uD55C \uBC1C\uB9C8\uB2E4 30\uC758 \uD53C\uD574\uB97C \uC8FC\uACE0, \uB300\uC0C1 \uCD5C\uB300\uCCB4\uB825\uC758 1.5%\uB9CC\uD07C \uCD94\uAC00 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uBCF4\uC2A4\uC5D0\uAC8C\uB294 \uCD94\uAC00 \uD53C\uD574\uAC00 30%\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
     _category: 0
     _icon: {fileID: 21300000, guid: 2dd9e227f3e61c2498d5d1a15e341645, type: 3}
     _defaultUnlocked: 1
@@ -277,11 +274,11 @@ MonoBehaviour:
     _activation: "\uC989\uC2DC"
     _isArcane: 0
     _effectLabel: "\uC5F0\uC18D \uD53C\uD574"
-    _effectValue: "55 \xD7 20\uD68C"
-    _cooldown: "60\uCD08"
+    _effectValue: "30 + 1.5% \u00D7 \uC5F0\uC18D"
+    _cooldown: "120\uCD08"
   - _id: ui_preview_absolute_zero
     _displayName: "\uC808\uB300 \uC601\uB3C4"
-    _description: "\uADF9\uD55C\uC758 \uB0C9\uAE30\uB85C \uD654\uBA74 \uC548\uC758 \uBAA8\uB4E0 \uC801\uC744 4\uCD08\uAC04 \uC815\uC9C0\uC2DC\uD0A4\uACE0, \uC5BC\uC74C\uC774 \uAE68\uC9C8 \uB54C \uCD1D 200\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _description: "\uADF9\uD55C\uC758 \uB0C9\uAE30\uB85C \uD654\uBA74 \uC548\uC758 \uBAA8\uB4E0 \uC801\uC744 4\uCD08\uAC04 \uC815\uC9C0\uC2DC\uD0A4\uACE0, \uC5BC\uC74C\uC774 \uAE68\uC9C8 \uB54C \uCD1D 90\uC758 \uD53C\uD574\uC640 \uB300\uC0C1 \uCD5C\uB300\uCCB4\uB825\uC758 12%\uB9CC\uD07C \uCD94\uAC00 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uBCF4\uC2A4\uC5D0\uAC8C\uB294 \uCD94\uAC00 \uD53C\uD574\uAC00 30%\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
     _category: 0
     _icon: {fileID: 21300000, guid: 4d07b5d5e8e24ac4c89024c8ca3d45cf, type: 3}
     _defaultUnlocked: 1
@@ -291,12 +288,11 @@ MonoBehaviour:
     _activation: "\uC989\uC2DC"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 200
-    _cooldown: "90\uCD08"
+    _effectValue: "90 + 12%"
+    _cooldown: "180\uCD08"
   - _id: ui_preview_judgment
     _displayName: "\uC2EC\uD310"
-    _description: "\uC2EC\uD310\uC744 \uB0B4\uB824 \uD654\uBA74 \uC548\uC758 \uBAA8\uB4E0
-      \uC801\uC5D0\uAC8C 600\uC758 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    _description: "\uD654\uBA74 \uC804\uCCB4\uC758 \uC801\uC5D0\uAC8C \uCC28\uB840\uB85C \uBCBC\uB77D\uC744 \uB0B4\uB824 90\uC758 \uD53C\uD574\uB97C \uC8FC\uACE0, \uB300\uC0C1 \uCD5C\uB300\uCCB4\uB825\uC758 12%\uB9CC\uD07C \uCD94\uAC00 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uBCF4\uC2A4\uC5D0\uAC8C\uB294 \uCD94\uAC00 \uD53C\uD574\uAC00 30%\uB9CC \uC801\uC6A9\uB429\uB2C8\uB2E4."
     _category: 0
     _icon: {fileID: 21300000, guid: b747578f825376c4194ca7e33d8d7fb0, type: 3}
     _defaultUnlocked: 1
@@ -306,5 +302,5 @@ MonoBehaviour:
     _activation: "\uC989\uC2DC"
     _isArcane: 0
     _effectLabel: "\uD53C\uD574"
-    _effectValue: 220
-    _cooldown: "90\uCD08"
+    _effectValue: "90 + 12%"
+    _cooldown: "180\uCD08"
