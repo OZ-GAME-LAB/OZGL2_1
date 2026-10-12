@@ -549,12 +549,13 @@ namespace OZGL2.UIBridge
         private static float EaseOut(float k) { k = 1f - Mathf.Clamp01(k); return 1f - k * k * k; }
 
         /// <summary>글자 가장자리를 어두운 외곽선 + 부드러운 그림자로 감싸 어떤 바닥에서도 또렷하게 한다.</summary>
-        private static void StyleText(TMP_Text text, Color32 outline, float width)
+        private static void StyleText(TMP_Text text, Color32 outline, float width, float dilate)
         {
             text.outlineWidth = width;
             text.outlineColor = outline;
             var m = text.fontMaterial;
             if (m == null) return;
+            if (m.HasProperty(ShaderUtilities.ID_FaceDilate)) m.SetFloat(ShaderUtilities.ID_FaceDilate, dilate);   // 글자 면을 부풀려 더 굵게
             m.EnableKeyword("UNDERLAY_ON");
             if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.8f));
             if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.7f);
@@ -810,18 +811,18 @@ namespace OZGL2.UIBridge
             _label.rectTransform.sizeDelta = new Vector2(320f, 70f);
             _label.rectTransform.anchoredPosition = new Vector2(0f, 74f);
             _label.characterSpacing = 8f;
-            StyleText(_label, new Color32(24, 6, 12, 255), 0.3f);
+            StyleText(_label, new Color32(24, 6, 12, 255), 0.34f, 0.3f);
             _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _number.rectTransform.sizeDelta = new Vector2(300f, 190f);
             _number.rectTransform.anchoredPosition = new Vector2(0f, -22f);
-            StyleText(_number, new Color32(24, 6, 12, 255), 0.34f);
+            StyleText(_number, new Color32(24, 6, 12, 255), 0.4f, 0.38f);
 
             _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _title.rectTransform.sizeDelta = new Vector2(1500f, 140f);
-            StyleText(_title, new Color32(24, 6, 12, 255), 0.34f);
+            StyleText(_title, new Color32(24, 6, 12, 255), 0.4f, 0.36f);
             _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal, _art != null ? _art.bodyFont : null);
             _sub.rectTransform.sizeDelta = new Vector2(1500f, 72f);
-            StyleText(_sub, new Color32(24, 6, 12, 255), 0.3f);
+            StyleText(_sub, new Color32(24, 6, 12, 255), 0.34f, 0.25f);
             _canvas.enabled = false;
         }
 

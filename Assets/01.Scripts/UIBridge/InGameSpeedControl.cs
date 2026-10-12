@@ -314,12 +314,33 @@ namespace OZGL2.UIBridge
         /// </summary>
         private static float FindHudBottom()
         {
-            var hud = FindFirstObjectByType<UIBattleMutedPreviewView>();
-            if (hud == null) return -1f;
-            var field = typeof(UIBattleMutedPreviewView).GetField("_levelText", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var text = field != null ? field.GetValue(hud) as Graphic : null;
-            if (text == null || !text.gameObject.activeInHierarchy) return -1f;
             var corners = new Vector3[4];
+            Graphic text = null;
+            var hud = FindFirstObjectByType<UIBattleMutedPreviewView>();
+            if (hud != null)
+            {
+                var field = typeof(UIBattleMutedPreviewView).GetField("_levelText", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                text = field != null ? field.GetValue(hud) as Graphic : null;
+            }
+            // 전투 화면의 상단 바는 다른 뷰가 그릴 수도 있어서, 화면 위쪽에 있는 「LV」 글자를 직접 찾는다
+            if (text == null || !text.gameObject.activeInHierarchy)
+            {
+                text = null;
+                foreach (var candidate in FindObjectsByType<TMP_Text>(FindObjectsSortMode.None))
+                {
+                    if (candidate == null || !candidate.isActiveAndEnabled || candidate.text == null || !candidate.text.StartsWith("LV")) continue;
+                    candidate.rectTransform.GetWorldCorners(corners);
+                    if (corners[0].y > Screen.height * 0.8f) { text = candidate; break; }
+                }
+            }
+            if (text == null)
+                foreach (var candidate in FindObjectsByType<Text>(FindObjectsSortMode.None))
+                {
+                    if (candidate == null || !candidate.isActiveAndEnabled || candidate.text == null || !candidate.text.StartsWith("LV")) continue;
+                    candidate.rectTransform.GetWorldCorners(corners);
+                    if (corners[0].y > Screen.height * 0.8f) { text = candidate; break; }
+                }
+            if (text == null) return -1f;
             for (var rt = text.rectTransform.parent as RectTransform; rt != null; rt = rt.parent as RectTransform)
             {
                 rt.GetWorldCorners(corners);
@@ -349,7 +370,7 @@ namespace OZGL2.UIBridge
             float camW = pad * 2f + togW * ToggleCount;
             float total = speedW + Gap + camW;
             // 맨 위 상단 바(재화·레벨·경험치) 바로 아래에 붙이되 겹치지 않게 조금 띄운다. 바를 못 찾으면 화면 비율로 정한다.
-            float topY = _hudBottom > 0f ? -(Screen.height - _hudBottom) - 8f * s : -Screen.height * 0.105f - 24f * s;
+            float topY = _hudBottom > 0f ? -(Screen.height - _hudBottom) - 8f * s : -Screen.height * 0.08f - 10f * s;
 
             PlacePanel(_bar, new Vector2(-total * 0.5f + speedW * 0.5f, topY), new Vector2(speedW, height));
             PlacePanel(_camBar, new Vector2(total * 0.5f - camW * 0.5f, topY), new Vector2(camW, height));
