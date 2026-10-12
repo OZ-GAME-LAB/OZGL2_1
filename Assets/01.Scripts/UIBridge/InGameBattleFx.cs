@@ -659,20 +659,20 @@ namespace OZGL2.UIBridge
             _bannerCrest = NewArt("Crest", _art != null ? _art.crest : null, 430f, 430f, new Vector2(0f, 0f));
             _bannerCrown = NewArt("Crown", _art != null ? _art.crown : null, 420f, 420f, new Vector2(0f, 78f));
 
-            _label = NewText("Label", _bannerRoot, 56f, FontStyles.Bold);
+            _label = NewText("Label", _bannerRoot, 56f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _label.rectTransform.sizeDelta = new Vector2(320f, 70f);
             _label.rectTransform.anchoredPosition = new Vector2(0f, 74f);
             _label.characterSpacing = 8f;
             _label.outlineWidth = 0.2f; _label.outlineColor = new Color32(30, 8, 14, 255);
-            _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold);
+            _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _number.rectTransform.sizeDelta = new Vector2(300f, 190f);
             _number.rectTransform.anchoredPosition = new Vector2(0f, -22f);
             _number.outlineWidth = 0.28f; _number.outlineColor = new Color32(40, 8, 14, 255);
 
-            _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold);
+            _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold, _art != null ? _art.titleFont : null);
             _title.rectTransform.sizeDelta = new Vector2(1500f, 140f);
             _title.outlineWidth = 0.28f; _title.outlineColor = new Color32(40, 8, 14, 255);
-            _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal);
+            _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal, _art != null ? _art.bodyFont : null);
             _sub.rectTransform.sizeDelta = new Vector2(1500f, 72f);
             _sub.outlineWidth = 0.2f; _sub.outlineColor = new Color32(30, 8, 12, 255);
             _canvas.enabled = false;
@@ -700,13 +700,14 @@ namespace OZGL2.UIBridge
             return raw;
         }
 
-        private TMP_Text NewText(string name, Transform parent, float size, FontStyles style)
+        private TMP_Text NewText(string name, Transform parent, float size, FontStyles style, TMP_FontAsset font = null)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             var t = go.AddComponent<TextMeshProUGUI>();
             if (_tmpFont == null) _tmpFont = UiFontOverride.Current != null ? UiFontOverride.Current : FindKoreanFont();
-            if (_tmpFont != null) t.font = _tmpFont;
+            if (font != null) { t.font = font; style = FontStyles.Normal; }   // 이미 굵은 글꼴이면 다시 굵게 겹쳐 번지지 않게
+            else if (_tmpFont != null) t.font = _tmpFont;
             t.fontSize = size; t.fontStyle = style;
             t.alignment = TextAlignmentOptions.Center;
             t.raycastTarget = false;

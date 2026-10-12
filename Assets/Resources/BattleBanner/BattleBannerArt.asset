@@ -16,3 +16,5 @@ MonoBehaviour:
   crest: {fileID: 21300000, guid: 3208d05d293b92d4491798d3d3bc9a92, type: 3}
   crown: {fileID: 21300000, guid: d464874e268c5114cbcb3b5da2cca80f, type: 3}
   divider: {fileID: 21300000, guid: 5a934eeb3e780d141bc6be69b0defe1c, type: 3}
+  titleFont: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
+  bodyFont: {fileID: 11400000, guid: 36fe7d726914a8c408af7e5c4eba9505, type: 2}

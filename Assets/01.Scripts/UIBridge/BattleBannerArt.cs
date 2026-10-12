@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 namespace OZGL2.UIBridge
@@ -12,5 +13,7 @@ namespace OZGL2.UIBridge
         public Sprite crest;     // 마름모 문장 틀
         public Sprite crown;     // 승리 왕관
         public Sprite divider;   // 가운데에 마름모가 있는 금빛 구분선
+        public TMP_FontAsset titleFont;   // 큰 글자(WAVE·번호·WAVE CLEAR) — 결과창 제목과 같은 글꼴
+        public TMP_FontAsset bodyFont;    // 작은 글자(한마디·DANGER)
     }
 }
