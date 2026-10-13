@@ -318,24 +318,26 @@ namespace OZGL2.UIBridge
         private void StylePercent(TMP_Text text)
         {
             var art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
-            if (art != null && art.titleFont != null)
-            {
-                // 게임 전체가 같이 쓰는 글꼴 그림판과 떼어 낸 전용 그림판에 숫자를 미리 그려 쓴다(공용 그림판이 늘어날 때 숫자가 깨지던 것 방지)
-                text.font = FontWarmup.Isolated(art.titleFont, "0123456789%");
-            }
+            // 게임 전체가 같이 쓰는 글꼴 그림판과 떼어 낸 전용 그림판(여백 넉넉)에 숫자를 미리 그려 쓴다
+            var font = art != null && art.titleFont != null ? FontWarmup.Isolated(art.titleFont, "0123456789%") : text.font;
+            if (font == null) return;
+            text.font = font;
             text.fontStyle = FontStyles.Normal;
             text.enableVertexGradient = true;
             text.colorGradient = new VertexGradient(new Color(1f, 0.98f, 0.8f), new Color(1f, 0.98f, 0.8f), new Color(1f, 0.6f, 0.18f), new Color(1f, 0.6f, 0.18f));
             text.color = Color.white;
-            text.outlineWidth = 0.34f;
-            text.outlineColor = new Color32(40, 8, 14, 255);
-            var m = text.fontMaterial;
-            if (m == null) return;
+            // 재질은 이 글꼴의 기본 재질에서 새로 만든다 — 다른 글꼴로 만든 재질을 이어 쓰면 글자 그림 위치가 어긋나 조각처럼 깨진다
+            var m = new Material(font.material);
+            if (m.HasProperty(ShaderUtilities.ID_OutlineWidth)) m.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.26f);
+            if (m.HasProperty(ShaderUtilities.ID_OutlineColor)) m.SetColor(ShaderUtilities.ID_OutlineColor, new Color32(40, 8, 14, 255));
+            m.EnableKeyword("OUTLINE_ON");
             m.EnableKeyword("UNDERLAY_ON");
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.85f));
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.8f);
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.8f);
-            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.4f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.8f));
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.5f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.5f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.2f);
+            text.fontSharedMaterial = m;
+            text.ForceMeshUpdate();
         }
 
         private void BuildKing(RectTransform barRoot)

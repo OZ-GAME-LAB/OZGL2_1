@@ -45,7 +45,8 @@ namespace OZGL2.UIBridge
             if (font == null) return null;
             if (_isolated.TryGetValue(font, out var cached) && cached != null) { Warm(cached, chars); return cached; }
             if (font.sourceFontFile == null) { Warm(font, chars); return font; }
-            var copy = TMP_FontAsset.CreateFontAsset(font.sourceFontFile, 90, 9, GlyphRenderMode.SDFAA, 1024, 1024, AtlasPopulationMode.Dynamic, true);
+            // 그림판 여백(18)을 글자 크기(72)에 비해 넉넉히 잡는다 — 두꺼운 외곽선·그림자가 옆 글자 그림까지 끌어와 조각처럼 깨져 보이지 않게
+            var copy = TMP_FontAsset.CreateFontAsset(font.sourceFontFile, 72, 18, GlyphRenderMode.SDFAA, 1024, 1024, AtlasPopulationMode.Dynamic, true);
             if (copy == null) { Warm(font, chars); return font; }
             copy.name = font.name + " (전용)";
             if (font.fallbackFontAssetTable != null) copy.fallbackFontAssetTable = new List<TMP_FontAsset>(font.fallbackFontAssetTable);

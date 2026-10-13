@@ -629,16 +629,24 @@ namespace OZGL2.UIBridge
         /// <summary>글자 가장자리를 어두운 외곽선 + 부드러운 그림자로 감싸 어떤 바닥에서도 또렷하게 한다.</summary>
         private static void StyleText(TMP_Text text, Color32 outline, float width, float dilate)
         {
-            text.outlineWidth = width;
-            text.outlineColor = outline;
-            var m = text.fontMaterial;
-            if (m == null) return;
-            if (m.HasProperty(ShaderUtilities.ID_FaceDilate)) m.SetFloat(ShaderUtilities.ID_FaceDilate, dilate);   // 글자 면을 부풀려 더 굵게
+            var font = text.font;
+            if (font == null) return;
+            // 그림판 여백이 좁은 글꼴(공용 글꼴)은 외곽선·그림자를 약하게 — 너무 두꺼우면 옆 글자 그림까지 끌어와 조각처럼 깨져 보인다
+            bool roomy = font.atlasPadding >= 16;
+            float shadow = roomy ? 0.5f : 0.3f, soft = roomy ? 0.2f : 0.1f;
+            if (!roomy) width = Mathf.Min(width, 0.2f);
+            // 재질은 이 글꼴의 기본 재질에서 새로 만든다(다른 글꼴 재질을 이어 쓰면 글자 위치가 어긋난다)
+            var m = new Material(font.material);
+            if (m.HasProperty(ShaderUtilities.ID_OutlineWidth)) m.SetFloat(ShaderUtilities.ID_OutlineWidth, width);
+            if (m.HasProperty(ShaderUtilities.ID_OutlineColor)) m.SetColor(ShaderUtilities.ID_OutlineColor, outline);
+            if (m.HasProperty(ShaderUtilities.ID_FaceDilate)) m.SetFloat(ShaderUtilities.ID_FaceDilate, dilate);
+            m.EnableKeyword("OUTLINE_ON");
             m.EnableKeyword("UNDERLAY_ON");
             if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.8f));
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.7f);
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.7f);
-            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.35f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, shadow);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -shadow);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, soft);
+            text.fontSharedMaterial = m;
         }
 
         private void SpawnSpark(Vector2 at, Vector2 vel, float life, float size, Color color)
