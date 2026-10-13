@@ -1,0 +1,8 @@
+{
+  "mode": "built-in image_gen",
+  "intent": "generate from style reference",
+  "transparentBackground": true,
+  "reference": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/header_crest.png",
+  "output": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/wave_clear_crown.png",
+  "prompt": "Use case: game-ui-asset. Create one polished 2D WAVE CLEAR victory crown sprite for a Korean fantasy demon-king tower-defense game. The attached image is a STYLE REFERENCE ONLY: match its smooth hand-painted golden bevels, bold dark brown outlines, warm cream highlights, restrained burgundy-red accents and readable heraldic game UI finish. Subject must be a regal GOLD CROWN, not the skull or flags from the reference. Front-facing, symmetrical, five elegant pointed prongs, the tallest at the center, a solid curved lower gold band, small deep-burgundy diamond gems, subtle dark inner recesses. Compact wide crown silhouette about 1.6:1, centered, about 85% of image width, with enough transparent padding around all edges. Clear large shapes so it reads at 350px screen width. Smooth anti-aliased illustration; absolutely NO pixel art, pixel grid, photographic metal, gritty noise, thin lace filigree, text, lettering, badge backing, ribbons, extra symbols, halos, glow clouds, disconnected particles, or cast shadow outside the crown. Everything around and between prongs must be genuinely transparent. Deliver a clean transparent PNG production sprite, one crown only."
+}

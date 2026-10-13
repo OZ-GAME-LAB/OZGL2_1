@@ -530,7 +530,7 @@ namespace OZGL2.UIFlow
             StageGridRewards rewards = _bootstrap != null ? _bootstrap.Rewards : null;
             string requestId = rewards?.Pending?.RequestId;
             if (string.IsNullOrEmpty(requestId) || requestId != _shownRewardRequestId ||
-                _bootstrap.IsUiInputBlocked) return;
+                _bootstrap.IsUiInputBlocked || !UICardRewardPresentation.CanSelectReward) return;
 
             // TrySelect가 false여도 보관함 초과 처리가 시작됐을 수 있으므로 최신 Grid 상태로 다시 그린다.
             rewards.TrySelect(requestId, optionIndex);
@@ -746,7 +746,7 @@ namespace OZGL2.UIFlow
                     rewards?.Pending != null && rewards.Pending.RequestId == _shownRewardRequestId &&
                     _session != null && _session.PendingRewardId == _shownRewardRequestId &&
                     _manager.Phase == eGridPhase.REWARD && !_manager.HasPendingStorage &&
-                    !_manager.HasSelection && !_bootstrap.IsUiInputBlocked;
+                    !_manager.HasSelection && !_bootstrap.IsUiInputBlocked && UICardRewardPresentation.CanSelectReward;
             }
             else
             {

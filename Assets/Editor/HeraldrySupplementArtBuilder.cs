@@ -18,7 +18,8 @@ public static class HeraldrySupplementArtBuilder
     private static readonly string[] ART_NAMES =
     {
         "panel_frame", "header_crest", "speaker_plate", "achievement_medallion", "bubble_tail",
-        "panel_complete", "dialogue_complete_left", "result_panel_clean", "result_track_clean", "result_fill_clean"
+        "panel_complete", "dialogue_complete_left", "result_panel_clean", "result_track_clean", "result_fill_clean",
+        "wave_clear_crown"
     };
 
     [MenuItem("Tools/OZGL2/Shared UI/Build Heraldry Supplement Art")]
@@ -110,13 +111,30 @@ public static class HeraldrySupplementArtBuilder
             AssetDatabase.SaveAssetIfDirty(resultTrack);
             AssetDatabase.SaveAssetIfDirty(resultFill);
             AssetDatabase.SaveAssetIfDirty(style);
-            Debug.Log("보조 UI Sprite 10종과 스타일 SO 연결을 준비했습니다. 기존 Sprite/SO 값 갱신은 Undo를 지원합니다. " +
+            BuildWaveClearCrown();
+            Debug.Log("보조 UI Sprite 11종과 스타일/배너 SO 연결을 준비했습니다. 기존 Sprite/SO 값 갱신은 Undo를 지원합니다. " +
                       "새 파일·폴더 생성과 Texture Import 설정은 Undo 대상이 아닙니다. Scene/Prefab은 변경하지 않았습니다. " + STYLE_PATH);
         }
         finally
         {
             Undo.CollapseUndoOperations(undoGroup);
         }
+    }
+
+    [MenuItem("Tools/OZGL2/Shared UI/Build Wave Clear Crown")]
+    public static void BuildWaveClearCrown()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+            throw new InvalidOperationException("컴파일이 끝난 Edit Mode에서 실행해 주세요.");
+
+        var banner = RequireAsset<OZGL2.UIBridge.BattleBannerArt>("Assets/Resources/BattleBanner/BattleBannerArt.asset");
+        Sprite crown = CreateOrUpdateSprite("wave_clear_crown", Vector4.zero);
+        // 기존 배너 데이터가 새 왕관을 직접 참조하도록 하여 런타임 교체 코드나 Prefab override를 만들지 않습니다.
+        Undo.RecordObject(banner, "웨이브 클리어 왕관 연결");
+        banner.crown = crown;
+        EditorUtility.SetDirty(banner);
+        AssetDatabase.SaveAssetIfDirty(crown);
+        AssetDatabase.SaveAssetIfDirty(banner);
     }
 
     private static Sprite CreateOrUpdateSprite(string name, Vector4 border)

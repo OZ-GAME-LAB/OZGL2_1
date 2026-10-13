@@ -53,6 +53,7 @@ namespace OZGL2.UIBridge
 
         private void Update()
         {
+            if (UICardRewardPresentation.IsRewardActive) { _hovered = null; _hoverTime = 0f; Hide(); return; }
             var mouse = Mouse.current;
             if (mouse == null || FHasEntry == null || FEntry == null) { Hide(); return; }
 

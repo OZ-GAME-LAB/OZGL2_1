@@ -316,8 +316,12 @@ namespace OZGL2.UIBridge
             }
         }
 
+        public IReadOnlyList<Button> RerollButtons => _rerollButtons;
+        public bool IsRerollInProgress => _rerollFx != null && _rerollFx.Busy;
+
         private void OnRerollClicked()
         {
+            if (!UICardRewardPresentation.CanSelectReward || (_bootstrap != null && _bootstrap.IsUiInputBlocked)) return;
             Vector2 at = _rerollButtons.Count > 0 && _rerollButtons[0] != null ? ScreenCenter(_rerollButtons[0].transform as RectTransform) : new Vector2(Screen.width * 0.2f, Screen.height * 0.12f);
             if (!IsChoosingReward(out var run))
             {

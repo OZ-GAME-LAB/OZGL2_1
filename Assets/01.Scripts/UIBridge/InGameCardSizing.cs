@@ -56,6 +56,16 @@ namespace OZGL2.UIBridge
         private bool _baseApplied, _rewardMode;
         private float _originalRest;
         private float _next;
+        private UICardRewardPresentation _rewardPresentation;
+        private CanvasGroup _rewardGroup;
+        private Canvas _rewardCanvas;
+        private bool _originalOverrideSorting;
+        private Vector2 _rewardExpandedPosition;
+        private float _panelCanvasScale = 1f;
+        private float _originalPanelAlpha = 1f;
+        private bool _originalPanelRaycasts = true;
+        private bool _originalPanelInteractable = true;
+        private Vector2Int _rewardResolution;
 
         private void LateUpdate()
         {
@@ -69,18 +79,32 @@ namespace OZGL2.UIBridge
             if (_view == null) return;
 
             if (!_baseApplied) ApplyBase();
+            if (_rewardPresentation == null)
+            {
+                var go = new GameObject("CardRewardPresentation", typeof(RectTransform));
+                go.transform.SetParent(transform, false);
+                _rewardPresentation = go.AddComponent<UICardRewardPresentation>();
+            }
+            _rewardPresentation.enabled = true;
+            _rewardPresentation.Configure(_bootstrap, _view);
 
-            bool reward = _bootstrap != null && _bootstrap.Stage != null && _bootstrap.Stage.State == eStageState.GENERAL_REWARD;
+            bool reward = UICardRewardPresentation.IsRewardActive;
             if (reward != _rewardMode)
             {
                 _rewardMode = reward;
                 ApplyMode();
                 if (reward) EnterCenter(); else ExitCenter();
             }
+            else if (reward && _rewardResolution != new Vector2Int(Screen.width, Screen.height))
+            {
+                ExitCenter();
+                EnterCenter();
+            }
         }
 
         private void Update()
         {
+            ApplyRewardCollapse();
             // 어두운 막과 안내 글은 부드럽게 나타나고 사라진다
             if (_dim == null && !_rewardMode) return;
             float target = _rewardMode ? _rewardDim : 0f;
@@ -106,8 +130,20 @@ namespace OZGL2.UIBridge
             var canvas = _panel.GetComponentInParent<Canvas>();
             if (canvas == null) return;
 
+            // 보상 중에는 손패의 정렬 순서를 사용해 시너지 목록보다 앞에 표시한다.
+            _view.ResetTransientInteraction();
+            _rewardCanvas = canvas;
+            _originalOverrideSorting = canvas.overrideSorting;
+            canvas.overrideSorting = true;
             _panelScale = _panel.localScale;
             _panelPos = _panel.anchoredPosition;
+            _panelCanvasScale = Mathf.Max(0.01f, canvas.scaleFactor);
+            _rewardResolution = new Vector2Int(Screen.width, Screen.height);
+            _rewardGroup = _panel.GetComponent<CanvasGroup>();
+            if (_rewardGroup == null) _rewardGroup = _panel.gameObject.AddComponent<CanvasGroup>();
+            _originalPanelAlpha = _rewardGroup.alpha;
+            _originalPanelRaycasts = _rewardGroup.blocksRaycasts;
+            _originalPanelInteractable = _rewardGroup.interactable;
 
             // 카드 세로 중심을 뷰포트 한가운데에 맞춘다: 가운데 y = 아래 여백 + 카드 반높이 + 쉬는 위치 보정
             float cardHalf = ((Vector2)FSize.GetValue(_view)).y * 0.5f;
@@ -123,15 +159,40 @@ namespace OZGL2.UIBridge
             Vector2 center = (corners[0] + corners[2]) * 0.5f;
             Vector2 screen = new Vector2(Screen.width * 0.5f, Screen.height * (0.5f + _rewardRaise));
             _panel.anchoredPosition = _panelPos + (screen - center) / Mathf.Max(0.01f, canvas.scaleFactor);
+            _rewardExpandedPosition = _panel.anchoredPosition;
+            ApplyRewardCollapse();
+        }
 
+        private void ApplyRewardCollapse()
+        {
+            if (!_rewardMode || _panel == null || _rewardPresentation == null || _rewardGroup == null) return;
+            float progress = _rewardPresentation.CollapseProgress;
+            float eased = progress * progress * (3f - 2f * progress);
+            _panel.anchoredPosition = _rewardExpandedPosition + Vector2.down * (Screen.height * 1.1f / _panelCanvasScale) * eased;
+            _rewardGroup.alpha = _originalPanelAlpha * (1f - eased);
+            _rewardGroup.blocksRaycasts = _originalPanelRaycasts && UICardRewardPresentation.CanSelectReward;
+            _rewardGroup.interactable = _originalPanelInteractable && UICardRewardPresentation.CanSelectReward;
         }
 
         private void ExitCenter()
         {
+            if (_rewardCanvas != null)
+            {
+                if (_view != null) _view.ResetTransientInteraction();
+                _rewardCanvas.overrideSorting = _originalOverrideSorting;
+            }
+            _rewardCanvas = null;
             if (_panel == null) return;
             _panel.localScale = _panelScale;
             _panel.anchoredPosition = _panelPos;
-            _view.RefreshLayoutImmediate();
+            if (_rewardGroup != null)
+            {
+                _rewardGroup.alpha = _originalPanelAlpha;
+                _rewardGroup.blocksRaycasts = _originalPanelRaycasts;
+                _rewardGroup.interactable = _originalPanelInteractable;
+            }
+            _rewardGroup = null;
+            if (_view != null) _view.RefreshLayoutImmediate();
             _panel = null;
         }
 
@@ -195,8 +256,17 @@ namespace OZGL2.UIBridge
             _view.RefreshLayoutImmediate();
         }
 
+        private void OnDisable()
+        {
+            ExitCenter();
+            _rewardMode = false;
+            if (_rewardPresentation != null) _rewardPresentation.enabled = false;
+        }
+
         private void OnDestroy()
         {
+            ExitCenter();
+            if (_rewardPresentation != null) Destroy(_rewardPresentation.gameObject);
             if (_dimCanvas != null) Destroy(_dimCanvas.gameObject);
         }
     }

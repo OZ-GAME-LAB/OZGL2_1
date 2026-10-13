@@ -104,7 +104,7 @@ namespace OZGL2.Tutorial
 
         public static readonly TutorialSequence Reward = new TutorialSequence("reward", "보상 카드와 리롤", "ingame", false, true,
             new TutorialStep("웨이브 클리어! 마왕군 카드 3장 중 하나를 골라 보상으로 받거라.", null, true),
-            new TutorialStep("카드를 고르는 동안에는 다른 창이 잠시 숨어서 카드가 잘 보이게 된다. 고르고 나면 이번 웨이브 정보와 증강 리스트가 다시 나타나느니라."),
+            new TutorialStep("'전장 보기'로 보상 카드를 잠시 내려 시너지를 확인할 수 있다. 시너지에 마우스를 올려 효과를 살펴보고, '보상 보기'로 돌아와 고르거라."),
             new TutorialStep("고른 유닛은 보관함(아래 카드 칸)에 들어간다. 다음 배치 때 칸에 올려 놓으면 된다."),
             new TutorialStep("마음에 드는 카드가 없으면 리롤이다. 재화를 내고 카드를 다시 뽑을 수 있다.", "reroll"));
 
