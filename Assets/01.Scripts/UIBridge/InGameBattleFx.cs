@@ -252,6 +252,12 @@ namespace OZGL2.UIBridge
             return _clearTcs.Task;
         }
 
+        /// <summary>웨이브 클리어 배너가 보이는 동안 true. 배치 화면(내 카드 손패)이 배너 위로 먼저 뜨지 않게 화면 전환이 이것을 본다.</summary>
+        public static bool HoldingForClearBanner
+        {
+            get { var fx = Instance; return fx != null && fx._clearTcs != null && !fx._clearTcs.Task.IsCompleted; }
+        }
+
         /// <summary>
         /// 웨이브 결과창·일반 보상 카드를 띄우기 직전에 부른다. 방금 웨이브를 이겨 클리어 배너가 나오는 중이면 그 연출이 끝날 때까지 기다린다.
         /// 배너 연출이 없는 상황(이어하기로 보상부터 시작 등)이면 바로 끝난다.
