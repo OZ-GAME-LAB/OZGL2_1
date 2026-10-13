@@ -51,7 +51,7 @@ namespace OZGL2.UIBridge
         private RealSynergySync _sync;
         private Canvas _canvas;
         private RectTransform _root, _tip;
-        private TMP_Text _heading, _tipTitle, _tipBody;
+        private TMP_Text _heading, _tipTitle, _tipTier, _tipBody;
         private Sprite _disc, _ring, _glow;
         private readonly List<(Image img, float baseAlpha, float phase)> _glows = new List<(Image, float, float)>();
         private readonly List<GameObject> _cells = new List<GameObject>();
@@ -182,11 +182,21 @@ namespace OZGL2.UIBridge
             var bg = tipGo.GetComponent<Image>();
             bg.color = new Color(0.07f, 0.04f, 0.05f, 0.96f);
             bg.raycastTarget = false;
-            var outline = tipGo.AddComponent<Outline>();
-            outline.effectColor = new Color(0.85f, 0.65f, 0.3f, 0.95f);
-            outline.effectDistance = new Vector2(2f, -2f);
+            var style = UIHeraldrySupplement.Style;
+            if (style != null) bg.color = style.BackgroundColor;
+            if (UIHeraldrySupplement.AddFrame(_tip, true) == null)
+            {
+                var outline = tipGo.AddComponent<Outline>();
+                outline.effectColor = new Color(0.85f, 0.65f, 0.3f, 0.95f);
+                outline.effectDistance = new Vector2(2f, -2f);
+            }
             _tipTitle = NewText(_tip, "Title", 28f, new Color(1f, 0.86f, 0.5f), TextAlignmentOptions.TopLeft);
+            _tipTier = NewText(_tip, "Tier", 20f, new Color(0.8f, 0.73f, 0.59f), TextAlignmentOptions.TopLeft);
             _tipBody = NewText(_tip, "Body", 24f, new Color(0.96f, 0.93f, 0.86f), TextAlignmentOptions.TopLeft);
+            UIHeraldrySupplement.ApplyTitle(_tipTitle);
+            UIHeraldrySupplement.ApplyBody(_tipTier);
+            UIHeraldrySupplement.ApplyBody(_tipBody);
+            _tipTitle.textWrappingMode = TextWrappingModes.Normal;
             _tipBody.textWrappingMode = TextWrappingModes.Normal;
             _tip.gameObject.SetActive(false);
         }
@@ -446,28 +456,39 @@ namespace OZGL2.UIBridge
 
         private void ShowTip(Entry e, RectTransform cell)
         {
-            float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            _tipTitle.text = e.data.displayName + (e.count > 1 ? "  ×" + e.count : string.Empty) + "  <size=70%>" + AugmentData.TierName(e.data.tier) + "</size>";
+            float s = Mathf.Max(0.01f, Mathf.Min(Screen.height / 1080f, (Screen.width - 24f) / 440f));
+            _tipTitle.text = e.data.displayName + (e.count > 1 ? "  ×" + e.count : string.Empty);
+            _tipTier.text = AugmentData.TierName(e.data.tier);
             _tipBody.text = string.IsNullOrWhiteSpace(e.data.description) ? "설명이 없어요." : e.data.description;
-            float width = 440f * s;
-            _tipTitle.fontSize = 26f * s; _tipBody.fontSize = 22f * s;
-            var body = _tipBody.GetPreferredValues(_tipBody.text, width - 28f * s, 0f);
-            float titleH = 36f * s, height = titleH + body.y + 28f * s;
+            const float width = 440f, pad = 30f, inner = width - pad * 2f;
+            _tipTitle.fontSize = 28f; _tipTier.fontSize = 20f; _tipBody.fontSize = 22f;
+            float y = 48f;
+            PlaceTipText(_tipTitle, inner, pad, ref y);
+            y += 4f;
+            PlaceTipText(_tipTier, inner, pad, ref y);
+            y += 10f;
+            PlaceTipText(_tipBody, inner, pad, ref y);
+            float height = y + 28f;
             _tip.sizeDelta = new Vector2(width, height);
-            var tr = _tipTitle.rectTransform;
-            tr.anchorMin = new Vector2(0f, 1f); tr.anchorMax = new Vector2(1f, 1f); tr.pivot = new Vector2(0f, 1f);
-            tr.anchoredPosition = new Vector2(14f * s, -10f * s); tr.sizeDelta = new Vector2(-28f * s, titleH);
-            var br = _tipBody.rectTransform;
-            br.anchorMin = new Vector2(0f, 1f); br.anchorMax = new Vector2(1f, 1f); br.pivot = new Vector2(0f, 1f);
-            br.anchoredPosition = new Vector2(14f * s, -(10f * s + titleH)); br.sizeDelta = new Vector2(-28f * s, body.y + 6f * s);
+            s = Mathf.Min(s, Mathf.Max(0.01f, (Screen.height - 24f) / (height + 36f)));
+            _tip.localScale = Vector3.one * s;
             // 아이콘 오른쪽에 띄운다
             var corners = new Vector3[4];
             cell.GetWorldCorners(corners);
-            float x = corners[3].x + 10f * s;
-            float y = (corners[0].y + corners[1].y) * 0.5f - Screen.height; // 앵커가 왼쪽 위라 화면 아래쪽 좌표를 음수로 바꾼다
-            _tip.anchoredPosition = new Vector2(x, Mathf.Clamp(y, -(Screen.height - height * 0.5f - 6f), -(height * 0.5f + 6f)));
+            float x = Mathf.Clamp(corners[3].x + 10f * s, 8f, Screen.width - width * s - 8f);
+            float screenY = (corners[0].y + corners[1].y) * 0.5f - Screen.height; // 앵커가 왼쪽 위라 화면 아래쪽 좌표를 음수로 바꾼다
+            _tip.anchoredPosition = new Vector2(x, Mathf.Clamp(screenY, -(Screen.height - height * s * 0.5f - 8f), -(height * s * 0.5f + 36f * s + 8f)));
             _tip.gameObject.SetActive(true);
             _tip.SetAsLastSibling();
+        }
+
+        private static void PlaceTipText(TMP_Text text, float width, float left, ref float y)
+        {
+            float height = text.GetPreferredValues(text.text, width, 0f).y;
+            var rt = text.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f); rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(left, -y); rt.sizeDelta = new Vector2(width, height);
+            y += height;
         }
 
         private void HideTip() { if (_tip != null) _tip.gameObject.SetActive(false); }

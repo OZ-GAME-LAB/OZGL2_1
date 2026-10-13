@@ -26,7 +26,8 @@ namespace OZGL2.UIBridge
         private TMP_Text _confirmLabel;
         private string _requestId;
         private readonly HashSet<GridStoredItem> _picked = new HashSet<GridStoredItem>();
-        private readonly List<(GridStoredItem item, Image back, Outline outline)> _buttons = new List<(GridStoredItem, Image, Outline)>();
+        private ScrollRect _scroll;
+        private readonly List<(GridStoredItem item, Image back, Image frame, Outline outline)> _buttons = new List<(GridStoredItem, Image, Image, Outline)>();
 
         private void OnDestroy()
         {
@@ -61,9 +62,6 @@ namespace OZGL2.UIBridge
         {
             foreach (Transform child in _list) Destroy(child.gameObject);
             _buttons.Clear();
-            float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            _panel.localScale = Vector3.one * s;
-
             var incoming = new List<string>();
             foreach (var item in request.Incoming) incoming.Add(Describe(session.Grid, item));
             _title.text = "보관함이 가득 찼어요";
@@ -76,9 +74,14 @@ namespace OZGL2.UIBridge
                 go.transform.SetParent(_list, false);
                 var back = go.GetComponent<Image>();
                 back.color = new Color(0.14f, 0.07f, 0.09f, 0.96f);
-                var outline = go.AddComponent<Outline>();
-                outline.effectColor = new Color(0.55f, 0.4f, 0.25f, 0.8f);
-                outline.effectDistance = new Vector2(2f, -2f);
+                var frame = UIHeraldrySupplement.AddFrame((RectTransform)go.transform);
+                Outline outline = null;
+                if (frame == null)
+                {
+                    outline = go.AddComponent<Outline>();
+                    outline.effectColor = new Color(0.55f, 0.4f, 0.25f, 0.8f);
+                    outline.effectDistance = new Vector2(2f, -2f);
+                }
                 var button = go.GetComponent<Button>();
                 button.targetGraphic = back;
                 button.onClick.AddListener(() => Toggle(captured, request));
@@ -87,8 +90,10 @@ namespace OZGL2.UIBridge
                 label.text = Describe(session.Grid, item);
                 var lr = label.rectTransform;
                 lr.anchorMin = Vector2.zero; lr.anchorMax = Vector2.one; lr.offsetMin = new Vector2(8f, 4f); lr.offsetMax = new Vector2(-8f, -4f);
-                _buttons.Add((item, back, outline));
+                _buttons.Add((item, back, frame, outline));
             }
+            Canvas.ForceUpdateCanvases();
+            if (_scroll != null) _scroll.verticalNormalizedPosition = 1f;
         }
 
         private void Toggle(GridStoredItem item, GridStorageRequest request)
@@ -100,11 +105,14 @@ namespace OZGL2.UIBridge
 
         private void Refresh(GridStorageRequest request)
         {
-            foreach (var (item, back, outline) in _buttons)
+            float scale = Mathf.Min(Screen.height / 1080f, (Screen.width - 32f) / 1180f, (Screen.height - 80f) / 640f);
+            _panel.localScale = Vector3.one * Mathf.Max(0.01f, scale);
+            foreach (var (item, back, frame, outline) in _buttons)
             {
                 bool on = _picked.Contains(item);
                 back.color = on ? new Color(0.55f, 0.14f, 0.18f, 0.98f) : new Color(0.14f, 0.07f, 0.09f, 0.96f);
-                outline.effectColor = on ? new Color(1f, 0.82f, 0.36f, 1f) : new Color(0.55f, 0.4f, 0.25f, 0.8f);
+                if (frame != null) frame.color = on ? Color.white : new Color(0.62f, 0.55f, 0.45f, 0.9f);
+                if (outline != null) outline.effectColor = on ? new Color(1f, 0.82f, 0.36f, 1f) : new Color(0.55f, 0.4f, 0.25f, 0.8f);
             }
             bool ready = _picked.Count == request.RequiredDiscardCount;
             _confirm.interactable = ready;
@@ -176,27 +184,52 @@ namespace OZGL2.UIBridge
             _panel.sizeDelta = new Vector2(1180f, 640f);
             var bg = panelGo.GetComponent<Image>();
             bg.color = new Color(0.085f, 0.04f, 0.055f, 0.98f);
-            var outline = panelGo.AddComponent<Outline>();
-            outline.effectColor = new Color(0.95f, 0.76f, 0.32f, 1f);
-            outline.effectDistance = new Vector2(3f, -3f);
+            var style = UIHeraldrySupplement.Style;
+            if (style != null) bg.color = style.BackgroundColor;
+            if (UIHeraldrySupplement.AddFrame(_panel, true) == null)
+            {
+                var outline = panelGo.AddComponent<Outline>();
+                outline.effectColor = new Color(0.95f, 0.76f, 0.32f, 1f);
+                outline.effectDistance = new Vector2(3f, -3f);
+            }
 
             _title = NewText(_panel, "Title", 42f, new Color(1f, 0.84f, 0.42f), TextAlignmentOptions.Center);
-            Anchor(_title.rectTransform, 0f, -26f, 0f, 60f);
+            UIHeraldrySupplement.ApplyTitle(_title);
+            Anchor(_title.rectTransform, 0f, -48f, 0f, 64f);
             _sub = NewText(_panel, "Sub", 26f, new Color(0.95f, 0.9f, 0.82f), TextAlignmentOptions.Center);
             _sub.textWrappingMode = TextWrappingModes.Normal;
-            Anchor(_sub.rectTransform, 0f, -92f, 0f, 84f);
+            Anchor(_sub.rectTransform, 0f, -118f, 0f, 84f);
 
-            var listGo = new GameObject("List", typeof(RectTransform), typeof(GridLayoutGroup));
-            listGo.transform.SetParent(_panel, false);
+            // 후보 수가 늘어도 확정/취소 영역을 침범하지 않도록 목록만 스크롤한다.
+            var scrollGo = new GameObject("ItemScroll", typeof(RectTransform), typeof(ScrollRect));
+            scrollGo.transform.SetParent(_panel, false);
+            var scrollRect = (RectTransform)scrollGo.transform;
+            scrollRect.anchorMin = Vector2.zero; scrollRect.anchorMax = Vector2.one;
+            scrollRect.offsetMin = new Vector2(40f, 120f); scrollRect.offsetMax = new Vector2(-40f, -220f);
+            var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D));
+            viewportGo.transform.SetParent(scrollRect, false);
+            var viewport = (RectTransform)viewportGo.transform;
+            viewport.anchorMin = Vector2.zero; viewport.anchorMax = Vector2.one;
+            viewport.offsetMin = viewport.offsetMax = Vector2.zero;
+            viewportGo.GetComponent<Image>().color = Color.clear;
+            var listGo = new GameObject("List", typeof(RectTransform), typeof(GridLayoutGroup), typeof(ContentSizeFitter));
+            listGo.transform.SetParent(viewport, false);
             _list = (RectTransform)listGo.transform;
-            _list.anchorMin = new Vector2(0f, 0f); _list.anchorMax = new Vector2(1f, 1f);
-            _list.offsetMin = new Vector2(40f, 120f); _list.offsetMax = new Vector2(-40f, -190f);
+            _list.anchorMin = new Vector2(0f, 1f); _list.anchorMax = Vector2.one; _list.pivot = new Vector2(0.5f, 1f);
+            _list.anchoredPosition = Vector2.zero; _list.sizeDelta = Vector2.zero;
             var grid = listGo.GetComponent<GridLayoutGroup>();
             grid.cellSize = new Vector2(250f, 74f);
             grid.spacing = new Vector2(14f, 14f);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 4;
             grid.childAlignment = TextAnchor.UpperCenter;
+            grid.padding = new RectOffset(4, 4, 4, 4);
+            listGo.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            _scroll = scrollGo.GetComponent<ScrollRect>();
+            _scroll.viewport = viewport; _scroll.content = _list;
+            _scroll.horizontal = false; _scroll.vertical = true;
+            _scroll.movementType = ScrollRect.MovementType.Clamped;
+            _scroll.scrollSensitivity = 30f;
 
             _confirm = NewButton(_panel, "Confirm", new Vector2(-150f, 52f), new Color(0.42f, 0.1f, 0.14f, 1f), out _confirmLabel);
             _confirm.onClick.AddListener(OnConfirm);
@@ -224,9 +257,19 @@ namespace OZGL2.UIBridge
             rt.anchoredPosition = pos;
             var image = go.GetComponent<Image>();
             image.color = color;
-            var outline = go.AddComponent<Outline>();
-            outline.effectColor = new Color(0.9f, 0.7f, 0.35f, 0.9f);
-            outline.effectDistance = new Vector2(2f, -2f);
+            var style = UIHeraldrySupplement.Style;
+            Sprite sprite = style != null ? (name == "Confirm" ? style.RedButtonSprite : style.DarkButtonSprite) : null;
+            if (sprite != null)
+            {
+                image.sprite = sprite; image.type = Image.Type.Sliced; image.color = Color.white;
+                image.pixelsPerUnitMultiplier = style.FrameMultiplier;
+            }
+            else if (UIHeraldrySupplement.AddFrame(rt) == null)
+            {
+                var outline = go.AddComponent<Outline>();
+                outline.effectColor = new Color(0.9f, 0.7f, 0.35f, 0.9f);
+                outline.effectDistance = new Vector2(2f, -2f);
+            }
             var button = go.GetComponent<Button>();
             button.targetGraphic = image;
             label = NewText(go.transform, "Label", 28f, new Color(1f, 0.95f, 0.8f), TextAlignmentOptions.Center);
@@ -241,6 +284,7 @@ namespace OZGL2.UIBridge
             go.transform.SetParent(parent, false);
             var text = go.AddComponent<TextMeshProUGUI>();
             if (UiFontOverride.Current != null) text.font = UiFontOverride.Current;
+            UIHeraldrySupplement.ApplyBody(text);
             text.fontSize = size; text.color = color; text.alignment = align;
             text.raycastTarget = false;
             text.textWrappingMode = TextWrappingModes.NoWrap;

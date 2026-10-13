@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using OZGL2.Progression;
 using OZGL2.Tutorial;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -710,24 +711,30 @@ namespace OZGL2.UIBridge
             _panelGroup = _panel.gameObject.AddComponent<CanvasGroup>();
             _panelGroup.alpha = 0f;
 
-            var bg = NewImage("Bg", _panel, null, new Color(0.04f, 0.02f, 0.07f, 0.86f));
+            var style = UIHeraldrySupplement.Style;
+            bool hasFrame = style != null && style.FrameSprite != null;
+            var bg = NewImage("Bg", _panel, null, hasFrame ? style.BackgroundColor : new Color(0.04f, 0.02f, 0.07f, 0.86f));
             Stretch(bg.rectTransform);
             bg.raycastTarget = false;
-            var border = bg.gameObject.AddComponent<Outline>();
-            border.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.95f);
-            border.effectDistance = new Vector2(3f, -3f);
-            // 안쪽 가는 테두리
-            var inner = NewImage("Inner", _panel, null, new Color(1f, 1f, 1f, 0f));
-            inner.rectTransform.anchorMin = Vector2.zero; inner.rectTransform.anchorMax = Vector2.one;
-            inner.rectTransform.offsetMin = new Vector2(10f, 10f); inner.rectTransform.offsetMax = new Vector2(-10f, -10f);
-            var innerLine = inner.gameObject.AddComponent<Outline>();
-            innerLine.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.35f);
-            innerLine.effectDistance = new Vector2(1.5f, -1.5f);
-            inner.raycastTarget = false;
+            if (hasFrame) UIHeraldrySupplement.AddFrame(_panel);
+            else
+            {
+                var border = bg.gameObject.AddComponent<Outline>();
+                border.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.95f);
+                border.effectDistance = new Vector2(3f, -3f);
+                var inner = NewImage("Inner", _panel, null, new Color(1f, 1f, 1f, 0f));
+                inner.rectTransform.anchorMin = Vector2.zero; inner.rectTransform.anchorMax = Vector2.one;
+                inner.rectTransform.offsetMin = new Vector2(10f, 10f); inner.rectTransform.offsetMax = new Vector2(-10f, -10f);
+                var innerLine = inner.gameObject.AddComponent<Outline>();
+                innerLine.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.35f);
+                innerLine.effectDistance = new Vector2(1.5f, -1.5f);
+                inner.raycastTarget = false;
+            }
 
             _text = NewText("Text", _panel, 46f, Cream, TextAlignmentOptions.TopLeft);
+            UIHeraldrySupplement.ApplyBody(_text);
             _text.rectTransform.anchorMin = Vector2.zero; _text.rectTransform.anchorMax = Vector2.one;
-            _text.rectTransform.offsetMin = new Vector2(52f, 24f); _text.rectTransform.offsetMax = new Vector2(-52f, -26f);
+            _text.rectTransform.offsetMin = new Vector2(52f, 24f); _text.rectTransform.offsetMax = new Vector2(-52f, hasFrame ? -44f : -26f);
             _text.textWrappingMode = TextWrappingModes.Normal;
             _text.lineSpacing = 12f;
 
@@ -735,15 +742,35 @@ namespace OZGL2.UIBridge
             _namePlate = NewRect("NamePlate", _panel);
             _namePlate.anchorMin = _namePlate.anchorMax = new Vector2(0f, 1f);
             _namePlate.pivot = new Vector2(0f, 0.5f);
-            _namePlate.sizeDelta = new Vector2(190f, 58f);
-            _namePlate.anchoredPosition = new Vector2(34f, 0f);
-            var plate = NewImage("Bg", _namePlate, null, new Color(0.45f, 0.08f, 0.16f, 1f));
+            bool hasNameplate = style != null && style.NameplateSprite != null;
+            _namePlate.sizeDelta = hasNameplate ? new Vector2(240f, 64f) : new Vector2(190f, 58f);
+            _namePlate.anchoredPosition = new Vector2(hasNameplate ? 60f : 34f, 0f);
+            var plate = NewImage("Bg", _namePlate, hasNameplate ? style.NameplateSprite : null, hasNameplate ? Color.white : new Color(0.45f, 0.08f, 0.16f, 1f));
             Stretch(plate.rectTransform);
             plate.raycastTarget = false;
-            var plateBorder = plate.gameObject.AddComponent<Outline>();
-            plateBorder.effectColor = Gold; plateBorder.effectDistance = new Vector2(3f, -3f);
+            if (hasNameplate)
+            {
+                plate.type = Image.Type.Sliced;
+                plate.pixelsPerUnitMultiplier = style.FrameMultiplier;
+                if (style.CrestSprite != null)
+                {
+                    var crest = UIHeraldrySupplement.CreateImage(_namePlate, "SpeakerCrest", style.CrestSprite);
+                    crest.preserveAspect = true;
+                    var rt = crest.rectTransform;
+                    rt.anchorMin = rt.anchorMax = new Vector2(0f, 0.5f);
+                    rt.sizeDelta = new Vector2(88f, 70f);
+                    rt.anchoredPosition = new Vector2(-18f, 0f);
+                }
+            }
+            else
+            {
+                var plateBorder = plate.gameObject.AddComponent<Outline>();
+                plateBorder.effectColor = Gold; plateBorder.effectDistance = new Vector2(3f, -3f);
+            }
             _name = NewText("Name", _namePlate, 40f, new Color(1f, 0.9f, 0.6f), TextAlignmentOptions.Center);
+            UIHeraldrySupplement.ApplyTitle(_name);
             Stretch(_name.rectTransform);
+            if (hasNameplate) _name.rectTransform.offsetMin = new Vector2(28f, 0f);
             _name.fontStyle = FontStyles.Bold;
 
             // 다음으로 넘기라는 화살표

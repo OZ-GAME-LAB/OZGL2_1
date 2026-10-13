@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-13",
+  "assets": [
+    {
+      "name": "integrated_panel",
+      "prompt": "Use case: precise-object-edit. Asset type: production transparent Unity UI sprite. Edit target is the attached gold panel frame. Preserve the four small diamond corners and clean warm-gold beveled straight border style. Create a COMPLETE PANEL: fill the entire enclosed interior with one uniform fully opaque very dark burgundy #130f15. Exterior outside the exact gold outline MUST be fully transparent alpha, no rectangular backdrop protruding beyond corners. Simplify and clean every exterior edge: remove ALL dust, specks, detached pixels, drop shadows, glows and wispy outlines. Gold rails have uniform weight and perfectly horizontal/vertical edges. No extra ornaments, no crest, no text. Keep square composition and 4 diamond corners, frame nearly fills canvas with transparent outer margin. Interior must be totally opaque and flat, ideal for nine-slice stretching. Crisp game UI production art.",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "reference": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/panel_frame.png",
+      "source": "C:/Users/sudea/.codex/generated_images/01a13391-766a-7980-878b-89771a62cee4/exec-d8c241b9-547d-47a9-aaef-30201acec0bf.png",
+      "output": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/panel_complete.png"
+    },
+    {
+      "name": "integrated_bubble",
+      "prompt": "Use case: ui-mockup. Asset type: production transparent Unity dialogue bubble SPRITE, no text. Use attached gold frame only as STYLE REFERENCE. Create ONE wide rectangular complete speech panel, width about three times its height. Thin clean warm-gold beveled border with four small gold diamond corner rivets, fully opaque flat very dark burgundy #130f15 interior. On LEFT edge exactly at vertical midpoint: a small triangular speech pointer pointing LEFT, seamlessly part of the same enclosed silhouette; remove the vertical border across the mouth of the triangle so the inside stays connected. Triangle gold outline must be exactly the SAME thickness and same bevel as the straight border, no doubled line. Right edge straight. Left pointer depth about 5% of panel width, total base height 25% of panel height. Uniform border width about 2.5% of panel height. Exterior fully TRANSPARENT alpha, absolutely no drop shadow, glow, fuzz, dust, stray pixels, rectangular backing, extra ornaments, crest, icons or text. Maintain a perfectly flat solid interior suitable for Unity sliced mesh. Crisp production UI, not a screenshot.",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "reference": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/panel_frame.png",
+      "source": "C:/Users/sudea/.codex/generated_images/01a13391-766a-7980-878b-89771a62cee4/exec-59d66453-0cd8-4d5c-b846-931feeada795.png",
+      "output": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/dialogue_complete_left.png"
+    },
+    {
+      "name": "result_panel_clean",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/BattleMutedPreview/Heraldry_Result_v1/Sprites/ResultPanel.png",
+      "prompt": "Use case: precise-object-edit. Asset type: production Unity UI sprite. Input: edit target. Preserve exactly the panel design, gold frame, horned skull at top, 4 burgundy ribbons, dark opaque interior, subtle laurels, aspect ratio. Clean up the alpha silhouette ONLY: remove every detached pixel, fuzz, colored fringe, stray stroke outside the main panel and ribbon silhouettes. Gold border must have clean crisp geometric contours. Empty panel no text. Fully transparent alpha outside asset. No text or watermark. Preserve overall original style and silhouette. Deliver just the transparent sprite, not a screenshot.",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "source": "C:/Users/sudea/.codex/generated_images/01a13391-766a-7980-878b-89771a62cee4/exec-71899680-fb12-409b-83f4-313d5e5f8afa.png",
+      "output": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/result_panel_clean.png"
+    },
+    {
+      "name": "result_track_clean",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_progress_track.png",
+      "prompt": "Use case: precise-object-edit. Asset type: production Unity UI sprite. Input: edit target. Preserve a single extremely wide slim black progress track with narrow warm gold beveled hexagonal outline and clipped angled endcaps, no ornaments. Clean every exterior edge to perfectly smooth straight clean geometric lines. No detached fragments, wisps, specks, white pixels, distressed texture, shadow or glow. Fully opaque black interior. Center the whole horizontal track in canvas with small transparent margin. Fully transparent alpha outside asset. No text or watermark. Preserve overall original style and silhouette. Deliver just the transparent sprite, not a screenshot.",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "source": "C:/Users/sudea/.codex/generated_images/01a13391-766a-7980-878b-89771a62cee4/exec-15425ad0-0adf-4996-845d-db795e38e24d.png",
+      "output": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/result_track_clean.png"
+    },
+    {
+      "name": "result_fill_clean",
+      "reference": "D:/GitHub/OZGL2_1/Assets/06.UI/LobbyMutedPreview/Heraldry_Achievements_v1/Sprites/achievement_progress_fill.png",
+      "prompt": "Use case: precise-object-edit. Asset type: production Unity UI sprite. Input: edit target. Preserve a single solid pure white extremely wide slim hexagonal progress fill with precisely slanted endcaps. PERFECT clean geometric filled polygon, no outline, no texture, no ivory shading, no specks, no fringes, no detached pixels. Center horizontal fill with small transparent margin. Fully transparent alpha outside asset. No text or watermark. Preserve overall original style and silhouette. Deliver just the transparent sprite, not a screenshot.",
+      "tool": "built-in image_gen",
+      "transparent_background": true,
+      "source": "C:/Users/sudea/.codex/generated_images/01a13391-766a-7980-878b-89771a62cee4/exec-32f80227-5c09-4069-916e-7ab32f06e5b8.png",
+      "output": "Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/result_fill_clean.png"
+    }
+  ]
+}

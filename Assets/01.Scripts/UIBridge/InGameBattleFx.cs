@@ -45,7 +45,9 @@ namespace OZGL2.UIBridge
         {
             public Transform tf;
             public SpriteRenderer sr;
-            public TextMesh text, shadow;
+            public TMP_Text text, shadow;
+            public TextMesh legacyText, legacyShadow;
+            public Renderer textRenderer, shadowRenderer;
             public float age, life;
             public Vector3 start, vel;
             public Action<Fx, float> tick;
@@ -66,6 +68,8 @@ namespace OZGL2.UIBridge
         private Transform _root;
         private Sprite _glow, _ring, _star;
         private Font _font;
+        private TMP_FontAsset _numberFont;
+        private Material _numberMaterial, _numberShadowMaterial;
         private float _cell = 1f;
 
         private InGamePrototypeBootstrap _bootstrap;
@@ -93,7 +97,8 @@ namespace OZGL2.UIBridge
         private static readonly string[] BossLines = { "강력한 용사가 나타났다!", "우두머리 용사의 등장이다!", "이번 상대는 만만치 않다!" };
         private static readonly string[] ClearLines = { "용사들을 물리쳤다!", "성은 무사하다!", "마왕군의 승리다!", "이 정도쯤이야!", "다음 용사들도 맞아 주마!" };
         private BattleBannerArt _art;
-        private TMP_FontAsset _bannerTitleFont;
+        private TMP_FontAsset _bannerTitleFont, _bannerBodyFont;
+        private readonly List<Material> _bannerMaterials = new List<Material>();
     private RawImage _hazardTop, _hazardBottom;
         private CanvasGroup _bannerGroup;
         private RectTransform _bannerRoot;
@@ -138,6 +143,11 @@ namespace OZGL2.UIBridge
             _clearTcs?.TrySetResult(true);
             _waveTcs?.TrySetResult(true);
             if (_root != null) Destroy(_root.gameObject);
+            if (_numberMaterial != null) Destroy(_numberMaterial);
+            if (_numberShadowMaterial != null) Destroy(_numberShadowMaterial);
+            foreach (var material in _bannerMaterials)
+                if (material != null) Destroy(material);
+            _bannerMaterials.Clear();
         }
 
         // ───────────── 매 프레임
@@ -530,8 +540,9 @@ namespace OZGL2.UIBridge
             EnsureAssets();
             if (_active.Count > 160) return;
             var f = Spawn(null, pos, color, big ? 0.95f : 0.75f, 1200);
-            f.text.text = label; f.shadow.text = label;
-            f.text.color = color; f.shadow.color = new Color(0.08f, 0.03f, 0.05f, 0.95f);
+            if (f.text != null) { f.text.text = label; f.shadow.text = label; }
+            else { f.legacyText.text = label; f.legacyShadow.text = label; }
+            SetNumberColors(f, color, new Color(0.08f, 0.03f, 0.05f, 0.95f));
             float baseSize = 0.05f * _cell * scale;
             float drift = UnityEngine.Random.Range(-0.25f, 0.25f) * _cell;
             f.tick = (fx, k) =>
@@ -542,9 +553,15 @@ namespace OZGL2.UIBridge
                 float s = baseSize * pop;
                 fx.tf.localScale = new Vector3(s, s, 1f);
                 float a = k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f;
-                var c = color; c.a = a; fx.text.color = c;
-                var sc = fx.shadow.color; sc.a = 0.95f * a; fx.shadow.color = sc;
+                var c = color; c.a = a;
+                SetNumberColors(fx, c, new Color(0.08f, 0.03f, 0.05f, 0.95f * a));
             };
+        }
+
+        private static void SetNumberColors(Fx fx, Color face, Color shadow)
+        {
+            if (fx.text != null) { fx.text.color = face; fx.shadow.color = shadow; }
+            else { fx.legacyText.color = face; fx.legacyShadow.color = shadow; }
         }
 
         // ───────────── 효과 관리(풀)
@@ -559,10 +576,10 @@ namespace OZGL2.UIBridge
             f.tf.localScale = Vector3.one;
             bool isText = sprite == null;
             f.sr.enabled = !isText;
-            f.text.gameObject.SetActive(isText);
-            f.shadow.gameObject.SetActive(isText);
+            f.textRenderer.gameObject.SetActive(isText);
+            f.shadowRenderer.gameObject.SetActive(isText);
             if (!isText) { f.sr.sprite = sprite; f.sr.color = color; f.sr.sortingOrder = order; }
-            else { f.text.GetComponent<MeshRenderer>().sortingOrder = order + 1; f.shadow.GetComponent<MeshRenderer>().sortingOrder = order; }
+            else { f.textRenderer.sortingOrder = order + 1; f.shadowRenderer.sortingOrder = order; }
             _active.Add(f);
             return f;
         }
@@ -572,9 +589,58 @@ namespace OZGL2.UIBridge
             var go = new GameObject("Fx");
             go.transform.SetParent(_root, false);
             var f = new Fx { tf = go.transform, sr = go.AddComponent<SpriteRenderer>() };
-            f.shadow = NewText("Shadow", go.transform, new Vector3(0.05f, -0.05f, 0.01f));
-            f.text = NewText("Text", go.transform, Vector3.zero);
+            if (_numberFont != null)
+            {
+                f.shadow = NewNumberText("Shadow", go.transform, new Vector3(0.18f, -0.18f, 0.01f), _numberShadowMaterial);
+                f.text = NewNumberText("Text", go.transform, Vector3.zero, _numberMaterial);
+                f.textRenderer = f.text.GetComponent<MeshRenderer>();
+                f.shadowRenderer = f.shadow.GetComponent<MeshRenderer>();
+            }
+            else
+            {
+                // 아트 설정이 없는 씬에서도 기존 숫자를 그대로 표시한다.
+                f.legacyShadow = NewText("Shadow", go.transform, new Vector3(0.05f, -0.05f, 0.01f));
+                f.legacyText = NewText("Text", go.transform, Vector3.zero);
+                f.textRenderer = f.legacyText.GetComponent<MeshRenderer>();
+                f.shadowRenderer = f.legacyShadow.GetComponent<MeshRenderer>();
+            }
             return f;
+        }
+
+        private TMP_Text NewNumberText(string name, Transform parent, Vector3 offset, Material material)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = offset;
+            var text = go.AddComponent<TextMeshPro>();
+            text.font = _numberFont;
+            text.fontSharedMaterial = material;
+            text.fontSize = 64f;
+            text.fontStyle = FontStyles.Normal;
+            text.alignment = TextAlignmentOptions.Center;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Overflow;
+            text.enableAutoSizing = false;
+            text.richText = false;
+            text.raycastTarget = false;
+            text.rectTransform.sizeDelta = new Vector2(100f, 24f);
+            text.UpdateMeshPadding();
+            go.AddComponent<FontUnifyIgnore>();
+            return text;
+        }
+
+        private static Material CreateNumberMaterial(TMP_FontAsset font, bool outline)
+        {
+            var material = new Material(font.material);
+            if (material.HasProperty(ShaderUtilities.ID_OutlineWidth))
+                material.SetFloat(ShaderUtilities.ID_OutlineWidth, outline ? 0.16f : 0f);
+            if (material.HasProperty(ShaderUtilities.ID_OutlineColor))
+                material.SetColor(ShaderUtilities.ID_OutlineColor, new Color32(25, 12, 18, 255));
+            if (outline) material.EnableKeyword("OUTLINE_ON");
+            else material.DisableKeyword("OUTLINE_ON");
+            material.DisableKeyword("UNDERLAY_ON");
+            ShaderUtilities.UpdateShaderRatios(material);
+            return material;
         }
 
         private TextMesh NewText(string name, Transform parent, Vector3 offset)
@@ -627,22 +693,27 @@ namespace OZGL2.UIBridge
         private static float EaseOut(float k) { k = 1f - Mathf.Clamp01(k); return 1f - k * k * k; }
 
         /// <summary>글자 가장자리를 어두운 외곽선 + 부드러운 그림자로 감싸 어떤 바닥에서도 또렷하게 한다.</summary>
-        private static void StyleText(TMP_Text text, Color32 outline, float width, float dilate)
+        private void StyleText(TMP_Text text, Color32 outline, float width, float dilate)
         {
+            if (text == null) return;
             var font = text.font;
-            if (font == null) return;
-            // 그림판 여백이 좁은 글꼴(공용 글꼴)은 외곽선·그림자를 약하게 — 너무 두꺼우면 옆 글자 그림까지 끌어와 조각처럼 깨져 보인다
-            bool roomy = font.atlasPadding >= 16;
-            float shadow = roomy ? 0.5f : 0.3f, soft = roomy ? 0.2f : 0.1f;
-            if (!roomy) width = Mathf.Min(width, 0.2f);
+            if (font == null || font.material == null) return;
+            // SDF 외곽선은 글자 안쪽에도 적용된다. 여백이 큰 전용 폰트에 굵은 선을 쓰면 밝은 획까지 검게 덮인다.
+            width = Mathf.Clamp(width, 0f, 0.08f);
+            float shadow = 0.12f, soft = 0.08f;
             // 재질은 이 글꼴의 기본 재질에서 새로 만든다(다른 글꼴 재질을 이어 쓰면 글자 위치가 어긋난다)
-            var m = new Material(font.material);
+            var m = new Material(font.material) { name = "Wave Banner " + text.name };
+            _bannerMaterials.Add(m);
+            if (m.HasProperty(ShaderUtilities.ID_FaceColor)) m.SetColor(ShaderUtilities.ID_FaceColor, Color.white);
             if (m.HasProperty(ShaderUtilities.ID_OutlineWidth)) m.SetFloat(ShaderUtilities.ID_OutlineWidth, width);
             if (m.HasProperty(ShaderUtilities.ID_OutlineColor)) m.SetColor(ShaderUtilities.ID_OutlineColor, outline);
+            if (m.HasProperty(ShaderUtilities.ID_OutlineSoftness)) m.SetFloat(ShaderUtilities.ID_OutlineSoftness, 0f);
             if (m.HasProperty(ShaderUtilities.ID_FaceDilate)) m.SetFloat(ShaderUtilities.ID_FaceDilate, dilate);
             m.EnableKeyword("OUTLINE_ON");
+            m.DisableKeyword("UNDERLAY_INNER");
             m.EnableKeyword("UNDERLAY_ON");
             if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.8f));
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayDilate)) m.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0f);
             if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, shadow);
             if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -shadow);
             if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, soft);
@@ -823,7 +894,9 @@ namespace OZGL2.UIBridge
             if (_art != null)
             {
                 _bannerTitleFont = FontWarmup.Isolated(_art.titleFont, "WAVECLEAR 0123456789");   // 큰 글자는 전용 그림판으로(공용 그림판 변화에 휘말려 깨지지 않게)
-                FontWarmup.Warm(_art.bodyFont, string.Join("", WaveLines) + string.Join("", BossLines) + string.Join("", ClearLines) + "첫 번째 전투가 시작된다!DANGER");
+                // 한마디도 명조 Bold 원본으로 만든다. Regular에 외곽선만 두껍게 더하면 본문 획이 가늘게 남는다.
+                _bannerBodyFont = FontWarmup.Isolated(_art.titleFont != null ? _art.titleFont : _art.bodyFont,
+                    string.Join("", WaveLines) + string.Join("", BossLines) + string.Join("", ClearLines) + "첫 번째 전투가 시작된다!DANGER");
             }
             if (_art == null) Debug.LogWarning("[전투 연출] Resources/BattleBanner/BattleBannerArt 를 찾지 못해 글자만 보여 줍니다.");
             var go = new GameObject("WaveBannerCanvas", typeof(RectTransform));
@@ -896,18 +969,18 @@ namespace OZGL2.UIBridge
             _label.rectTransform.sizeDelta = new Vector2(320f, 70f);
             _label.rectTransform.anchoredPosition = new Vector2(0f, 74f);
             _label.characterSpacing = 8f;
-            StyleText(_label, new Color32(24, 6, 12, 255), 0.3f, 0f);
+            StyleText(_label, new Color32(24, 6, 12, 255), 0.055f, 0f);
             _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold, _bannerTitleFont);
             _number.rectTransform.sizeDelta = new Vector2(300f, 190f);
             _number.rectTransform.anchoredPosition = new Vector2(0f, -22f);
-            StyleText(_number, new Color32(24, 6, 12, 255), 0.34f, 0f);
+            StyleText(_number, new Color32(24, 6, 12, 255), 0.06f, 0f);
 
             _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold, _bannerTitleFont);
             _title.rectTransform.sizeDelta = new Vector2(1500f, 140f);
-            StyleText(_title, new Color32(24, 6, 12, 255), 0.34f, 0f);
-            _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal, _art != null ? _art.bodyFont : null);
+            StyleText(_title, new Color32(24, 6, 12, 255), 0.055f, 0f);
+            _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Bold, _bannerBodyFont);
             _sub.rectTransform.sizeDelta = new Vector2(1500f, 72f);
-            StyleText(_sub, new Color32(24, 6, 12, 255), 0.3f, 0f);
+            StyleText(_sub, new Color32(24, 6, 12, 255), 0.045f, 0f);
             _canvas.enabled = false;
         }
 
@@ -937,6 +1010,7 @@ namespace OZGL2.UIBridge
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
+            go.AddComponent<FontUnifyIgnore>();
             var t = go.AddComponent<TextMeshProUGUI>();
             if (_tmpFont == null) _tmpFont = UiFontOverride.Current != null ? UiFontOverride.Current : FindKoreanFont();
             if (font != null) { t.font = font; style = FontStyles.Normal; }   // 이미 굵은 글꼴이면 다시 굵게 겹쳐 번지지 않게
@@ -986,6 +1060,15 @@ namespace OZGL2.UIBridge
             if (_root != null) return;
             _root = new GameObject("BattleFx").transform;
             _root.SetParent(transform, false);
+            var style = UIHeraldrySupplement.Style;
+            _numberFont = style != null ? style.NumberFont : null;
+            // 숫자·부호가 모두 있는 SDF에만 전환한다. 불완전한 설정은 기존 TextMesh로 표시한다.
+            if (_numberFont != null && (_numberFont.material == null || !_numberFont.HasCharacters("0123456789+-!"))) _numberFont = null;
+            if (_numberFont != null)
+            {
+                _numberMaterial = CreateNumberMaterial(_numberFont, true);
+                _numberShadowMaterial = CreateNumberMaterial(_numberFont, false);
+            }
             _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             _glow = MakeGlow();
             _ring = MakeRing();

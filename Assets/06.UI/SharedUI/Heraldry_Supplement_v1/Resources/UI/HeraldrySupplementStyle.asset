@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dee077d49cba6c646beb53a184ee6758, type: 3}
+  m_Name: HeraldrySupplementStyle
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL2.UIFlow.UIHeraldrySupplementStyleSO
+  _frameSprite: {fileID: 21300000, guid: 9690262734a27c844bc4a366a89370ff, type: 2}
+  _crestSprite: {fileID: 21300000, guid: 65c075d5ef25c584c8f26fbfd6ab91f8, type: 2}
+  _nameplateSprite: {fileID: 21300000, guid: 93b878949b9e4c04aa0254e230397002, type: 2}
+  _medallionSprite: {fileID: 21300000, guid: 6e568404c186f7b4f9e3102129817df7, type: 2}
+  _tailSprite: {fileID: 21300000, guid: 18cd88aae736809449adfe0fdae59607, type: 2}
+  _panelSprite: {fileID: 21300000, guid: b54f60168d66bcc4b9548547e221e32e, type: 2}
+  _dialogueSprite: {fileID: 21300000, guid: 7a1505b513b21cc438a47d78a6a7a675, type: 2}
+  _resultPanelSprite: {fileID: 21300000, guid: e9a6064d5e2925f4a9bebaf14e6634d5, type: 2}
+  _resultTrackSprite: {fileID: 21300000, guid: debeb143f82843646a4e5312014dcf8b, type: 2}
+  _resultFillSprite: {fileID: 21300000, guid: 5b25a0be18b33ce4d8646c93723e124d, type: 2}
+  _darkButtonSprite: {fileID: 21300000, guid: 2fef9cc6d4ea8a24aa7c23897875836f, type: 2}
+  _redButtonSprite: {fileID: 21300000, guid: 72d6d0bed9cefa24c8e0fa6ea4367e95, type: 2}
+  _titleFont: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
+  _bodyFont: {fileID: 11400000, guid: 02fdbfbc11f69364785023cfc33679a6, type: 2}
+  _numberFont: {fileID: 11400000, guid: c4ab0f96649f1c247946e0636e2aff95, type: 2}
+  _backgroundColor: {r: 0.07058824, g: 0.0627451, b: 0.07058824, a: 1}
+  _frameMultiplier: 4

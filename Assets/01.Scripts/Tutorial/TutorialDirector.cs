@@ -57,6 +57,10 @@ namespace OZGL2.Tutorial
         private Canvas _canvas, _helpCanvas;
         private RectTransform _dialog, _portraitRect, _bubble, _nameTag, _hint, _helpButton, _topicPanel;
         private Image _shadow, _frameImage, _headerLine;
+        private Image _heraldryNameplate;
+        private RectTransform _heraldryCrest;
+        private bool _usesHeraldryFrame, _usesHeraldryTail;
+        private float _heraldryFrameMultiplier = 4f;
         private RectTransform[] _corners = new RectTransform[4];
         private RectTransform[] _titleOrnaments = new RectTransform[2];
         private RectTransform _tail, _progressFill;
@@ -619,13 +623,29 @@ namespace OZGL2.Tutorial
         {
             float s = S, w = Screen.width, h = Screen.height;
             float p = 520f * s, margin = 16f * s, yEdge = 24f * s;
+            float hudInset = GetDialogHudInset(top);
             float px = left ? margin : w - margin - p;
-            float py = top ? h - yEdge * 0.2f - p : -yEdge * 0.2f;
+            float py = top ? h - yEdge * 0.2f - p - hudInset : -yEdge * 0.2f + hudInset;
             portrait = new Rect(px, py, p, p);
             float bw = _fitSize.x, bh = _fitSize.y;
             float bx = left ? margin + p * 0.68f : w - (margin + p * 0.68f) - bw;
-            float by = top ? h - (yEdge + 8f * s) - bh : yEdge + 8f * s;
+            float by = top ? h - (yEdge + 8f * s) - bh - hudInset : yEdge + 8f * s + hudInset;
             bubble = new Rect(bx, by, bw, bh);
+        }
+
+        /// <summary>새 테마의 말풍선과 마왕이 상하단 HUD를 덮지 않도록 함께 안쪽으로 이동한다.</summary>
+        private float GetDialogHudInset(bool top)
+        {
+            if (!_usesHeraldryFrame) return 0f;
+            float s = S, height = Screen.height;
+            float bottomReserve = Mathf.Min(height * 0.23f, 250f * s);
+            float topReserve = Mathf.Min(height * 0.12f, 130f * s);
+            float portraitSpan = 520f * s + (top ? 1f : -1f) * 24f * s * 0.2f;
+            float bubbleSpan = _fitSize.y + 32f * s;
+            float oppositeReserve = top ? bottomReserve : topReserve;
+            // 긴 문구·작은 화면에서는 맞은편 HUD와 화면 경계를 넘기지 않는 만큼만 이동한다.
+            float available = Mathf.Max(0f, height - Mathf.Max(portraitSpan, bubbleSpan) - oppositeReserve - 8f * s);
+            return Mathf.Min(top ? topReserve : bottomReserve, available);
         }
 
         private static float OverlapArea(Rect a, Rect b)
@@ -673,6 +693,7 @@ namespace OZGL2.Tutorial
             if (_fitScreenHeight != Screen.height) FitBubble(); // 해상도가 바뀌면 다시 맞춘다
             float portraitSize = 520f * s, margin = 16f * s;
             float yEdge = 24f * s;
+            float hudInset = GetDialogHudInset(_dialogAtTop);
 
             // 마왕은 모서리, 말풍선은 마왕 안쪽 옆. 왼쪽에 있을 땐 그림을 뒤집어 말풍선 쪽을 보게 한다
             float anchorX = _dockLeft ? 0f : 1f, side = _dockLeft ? 1f : -1f;
@@ -684,19 +705,34 @@ namespace OZGL2.Tutorial
             }
             _portraitImage.uvRect = (_dockLeft ^ _flipKing) ? new Rect(1f, 0f, -1f, 1f) : new Rect(0f, 0f, 1f, 1f);
             _portraitRect.sizeDelta = new Vector2(portraitSize, portraitSize);
-            _portraitRect.anchoredPosition = new Vector2(side * margin, -yEdge * 0.2f);
+            _portraitRect.anchoredPosition = new Vector2(side * margin, -yEdge * 0.2f + (_dialogAtTop ? -hudInset : hudInset));
             _bubble.sizeDelta = _fitSize;
-            _bubble.anchoredPosition = new Vector2(side * (margin + portraitSize * 0.68f), _dialogAtTop ? -(yEdge + 8f * s) : yEdge + 8f * s);
+            _bubble.anchoredPosition = new Vector2(side * (margin + portraitSize * 0.68f), _dialogAtTop ? -(yEdge + 8f * s + hudInset) : yEdge + 8f * s + hudInset);
 
             // 프레임의 테두리 두께를 해상도 배율에 맞춘다(그림 한 칸 = 화면 한 칸 × 배율)
-            if (_frameImage != null) _frameImage.pixelsPerUnitMultiplier = 1f / s;
+            if (_frameImage != null) _frameImage.pixelsPerUnitMultiplier = (_usesHeraldryFrame ? _heraldryFrameMultiplier : 1f) / s;
+            if (_frameImage is UIHeraldryDialogueImage dialogueImage)
+            {
+                dialogueImage.SetDirection(!_dockLeft);
+                // 꼬리 폭은 본문 사각형 바깥으로 빼서 좌우 어느 방향에서도 같은 안쪽 여백을 유지합니다.
+                float tailDepth = Mathf.Max(0f, dialogueImage.sprite.border.x - dialogueImage.sprite.border.z) /
+                    Mathf.Max(0.01f, dialogueImage.pixelsPerUnit * dialogueImage.pixelsPerUnitMultiplier);
+                dialogueImage.rectTransform.offsetMin = new Vector2(_dockLeft ? -tailDepth : 0f, 0f);
+                dialogueImage.rectTransform.offsetMax = new Vector2(_dockLeft ? 0f : tailDepth, 0f);
+            }
+            if (_heraldryNameplate != null) _heraldryNameplate.pixelsPerUnitMultiplier = _heraldryFrameMultiplier / s;
 
-            // 머리: 이름(상자 없이 글자만) 아래로 금빛 머리줄
+            // 머리 영역 안에서 이름판과 문장만 교체해 기존 본문 높이 계산을 유지한다.
             float nameRowH = 54f * s;
             _nameTag.anchorMin = _nameTag.anchorMax = new Vector2(0f, 1f);
             _nameTag.pivot = new Vector2(0f, 0.5f);
-            _nameTag.sizeDelta = new Vector2(220f * s, nameRowH);
-            _nameTag.anchoredPosition = new Vector2(46f * s, -(nameRowH * 0.5f + 14f * s));
+            _nameTag.sizeDelta = new Vector2((_heraldryNameplate != null ? 234f : 220f) * s, nameRowH);
+            _nameTag.anchoredPosition = new Vector2((_heraldryNameplate != null ? 56f : 46f) * s, -(nameRowH * 0.5f + 14f * s));
+            if (_heraldryCrest != null)
+            {
+                _heraldryCrest.sizeDelta = new Vector2(70f * s, 56f * s);
+                _heraldryCrest.anchoredPosition = new Vector2(-12f * s, 0f);
+            }
             foreach (var o in _titleOrnaments) if (o != null) o.gameObject.SetActive(false);
             if (_headerLine != null)
             {
@@ -741,8 +777,9 @@ namespace OZGL2.Tutorial
             sr.localScale = Vector3.one * pop;
             _tail.anchorMin = _tail.anchorMax = new Vector2(_dockLeft ? 0f : 1f, 0.5f);
             _tail.pivot = new Vector2(0.5f, 0.5f);
-            _tail.sizeDelta = new Vector2(30f * s, 36f * s);
-            _tail.anchoredPosition = new Vector2(side * -1f * 12f * s, 0f);
+            _tail.sizeDelta = (_usesHeraldryTail ? new Vector2(72f, 34f) : new Vector2(30f, 36f)) * s;
+            // 새 그림의 34px 깊이 중 12px을 패널 안에 겹쳐 프레임 직선이 입구를 가로지르지 않게 한다.
+            _tail.anchoredPosition = new Vector2(side * -1f * (_usesHeraldryTail ? 5f : 12f) * s, 0f);
             _tail.localRotation = Quaternion.Euler(0f, 0f, _dockLeft ? -90f : 90f);
 
             // 진행 막대(몇 번째 말인지): 말풍선 바로 아래의 얇은 금빛 줄
@@ -830,11 +867,29 @@ namespace OZGL2.Tutorial
             _shadow = NewImage("BubbleShadow", _dialog, MakeGlowSprite(), new Color(0f, 0f, 0f, 0.6f));
             _shadow.raycastTarget = false;
 
-            var bubbleImage = NewImage("Bubble", _dialog, null, new Color(0.07f, 0.05f, 0.09f, 0.96f));
+            var style = UIHeraldrySupplement.Style;
+            bool hasCompleteBubble = style != null && style.DialogueSprite != null;
+            _usesHeraldryFrame = hasCompleteBubble || (style != null && style.FrameSprite != null);
+            if (style != null) _heraldryFrameMultiplier = style.FrameMultiplier;
+            var bubbleImage = NewImage("Bubble", _dialog, null, _usesHeraldryFrame ? style.BackgroundColor : new Color(0.07f, 0.05f, 0.09f, 0.96f));
             bubbleImage.raycastTarget = false;
             _bubble = bubbleImage.rectTransform;
             var frameSprite = _frameSprite != null ? _frameSprite : Spr("Frame_WavePreview_Flat") ?? Spr("Frame_CostPlate");
-            if (frameSprite != null)
+            if (hasCompleteBubble)
+            {
+                // 배경과 꼬리가 붙어 있는 그림 하나만 그려 사각 배경/연결선이 겹치지 않게 합니다.
+                bubbleImage.color = Color.clear;
+                var complete = new GameObject("HeraldryDialogue", typeof(RectTransform), typeof(UIHeraldryDialogueImage));
+                complete.transform.SetParent(_bubble, false);
+                var dialogue = complete.GetComponent<UIHeraldryDialogueImage>();
+                dialogue.sprite = style.DialogueSprite;
+                dialogue.raycastTarget = false;
+                dialogue.pixelsPerUnitMultiplier = style.FrameMultiplier;
+                Stretch(dialogue.rectTransform);
+                _frameImage = dialogue;
+            }
+            else if (_usesHeraldryFrame) _frameImage = UIHeraldrySupplement.AddFrame(_bubble);
+            else if (frameSprite != null)
             {
                 _frameImage = NewImage("Frame", _bubble, frameSprite, Color.white);
                 _frameImage.type = Image.Type.Sliced;
@@ -843,6 +898,7 @@ namespace OZGL2.Tutorial
             }
 
             _body = NewText("Body", _bubble, 34f, new Color(0.97f, 0.94f, 0.87f), TextAlignmentOptions.TopLeft);
+            UIHeraldrySupplement.ApplyBody(_body);
             _body.textWrappingMode = TextWrappingModes.Normal;
             _body.overflowMode = TextOverflowModes.Overflow;
             _body.lineSpacing = 6f;
@@ -850,19 +906,32 @@ namespace OZGL2.Tutorial
             bodyRt.anchorMin = Vector2.zero; bodyRt.anchorMax = Vector2.one;
             bodyRt.offsetMin = new Vector2(40f, 38f); bodyRt.offsetMax = new Vector2(-40f, -52f);
 
-            var plateSprite = _nameplateSprite != null ? _nameplateSprite : Spr("Frame_SynergyNameplate_Flat") ?? Spr("Frame_CostPlate");
-            var tagImage = NewImage("NameTag", _bubble, plateSprite, plateSprite == _nameplateSprite || plateSprite == null ? Color.white : new Color(0.45f, 0.1f, 0.14f, 1f));
+            bool hasNameplate = style != null && style.NameplateSprite != null;
+            var plateSprite = hasNameplate ? style.NameplateSprite : _nameplateSprite != null ? _nameplateSprite : Spr("Frame_SynergyNameplate_Flat") ?? Spr("Frame_CostPlate");
+            var tagImage = NewImage("NameTag", _bubble, plateSprite, hasNameplate || plateSprite == _nameplateSprite || plateSprite == null ? Color.white : new Color(0.45f, 0.1f, 0.14f, 1f));
             if (plateSprite != null) tagImage.type = Image.Type.Sliced;
             tagImage.raycastTarget = false;
             _nameTag = tagImage.rectTransform;
+            if (hasNameplate)
+            {
+                _heraldryNameplate = tagImage;
+                if (style.CrestSprite != null)
+                {
+                    var crest = UIHeraldrySupplement.CreateImage(_nameTag, "SpeakerCrest", style.CrestSprite);
+                    crest.preserveAspect = true;
+                    _heraldryCrest = crest.rectTransform;
+                    _heraldryCrest.anchorMin = _heraldryCrest.anchorMax = new Vector2(0f, 0.5f);
+                }
+            }
             var nameText = NewText("Name", _nameTag, 34f * S, new Color(1f, 0.9f, 0.55f), TextAlignmentOptions.Center);
+            UIHeraldrySupplement.ApplyTitle(nameText);
             nameText.text = "마왕";
-            nameText.alignment = TextAlignmentOptions.MidlineLeft;
+            nameText.alignment = hasNameplate ? TextAlignmentOptions.Midline : TextAlignmentOptions.MidlineLeft;
             AddShadowTo(nameText);
-            tagImage.enabled = false; // 이름표 상자는 없애고 글자만 둔다
+            tagImage.enabled = hasNameplate;
             nameText.enableAutoSizing = true; nameText.fontSizeMin = 16f * S; nameText.fontSizeMax = 34f * S;
             Stretch(nameText.rectTransform);
-            nameText.rectTransform.offsetMin = new Vector2(14f * S, 6f * S); nameText.rectTransform.offsetMax = new Vector2(-14f * S, -6f * S);
+            nameText.rectTransform.offsetMin = new Vector2((hasNameplate ? 34f : 14f) * S, 6f * S); nameText.rectTransform.offsetMax = new Vector2(-14f * S, -6f * S);
 
             _counter = NewText("Counter", _bubble, 22f, new Color(0.7f, 0.66f, 0.6f), TextAlignmentOptions.Right);
             _counter.gameObject.SetActive(false); // 남은 쪽 수(n / N)는 보이지 않게 한다
@@ -874,6 +943,7 @@ namespace OZGL2.Tutorial
             _hint.pivot = new Vector2(0.5f, 0.5f);
             _hint.sizeDelta = new Vector2(26f, 22f);
             _hintText = NewText("HintText", _bubble, 22f * S, new Color(0.93f, 0.87f, 0.75f, 0.95f), TextAlignmentOptions.MidlineRight);
+            UIHeraldrySupplement.ApplyBody(_hintText);
             _hintText.text = "Space · 화면 클릭: 다음";
             _hintText.raycastTarget = false;
 
@@ -882,7 +952,7 @@ namespace OZGL2.Tutorial
             headerImage.raycastTarget = false;
             _headerLine = headerImage;
             var cornerSprite = _cornerSprite != null ? _cornerSprite : Spr("Ornament_Diamond_Flat");
-            if (cornerSprite != null)
+            if (!_usesHeraldryFrame && cornerSprite != null)
                 for (int i = 0; i < 4; i++)
                 {
                     var d = NewImage("Corner" + i, _bubble, cornerSprite, Color.white);
@@ -890,7 +960,7 @@ namespace OZGL2.Tutorial
                     _corners[i] = d.rectTransform;
                 }
             var ornSprite = _titleOrnamentSprite != null ? _titleOrnamentSprite : Spr("Ornament_WaveTitle_Flat");
-            if (ornSprite != null)
+            if (!_usesHeraldryFrame && ornSprite != null)
                 for (int i = 0; i < 2; i++)
                 {
                     var o = NewImage("NameOrnament" + i, _bubble, ornSprite, Color.white);
@@ -899,10 +969,15 @@ namespace OZGL2.Tutorial
                 }
 
             // 말꼬리(마왕 쪽으로 뾰족)와 진행 막대
-            var tailImage = NewImage("Tail", _bubble, MakeTriangle(), new Color(0.07f, 0.05f, 0.09f, 0.96f));
+            _usesHeraldryTail = style != null && style.TailSprite != null;
+            var tailImage = NewImage("Tail", _bubble, _usesHeraldryTail ? style.TailSprite : MakeTriangle(), _usesHeraldryTail ? Color.white : new Color(0.07f, 0.05f, 0.09f, 0.96f));
             tailImage.raycastTarget = false;
             _tail = tailImage.rectTransform;
-            tailImage.transform.SetAsFirstSibling();
+            tailImage.enabled = !hasCompleteBubble;
+            if (_usesHeraldryTail && _frameImage != null)
+                tailImage.transform.SetSiblingIndex(_frameImage.transform.GetSiblingIndex() + 1);
+            else if (!_usesHeraldryTail)
+                tailImage.transform.SetAsFirstSibling();
             var barBg = NewImage("Progress", _bubble, null, new Color(1f, 1f, 1f, 0.12f));
             barBg.raycastTarget = false;
             var barFill = NewImage("Fill", barBg.rectTransform, null, new Color(1f, 0.82f, 0.42f, 0.95f));

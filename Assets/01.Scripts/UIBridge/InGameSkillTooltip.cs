@@ -159,7 +159,7 @@ namespace OZGL2.UIBridge
             _canvas.sortingOrder = 29; // 배속 막대(28) 위, 시너지 설명(30)·팝업 아래
             _canvas.enabled = false;
 
-            var panelGo = new GameObject("Panel", typeof(RectTransform), typeof(Image), typeof(Outline));
+            var panelGo = new GameObject("Panel", typeof(RectTransform), typeof(Image));
             panelGo.transform.SetParent(go.transform, false);
             _panel = (RectTransform)panelGo.transform;
             _panel.anchorMin = _panel.anchorMax = Vector2.zero;
@@ -167,8 +167,13 @@ namespace OZGL2.UIBridge
             _bg = panelGo.GetComponent<Image>();
             _bg.color = new Color(0.06f, 0.03f, 0.05f, 0.96f);
             _bg.raycastTarget = false;
-            var border = panelGo.GetComponent<Outline>();
-            border.effectColor = new Color(0.79f, 0.64f, 0.29f, 0.9f); border.effectDistance = new Vector2(2f, -2f);
+            var style = UIHeraldrySupplement.Style;
+            if (style != null) _bg.color = style.BackgroundColor;
+            if (UIHeraldrySupplement.AddFrame(_panel, true) == null)
+            {
+                var border = panelGo.AddComponent<Outline>();
+                border.effectColor = new Color(0.79f, 0.64f, 0.29f, 0.9f); border.effectDistance = new Vector2(2f, -2f);
+            }
 
             TMP_FontAsset font = null;
             foreach (var v in _slots)
@@ -178,6 +183,11 @@ namespace OZGL2.UIBridge
             _title = NewText("Title", 30f, new Color(1f, 0.85f, 0.5f), FontStyles.Bold, font);
             _meta = NewText("Meta", 22f, new Color(0.78f, 0.72f, 0.62f), FontStyles.Normal, font);
             _body = NewText("Body", 25f, new Color(1f, 0.96f, 0.88f), FontStyles.Normal, font);
+            UIHeraldrySupplement.ApplyTitle(_title);
+            UIHeraldrySupplement.ApplyBody(_meta);
+            UIHeraldrySupplement.ApplyBody(_body);
+            _title.textWrappingMode = TextWrappingModes.Normal;
+            _meta.textWrappingMode = TextWrappingModes.Normal;
             _body.textWrappingMode = TextWrappingModes.Normal;
             _body.richText = true;
         }
@@ -198,21 +208,22 @@ namespace OZGL2.UIBridge
 
         private void Place(Rect slot)
         {
-            float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            float width = 460f * s, pad = 18f * s, inner = width - pad * 2f;
-            _panel.localScale = Vector3.one;
-
-            float y = -pad;
-            float titleH = LayoutText(_title, ref y, inner, pad, s, 30f);
-            y -= 2f * s;
-            LayoutText(_meta, ref y, inner, pad, s, 22f);
-            y -= 10f * s;
-            LayoutText(_body, ref y, inner, pad, s, 25f);
+            // 프레임과 장식은 같은 배율로만 줄이고 본문은 실제 글꼴의 줄 높이로 쌓는다.
+            float s = Mathf.Max(0.01f, Mathf.Min(Screen.height / 1080f, (Screen.width - 24f) / 460f));
+            const float width = 460f, pad = 30f, inner = width - pad * 2f;
+            float y = -48f;
+            LayoutText(_title, ref y, inner, pad, 1f, 30f);
+            y -= 6f;
+            LayoutText(_meta, ref y, inner, pad, 1f, 22f);
+            y -= 12f;
+            LayoutText(_body, ref y, inner, pad, 1f, 25f);
             float height = -y + pad;
             _panel.sizeDelta = new Vector2(width, height);
-
-            float x = Mathf.Clamp(slot.center.x, width * 0.5f + 8f * s, Screen.width - width * 0.5f - 8f * s);
-            float py = Mathf.Min(slot.yMax + 14f * s, Screen.height - height - 8f * s);
+            s = Mathf.Min(s, Mathf.Max(0.01f, (Screen.height - 24f) / (height + 36f)));
+            _panel.localScale = Vector3.one * s;
+            float screenWidth = width * s, screenHeight = height * s;
+            float x = Mathf.Clamp(slot.center.x, screenWidth * 0.5f + 8f, Screen.width - screenWidth * 0.5f - 8f);
+            float py = Mathf.Clamp(slot.yMax + 14f * s, 8f, Screen.height - screenHeight - 36f * s - 8f);
             _panel.anchoredPosition = new Vector2(x, py);
         }
 

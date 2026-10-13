@@ -41,6 +41,7 @@ namespace OZGL2.UIBridge
                 foreach (var text in Resources.FindObjectsOfTypeAll<TMP_Text>())
                 {
                     if (text == null || !text.gameObject.scene.IsValid()) continue;
+                    if (text.GetComponent<FontUnifyIgnore>() != null) continue;
                     // 글꼴 연결이 비어 있으면(카드 전용 SDF 파일이 아직 없을 때 등) 글자가 안 보이므로 대표 글꼴로 채운다
                     if (text.font == null) { text.font = _tmpMain; continue; }
                     if (_keepTmp.Contains(text.font.GetInstanceID())) continue;
