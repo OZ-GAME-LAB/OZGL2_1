@@ -7,6 +7,7 @@ using OZGL2.InGame;
 using OZGL2.Skill;
 using OZGL2.Stage;
 using OZGL2.Synergy;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -145,8 +146,44 @@ namespace OZGL2.UIBridge
             EnsureAssets();
             HookCast();
             WatchStage();
+            HoldHandDuringClearBanner();
             if (_damageNumbers || _hitSparks || _deathPoof) PollUnits();
             TickFx(Time.unscaledDeltaTime);
+        }
+
+        // ───────────── 클리어 배너 동안 손패 가리기
+        private CanvasGroup _handGroup;
+        private float _nextHandFind;
+        private bool _handHeld, _handSavedBlocks;
+
+        /// <summary>
+        /// 웨이브 클리어 배너가 보이는 동안 화면 아래 손패(내가 가진 카드 · 보상 카드)를 가린다. 어떤 이유로 손패가 먼저 채워져도 배너 위에 뜨지 않게 하고,
+        /// 배너가 끝나면 부드럽게 나타난다. 손패 화면 자체는 건드리지 않고 투명도만 쓴다.
+        /// </summary>
+        private void HoldHandDuringClearBanner()
+        {
+            bool hold = HoldingForClearBanner;
+            if (!hold && !_handHeld) return;
+            if (_handGroup == null)
+            {
+                if (Time.unscaledTime < _nextHandFind) return;
+                _nextHandFind = Time.unscaledTime + 0.5f;
+                var view = FindFirstObjectByType<UIBattleCardHandView>(FindObjectsInactive.Include);
+                if (view == null) return;
+                _handGroup = view.GetComponent<CanvasGroup>();
+                if (_handGroup == null) _handGroup = view.gameObject.AddComponent<CanvasGroup>();
+            }
+            if (hold)
+            {
+                if (!_handHeld) _handSavedBlocks = _handGroup.blocksRaycasts;   // 원래 값을 기억해 두었다가 돌려 준다
+                _handHeld = true;
+                _handGroup.alpha = 0f;
+                _handGroup.blocksRaycasts = false;
+                return;
+            }
+            // 배너가 끝났다: 서서히 다시 보인다
+            _handGroup.alpha = Mathf.MoveTowards(_handGroup.alpha, 1f, Time.unscaledDeltaTime * 4f);
+            if (_handGroup.alpha >= 1f) { _handGroup.blocksRaycasts = _handSavedBlocks; _handHeld = false; }
         }
 
         private void HookCast()
