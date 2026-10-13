@@ -18,7 +18,7 @@ public static class HeraldryTooltipPrefabBuilder
     public const string ROOT = "Assets/06.UI/BattleMutedPreview/Heraldry_Tooltips_v1";
     public const string REWARD_PREFAB = ROOT + "/Prefabs/RoundRewardPanel_Heraldry.prefab";
     public const string SYNERGY_PREFAB = ROOT + "/Prefabs/SynergyTooltipPanel_Heraldry.prefab";
-    private const string FONT_ROOT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/02.SDF_File/";
+    private const string FONT_ROOT = "Assets/06.UI/01.Font/02.SDF_File/";
 
     [MenuItem("Tools/OZGL2/Battle Tooltips/Build New Heraldry Prefabs")]
     public static void Build()

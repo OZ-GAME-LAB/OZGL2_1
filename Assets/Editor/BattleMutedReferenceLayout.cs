@@ -13,8 +13,8 @@ public static class BattleMutedReferenceLayout
 {
     public const string PREVIEW_SCENE = "Assets/00.Scenes/UI_Flow/UI_Battle_MutedPreview.unity";
     public const string ART_DIRECTORY = "Assets/06.UI/BattleMutedPreview/Reference_v2/";
-    private const string KOREAN_FONT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.otf";
-    private const string NUMBER_FONT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSGothic.ttf";
+    private const string KOREAN_FONT = "Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf";
+    private const string NUMBER_FONT = "Assets/06.UI/01.Font/DOSGothic.ttf";
     private const string EXPERIENCE_WHITE = ART_DIRECTORY + "Experience_White.png";
     private static readonly Color INK = new Color(0.018f, 0.016f, 0.019f, 0.94f);
     private static readonly Color PAPER = new Color(0.96f, 0.95f, 0.91f, 1f);

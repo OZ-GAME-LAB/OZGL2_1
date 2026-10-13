@@ -46,10 +46,10 @@ namespace OZGL2.Progression
             Application.quitting += OnQuitting;
         }
 
-        // 타이틀을 벗어나 실제로 플레이한 뒤에만 "마지막 접속"을 갱신한다(타이틀만 켰다 끈 것은 기록하지 않는다)
+        // 로고·타이틀을 벗어나 실제로 플레이한 뒤에만 "마지막 접속"을 갱신한다.
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (scene.name.StartsWith("Title")) return;
+            if (scene.name == "TeamLogo" || scene.name.StartsWith("Title")) return;
             _leftTitle = true;
             Touch();
         }

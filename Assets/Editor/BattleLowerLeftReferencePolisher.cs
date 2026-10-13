@@ -12,7 +12,7 @@ public static class BattleLowerLeftReferencePolisher
 {
     private const string SCENE_PATH = "Assets/00.Scenes/UI_Flow/UI_Battle_MutedPreview.unity";
     private const string ART_ROOT = "Assets/06.UI/BattleMutedPreview/LowerLeftReference/";
-    private const string FONT_PATH = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.otf";
+    private const string FONT_PATH = "Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf";
     private const string UNDO_NAME = "전투 하단 왼쪽 레퍼런스 보정";
     private const float REROLL_SIZE = 168f;
     private const float PRICE_WIDTH = 180f;

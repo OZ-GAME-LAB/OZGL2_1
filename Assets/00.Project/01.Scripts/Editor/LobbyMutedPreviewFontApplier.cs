@@ -15,8 +15,8 @@ using UnityEngine.UI;
 internal static class LobbyMutedPreviewFontApplier
 {
     private const string PREVIEW_SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
-    private const string SOURCE_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/";
-    private const string OUTPUT_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font";
+    private const string SOURCE_FOLDER = "Assets/06.UI/01.Font/";
+    private const string OUTPUT_FOLDER = "Assets/06.UI/01.Font";
     private const string GOTHIC_ASSET = OUTPUT_FOLDER + "/DOSGothic Pixel.asset";
     private const string MYUNGJO_ASSET = OUTPUT_FOLDER + "/DOSMyungjo Pixel.asset";
     private const string GOTHIC_OUTLINE_MATERIAL = OUTPUT_FOLDER + "/DOSGothic Pixel Outline.mat";

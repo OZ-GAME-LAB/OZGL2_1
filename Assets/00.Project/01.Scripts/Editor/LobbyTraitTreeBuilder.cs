@@ -16,7 +16,7 @@ internal static class LobbyTraitTreeBuilder
 {
     private const string PREFAB = "Assets/06.UI/LobbyMutedPreview/Overlays/Prefabs/Canvas_LobbyOverlays.prefab";
     private const string ART = "Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/";
-    private const string FONT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSMyungjo Overlay Pixel.asset";
+    private const string FONT = "Assets/06.UI/01.Font/DOSMyungjo Overlay Pixel.asset";
     private const string MATERIAL = "Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/DOSMyungjo Trait Outline.mat";
     private static readonly Color _textColor = new Color32(248, 242, 235, 255);
     private static TMP_FontAsset _font;

@@ -164,7 +164,7 @@ Project 창에서 해당 Prefab을 열어 아래 자식의 컴포넌트를 편�
 
 좌상단 종류 아이콘은 256×256 중심 Pivot Sprite를 공통 112×112 Rect에 표시한다. `TypeBadge` 중심에 맞추고, 원본 모양을 왜곡하지 않은 채 불투명 픽셀의 마름모 경계 반경을 112px 이하로 정렬했다. 프레임 사선과 약 6 UI 단위 이상의 간격을 확보한다. 기존 검·산·마력 아이콘 원본은 보존한다. 생성 기록은 `Tools/Art/Sources/BattleCardDiamondIcons_v2/GENERATION.md`, 후처리는 `PrepareBattleCardArt.ps1 -DiamondIcons`를 사용한다.
 
-Text는 `Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.otf`를 사용한다. 이 폰트는 로컬 공유 경로에 있으므로 새 clone만으로 참조가 완성되지 않을 수 있다. [폰트 공유 절차](../FontAssetSharing.md)에 따라 원본 폰트와 기존 `.meta`를 동일 경로·GUID로 복원한다. 이번 카드 때문에 TMP SDF 폰트를 새로 생성할 필요는 없다.
+기존 `Text`는 `Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf`를 사용한다. 이 원본 폰트와 기존 `.meta`는 Git 공유 대상이다. 이전 로컬 폴더가 있는 팀원은 [폰트 이전 절차](../FontAssetSharing.md)에 따라 pull 전에 이전 사본을 Assets 밖으로 백업한다. 기존 GUID를 보존하므로 참조 복원을 위해 폰트를 새로 생성할 필요는 없다. 새 폴더 밖의 제외된 SDF는 여전히 별도 공유 대상이다.
 
 ## Editor 메뉴
 

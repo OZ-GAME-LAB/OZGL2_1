@@ -56,7 +56,7 @@ public static class LobbySkillSaveFlowBuilder
             ConfigureDialogButtons(previous);
             return; // 수동 레이아웃 조정을 재실행으로 덮어쓰지 않는다.
         }
-        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSMyungjo Overlay Pixel.asset");
+        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/06.UI/01.Font/DOSMyungjo Overlay Pixel.asset");
         var material = AssetDatabase.LoadAssetAtPath<Material>(OVERLAYS + "/Fonts/DOSMyungjo Trait Outline.mat");
         if (font == null || material == null) throw new InvalidOperationException("공유 폰트/Material을 복원하세요.");
         Image overlay = Image("ExitConfirmation", root.transform, null, Vector2.zero, Vector2.zero);

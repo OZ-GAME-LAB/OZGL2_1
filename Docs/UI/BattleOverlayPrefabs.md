@@ -140,7 +140,7 @@
 - 전용 프로젝트 폰트: `Overlays_v1/Fonts/BattleOverlay Pixel.asset`
 - 기존 DOSMyungjo 원본으로 생성한 TMP 도트 폰트이며 Atlas는 Point 필터를 사용한다. 전체 `AugmentData.displayName`과 `description`, 선택창 고정 문구의 지원 글리프를 이 기본 폰트에 포함해 카드별 글꼴이 섞이지 않게 한다.
 - 원본에 없는 `−`, `×`, `·`는 NotoSansCJKkr 기반 프로젝트 전용 `Fonts/BattleOverlay Symbols SDF.asset`를 생성하여 보완했다. 두 폰트의 Atlas/Material도 에셋 내부에 보관한다.
-- 동적 Atlas이므로 앞으로 새 글자를 추가하거나 폰트를 재생성할 환경에는 기존 공유 원본 폰트가 필요하다. 원본 폰트 위치는 `Assets/98.ExternalAssets/00.LocalStaging/01.Font/`다.
+- 동적 Atlas이므로 앞으로 새 글자를 추가하거나 폰트를 재생성할 환경에는 원본 폰트가 필요하다. 원본 폰트 위치는 Git 공유 대상인 `Assets/06.UI/01.Font/`다. 해당 폴더 밖의 SDF 제외 규칙은 유지하므로 새 clone에는 별도 공유 폰트도 필요할 수 있다. 기존 폴더를 가진 팀원은 [폰트 이전 절차](../FontAssetSharing.md)를 먼저 따른다.
 - 새 Sprite는 Single / FullRect / 중심 Pivot / Point / 무압축 / Mipmap 없음 / 원본 Alpha를 사용한다. Importer는 Unity에서 설정하고 `.meta`를 직접 수정하지 않는다.
 
 ## 생성 도구와 Undo

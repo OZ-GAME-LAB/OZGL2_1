@@ -127,3 +127,9 @@ InitTestScene*.unity*
 /Assets/06.UI/LobbyMutedPreview/Fonts/*.asset.meta
 /Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/*.asset
 /Assets/06.UI/LobbyMutedPreview/Overlays/Fonts/*.asset.meta
+
+# Shared UI fonts (sources, TMP assets, materials, shaders and original GUIDs).
+# This folder is shared through Git; SDF assets elsewhere keep the exclusions above.
+!/Assets/06.UI/01.Font/
+!/Assets/06.UI/01.Font.meta
+!/Assets/06.UI/01.Font/**

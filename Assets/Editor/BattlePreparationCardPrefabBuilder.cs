@@ -15,7 +15,7 @@ public static class BattlePreparationCardPrefabBuilder
     private const string ROOT = "Assets/06.UI/BattleMutedPreview/Cards_v1";
     private const string SPRITES = ROOT + "/Sprites/";
     private const string PREFABS = ROOT + "/Prefabs";
-    private const string FONT_PATH = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.otf";
+    private const string FONT_PATH = "Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf";
     private const string DIAMOND_PATH = "Assets/06.UI/BattleMutedPreview/Reference_v2/Frame_DiamondSynergy.png";
     private const string SHIELD_PATH = "Assets/06.UI/BattleMutedPreview/Sprites/Icon_BoneShield.png";
     private const string HEART_PATH = "Assets/06.UI/LobbyMutedPreview/Overlays/TreeArt_v1/Sprites/Icons/Legion/Icon_Legion_UndyingFlesh.png";

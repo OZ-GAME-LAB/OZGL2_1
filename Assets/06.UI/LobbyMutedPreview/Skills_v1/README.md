@@ -49,7 +49,7 @@
 - 카드와 장착 슬롯은 아이콘과 프레임이 별도 Image이다. 장착 프레임은 스킬 분류로 교체하며, 목록 호버/선택은 기존 상태 Sprite를 유지한다.
 - 확인창: Prefab의 `ExitConfirmation/Panel/Message`, `Cancel`, `Leave`. `UISkillLoadoutPreview.Exit Confirmation`과 두 버튼의 취소/나가기 연결을 확인한다.
 - 확인창 Canvas는 부모보다 높은 sortingOrder(151), CanvasGroup의 Ignore Parent Groups 활성, 별도 GraphicRaycaster를 사용한다. 편집 UI를 잠근 상태에서도 확인창 버튼은 입력을 받는다.
-- 폰트: 기존 `01.Font/DOSMyungjo Overlay Pixel.asset`와 Outline Material을 재사용한다. Git에서 제외된 폰트는 공유 드라이브에서 **기존 .meta와 함께** 복원해야 한다.
+- 폰트: `Assets/06.UI/01.Font/DOSMyungjo Overlay Pixel.asset`와 기존 Outline Material을 재사용한다. 새 폰트 폴더는 **원래 `.meta`와 함께** Git으로 공유한다. 이전 로컬 폴더가 있는 팀원은 [폰트 이전 절차](../../../../Docs/FontAssetSharing.md)에 따라 pull 전에 Assets 밖으로 백업해 중복 GUID를 방지한다.
 - 입력: 기존 EventSystem/Input System 및 PopupController를 재사용한다. 새 EventSystem/입력 액션은 추가하지 않았다.
 - LayerMask/Tag, Collider/Rigidbody/IsTrigger, Animator/Animation Event 설정 변경은 없다.
 

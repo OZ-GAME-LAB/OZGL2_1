@@ -12,7 +12,7 @@ using UnityEngine.TextCore.LowLevel;
 /// </summary>
 public static class LobbyDifficultyRecordTypography
 {
-    public const string FONT_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font";
+    public const string FONT_FOLDER = "Assets/06.UI/01.Font";
     public const string FONT_PATH = FONT_FOLDER + "/LobbyRecordText SDF.asset";
     public const string EMPHASIS_FONT_PATH = FONT_FOLDER + "/LobbyRecordEmphasis Pixel.asset";
     private const string REFERENCE_EMPHASIS_FONT_PATH = FONT_FOLDER + "/DOSMyungjo Pixel.asset";

@@ -17,7 +17,7 @@ public static class BattleResultTypography
     public const string TITLE_FONT_PATH = FONT_FOLDER + "/BattleResultTitle SDF.asset";
     public const string BODY_FONT_PATH = FONT_FOLDER + "/BattleResultBody SDF.asset";
 
-    private const string SOURCE_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/00.otf_ttf_file/";
+    private const string SOURCE_FOLDER = "Assets/06.UI/01.Font/00.otf_ttf_file/";
     private const string TITLE_SOURCE_PATH = SOURCE_FOLDER + "HS봄바람체/HS봄바람체2.0.ttf";
     private const string BODY_SOURCE_PATH = SOURCE_FOLDER + "KMU80SungkokHaeong_01/OTF/static/KMU80SungkokSerif.otf";
     private const string SHADER_NAME = "TextMeshPro/Mobile/Distance Field";
