@@ -31,10 +31,12 @@ namespace OZGL2.UIBridge
             "자동 카메라는 배속 막대 옆 단추로 켜고 끌 수 있어요.",
         };
 
+        private const float RunSpeed = 0.55f;       // 막대가 차는 최고 속도(초당 비율) — 0%에서 100%까지 마왕이 달리는 데 최소 약 1.8초
         private const float MinSeconds = 0.7f;      // 번쩍임 방지용 최소 표시 시간(진행 막대는 이 시간과 상관없이 실제 진행도를 따른다)
         private static Sprite _logoCache;
         private static bool _busy;
         private const float BarWidth = 1000f, BarHeight = 30f;
+        private const float KingLift = 128f;        // 마왕 그림의 가운데가 막대 위로 떠 있는 높이(발이 막대에 닿게)
         private static readonly Color Gold = new Color(1f, 0.82f, 0.4f, 1f);
         private static readonly Color Cream = new Color(1f, 0.95f, 0.84f, 1f);
 
@@ -44,7 +46,10 @@ namespace OZGL2.UIBridge
         private RectTransform _root, _king, _fillRt, _trailRt, _glowRt;
         private Image _bg, _fill, _trail, _glow;
         private CanvasGroup _group;
-        private TMP_Text _label, _tip;
+        private TMP_Text _label, _tip, _pct;
+        private RectTransform _pctRt;
+        private readonly System.Collections.Generic.List<(RectTransform rt, Image img, float born)> _dust = new System.Collections.Generic.List<(RectTransform, Image, float)>();
+        private float _nextDust;
         private TMP_FontAsset _font;
         private DemonKingPortrait _portrait;
         private Sprite _pill, _soft, _vignette;
@@ -78,9 +83,9 @@ namespace OZGL2.UIBridge
             _tip.text = Tips[Random.Range(0, Tips.Length)];
             // 지금 보이는 화면 위로 어둡게 덮이면서 그림들이 서서히 켜진다
             _bg.color = new Color(0.02f, 0.01f, 0.04f, 0f);
-            for (float t = 0f; t < 0.4f; t += Time.unscaledDeltaTime)
+            for (float t = 0f; t < 0.22f; t += Time.unscaledDeltaTime)
             {
-                float k = Mathf.SmoothStep(0f, 1f, t / 0.4f);
+                float k = Mathf.SmoothStep(0f, 1f, t / 0.22f);
                 _bg.color = new Color(0.02f, 0.01f, 0.04f, k);
                 _group.alpha = k;
                 yield return null;
@@ -96,7 +101,7 @@ namespace OZGL2.UIBridge
             while (true)
             {
                 _real = Mathf.Clamp01(op.progress / 0.9f);                       // 활성화 전에는 0.9 에서 멈춘다
-                _shown = Mathf.MoveTowards(_shown, _real, Time.unscaledDeltaTime * 1.6f);   // 실제 진행도를 따라간다(부드럽게만)
+                _shown = Mathf.MoveTowards(_shown, _real, Time.unscaledDeltaTime * RunSpeed);   // 실제 진행도를 따라가되 마왕이 달리는 모습이 보이게 천천히(앞지르지 않는다)
                 Visuals();
 
                 tipTimer += Time.unscaledDeltaTime;
@@ -146,7 +151,7 @@ namespace OZGL2.UIBridge
             if (_label == null || _done) return;
             if (_shown >= 0.999f && _real >= 1f) return;      // 다 불러온 뒤에는 「준비 중...」 글자를 그대로 둔다
             int dots = Mathf.FloorToInt(Time.unscaledTime * 2.5f) % 4;
-            _label.text = "불러오는 중" + new string('.', dots) + "  " + Mathf.RoundToInt(_shown * 100f) + "%";
+            _label.text = "불러오는 중" + new string('.', dots) + "   ";
         }
 
         private void Visuals()
@@ -157,8 +162,34 @@ namespace OZGL2.UIBridge
             _trailRt.sizeDelta = new Vector2(Mathf.Min(BarWidth, w + 26f), _trailRt.sizeDelta.y);
             _glowRt.anchoredPosition = new Vector2(w, 0f);
             _glow.color = new Color(1f, 0.85f, 0.45f, (_shown > 0.01f && _shown < 0.995f ? 0.8f : 0f));
-            // 마왕은 막대 위를 채워지는 끝을 따라 달린다
-            _king.anchoredPosition = new Vector2(-BarWidth * 0.5f + w, BarHeight * 0.5f + 98f + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 9f)) * 6f);
+            // 마왕은 막대를 따라 0%에서 100%까지 달린다. 머리 위 숫자가 함께 오른다
+            float kx = -BarWidth * 0.5f + w;
+            if (_king != null) _king.anchoredPosition = new Vector2(kx, BarHeight * 0.5f + KingLift + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 9f)) * 6f);
+            if (_pctRt != null)
+            {
+                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingLift + 150f);
+                _pct.text = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f) + "%";
+            }
+            // 달리는 동안 발밑에서 먼지가 인다
+            if (_king != null && _shown > 0.005f && _shown < 0.999f && Time.unscaledTime >= _nextDust)
+            {
+                _nextDust = Time.unscaledTime + 0.09f;
+                var d = NewImage("Dust", _fillRt.parent, _soft, new Color(0.8f, 0.7f, 0.6f, 0f));
+                d.rectTransform.anchorMin = d.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                d.rectTransform.sizeDelta = new Vector2(34f, 34f);
+                d.rectTransform.anchoredPosition = new Vector2(kx - 36f, BarHeight * 0.5f + 12f);
+                d.rectTransform.SetSiblingIndex(_king.GetSiblingIndex());
+                _dust.Add((d.rectTransform, d, Time.unscaledTime));
+            }
+            for (int i = _dust.Count - 1; i >= 0; i--)
+            {
+                var (drt, dimg, born) = _dust[i];
+                float k = (Time.unscaledTime - born) / 0.6f;
+                if (drt == null || k >= 1f) { if (drt != null) Destroy(drt.gameObject); _dust.RemoveAt(i); continue; }
+                dimg.color = new Color(0.85f, 0.75f, 0.65f, Mathf.Sin(k * Mathf.PI) * 0.4f);
+                drt.sizeDelta = Vector2.one * (34f + 40f * k);
+                drt.anchoredPosition += new Vector2(-30f * Time.unscaledDeltaTime, 22f * Time.unscaledDeltaTime);
+            }
         }
 
         // ───────────── 화면 만들기
@@ -234,6 +265,11 @@ namespace OZGL2.UIBridge
             _label.rectTransform.sizeDelta = new Vector2(500f, 56f);
             _label.rectTransform.anchoredPosition = new Vector2(-BarWidth * 0.5f, -232f);
             _label.text = "불러오는 중";
+            _pct = NewText("Percent", barRoot, 54f, Gold, TextAlignmentOptions.Center);
+            _pct.fontStyle = FontStyles.Bold;
+            _pctRt = _pct.rectTransform;
+            _pctRt.anchorMin = _pctRt.anchorMax = new Vector2(0.5f, 0.5f);
+            _pctRt.sizeDelta = new Vector2(220f, 70f);
             _tip = NewText("Tip", content, 36f, Cream, TextAlignmentOptions.Center);
             _tip.rectTransform.anchorMin = _tip.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             _tip.rectTransform.sizeDelta = new Vector2(1500f, 60f);
@@ -262,7 +298,7 @@ namespace OZGL2.UIBridge
             raw.uvRect = new Rect(1f, 0f, -1f, 1f);                 // 프리팹은 왼쪽을 보므로 뒤집어 오른쪽(막대가 차는 쪽)으로 달리게
             _king = raw.rectTransform;
             _king.anchorMin = _king.anchorMax = new Vector2(0.5f, 0.5f);
-            _king.sizeDelta = new Vector2(230f, 230f);
+            _king.sizeDelta = new Vector2(270f, 270f);
         }
 
         private Image BarPart(string name, RectTransform parent, Color color, out RectTransform rt)
