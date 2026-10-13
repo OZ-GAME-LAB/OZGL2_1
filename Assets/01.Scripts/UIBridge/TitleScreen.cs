@@ -243,7 +243,8 @@ namespace OZGL2.UIBridge
             yield return null; // 이벤트 시스템이 지워진 뒤에 로비를 연다
             // 씬 이름이 바뀌기 전 값(예: Lobby_2)이 저장돼 있어도 로비로 가도록 한다
             string target = Application.CanStreamedLevelBeLoaded(_lobbyScene) ? _lobbyScene : "Lobby";
-            SceneManager.LoadScene(target);
+            // 로비는 바로 열지 않고 로딩 화면(진행 막대·달리는 마왕·팁)을 거쳐 비동기로 연다
+            SceneLoadingScreen.Load(target, _logo);
         }
 
         private IEnumerator FadeIn()
