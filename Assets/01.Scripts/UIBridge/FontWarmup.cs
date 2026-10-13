@@ -9,6 +9,27 @@ namespace OZGL2.UIBridge
     /// </summary>
     public static class FontWarmup
     {
+        /// <summary>
+        /// 글자를 넣기 직전에 부른다: 이 글자들을 target 의 글꼴(없는 글자는 대체 글꼴)에 미리 그려 두어서 처음 보이는 순간에 깨져 보이지 않게 한다.
+        /// 이미 있는 글자는 건너뛰므로 자주 불러도 가볍다.
+        /// </summary>
+        public static void Ensure(TMP_Text target, string text)
+        {
+            if (target == null || string.IsNullOrEmpty(text) || target.font == null) return;
+            var font = target.font;
+            if (font.atlasPopulationMode == AtlasPopulationMode.Dynamic)
+            {
+                font.TryAddCharacters(text, out string missing);
+                if (!string.IsNullOrEmpty(missing) && font.fallbackFontAssetTable != null)
+                    foreach (var fallback in font.fallbackFontAssetTable)
+                    {
+                        if (fallback == null || fallback.atlasPopulationMode != AtlasPopulationMode.Dynamic) continue;
+                        fallback.TryAddCharacters(missing, out missing);
+                        if (string.IsNullOrEmpty(missing)) break;
+                    }
+            }
+        }
+
         /// <summary>font 의 그림판에 chars 의 글자를 미리 넣는다. 글꼴이 없거나 동적이 아니면 아무것도 하지 않는다.</summary>
         public static void Warm(TMP_FontAsset font, string chars)
         {

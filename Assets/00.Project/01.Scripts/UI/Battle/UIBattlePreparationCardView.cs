@@ -239,7 +239,7 @@ namespace OZGL2.UIFlow
 
         private static void SetText(Graphic target, string value)
         {
-            if (target is TMP_Text tmp) tmp.text = value ?? string.Empty;
+            if (target is TMP_Text tmp) { OZGL2.UIBridge.FontWarmup.Ensure(tmp, value); tmp.text = value ?? string.Empty; }   // 글자를 넣기 전에 글꼴에 미리 그려 둔다(깨졌다 나타나는 것 방지)
             else if (target is Text legacy) legacy.text = value ?? string.Empty;
         }
 
