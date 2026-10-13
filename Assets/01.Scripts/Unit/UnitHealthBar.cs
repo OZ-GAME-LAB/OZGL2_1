@@ -33,8 +33,10 @@ public class UnitHealthBar : MonoBehaviour
     private static Sprite _white, _gradient;
 
     private UnitBase _unit;
-    private SpriteRenderer _outline, _frame, _background, _trail, _fill, _shine, _shade, _flash;
-    private readonly SpriteRenderer[] _ticks = new SpriteRenderer[3];
+    private SpriteRenderer _outline, _frame, _background, _trail, _fill, _shine, _flash;
+    // 지난번에 그린 값(같으면 다시 쓰지 않는다 — 유닛이 수십 기라 매 프레임 쓰기가 쌓이면 끊긴다)
+    private float _drawnRatio = -1f, _drawnTrail = -1f, _drawnAlpha = -1f, _drawnComp = 0f;
+    private bool _drawnFlashOn, _drawnTrailOn = true, _drawnShineOn = true, _drawnLow;
     private SpriteRenderer[] _all = new SpriteRenderer[0];
     private int[] _baseOrder = new int[0];
     private int _sortBoost = int.MinValue;
@@ -93,14 +95,11 @@ public class UnitHealthBar : MonoBehaviour
         _background = Layer("Background", _gradient, 1002, new Color(0.17f, 0.08f, 0.12f, 1f));
         _trail = Layer("Trail", _white, 1003, new Color(1f, 0.93f, 0.5f, 0.95f));
         _fill = Layer("Fill", _gradient, 1004, _fillColor);
-        _shade = Layer("Shade", _white, 1005, new Color(0f, 0f, 0f, 0.22f));
         _shine = Layer("Shine", _white, 1006, new Color(1f, 1f, 1f, 0.38f));
-        for (int i = 0; i < _ticks.Length; i++) _ticks[i] = Layer("Tick" + (i + 1), _white, 1007, new Color(0f, 0f, 0f, 0.55f));
         _flash = Layer("Flash", _white, 1008, new Color(1f, 1f, 1f, 0f));
 
-        var list = new System.Collections.Generic.List<SpriteRenderer> { _outline, _frame, _background, _trail, _fill, _shade, _shine, _flash };
-        list.AddRange(_ticks);
-        _all = list.ToArray();
+        _all = new[] { _outline, _frame, _background, _trail, _fill, _shine, _flash };
+        _flash.enabled = false;   // 번쩍일 때만 켠다
         _baseAlpha = new float[_all.Length];
         _baseOrder = new int[_all.Length];
         for (int i = 0; i < _all.Length; i++) { _baseAlpha[i] = _all[i].color.a; _baseOrder[i] = _all[i].sortingOrder - 1000 + SortBase; }
@@ -109,8 +108,6 @@ public class UnitHealthBar : MonoBehaviour
         SetRect(_outline, 0f, _barWidth + (Frame + Outline) * 2f, h + (Frame + Outline) * 2f, 0f);
         SetRect(_frame, 0f, _barWidth + Frame * 2f, h + Frame * 2f, 0f);
         SetRect(_background, 0f, _barWidth, h, 0f);
-        for (int i = 0; i < _ticks.Length; i++)
-            SetRect(_ticks[i], (-0.5f + 0.25f * (i + 1)) * _barWidth, 0.01f, h * 0.9f, 0f);
 
         foreach (var sr in _all) sr.sortingOrder = sr.sortingOrder - 1000 + SortBase;
         transform.localPosition = new Vector3(0f, heightOffset, 0f);
@@ -157,6 +154,9 @@ public class UnitHealthBar : MonoBehaviour
         {
             _visible = !isDead;
             foreach (var renderer in _all) renderer.enabled = _visible;
+            if (_visible) { _trail.enabled = false; _flash.enabled = false; _shine.enabled = true; }
+            _drawnTrailOn = false; _drawnFlashOn = false; _drawnShineOn = _visible;
+            _drawnRatio = _drawnTrail = _drawnAlpha = -1f;   // 다시 보이면 처음부터 다시 그린다
         }
         if (isDead) { _wasDead = true; return; }
         if (_wasDead) { _wasDead = false; ResetState(); } // 풀에서 되살아난 유닛은 막대를 가득 찬 상태로 다시 시작
@@ -165,7 +165,7 @@ public class UnitHealthBar : MonoBehaviour
         // 않도록, 부모 스케일의 역수를 곱해 이 오브젝트 기준으로는 항상 정방향이 되게 상쇄한다.
         float parentScaleX = _unit.transform.localScale.x;
         float compensate = Mathf.Abs(parentScaleX) > 0.0001f ? 1f / parentScaleX : 1f;
-        transform.localScale = new Vector3(compensate, 1f, 1f);
+        if (!Mathf.Approximately(compensate, _drawnComp)) { transform.localScale = new Vector3(compensate, 1f, 1f); _drawnComp = compensate; }
 
         // 체력 비율. 최대 체력이 늘어난 유닛(특성·증강)도 정확하도록 지금까지 본 가장 큰 체력을 분모로 쓴다.
         _maxSeen = Mathf.Max(_maxSeen, _unit.currentHealth, _unit.statData.maxHealth);
@@ -184,26 +184,6 @@ public class UnitHealthBar : MonoBehaviour
         }
         _flashK = Mathf.MoveTowards(_flashK, 0f, dt * 5f);
 
-        float h = _height;
-        float fillW = _barWidth * _ratio;
-        float fillX = (fillW - _barWidth) * 0.5f;
-        SetRect(_fill, fillX, fillW, h, 0f);
-        float trailW = _barWidth * _trailRatio;
-        SetRect(_trail, (trailW - _barWidth) * 0.5f, trailW, h, 0f);
-        SetRect(_shine, fillX, Mathf.Max(0f, fillW - 0.03f), h * 0.2f, h * 0.27f);
-        SetRect(_shade, fillX, fillW, h * 0.16f, -h * 0.42f);
-        SetRect(_flash, fillX, fillW, h, 0f);
-
-        // 체력이 낮으면 채움·테두리가 맥박처럼 깜빡인다
-        bool low = _ratio <= LowHpRatio;
-        float pulse = low ? 0.5f + 0.5f * Mathf.Sin(Time.time * 11f) : 0f;
-        var fillColor = Color.Lerp(_fillColor, Color.white, pulse * 0.5f);
-        var frameColor = Color.Lerp(_frameColor, _hero ? new Color(1f, 0.3f, 0.2f) : new Color(1f, 0.45f, 0.75f), pulse);
-
-        // 가득 찬 막대는 아주 살짝만 낮춘다 — 맞으면 바로 최대로
-        bool full = _ratio >= 0.999f && Time.time - _lastHitTime > 1.2f;
-        float alpha = full ? FullHpAlpha : 1f;
-
         // 화면 아래쪽(앞쪽) 유닛의 막대가 위에 그려지게 정렬 층을 유닛 높이에 맞춰 민다
         int boost = Mathf.Clamp(Mathf.RoundToInt(-_unit.transform.position.y * 2f), -100, 100) * SortStep;
         if (boost != _sortBoost)
@@ -211,19 +191,51 @@ public class UnitHealthBar : MonoBehaviour
             _sortBoost = boost;
             for (int i = 0; i < _all.Length; i++) _all[i].sortingOrder = _baseOrder[i] + boost;
         }
-        for (int i = 0; i < _all.Length; i++)
+
+        // 가득 찬 막대는 아주 살짝만 낮춘다 — 맞으면 바로 최대로
+        bool full = _ratio >= 0.999f && Time.time - _lastHitTime > 1.2f;
+        float alpha = full ? FullHpAlpha : 1f;
+        bool low = _ratio <= LowHpRatio;                      // 체력이 낮으면 채움·테두리가 맥박처럼 깜빡인다
+        bool flashOn = _flashK > 0.001f;
+
+        // 바뀐 게 없으면 아무것도 쓰지 않는다(대부분의 막대는 대부분의 시간 이 상태다)
+        bool geometryChanged = !Mathf.Approximately(_ratio, _drawnRatio) || !Mathf.Approximately(_trailRatio, _drawnTrail);
+        bool colorChanged = low || _drawnLow || flashOn || _drawnFlashOn || !Mathf.Approximately(alpha, _drawnAlpha);
+        if (!geometryChanged && !colorChanged) return;
+
+        float h = _height;
+        float fillW = _barWidth * _ratio;
+        float fillX = (fillW - _barWidth) * 0.5f;
+        if (geometryChanged)
         {
-            var sr = _all[i];
-            if (sr == _flash) { sr.color = new Color(1f, 1f, 1f, _flashK * 0.8f); continue; }
-            var c = sr == _fill ? fillColor : sr == _frame ? frameColor : sr.color;
-            c.a = _baseAlpha[i] * alpha;
-            sr.color = c;
+            SetRect(_fill, fillX, fillW, h, 0f);
+            float trailW = _barWidth * _trailRatio;
+            SetRect(_trail, (trailW - _barWidth) * 0.5f, trailW, h, 0f);
+            SetRect(_shine, fillX, Mathf.Max(0f, fillW - 0.03f), h * 0.2f, h * 0.27f);
+            SetRect(_flash, fillX, fillW, h, 0f);
+            _drawnRatio = _ratio; _drawnTrail = _trailRatio;
+            bool trailOn = _visible && _trailRatio > _ratio + 0.002f;
+            if (trailOn != _drawnTrailOn) { _trail.enabled = trailOn; _drawnTrailOn = trailOn; }
+            bool shineOn = _visible && fillW > 0.04f;
+            if (shineOn != _drawnShineOn) { _shine.enabled = shineOn; _drawnShineOn = shineOn; }
         }
-        bool show = _visible;
-        foreach (var sr in _all) sr.enabled = show;
-        _trail.enabled = show && _trailRatio > _ratio + 0.002f;
-        _shine.enabled = show && fillW > 0.04f;
-        _shade.enabled = show && fillW > 0.04f;
+
+        if (colorChanged || geometryChanged)
+        {
+            float pulse = low ? 0.5f + 0.5f * Mathf.Sin(Time.time * 11f) : 0f;
+            var fillColor = Color.Lerp(_fillColor, Color.white, pulse * 0.5f);
+            var frameColor = Color.Lerp(_frameColor, _hero ? new Color(1f, 0.3f, 0.2f) : new Color(1f, 0.45f, 0.75f), pulse);
+            for (int i = 0; i < _all.Length; i++)
+            {
+                var sr = _all[i];
+                if (sr == _flash) { sr.color = new Color(1f, 1f, 1f, _flashK * 0.8f); continue; }
+                var c = sr == _fill ? fillColor : sr == _frame ? frameColor : sr.color;
+                c.a = _baseAlpha[i] * alpha;
+                sr.color = c;
+            }
+            if (flashOn != _drawnFlashOn) { _flash.enabled = _visible && flashOn; _drawnFlashOn = flashOn; }
+            _drawnAlpha = alpha; _drawnLow = low;
+        }
     }
 
     private static void EnsureSprites()

@@ -53,7 +53,9 @@ namespace OZGL2.UIBridge
         private int _lastScreenHeight;
         private InGamePrototypeBootstrap _bootstrap;
         private bool _inCombat, _applyPending;
-        private float _hudBottom = -1f, _nextHudScan;   // 맨 위 상단 바 아래쪽 끝(화면 픽셀, 아래가 0). 찾기 전에는 -1
+        private float _hudBottom = -1f, _nextHudScan, _nextHudSearch;
+        private RectTransform _hudBarRt;               // 찾아 둔 상단 바의 가장 아래 그림(다음부터는 이 사각형만 읽는다)
+        private readonly Vector3[] _corners = new Vector3[4];   // 맨 위 상단 바 아래쪽 끝(화면 픽셀, 아래가 0). 찾기 전에는 -1
 
         private float S => Mathf.Max(0.8f, Screen.height / 1080f);
 
@@ -73,7 +75,7 @@ namespace OZGL2.UIBridge
             if (Time.unscaledTime >= _nextHudScan)
             {
                 _nextHudScan = Time.unscaledTime + 0.5f;
-                float bottom = FindHudBottom();
+                float bottom = HudBottom();
                 if (Mathf.Abs(bottom - _hudBottom) > 1f) { _hudBottom = bottom; _lastScreenHeight = 0; }
             }
             if (_lastScreenHeight != Screen.height) Layout();
@@ -314,8 +316,28 @@ namespace OZGL2.UIBridge
         /// 전투 화면 맨 위 상단 바(레벨 글자를 품은 가로로 넓은 띠)의 아래쪽 끝을 화면 픽셀로 돌려준다. 팀 UI(UIBattleMutedPreviewView)는 건드리지 않고 읽기만 한다.
         /// 못 찾으면 -1.
         /// </summary>
-        private static float FindHudBottom()
+        /// <summary>
+        /// 상단 바 아래쪽 끝. 처음 한 번만 화면을 뒤져(비싼 검색) 바의 그림을 찾아 두고, 이후에는 그 사각형만 읽는다.
+        /// 못 찾았을 때도 3초에 한 번만 다시 찾는다 — 예전에는 0.5초마다 모든 글자를 뒤져서 끊김이 생겼다.
+        /// </summary>
+        private float HudBottom()
         {
+            if (_hudBarRt != null && _hudBarRt.gameObject.activeInHierarchy)
+            {
+                _hudBarRt.GetWorldCorners(_corners);
+                return _corners[0].y;
+            }
+            _hudBarRt = null;
+            if (Time.unscaledTime < _nextHudSearch) return _hudBottom;
+            _nextHudSearch = Time.unscaledTime + 3f;
+            float found = FindHudBottom(out var bar);
+            _hudBarRt = bar;
+            return found;
+        }
+
+        private static float FindHudBottom(out RectTransform barRt)
+        {
+            barRt = null;
             var corners = new Vector3[4];
             Graphic text = null;
             var hud = FindFirstObjectByType<UIBattleMutedPreviewView>();
@@ -350,14 +372,15 @@ namespace OZGL2.UIBridge
                 if (width < Screen.width * 0.6f || corners[0].y <= Screen.height * 0.5f) continue;   // 위쪽 절반에 있는 넓은 띠만
                 // 띠를 담은 칸이 눈에 보이는 막대보다 아래로 더 길 수 있어서, 그 안에서 실제로 그려지는 넓은 그림의 아래쪽 끝을 쓴다
                 float lowest = -1f;
+                RectTransform lowestRt = null;
                 foreach (var graphic in rt.GetComponentsInChildren<Graphic>(false))
                 {
                     if (graphic == null || !graphic.enabled || graphic.color.a < 0.5f) continue;
                     graphic.rectTransform.GetWorldCorners(corners);
                     if (corners[2].x - corners[0].x < Screen.width * 0.6f || corners[0].y <= Screen.height * 0.5f) continue;
-                    if (lowest < 0f || corners[0].y < lowest) lowest = corners[0].y;
+                    if (lowest < 0f || corners[0].y < lowest) { lowest = corners[0].y; lowestRt = graphic.rectTransform; }
                 }
-                if (lowest > 0f) return lowest;
+                if (lowestRt != null) { barRt = lowestRt; return lowest; }
                 rt.GetWorldCorners(corners);
                 return corners[0].y;
             }

@@ -23,6 +23,9 @@ namespace OZGL2.Tutorial
 
         public bool IsReady => Texture != null && _root != null;
 
+        /// <summary>그림 아래쪽에서 캐릭터 발까지의 높이(그림 높이에 대한 0~1 비율). 발을 바닥선에 맞춰 세울 때 쓴다.</summary>
+        public float FeetFraction { get; private set; } = 0.06f;
+
         /// <summary>Build 전에 불러 쓴다. 한 화면에 여럿을 띄울 때 서로 겹치지 않게 그리는 자리(stage)와 그림 크기를 정한다.</summary>
         public void Configure(Vector3 stage, int size)
         {
@@ -95,10 +98,46 @@ namespace OZGL2.Tutorial
             _camera.depth = -50f;
             _camera.orthographicSize = Mathf.Max(bounds.size.x, bounds.size.y) * 0.5f * 1.2f;
             camGo.transform.position = new Vector3(bounds.center.x, bounds.center.y + bounds.size.y * 0.04f, -10f);
+            FeetFraction = Mathf.Clamp01((bounds.min.y - (camGo.transform.position.y - _camera.orthographicSize)) / (2f * _camera.orthographicSize));
             Texture = new RenderTexture(_size, _size, 24, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point };
             _camera.targetTexture = Texture;
             _camera.enabled = false;
             _root.SetActive(false);
+        }
+
+        /// <summary>
+        /// 지금 모습을 한 번 그려 보고, 실제로 그려진 캐릭터가 그림 안에서 차지하는 영역(0~1, 아래쪽이 y=0)을 돌려준다.
+        /// 프리팹의 바운즈에는 눈에 안 보이는 큰 부품이 섞여 있을 수 있어서, 발 위치·크기를 맞출 때는 이 값이 정확하다.
+        /// </summary>
+        public bool MeasureContent(out Rect uv)
+        {
+            uv = default;
+            if (!IsReady) return false;
+            bool rootWas = _root.activeSelf, camWas = _camera.enabled;
+            _root.SetActive(true);
+            _camera.enabled = true;
+            _camera.Render();
+            var previous = RenderTexture.active;
+            var readable = new Texture2D(Texture.width, Texture.height, TextureFormat.RGBA32, false);
+            RenderTexture.active = Texture;
+            readable.ReadPixels(new Rect(0, 0, Texture.width, Texture.height), 0, 0);
+            RenderTexture.active = previous;
+            var pixels = readable.GetPixels32();
+            Destroy(readable);
+            _root.SetActive(rootWas);
+            _camera.enabled = camWas;
+
+            int w = Texture.width, h = Texture.height, minX = w, maxX = -1, minY = h, maxY = -1;
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    if (pixels[y * w + x].a > 40)
+                    {
+                        if (x < minX) minX = x; if (x > maxX) maxX = x;
+                        if (y < minY) minY = y; if (y > maxY) maxY = y;
+                    }
+            if (maxX < 0) return false;
+            uv = new Rect(minX / (float)w, minY / (float)h, (maxX - minX + 1) / (float)w, (maxY - minY + 1) / (float)h);
+            return true;
         }
 
         /// <summary>보일 때만 켠다(꺼 두면 그리지 않는다).</summary>

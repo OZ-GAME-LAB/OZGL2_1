@@ -1505,8 +1505,30 @@ public class UnitBase : MonoBehaviour, IDamageable, IHealable, IStatusReceiver, 
             return;
         }
 
+        bool wasDead = currentState == UnitState.Dead;
         currentHealth = Mathf.RoundToInt(statData.maxHealth * CombatModifierHub.GetHpMult(statData.job, statData.side));
         SetState(UnitState.Idle);
+        if (wasDead) SnapAnimatorToCurrentState();
+    }
+
+    private static readonly int IdleStateHash = Animator.StringToHash("IDLE");
+
+    /// <summary>
+    /// 부활한 유닛을 쓰러진 포즈 없이 곧바로 대기 포즈로 만든다. SPUM 컨트롤러의 DEATH → IDLE 전이는
+    /// "죽음 클립의 98% 재생 후"(Has Exit Time)라서, 준비 화면 동안 렌더러가 꺼져 Animator 가 멈춰 있으면(컬링)
+    /// 전이가 일어나지 않아 렌더러가 켜진 뒤에도 한동안 쓰러진 포즈로 보였다 — 전이를 기다리지 않고 IDLE 상태를 직접 재생한다.
+    /// </summary>
+    private void SnapAnimatorToCurrentState()
+    {
+        Animator animator = spumPrefabs != null ? spumPrefabs._anim : null;
+        if (animator == null || !animator.isActiveAndEnabled || animator.runtimeAnimatorController == null ||
+            !animator.HasState(0, IdleStateHash))
+        {
+            return;
+        }
+
+        animator.Play(IdleStateHash, 0, 0f);
+        animator.Update(0f); // 컬링 중이어도 이 프레임에 대기 포즈를 바로 적용
     }
 
     // 항상 1성 기준값(원본 공용 에셋)을 기억해두는 참조 — 성급 재계산의 기준.

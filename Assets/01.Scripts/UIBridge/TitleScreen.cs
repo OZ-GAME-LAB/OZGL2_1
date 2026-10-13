@@ -233,17 +233,13 @@ namespace OZGL2.UIBridge
 
         private IEnumerator FadeAndLoad()
         {
-            for (float t = 0f; t < _fadeSeconds; t += Time.unscaledDeltaTime)
-            {
-                _fade.color = new Color(0f, 0f, 0f, t / _fadeSeconds);
-                yield return null;
-            }
-            _fade.color = Color.black;
+            // 검은 화면을 거치지 않는다 — 타이틀 위로 바로 로딩 화면이 덮인다(스토리를 본 뒤라면 이미 어두운 화면에서 이어진다)
             if (_ownedEventSystem != null) { Destroy(_ownedEventSystem); _ownedEventSystem = null; }
             yield return null; // 이벤트 시스템이 지워진 뒤에 로비를 연다
             // 씬 이름이 바뀌기 전 값(예: Lobby_2)이 저장돼 있어도 로비로 가도록 한다
             string target = Application.CanStreamedLevelBeLoaded(_lobbyScene) ? _lobbyScene : "Lobby";
-            SceneManager.LoadScene(target);
+            // 로비는 바로 열지 않고 로딩 화면(진행 막대·달리는 마왕·팁)을 거쳐 비동기로 연다
+            SceneLoadingScreen.Load(target, _logo);
         }
 
         private IEnumerator FadeIn()

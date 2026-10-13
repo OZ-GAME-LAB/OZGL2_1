@@ -252,8 +252,7 @@ namespace OZGL2.UIBridge
             FindFirstObjectByType<InGameRunSaver>()?.FlushNow(); // 나가기 직전 배치까지 저장
             Time.timeScale = 1f;
             bootstrap?.CancelRun();
-            if (Application.CanStreamedLevelBeLoaded(lobbyPath)) SceneManager.LoadScene(lobbyPath, LoadSceneMode.Single);
-            else SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+            SceneLoadingScreen.Load(Application.CanStreamedLevelBeLoaded(lobbyPath) ? lobbyPath : "Lobby", null);   // 로딩 화면을 거쳐 로비로
         }
 
         private static void Quit()
