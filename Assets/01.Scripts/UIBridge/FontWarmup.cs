@@ -33,6 +33,10 @@ namespace OZGL2.UIBridge
         }
 
         private static readonly Dictionary<TMP_FontAsset, TMP_FontAsset> _isolated = new Dictionary<TMP_FontAsset, TMP_FontAsset>();
+        private static readonly HashSet<TMP_FontAsset> _isolatedSet = new HashSet<TMP_FontAsset>();
+
+        /// <summary>이 연출 전용으로 만든 글꼴인가. 글꼴 통일(UiFontUnify)이 이 글꼴을 다른 글꼴로 바꾸지 않게 할 때 쓴다.</summary>
+        public static bool IsIsolated(TMP_FontAsset font) => font != null && _isolatedSet.Contains(font);
 
         /// <summary>
         /// 같은 글꼴 파일로 이 연출 전용 글꼴 그림판을 따로 만들어 돌려준다(chars 는 미리 그려 둔다).
@@ -52,6 +56,7 @@ namespace OZGL2.UIBridge
             if (font.fallbackFontAssetTable != null) copy.fallbackFontAssetTable = new List<TMP_FontAsset>(font.fallbackFontAssetTable);
             Warm(copy, chars);
             _isolated[font] = copy;
+            _isolatedSet.Add(copy);
             return copy;
         }
 

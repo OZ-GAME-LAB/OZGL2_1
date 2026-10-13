@@ -44,6 +44,9 @@ namespace OZGL2.UIBridge
                     // 글꼴 연결이 비어 있으면(카드 전용 SDF 파일이 아직 없을 때 등) 글자가 안 보이므로 대표 글꼴로 채운다
                     if (text.font == null) { text.font = _tmpMain; continue; }
                     if (_keepTmp.Contains(text.font.GetInstanceID())) continue;
+                    // 로딩 숫자·웨이브 배너처럼 전용 글꼴과 전용 재질을 쓰는 글자는 바꾸지 않는다.
+                    // 글꼴만 바꾸면 재질은 옛 글꼴 그림판을 가리킨 채 남아 글자가 조각처럼 깨진다(로비↔인게임 로딩 숫자 깨짐의 원인).
+                    if (FontWarmup.IsIsolated(text.font)) continue;
                     text.font = _tmpMain;
                 }
 
