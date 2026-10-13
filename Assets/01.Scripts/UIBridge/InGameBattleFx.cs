@@ -69,6 +69,7 @@ namespace OZGL2.UIBridge
 
         private InGamePrototypeBootstrap _bootstrap;
         private RealSynergySync _sync;
+        private float _nextSyncFind;
         private SkillManager _hooked;
         private eStageState _lastState = eStageState.IDLE;
         private int _clearedAtStart, _kills, _combatTotal;
@@ -150,7 +151,12 @@ namespace OZGL2.UIBridge
 
         private void HookCast()
         {
-            if (_sync == null) _sync = FindFirstObjectByType<RealSynergySync>();
+            if (_sync == null)
+            {
+                if (Time.unscaledTime < _nextSyncFind) return;   // 없을 때 매 프레임 씬을 뒤지지 않는다
+                _nextSyncFind = Time.unscaledTime + 1f;
+                _sync = FindFirstObjectByType<RealSynergySync>();
+            }
             var manager = _sync != null ? _sync.SkillManager : null;
             if (manager == _hooked) return;
             if (_hooked != null) _hooked.CastRequested -= OnCast;

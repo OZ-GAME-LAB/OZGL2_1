@@ -50,9 +50,13 @@ namespace OZGL2.UIBridge
         private RectTransform _pctRt;
         private readonly System.Collections.Generic.List<(RectTransform rt, Image img, float born)> _dust = new System.Collections.Generic.List<(RectTransform, Image, float)>();
         private float _nextDust;
+        private readonly System.Collections.Generic.Stack<Image> _dustPool = new System.Collections.Generic.Stack<Image>();
         private TMP_FontAsset _font;
         private DemonKingPortrait _portrait;
         private Sprite _pill, _soft, _vignette;
+        private RectTransform _barRoot;
+        private int _lastPct = -1, _lastDots = -1;
+        private float _nextReadyCheck;
         private float _shown, _real, _king01 = 0.06f, _kingSize = 300f, _kingDx;
         private bool _done;
 
@@ -92,6 +96,9 @@ namespace OZGL2.UIBridge
             }
             _bg.color = new Color(0.02f, 0.01f, 0.04f, 1f);
             _group.alpha = 1f;
+            yield return null;
+            BuildKing(_barRoot);   // 한 프레임 쉬고 만든다
+            Visuals();
 
             var op = SceneManager.LoadSceneAsync(_target);
             if (op == null) { _busy = false; SceneManager.LoadScene(_target); yield break; }
@@ -128,9 +135,10 @@ namespace OZGL2.UIBridge
             yield return null;
             // 인게임은 씬이 열린 뒤에도 스테이지를 준비하는 시간이 있다 — 준비될 때까지(최대 4초) 로딩 화면을 유지한다
             _label.text = "준비 중...";
+            InGamePrototypeBootstrap bootstrap = null;
             for (float wait = 0f; wait < 4f; wait += Time.unscaledDeltaTime)
             {
-                var bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+                if (bootstrap == null) bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();   // 한 번 찾으면 기억한다
                 if (bootstrap == null) break;
                 var stage = bootstrap.Stage;
                 if (stage != null && stage.State != eStageState.IDLE && stage.State != eStageState.INITIALIZING) break;
@@ -165,6 +173,8 @@ namespace OZGL2.UIBridge
             if (_label == null || _done) return;
             if (_shown >= 0.999f && _real >= 1f) return;      // 다 불러온 뒤에는 「준비 중...」 글자를 그대로 둔다
             int dots = Mathf.FloorToInt(Time.unscaledTime * 2.5f) % 4;
+            if (dots == _lastDots) return;
+            _lastDots = dots;
             _label.text = "불러오는 중" + new string('.', dots) + "   ";
         }
 
@@ -184,24 +194,30 @@ namespace OZGL2.UIBridge
             if (_pctRt != null)
             {
                 _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingHeight + 40f);
-                _pct.text = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f) + "%";
+                int pct = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f);
+                if (pct != _lastPct) { _lastPct = pct; _pct.text = pct + "%"; }   // 매 프레임 글자를 새로 만들지 않는다
             }
             // 달리는 동안 발밑에서 먼지가 인다
             if (_king != null && _shown > 0.005f && _shown < 0.999f && Time.unscaledTime >= _nextDust)
             {
                 _nextDust = Time.unscaledTime + 0.09f;
-                var d = NewImage("Dust", _fillRt.parent, _soft, new Color(0.8f, 0.7f, 0.6f, 0f));
-                d.rectTransform.anchorMin = d.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                Image d;
+                if (_dustPool.Count > 0) { d = _dustPool.Pop(); d.gameObject.SetActive(true); }   // 먼지는 만들고 지우지 않고 돌려 쓴다(쓰레기 수거로 끊기지 않게)
+                else
+                {
+                    d = NewImage("Dust", _fillRt.parent, _soft, new Color(0.8f, 0.7f, 0.6f, 0f));
+                    d.rectTransform.anchorMin = d.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                    d.rectTransform.SetSiblingIndex(_king.GetSiblingIndex());
+                }
                 d.rectTransform.sizeDelta = new Vector2(34f, 34f);
                 d.rectTransform.anchoredPosition = new Vector2(kx - 40f, BarHeight * 0.5f + 12f);
-                d.rectTransform.SetSiblingIndex(_king.GetSiblingIndex());
                 _dust.Add((d.rectTransform, d, Time.unscaledTime));
             }
             for (int i = _dust.Count - 1; i >= 0; i--)
             {
                 var (drt, dimg, born) = _dust[i];
                 float k = (Time.unscaledTime - born) / 0.6f;
-                if (drt == null || k >= 1f) { if (drt != null) Destroy(drt.gameObject); _dust.RemoveAt(i); continue; }
+                if (drt == null || k >= 1f) { if (drt != null) { dimg.gameObject.SetActive(false); _dustPool.Push(dimg); } _dust.RemoveAt(i); continue; }
                 dimg.color = new Color(0.85f, 0.75f, 0.65f, Mathf.Sin(k * Mathf.PI) * 0.4f);
                 drt.sizeDelta = Vector2.one * (34f + 40f * k);
                 drt.anchoredPosition += new Vector2(-30f * Time.unscaledDeltaTime, 22f * Time.unscaledDeltaTime);
@@ -272,7 +288,7 @@ namespace OZGL2.UIBridge
             // 바 이름은 위치 기준으로만 쓴다
 
             // 막대 위를 달리는 마왕
-            BuildKing(barRoot);
+            _barRoot = barRoot;   // 마왕은 화면이 덮인 뒤에 만든다(무거운 프리팹 생성이 덮이는 연출을 끊지 않게)
 
             // 글자
             _label = NewText("Label", content, 40f, Gold, TextAlignmentOptions.Left);
@@ -301,7 +317,7 @@ namespace OZGL2.UIBridge
             var pgo = new GameObject("LoadingKing");
             pgo.transform.SetParent(transform, false);
             _portrait = pgo.AddComponent<DemonKingPortrait>();
-            _portrait.Configure(new Vector3(9000f, 9000f, 0f), 512);
+            _portrait.Configure(new Vector3(9000f, 9000f, 0f), 384);
             _portrait.Build(prefab);
             if (!_portrait.IsReady) { Destroy(pgo); _portrait = null; return; }
             _king01 = _portrait.FeetFraction;

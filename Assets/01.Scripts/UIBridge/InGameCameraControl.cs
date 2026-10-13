@@ -69,6 +69,7 @@ namespace OZGL2.UIBridge
         private Vector2 _autoXY;
         private float _autoDist;
         private bool _autoActive;
+        private readonly System.Collections.Generic.List<(float d, Vector3 p)> _nearBuffer = new System.Collections.Generic.List<(float d, Vector3 p)>();
         private Vector2 _emaMin, _emaMax, _velXY;
         private float _velDist;
 
@@ -148,7 +149,8 @@ namespace OZGL2.UIBridge
             if (!any) return;
 
             var center = (min + max) * 0.5f;
-            var near = new System.Collections.Generic.List<(float d, Vector3 p)>();
+            var near = _nearBuffer;
+            near.Clear();
             foreach (var u in UnitRegistry.GetUnits(UnitSide.Hero))
             {
                 if (u == null || u.currentState == UnitState.Dead || !u.gameObject.activeInHierarchy) continue;
