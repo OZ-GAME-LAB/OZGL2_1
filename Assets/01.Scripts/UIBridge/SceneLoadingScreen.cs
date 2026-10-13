@@ -1,4 +1,6 @@
 using System.Collections;
+using OZGL2.InGame;
+using OZGL2.Stage;
 using OZGL2.Tutorial;
 using TMPro;
 using UnityEngine;
@@ -8,10 +10,11 @@ using UnityEngine.UI;
 namespace OZGL2.UIBridge
 {
     /// <summary>
-    /// 씬을 넘어갈 때 보여 주는 로딩 화면(타이틀 → 로비). 화면이 완전히 어두워진 상태에서 시작해 씬을 비동기로 불러오는 동안 이어서 보이고, 새 씬이 열린 뒤 서서히 걷힌다.
+    /// 씬을 넘어갈 때 보여 주는 진짜 로딩 화면 — 타이틀 → 로비, 로비 → 인게임, 인게임 → 로비 모두 이 화면을 거친다(UISceneNavigator·TitleScreen·포기/나가기가 부른다).
+    /// 지금 화면 위로 어둡게 덮은 뒤 씬을 비동기로 불러오는 동안 실제 진행도를 보여 주고, 새 씬이 열린 뒤에도 인게임이 준비될 때까지 기다렸다가 서서히 걷힌다.
     /// - 게임 로고 + 금빛 테두리의 진행 막대(불러온 만큼 차오르고, 뒤따라오는 밝은 잔상) + 막대 위를 달리는 실제 마왕(StoryCast 프리팹을 실시간으로 그림)
     /// - 아래에는 「불러오는 중…」과 퍼센트, 그리고 게임 팁이 몇 초마다 바뀐다
-    /// - 너무 빨리 끝나 화면이 번쩍이지 않도록 최소 표시 시간을 둔다
+    /// - 막대는 실제 불러오기 진행도를 따라간다(너무 빨리 끝나 화면이 번쩍이지 않게 아주 짧은 최소 시간만 둔다)
     /// 팀 UI·씬은 건드리지 않고 DontDestroyOnLoad 캔버스를 직접 만든다. 마왕 그림이나 로고를 못 찾으면 그 부분만 빼고 보여 준다.
     /// </summary>
     public sealed class SceneLoadingScreen : MonoBehaviour
@@ -28,7 +31,9 @@ namespace OZGL2.UIBridge
             "자동 카메라는 배속 막대 옆 단추로 켜고 끌 수 있어요.",
         };
 
-        private const float MinSeconds = 1.8f;
+        private const float MinSeconds = 0.7f;      // 번쩍임 방지용 최소 표시 시간(진행 막대는 이 시간과 상관없이 실제 진행도를 따른다)
+        private static Sprite _logoCache;
+        private static bool _busy;
         private const float BarWidth = 1000f, BarHeight = 30f;
         private static readonly Color Gold = new Color(1f, 0.82f, 0.4f, 1f);
         private static readonly Color Cream = new Color(1f, 0.95f, 0.84f, 1f);
@@ -49,11 +54,14 @@ namespace OZGL2.UIBridge
         /// <summary>로딩 화면을 띄우고 target 씬을 불러온다. 화면은 이미 검게 덮인 뒤에 부른다.</summary>
         public static void Load(string target, Sprite logo)
         {
+            if (_busy) return;
+            if (logo != null) _logoCache = logo;     // 타이틀에서 한 번 받아 두면 로비·인게임 사이 이동에서도 로고를 쓴다
+            _busy = true;
             var go = new GameObject("SceneLoadingScreen");
             DontDestroyOnLoad(go);
             var screen = go.AddComponent<SceneLoadingScreen>();
             screen._target = target;
-            screen._logo = logo;
+            screen._logo = logo != null ? logo : _logoCache;
         }
 
         private void Start()
@@ -68,26 +76,27 @@ namespace OZGL2.UIBridge
             float start = Time.unscaledTime;
             var tipTimer = 0f;
             _tip.text = Tips[Random.Range(0, Tips.Length)];
-            // 화면이 검은 상태에서 그림들이 서서히 켜진다
-            for (float t = 0f; t < 0.45f; t += Time.unscaledDeltaTime)
+            // 지금 보이는 화면 위로 어둡게 덮이면서 그림들이 서서히 켜진다
+            _bg.color = new Color(0.02f, 0.01f, 0.04f, 0f);
+            for (float t = 0f; t < 0.4f; t += Time.unscaledDeltaTime)
             {
-                _group.alpha = Mathf.SmoothStep(0f, 1f, t / 0.45f);
+                float k = Mathf.SmoothStep(0f, 1f, t / 0.4f);
+                _bg.color = new Color(0.02f, 0.01f, 0.04f, k);
+                _group.alpha = k;
                 yield return null;
             }
+            _bg.color = new Color(0.02f, 0.01f, 0.04f, 1f);
             _group.alpha = 1f;
 
             var op = SceneManager.LoadSceneAsync(_target);
-            if (op == null) { SceneManager.LoadScene(_target); yield break; }
+            if (op == null) { _busy = false; SceneManager.LoadScene(_target); yield break; }
             op.allowSceneActivation = false;
 
             int tipIndex = System.Array.IndexOf(Tips, _tip.text);
             while (true)
             {
                 _real = Mathf.Clamp01(op.progress / 0.9f);                       // 활성화 전에는 0.9 에서 멈춘다
-                float elapsed = Time.unscaledTime - start;
-                float timeK = Mathf.Clamp01(elapsed / MinSeconds);               // 최소 표시 시간도 진행에 반영해 너무 빨리 끝나지 않게
-                float goal = Mathf.Min(_real, timeK);
-                _shown = Mathf.MoveTowards(_shown, goal, Time.unscaledDeltaTime * 0.9f);
+                _shown = Mathf.MoveTowards(_shown, _real, Time.unscaledDeltaTime * 1.6f);   // 실제 진행도를 따라간다(부드럽게만)
                 Visuals();
 
                 tipTimer += Time.unscaledDeltaTime;
@@ -97,7 +106,7 @@ namespace OZGL2.UIBridge
                     tipIndex = (tipIndex + 1) % Tips.Length;
                     _tip.text = Tips[tipIndex];
                 }
-                if (_real >= 1f && _shown >= 0.999f) break;
+                if (_real >= 1f && _shown >= 0.999f && Time.unscaledTime - start >= MinSeconds) break;
                 yield return null;
             }
 
@@ -105,6 +114,17 @@ namespace OZGL2.UIBridge
             op.allowSceneActivation = true;
             while (!op.isDone) yield return null;
             yield return null;
+            // 인게임은 씬이 열린 뒤에도 스테이지를 준비하는 시간이 있다 — 준비될 때까지(최대 4초) 로딩 화면을 유지한다
+            _label.text = "준비 중...";
+            for (float wait = 0f; wait < 4f; wait += Time.unscaledDeltaTime)
+            {
+                var bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();
+                if (bootstrap == null) break;
+                var stage = bootstrap.Stage;
+                if (stage != null && stage.State != eStageState.IDLE && stage.State != eStageState.INITIALIZING) break;
+                yield return null;
+            }
+            yield return new WaitForSecondsRealtime(0.1f);
 
             // 새 씬이 열린 뒤 로딩 화면을 서서히 걷는다
             _done = true;
@@ -115,14 +135,18 @@ namespace OZGL2.UIBridge
                 _bg.color = new Color(0.02f, 0.01f, 0.04f, 1f - k);
                 yield return null;
             }
+            _busy = false;
             Destroy(gameObject);
         }
+
+        private void OnDisable() { if (_done) _busy = false; }
 
         private void Update()
         {
             if (_label == null || _done) return;
+            if (_shown >= 0.999f && _real >= 1f) return;      // 다 불러온 뒤에는 「준비 중...」 글자를 그대로 둔다
             int dots = Mathf.FloorToInt(Time.unscaledTime * 2.5f) % 4;
-            _label.text = "불러오는 중" + new string('.', dots) + "   ";
+            _label.text = "불러오는 중" + new string('.', dots) + "  " + Mathf.RoundToInt(_shown * 100f) + "%";
         }
 
         private void Visuals()

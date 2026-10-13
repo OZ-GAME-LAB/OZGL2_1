@@ -1,4 +1,5 @@
 using System;
+using OZGL2.UIBridge;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -27,8 +28,8 @@ namespace OZGL2.UIFlow
                 if (Application.CanStreamedLevelBeLoaded(scenePath))
                 {
                     _isLoading = true;
-                    var operation = SceneManager.LoadSceneAsync(scenePath, LoadSceneMode.Single);
-                    if (operation == null) throw new InvalidOperationException("Scene loading did not start.");
+                    // 로딩 화면(진행 막대·팁)이 화면을 덮고 씬을 비동기로 불러온다 — 타이틀·로비·인게임 사이 모든 이동이 이곳을 지난다.
+                    SceneLoadingScreen.Load(scenePath, null);
                 }
                 else if (Application.isEditor && PreviewSceneRequested != null)
                 {
