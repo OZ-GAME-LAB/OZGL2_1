@@ -36,7 +36,7 @@ namespace OZGL2.UIBridge
         private static Sprite _logoCache;
         private static bool _busy;
         private const float BarWidth = 1000f, BarHeight = 30f;
-        private const float KingSize = 300f;        // 마왕 그림 한 변
+        private const float KingHeight = 190f;      // 화면에서 마왕 캐릭터(몸)의 높이
         private static readonly Color Gold = new Color(1f, 0.82f, 0.4f, 1f);
         private static readonly Color Cream = new Color(1f, 0.95f, 0.84f, 1f);
 
@@ -53,7 +53,7 @@ namespace OZGL2.UIBridge
         private TMP_FontAsset _font;
         private DemonKingPortrait _portrait;
         private Sprite _pill, _soft, _vignette;
-        private float _shown, _real, _king01 = 0.06f;
+        private float _shown, _real, _king01 = 0.06f, _kingSize = 300f, _kingDx;
         private bool _done;
 
         /// <summary>로딩 화면을 띄우고 target 씬을 불러온다. 화면은 이미 검게 덮인 뒤에 부른다.</summary>
@@ -179,11 +179,11 @@ namespace OZGL2.UIBridge
             // 마왕은 막대를 따라 0%에서 100%까지 달린다. 머리 위 숫자가 함께 오른다
             float kx = -BarWidth * 0.5f + w;
             // 그림의 발 위치(FeetFraction)를 막대 윗면에 맞춰 마왕이 로딩 바로 위를 달리게 한다
-            float kingY = BarHeight * 0.5f + 8f + (0.5f - _king01) * KingSize + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 10f)) * 7f;
-            if (_king != null) _king.anchoredPosition = new Vector2(kx, kingY);
+            float kingY = BarHeight * 0.5f + 6f + (0.5f - _king01) * _kingSize + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 10f)) * 7f;
+            if (_king != null) _king.anchoredPosition = new Vector2(kx - _kingDx, kingY);
             if (_pctRt != null)
             {
-                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingSize * 0.9f + 24f);
+                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingHeight + 40f);
                 _pct.text = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f) + "%";
             }
             // 달리는 동안 발밑에서 먼지가 인다
@@ -307,6 +307,13 @@ namespace OZGL2.UIBridge
             _king01 = _portrait.FeetFraction;
             _portrait.SetShown(true);
             _portrait.Play(PlayerState.MOVE);
+            // 실제로 그려진 캐릭터의 영역을 재서, 발을 막대 위에 정확히 얹고 몸 높이를 맞춘다
+            if (_portrait.MeasureContent(out var content))
+            {
+                _kingSize = Mathf.Clamp(KingHeight / Mathf.Max(0.05f, content.height), 160f, 900f);
+                _king01 = content.y;
+                _kingDx = (1f - (content.x + content.width * 0.5f) - 0.5f) * _kingSize;   // 좌우를 뒤집어 보여 주므로 가운데도 뒤집어 계산
+            }
 
             var raw = new GameObject("King", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage)).GetComponent<RawImage>();
             raw.transform.SetParent(barRoot, false);
@@ -315,7 +322,7 @@ namespace OZGL2.UIBridge
             raw.uvRect = new Rect(1f, 0f, -1f, 1f);                 // 프리팹은 왼쪽을 보므로 뒤집어 오른쪽(막대가 차는 쪽)으로 달리게
             _king = raw.rectTransform;
             _king.anchorMin = _king.anchorMax = new Vector2(0.5f, 0.5f);
-            _king.sizeDelta = new Vector2(KingSize, KingSize);
+            _king.sizeDelta = new Vector2(_kingSize, _kingSize);
         }
 
         private Image BarPart(string name, RectTransform parent, Color color, out RectTransform rt)

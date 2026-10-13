@@ -105,6 +105,41 @@ namespace OZGL2.Tutorial
             _root.SetActive(false);
         }
 
+        /// <summary>
+        /// 지금 모습을 한 번 그려 보고, 실제로 그려진 캐릭터가 그림 안에서 차지하는 영역(0~1, 아래쪽이 y=0)을 돌려준다.
+        /// 프리팹의 바운즈에는 눈에 안 보이는 큰 부품이 섞여 있을 수 있어서, 발 위치·크기를 맞출 때는 이 값이 정확하다.
+        /// </summary>
+        public bool MeasureContent(out Rect uv)
+        {
+            uv = default;
+            if (!IsReady) return false;
+            bool rootWas = _root.activeSelf, camWas = _camera.enabled;
+            _root.SetActive(true);
+            _camera.enabled = true;
+            _camera.Render();
+            var previous = RenderTexture.active;
+            var readable = new Texture2D(Texture.width, Texture.height, TextureFormat.RGBA32, false);
+            RenderTexture.active = Texture;
+            readable.ReadPixels(new Rect(0, 0, Texture.width, Texture.height), 0, 0);
+            RenderTexture.active = previous;
+            var pixels = readable.GetPixels32();
+            Destroy(readable);
+            _root.SetActive(rootWas);
+            _camera.enabled = camWas;
+
+            int w = Texture.width, h = Texture.height, minX = w, maxX = -1, minY = h, maxY = -1;
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    if (pixels[y * w + x].a > 40)
+                    {
+                        if (x < minX) minX = x; if (x > maxX) maxX = x;
+                        if (y < minY) minY = y; if (y > maxY) maxY = y;
+                    }
+            if (maxX < 0) return false;
+            uv = new Rect(minX / (float)w, minY / (float)h, (maxX - minX + 1) / (float)w, (maxY - minY + 1) / (float)h);
+            return true;
+        }
+
         /// <summary>보일 때만 켠다(꺼 두면 그리지 않는다).</summary>
         public void SetShown(bool shown)
         {

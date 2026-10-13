@@ -69,6 +69,9 @@ namespace OZGL2.Stage
                     await _defenders.PrepareRoundAsync(lifetime.Token);
                     if (_lifecycle != null) await _lifecycle.BeginRoundAsync(lifetime.Token);
                     lifetime.Token.ThrowIfCancellationRequested();
+                    // 웨이브 시작 배너(InGameBattleFx)가 끝난 뒤에 용사들이 나온다. 배너가 없으면 바로 지나간다.
+                    await OZGL2.UIBridge.InGameBattleFx.WaitForWaveBannerAsync(lifetime.Token);
+                    lifetime.Token.ThrowIfCancellationRequested();
                     spawning = SpawnAsync(round, lifetime.Token);
                     while (true)
                     {
