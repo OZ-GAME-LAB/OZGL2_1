@@ -145,6 +145,7 @@ namespace OZGL2.UIBridge
         {
             EnsureAssets();
             HookCast();
+            if (!_bannerPrepared && _bootstrap != null && _bootstrap.Stage != null) { _bannerPrepared = true; EnsureBannerUi(); }   // 첫 배너 전에 미리 만들어 글자를 준비해 둔다
             WatchStage();
             HoldHandDuringClearBanner();
             if (_damageNumbers || _hitSparks || _deathPoof) PollUnits();
@@ -154,7 +155,7 @@ namespace OZGL2.UIBridge
         // ───────────── 클리어 배너 동안 손패 가리기
         private CanvasGroup _handGroup;
         private float _nextHandFind;
-        private bool _handHeld, _handSavedBlocks;
+        private bool _handHeld, _handSavedBlocks, _bannerPrepared;
 
         /// <summary>
         /// 웨이브 클리어 배너가 보이는 동안 화면 아래 손패(내가 가진 카드 · 보상 카드)를 가린다. 어떤 이유로 손패가 먼저 채워져도 배너 위에 뜨지 않게 하고,
@@ -806,6 +807,12 @@ namespace OZGL2.UIBridge
         {
             if (_canvas != null) return;
             _art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
+            // 배너에 쓸 글자를 보이기 전에 글꼴에 미리 넣어 둔다(처음 뜰 때 글자가 색 네모로 번쩍였다가 나오던 것 방지)
+            if (_art != null)
+            {
+                FontWarmup.Warm(_art.titleFont, "WAVECLEAR 0123456789");
+                FontWarmup.Warm(_art.bodyFont, string.Join("", WaveLines) + string.Join("", BossLines) + string.Join("", ClearLines) + "첫 번째 전투가 시작된다!DANGER");
+            }
             if (_art == null) Debug.LogWarning("[전투 연출] Resources/BattleBanner/BattleBannerArt 를 찾지 못해 글자만 보여 줍니다.");
             var go = new GameObject("WaveBannerCanvas", typeof(RectTransform));
             go.transform.SetParent(transform, false);

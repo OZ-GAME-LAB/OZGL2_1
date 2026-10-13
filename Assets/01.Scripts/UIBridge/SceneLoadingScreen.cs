@@ -76,6 +76,8 @@ namespace OZGL2.UIBridge
         private void Start()
         {
             _font = UiFontOverride.Current != null ? UiFontOverride.Current : FindFont();
+            // 화면에 쓸 글자(팁·안내·숫자)를 미리 글꼴에 넣어 둔다
+            FontWarmup.Warm(_font, string.Join("", Tips) + "불러오는 중준비 중.% 0123456789");
             Build();
             StartCoroutine(Run());
         }
@@ -316,7 +318,11 @@ namespace OZGL2.UIBridge
         private void StylePercent(TMP_Text text)
         {
             var art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
-            if (art != null && art.titleFont != null) text.font = art.titleFont;
+            if (art != null && art.titleFont != null)
+            {
+                FontWarmup.Warm(art.titleFont, "0123456789%");   // 숫자를 보이기 전에 글꼴 그림판에 미리 그려 둔다(처음 쓸 때 색 네모로 번쩍이던 것 방지)
+                text.font = art.titleFont;
+            }
             text.fontStyle = FontStyles.Normal;
             text.enableVertexGradient = true;
             text.colorGradient = new VertexGradient(new Color(1f, 0.98f, 0.8f), new Color(1f, 0.98f, 0.8f), new Color(1f, 0.6f, 0.18f), new Color(1f, 0.6f, 0.18f));
