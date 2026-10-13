@@ -31,12 +31,12 @@ namespace OZGL2.UIBridge
             "자동 카메라는 배속 막대 옆 단추로 켜고 끌 수 있어요.",
         };
 
-        private const float RunSpeed = 0.55f;       // 막대가 차는 최고 속도(초당 비율) — 0%에서 100%까지 마왕이 달리는 데 최소 약 1.8초
+        private const float FakeSeconds = 3.4f;     // 실제 로딩이 빨라도 마왕이 0%→100%를 달리는 데 걸리는 최소 시간(약간 가짜 로딩)
         private const float MinSeconds = 0.7f;      // 번쩍임 방지용 최소 표시 시간(진행 막대는 이 시간과 상관없이 실제 진행도를 따른다)
         private static Sprite _logoCache;
         private static bool _busy;
         private const float BarWidth = 1000f, BarHeight = 30f;
-        private const float KingLift = 128f;        // 마왕 그림의 가운데가 막대 위로 떠 있는 높이(발이 막대에 닿게)
+        private const float KingSize = 300f;        // 마왕 그림 한 변
         private static readonly Color Gold = new Color(1f, 0.82f, 0.4f, 1f);
         private static readonly Color Cream = new Color(1f, 0.95f, 0.84f, 1f);
 
@@ -53,7 +53,7 @@ namespace OZGL2.UIBridge
         private TMP_FontAsset _font;
         private DemonKingPortrait _portrait;
         private Sprite _pill, _soft, _vignette;
-        private float _shown, _real;
+        private float _shown, _real, _king01 = 0.06f;
         private bool _done;
 
         /// <summary>로딩 화면을 띄우고 target 씬을 불러온다. 화면은 이미 검게 덮인 뒤에 부른다.</summary>
@@ -98,10 +98,14 @@ namespace OZGL2.UIBridge
             op.allowSceneActivation = false;
 
             int tipIndex = System.Array.IndexOf(Tips, _tip.text);
+            float runStart = Time.unscaledTime;
             while (true)
             {
                 _real = Mathf.Clamp01(op.progress / 0.9f);                       // 활성화 전에는 0.9 에서 멈춘다
-                _shown = Mathf.MoveTowards(_shown, _real, Time.unscaledDeltaTime * RunSpeed);   // 실제 진행도를 따라가되 마왕이 달리는 모습이 보이게 천천히(앞지르지 않는다)
+                // 진행 = 달리기 곡선(FakeSeconds 동안 0→100, 중간에 살짝 숨을 고른다)과 실제 불러오기 진행도 중 느린 쪽. 실제가 더 느리면 마왕도 거기서 기다린다.
+                float k = Mathf.Clamp01((Time.unscaledTime - runStart) / FakeSeconds);
+                float cap = _real >= 1f ? 1f : Mathf.Min(0.97f, _real);
+                _shown = Mathf.MoveTowards(_shown, Mathf.Min(RunCurve(k), cap), Time.unscaledDeltaTime * 1.4f);
                 Visuals();
 
                 tipTimer += Time.unscaledDeltaTime;
@@ -115,7 +119,10 @@ namespace OZGL2.UIBridge
                 yield return null;
             }
 
-            yield return new WaitForSecondsRealtime(0.25f);                      // 가득 찬 막대를 잠깐 보여 준다
+            // 결승선: 마왕이 몸짓을 하고 막대 끝이 번쩍인다
+            if (_portrait != null) { _portrait.Gesture(); _portrait.Play(PlayerState.ATTACK); }
+            _glow.color = new Color(1f, 0.95f, 0.7f, 1f);
+            yield return new WaitForSecondsRealtime(0.5f);
             op.allowSceneActivation = true;
             while (!op.isDone) yield return null;
             yield return null;
@@ -146,6 +153,13 @@ namespace OZGL2.UIBridge
 
         private void OnDisable() { if (_done) _busy = false; }
 
+        /// <summary>0→1 을 달리기처럼 보이게: 처음엔 빠르게 치고 나가고 중간에 두 번 살짝 늦춰지며 끝에서 마무리한다. 항상 늘기만 한다.</summary>
+        private static float RunCurve(float k)
+        {
+            float basis = Mathf.Lerp(k, Mathf.SmoothStep(0f, 1f, k), 0.35f);
+            return Mathf.Clamp01(basis + 0.028f * Mathf.Sin(6f * Mathf.PI * k) * (1f - k));
+        }
+
         private void Update()
         {
             if (_label == null || _done) return;
@@ -164,10 +178,12 @@ namespace OZGL2.UIBridge
             _glow.color = new Color(1f, 0.85f, 0.45f, (_shown > 0.01f && _shown < 0.995f ? 0.8f : 0f));
             // 마왕은 막대를 따라 0%에서 100%까지 달린다. 머리 위 숫자가 함께 오른다
             float kx = -BarWidth * 0.5f + w;
-            if (_king != null) _king.anchoredPosition = new Vector2(kx, BarHeight * 0.5f + KingLift + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 9f)) * 6f);
+            // 그림의 발 위치(FeetFraction)를 막대 윗면에 맞춰 마왕이 로딩 바로 위를 달리게 한다
+            float kingY = BarHeight * 0.5f + 8f + (0.5f - _king01) * KingSize + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 10f)) * 7f;
+            if (_king != null) _king.anchoredPosition = new Vector2(kx, kingY);
             if (_pctRt != null)
             {
-                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingLift + 150f);
+                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingSize * 0.9f + 24f);
                 _pct.text = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f) + "%";
             }
             // 달리는 동안 발밑에서 먼지가 인다
@@ -177,7 +193,7 @@ namespace OZGL2.UIBridge
                 var d = NewImage("Dust", _fillRt.parent, _soft, new Color(0.8f, 0.7f, 0.6f, 0f));
                 d.rectTransform.anchorMin = d.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 d.rectTransform.sizeDelta = new Vector2(34f, 34f);
-                d.rectTransform.anchoredPosition = new Vector2(kx - 36f, BarHeight * 0.5f + 12f);
+                d.rectTransform.anchoredPosition = new Vector2(kx - 40f, BarHeight * 0.5f + 12f);
                 d.rectTransform.SetSiblingIndex(_king.GetSiblingIndex());
                 _dust.Add((d.rectTransform, d, Time.unscaledTime));
             }
@@ -285,9 +301,10 @@ namespace OZGL2.UIBridge
             var pgo = new GameObject("LoadingKing");
             pgo.transform.SetParent(transform, false);
             _portrait = pgo.AddComponent<DemonKingPortrait>();
-            _portrait.Configure(new Vector3(9000f, 9000f, 0f), 384);
+            _portrait.Configure(new Vector3(9000f, 9000f, 0f), 512);
             _portrait.Build(prefab);
             if (!_portrait.IsReady) { Destroy(pgo); _portrait = null; return; }
+            _king01 = _portrait.FeetFraction;
             _portrait.SetShown(true);
             _portrait.Play(PlayerState.MOVE);
 
@@ -298,7 +315,7 @@ namespace OZGL2.UIBridge
             raw.uvRect = new Rect(1f, 0f, -1f, 1f);                 // 프리팹은 왼쪽을 보므로 뒤집어 오른쪽(막대가 차는 쪽)으로 달리게
             _king = raw.rectTransform;
             _king.anchorMin = _king.anchorMax = new Vector2(0.5f, 0.5f);
-            _king.sizeDelta = new Vector2(270f, 270f);
+            _king.sizeDelta = new Vector2(KingSize, KingSize);
         }
 
         private Image BarPart(string name, RectTransform parent, Color color, out RectTransform rt)

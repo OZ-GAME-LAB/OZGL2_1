@@ -23,6 +23,9 @@ namespace OZGL2.Tutorial
 
         public bool IsReady => Texture != null && _root != null;
 
+        /// <summary>그림 아래쪽에서 캐릭터 발까지의 높이(그림 높이에 대한 0~1 비율). 발을 바닥선에 맞춰 세울 때 쓴다.</summary>
+        public float FeetFraction { get; private set; } = 0.06f;
+
         /// <summary>Build 전에 불러 쓴다. 한 화면에 여럿을 띄울 때 서로 겹치지 않게 그리는 자리(stage)와 그림 크기를 정한다.</summary>
         public void Configure(Vector3 stage, int size)
         {
@@ -95,6 +98,7 @@ namespace OZGL2.Tutorial
             _camera.depth = -50f;
             _camera.orthographicSize = Mathf.Max(bounds.size.x, bounds.size.y) * 0.5f * 1.2f;
             camGo.transform.position = new Vector3(bounds.center.x, bounds.center.y + bounds.size.y * 0.04f, -10f);
+            FeetFraction = Mathf.Clamp01((bounds.min.y - (camGo.transform.position.y - _camera.orthographicSize)) / (2f * _camera.orthographicSize));
             Texture = new RenderTexture(_size, _size, 24, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point };
             _camera.targetTexture = Texture;
             _camera.enabled = false;
