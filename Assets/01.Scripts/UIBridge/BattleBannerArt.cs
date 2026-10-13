@@ -15,5 +15,6 @@ namespace OZGL2.UIBridge
         public Sprite divider;   // 가운데에 마름모가 있는 금빛 구분선
         public TMP_FontAsset titleFont;   // 큰 글자(WAVE·번호·WAVE CLEAR) — 결과창 제목과 같은 글꼴
         public TMP_FontAsset bodyFont;    // 작은 글자(한마디·DANGER)
+        public TMP_FontAsset altFont;     // 로딩 화면 글자용 다른 글꼴(NEXON Lv2 Gothic) — 원본 글꼴 파일(TTF)만 쓴다
     }
 }

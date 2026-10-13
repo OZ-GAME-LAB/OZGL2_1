@@ -9,6 +9,9 @@ namespace OZGL2.UIBridge
     /// 동적 TMP 글꼴(빛의 계승자 등)은 처음 쓰는 글자를 그때그때 글꼴 그림판(atlas)에 그려 넣는다. 그 사이 글자가 단색 네모(파랗게 보이기도 한다)로 번쩍였다가 제대로 나왔다.
     /// 글자를 보이기 전에 필요한 글자를 미리 그려 두면 그 번쩍임이 없다.
     /// </summary>
+    /// <summary>글꼴 통일(UiFontUnify)이 이 글자의 글꼴을 바꾸지 않게 하는 표시.</summary>
+    public sealed class FontUnifyIgnore : MonoBehaviour { }
+
     public static class FontWarmup
     {
         /// <summary>

@@ -18,3 +18,4 @@ MonoBehaviour:
   divider: {fileID: 21300000, guid: 5a934eeb3e780d141bc6be69b0defe1c, type: 3}
   titleFont: {fileID: 11400000, guid: 7880d30e886583f45871ae7a8a109ac6, type: 2}
   bodyFont: {fileID: 11400000, guid: 36fe7d726914a8c408af7e5c4eba9505, type: 2}
+  altFont: {fileID: 11400000, guid: 02fdbfbc11f69364785023cfc33679a6, type: 2}

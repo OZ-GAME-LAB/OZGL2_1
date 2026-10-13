@@ -2,7 +2,6 @@ using System.Collections;
 using OZGL2.InGame;
 using OZGL2.Stage;
 using OZGL2.Tutorial;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -46,12 +45,12 @@ namespace OZGL2.UIBridge
         private RectTransform _root, _king, _fillRt, _trailRt, _glowRt;
         private Image _bg, _fill, _trail, _glow;
         private CanvasGroup _group;
-        private TMP_Text _label, _tip, _pct;
+        private Text _label, _tip, _pct;
+        private Font _numberFont, _bodyFont;
         private RectTransform _pctRt;
         private readonly System.Collections.Generic.List<(RectTransform rt, Image img, float born)> _dust = new System.Collections.Generic.List<(RectTransform, Image, float)>();
         private float _nextDust;
         private readonly System.Collections.Generic.Stack<Image> _dustPool = new System.Collections.Generic.Stack<Image>();
-        private TMP_FontAsset _font;
         private DemonKingPortrait _portrait;
         private Sprite _pill, _soft, _vignette;
         private RectTransform _barRoot;
@@ -75,9 +74,7 @@ namespace OZGL2.UIBridge
 
         private void Start()
         {
-            _font = UiFontOverride.Current != null ? UiFontOverride.Current : FindFont();
-            // 화면에 쓸 글자(팁·안내·숫자)를 미리 글꼴에 넣어 둔다
-            FontWarmup.Warm(_font, string.Join("", Tips) + "불러오는 중준비 중.% 0123456789");
+            PickFonts();
             Build();
             StartCoroutine(Run());
         }
@@ -197,7 +194,7 @@ namespace OZGL2.UIBridge
             {
                 _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingHeight + 56f);
                 int pct = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f);
-                if (pct != _lastPct) { _lastPct = pct; _pct.text = pct + "<size=55%>%</size>"; }   // 매 프레임 글자를 새로 만들지 않는다
+                if (pct != _lastPct) { _lastPct = pct; _pct.text = pct + "<size=46>%</size>"; }   // 매 프레임 글자를 새로 만들지 않는다
             }
             // 달리는 동안 발밑에서 먼지가 인다
             if (_king != null && _shown > 0.005f && _shown < 0.999f && Time.unscaledTime >= _nextDust)
@@ -293,18 +290,17 @@ namespace OZGL2.UIBridge
             _barRoot = barRoot;   // 마왕은 화면이 덮인 뒤에 만든다(무거운 프리팹 생성이 덮이는 연출을 끊지 않게)
 
             // 글자
-            _label = NewText("Label", content, 40f, Gold, TextAlignmentOptions.Left);
+            _label = NewText("Label", content, 40, Gold, TextAnchor.MiddleLeft, _bodyFont);
             _label.rectTransform.anchorMin = _label.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             _label.rectTransform.pivot = new Vector2(0f, 0.5f);
             _label.rectTransform.sizeDelta = new Vector2(500f, 56f);
             _label.rectTransform.anchoredPosition = new Vector2(-BarWidth * 0.5f, -232f);
             _label.text = "불러오는 중";
-            _pct = NewText("Percent", barRoot, 84f, Gold, TextAlignmentOptions.Center);
+            _pct = NewText("Percent", barRoot, 84, new Color(1f, 0.86f, 0.42f), TextAnchor.MiddleCenter, _numberFont);
             _pctRt = _pct.rectTransform;
             _pctRt.anchorMin = _pctRt.anchorMax = new Vector2(0.5f, 0.5f);
             _pctRt.sizeDelta = new Vector2(300f, 110f);
-            StylePercent(_pct);
-            _tip = NewText("Tip", content, 36f, Cream, TextAlignmentOptions.Center);
+            _tip = NewText("Tip", content, 36, Cream, TextAnchor.MiddleCenter, _bodyFont);
             _tip.rectTransform.anchorMin = _tip.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             _tip.rectTransform.sizeDelta = new Vector2(1500f, 60f);
             _tip.rectTransform.anchoredPosition = new Vector2(0f, -330f);
@@ -312,35 +308,17 @@ namespace OZGL2.UIBridge
         }
 
         /// <summary>
-        /// 퍼센트 숫자 꾸미기: 결과창 제목과 같은 글꼴(빛의 계승자 Bold), 위는 밝고 아래는 짙은 금빛 그라데이션, 두꺼운 어두운 외곽선, 아래로 번지는 그림자.
-        /// 「%」는 숫자보다 작게 붙인다.
+        /// 로딩 화면 글꼴 고르기. TextMeshPro(SDF) 글꼴은 게임 전체가 그림판을 같이 써서 글자가 조각처럼 깨지는 일이 있었다.
+        /// 그래서 로딩 화면은 원본 글꼴 파일(TTF)을 일반 Text 로 그린다 — 숫자는 빛의 계승자 Bold, 안내·팁은 다른 글꼴(NEXON Lv2 Gothic).
         /// </summary>
-        private void StylePercent(TMP_Text text)
+        private void PickFonts()
         {
             var art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
-            // 게임 전체가 같이 쓰는 글꼴 그림판과 떼어 낸 전용 그림판(여백 넉넉)에 숫자를 미리 그려 쓴다
-            var font = art != null && art.titleFont != null ? FontWarmup.Isolated(art.titleFont, "0123456789%") : text.font;
-            if (font == null) return;
-            text.font = font;
-            text.fontStyle = FontStyles.Normal;
-            text.enableVertexGradient = true;
-            text.colorGradient = new VertexGradient(new Color(1f, 0.98f, 0.8f), new Color(1f, 0.98f, 0.8f), new Color(1f, 0.6f, 0.18f), new Color(1f, 0.6f, 0.18f));
-            text.color = Color.white;
-            // 재질은 이 글꼴의 기본 재질에서 새로 만든다 — 다른 글꼴로 만든 재질을 이어 쓰면 글자 그림 위치가 어긋나 조각처럼 깨진다
-            var m = new Material(font.material);
-            if (m.HasProperty(ShaderUtilities.ID_OutlineWidth)) m.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.26f);
-            if (m.HasProperty(ShaderUtilities.ID_OutlineColor)) m.SetColor(ShaderUtilities.ID_OutlineColor, new Color32(40, 8, 14, 255));
-            m.EnableKeyword("OUTLINE_ON");
-            m.EnableKeyword("UNDERLAY_ON");
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.8f));
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.5f);
-            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.5f);
-            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.2f);
-            // 외곽선·그림자 값을 재질에 직접 넣었으면 TMP 의 비율 값도 다시 계산해야 한다. 안 하면 그림자·외곽선이 글자 그림판의 엉뚱한 곳(옆 글자)을 읽어 조각처럼 깨진다
-            ShaderUtilities.UpdateShaderRatios(m);
-            text.fontSharedMaterial = m;
-            text.UpdateMeshPadding();   // 늘어난 외곽선·그림자만큼 글자 사각형을 넓힌다(잘리지 않게)
-            text.ForceMeshUpdate();
+            Font fallback = null;
+            try { fallback = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"); } catch { }
+            _numberFont = art != null && art.titleFont != null && art.titleFont.sourceFontFile != null ? art.titleFont.sourceFontFile : fallback;
+            _bodyFont = art != null && art.altFont != null && art.altFont.sourceFontFile != null ? art.altFont.sourceFontFile
+                      : art != null && art.bodyFont != null && art.bodyFont.sourceFontFile != null ? art.bodyFont.sourceFontFile : fallback;
         }
 
         private void BuildKing(RectTransform barRoot)
@@ -419,16 +397,25 @@ namespace OZGL2.UIBridge
             return img;
         }
 
-        private TMP_Text NewText(string name, Transform parent, float size, Color color, TextAlignmentOptions align)
+        /// <summary>일반 Text 한 줄. 외곽선·그림자는 UI 효과(Outline·Shadow)로 넣어 SDF 재질을 쓰지 않는다. 글꼴 통일(UiFontUnify)이 바꾸지 않게 표시한다.</summary>
+        private Text NewText(string name, Transform parent, int size, Color color, TextAnchor align, Font font)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
-            var t = go.AddComponent<TextMeshProUGUI>();
-            if (_font != null) t.font = _font;
+            var t = go.AddComponent<Text>();
+            t.font = font;
             t.fontSize = size; t.color = color; t.alignment = align;
             t.raycastTarget = false;
-            t.textWrappingMode = TextWrappingModes.NoWrap;
-            t.outlineWidth = 0.22f; t.outlineColor = new Color32(20, 6, 12, 255);
+            t.horizontalOverflow = HorizontalWrapMode.Overflow;
+            t.verticalOverflow = VerticalWrapMode.Overflow;
+            t.supportRichText = true;
+            var outline = go.AddComponent<Outline>();
+            outline.effectColor = new Color(0.16f, 0.03f, 0.05f, 1f);
+            outline.effectDistance = new Vector2(2.5f, -2.5f);
+            var shadow = go.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.7f);
+            shadow.effectDistance = new Vector2(3.5f, -4.5f);
+            go.AddComponent<FontUnifyIgnore>();
             return t;
         }
 
@@ -436,13 +423,6 @@ namespace OZGL2.UIBridge
         {
             rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
             rt.offsetMin = rt.offsetMax = Vector2.zero;
-        }
-
-        private static TMP_FontAsset FindFont()
-        {
-            foreach (var font in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
-                if (font != null && font.HasCharacters("불러오는중합성증강", out _, true, true)) return font;
-            return null;
         }
 
         private static Sprite MakePill()

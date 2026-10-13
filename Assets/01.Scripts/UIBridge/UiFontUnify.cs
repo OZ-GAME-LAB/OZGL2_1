@@ -55,6 +55,7 @@ namespace OZGL2.UIBridge
                 {
                     if (text == null || !text.gameObject.scene.IsValid() || text.font == null) continue;
                     if (_keepLegacy.Contains(text.font.GetInstanceID())) continue;
+                    if (text.GetComponent<FontUnifyIgnore>() != null) continue;   // 로딩 화면처럼 일부러 다른 글꼴을 쓰는 글자
                     text.font = _legacyMain;
                 }
         }
