@@ -93,6 +93,7 @@ namespace OZGL2.UIBridge
         private static readonly string[] BossLines = { "강력한 용사가 나타났다!", "우두머리 용사의 등장이다!", "이번 상대는 만만치 않다!" };
         private static readonly string[] ClearLines = { "용사들을 물리쳤다!", "성은 무사하다!", "마왕군의 승리다!", "이 정도쯤이야!", "다음 용사들도 맞아 주마!" };
         private BattleBannerArt _art;
+        private TMP_FontAsset _bannerTitleFont;
     private RawImage _hazardTop, _hazardBottom;
         private CanvasGroup _bannerGroup;
         private RectTransform _bannerRoot;
@@ -810,7 +811,7 @@ namespace OZGL2.UIBridge
             // 배너에 쓸 글자를 보이기 전에 글꼴에 미리 넣어 둔다(처음 뜰 때 글자가 색 네모로 번쩍였다가 나오던 것 방지)
             if (_art != null)
             {
-                FontWarmup.Warm(_art.titleFont, "WAVECLEAR 0123456789");
+                _bannerTitleFont = FontWarmup.Isolated(_art.titleFont, "WAVECLEAR 0123456789");   // 큰 글자는 전용 그림판으로(공용 그림판 변화에 휘말려 깨지지 않게)
                 FontWarmup.Warm(_art.bodyFont, string.Join("", WaveLines) + string.Join("", BossLines) + string.Join("", ClearLines) + "첫 번째 전투가 시작된다!DANGER");
             }
             if (_art == null) Debug.LogWarning("[전투 연출] Resources/BattleBanner/BattleBannerArt 를 찾지 못해 글자만 보여 줍니다.");
@@ -880,17 +881,17 @@ namespace OZGL2.UIBridge
             _bannerCrest = NewArt("Crest", _art != null ? _art.crest : null, 430f, 430f, new Vector2(0f, 0f));
             _bannerCrown = NewArt("Crown", _art != null ? _art.crown : null, 420f, 420f, new Vector2(0f, 78f));
 
-            _label = NewText("Label", _bannerRoot, 56f, FontStyles.Bold, _art != null ? _art.titleFont : null);
+            _label = NewText("Label", _bannerRoot, 56f, FontStyles.Bold, _bannerTitleFont);
             _label.rectTransform.sizeDelta = new Vector2(320f, 70f);
             _label.rectTransform.anchoredPosition = new Vector2(0f, 74f);
             _label.characterSpacing = 8f;
             StyleText(_label, new Color32(24, 6, 12, 255), 0.3f, 0f);
-            _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold, _art != null ? _art.titleFont : null);
+            _number = NewText("Number", _bannerRoot, 170f, FontStyles.Bold, _bannerTitleFont);
             _number.rectTransform.sizeDelta = new Vector2(300f, 190f);
             _number.rectTransform.anchoredPosition = new Vector2(0f, -22f);
             StyleText(_number, new Color32(24, 6, 12, 255), 0.34f, 0f);
 
-            _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold, _art != null ? _art.titleFont : null);
+            _title = NewText("Title", _bannerRoot, 112f, FontStyles.Bold, _bannerTitleFont);
             _title.rectTransform.sizeDelta = new Vector2(1500f, 140f);
             StyleText(_title, new Color32(24, 6, 12, 255), 0.34f, 0f);
             _sub = NewText("Sub", _bannerRoot, 56f, FontStyles.Normal, _art != null ? _art.bodyFont : null);

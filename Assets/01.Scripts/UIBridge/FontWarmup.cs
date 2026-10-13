@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore.LowLevel;
 
 namespace OZGL2.UIBridge
 {
@@ -28,6 +30,28 @@ namespace OZGL2.UIBridge
                         if (string.IsNullOrEmpty(missing)) break;
                     }
             }
+        }
+
+        private static readonly Dictionary<TMP_FontAsset, TMP_FontAsset> _isolated = new Dictionary<TMP_FontAsset, TMP_FontAsset>();
+
+        /// <summary>
+        /// 같은 글꼴 파일로 이 연출 전용 글꼴 그림판을 따로 만들어 돌려준다(chars 는 미리 그려 둔다).
+        /// 게임 전체가 함께 쓰는 동적 글꼴은 여기저기서 새 글자가 들어오며 그림판이 여러 장으로 늘어나는데,
+        /// 외곽선·그림자처럼 재질을 따로 쓰는 큰 글자가 그 변화에 휘말려 깨져 보이는 일이 있었다. 전용 그림판은 그 영향을 받지 않는다.
+        /// 원본 글꼴 파일을 못 찾으면 원래 글꼴을 그대로 쓴다.
+        /// </summary>
+        public static TMP_FontAsset Isolated(TMP_FontAsset font, string chars)
+        {
+            if (font == null) return null;
+            if (_isolated.TryGetValue(font, out var cached) && cached != null) { Warm(cached, chars); return cached; }
+            if (font.sourceFontFile == null) { Warm(font, chars); return font; }
+            var copy = TMP_FontAsset.CreateFontAsset(font.sourceFontFile, 90, 9, GlyphRenderMode.SDFAA, 1024, 1024, AtlasPopulationMode.Dynamic, true);
+            if (copy == null) { Warm(font, chars); return font; }
+            copy.name = font.name + " (전용)";
+            if (font.fallbackFontAssetTable != null) copy.fallbackFontAssetTable = new List<TMP_FontAsset>(font.fallbackFontAssetTable);
+            Warm(copy, chars);
+            _isolated[font] = copy;
+            return copy;
         }
 
         /// <summary>font 의 그림판에 chars 의 글자를 미리 넣는다. 글꼴이 없거나 동적이 아니면 아무것도 하지 않는다.</summary>

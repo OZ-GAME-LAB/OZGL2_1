@@ -320,8 +320,8 @@ namespace OZGL2.UIBridge
             var art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
             if (art != null && art.titleFont != null)
             {
-                FontWarmup.Warm(art.titleFont, "0123456789%");   // 숫자를 보이기 전에 글꼴 그림판에 미리 그려 둔다(처음 쓸 때 색 네모로 번쩍이던 것 방지)
-                text.font = art.titleFont;
+                // 게임 전체가 같이 쓰는 글꼴 그림판과 떼어 낸 전용 그림판에 숫자를 미리 그려 쓴다(공용 그림판이 늘어날 때 숫자가 깨지던 것 방지)
+                text.font = FontWarmup.Isolated(art.titleFont, "0123456789%");
             }
             text.fontStyle = FontStyles.Normal;
             text.enableVertexGradient = true;
