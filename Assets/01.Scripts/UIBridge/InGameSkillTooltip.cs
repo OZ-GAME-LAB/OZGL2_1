@@ -58,7 +58,7 @@ namespace OZGL2.UIBridge
 
             if (Time.unscaledTime >= _nextScan)
             {
-                _nextScan = Time.unscaledTime + 0.5f;
+                _nextScan = Time.unscaledTime + 1.5f;
                 _slots.Clear();
                 foreach (var v in FindObjectsByType<UICombatSkillSlotView>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)) _slots.Add(v);
             }

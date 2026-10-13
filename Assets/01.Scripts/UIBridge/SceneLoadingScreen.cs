@@ -1,0 +1,489 @@
+using System.Collections;
+using OZGL2.InGame;
+using OZGL2.Stage;
+using OZGL2.Tutorial;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+namespace OZGL2.UIBridge
+{
+    /// <summary>
+    /// 씬을 넘어갈 때 보여 주는 진짜 로딩 화면 — 타이틀 → 로비, 로비 → 인게임, 인게임 → 로비 모두 이 화면을 거친다(UISceneNavigator·TitleScreen·포기/나가기가 부른다).
+    /// 지금 화면 위로 어둡게 덮은 뒤 씬을 비동기로 불러오는 동안 실제 진행도를 보여 주고, 새 씬이 열린 뒤에도 인게임이 준비될 때까지 기다렸다가 서서히 걷힌다.
+    /// - 게임 로고 + 금빛 테두리의 진행 막대(불러온 만큼 차오르고, 뒤따라오는 밝은 잔상) + 막대 위를 달리는 실제 마왕(StoryCast 프리팹을 실시간으로 그림)
+    /// - 아래에는 「불러오는 중…」과 퍼센트, 그리고 게임 팁이 몇 초마다 바뀐다
+    /// - 막대는 실제 불러오기 진행도를 따라간다(너무 빨리 끝나 화면이 번쩍이지 않게 아주 짧은 최소 시간만 둔다)
+    /// 팀 UI·씬은 건드리지 않고 DontDestroyOnLoad 캔버스를 직접 만든다. 마왕 그림이나 로고를 못 찾으면 그 부분만 빼고 보여 준다.
+    /// </summary>
+    public sealed class SceneLoadingScreen : MonoBehaviour
+    {
+        private static readonly string[] Tips =
+        {
+            "같은 유닛을 합성하면 성급이 올라 더 강해져요.",
+            "보스 웨이브를 넘기면 증강을 고를 수 있어요.",
+            "전투 중에 마우스 휠로 화면을 확대하고, 우클릭으로 옮길 수 있어요.",
+            "Space 키로 전투를 잠깐 멈출 수 있어요.",
+            "처음 만난 용사는 도감에 기록돼요.",
+            "마왕이 레벨업하면 스킬 포인트를 얻어요.",
+            "스킬은 전투 중에 직접 눌러 쓸 수 있어요.",
+            "자동 카메라는 배속 막대 옆 단추로 켜고 끌 수 있어요.",
+        };
+
+        private const float FakeSeconds = 3.4f;     // 실제 로딩이 빨라도 마왕이 0%→100%를 달리는 데 걸리는 최소 시간(약간 가짜 로딩)
+        private const float MinSeconds = 0.7f;      // 번쩍임 방지용 최소 표시 시간(진행 막대는 이 시간과 상관없이 실제 진행도를 따른다)
+        private static Sprite _logoCache;
+        private static bool _busy;
+        private const float BarWidth = 1000f, BarHeight = 30f;
+        private const float KingHeight = 190f;      // 화면에서 마왕 캐릭터(몸)의 높이
+        private static readonly Color Gold = new Color(1f, 0.82f, 0.4f, 1f);
+        private static readonly Color Cream = new Color(1f, 0.95f, 0.84f, 1f);
+
+        private string _target;
+        private Sprite _logo;
+        private Canvas _canvas;
+        private RectTransform _root, _king, _fillRt, _trailRt, _glowRt;
+        private Image _bg, _fill, _trail, _glow;
+        private CanvasGroup _group;
+        private TMP_Text _label, _tip, _pct;
+        private RectTransform _pctRt;
+        private readonly System.Collections.Generic.List<(RectTransform rt, Image img, float born)> _dust = new System.Collections.Generic.List<(RectTransform, Image, float)>();
+        private float _nextDust;
+        private readonly System.Collections.Generic.Stack<Image> _dustPool = new System.Collections.Generic.Stack<Image>();
+        private TMP_FontAsset _font;
+        private DemonKingPortrait _portrait;
+        private Sprite _pill, _soft, _vignette;
+        private RectTransform _barRoot;
+        private int _lastPct = -1, _lastDots = -1;
+        private float _nextReadyCheck;
+        private float _shown, _real, _king01 = 0.06f, _kingSize = 300f, _kingDx;
+        private bool _done;
+
+        /// <summary>로딩 화면을 띄우고 target 씬을 불러온다. 화면은 이미 검게 덮인 뒤에 부른다.</summary>
+        public static void Load(string target, Sprite logo)
+        {
+            if (_busy) return;
+            if (logo != null) _logoCache = logo;     // 타이틀에서 한 번 받아 두면 로비·인게임 사이 이동에서도 로고를 쓴다
+            _busy = true;
+            var go = new GameObject("SceneLoadingScreen");
+            DontDestroyOnLoad(go);
+            var screen = go.AddComponent<SceneLoadingScreen>();
+            screen._target = target;
+            screen._logo = logo != null ? logo : _logoCache;
+        }
+
+        private void Start()
+        {
+            _font = UiFontOverride.Current != null ? UiFontOverride.Current : FindFont();
+            // 화면에 쓸 글자(팁·안내·숫자)를 미리 글꼴에 넣어 둔다
+            FontWarmup.Warm(_font, string.Join("", Tips) + "불러오는 중준비 중.% 0123456789");
+            Build();
+            StartCoroutine(Run());
+        }
+
+        private IEnumerator Run()
+        {
+            float start = Time.unscaledTime;
+            var tipTimer = 0f;
+            _tip.text = Tips[Random.Range(0, Tips.Length)];
+            // 마왕은 처음부터 막대 왼쪽 끝에 서 있도록 덮이기 전에 먼저 만든다(이 순간 화면이 아주 잠깐 멈출 수 있다)
+            BuildKing(_barRoot);
+            Visuals();
+            // 지금 보이는 화면 위로 어둡게 덮이면서 그림들이 서서히 켜진다
+            _bg.color = new Color(0.02f, 0.01f, 0.04f, 0f);
+            for (float t = 0f; t < 0.22f; t += Time.unscaledDeltaTime)
+            {
+                float k = Mathf.SmoothStep(0f, 1f, t / 0.22f);
+                _bg.color = new Color(0.02f, 0.01f, 0.04f, k);
+                _group.alpha = k;
+                yield return null;
+            }
+            _bg.color = new Color(0.02f, 0.01f, 0.04f, 1f);
+            _group.alpha = 1f;
+
+            var op = SceneManager.LoadSceneAsync(_target);
+            if (op == null) { _busy = false; SceneManager.LoadScene(_target); yield break; }
+            op.allowSceneActivation = false;
+
+            int tipIndex = System.Array.IndexOf(Tips, _tip.text);
+            float runStart = Time.unscaledTime;
+            while (true)
+            {
+                _real = Mathf.Clamp01(op.progress / 0.9f);                       // 활성화 전에는 0.9 에서 멈춘다
+                // 진행 = 달리기 곡선(FakeSeconds 동안 0→100, 중간에 살짝 숨을 고른다)과 실제 불러오기 진행도 중 느린 쪽. 실제가 더 느리면 마왕도 거기서 기다린다.
+                float k = Mathf.Clamp01((Time.unscaledTime - runStart) / FakeSeconds);
+                float cap = _real >= 1f ? 1f : Mathf.Min(0.97f, _real);
+                _shown = Mathf.MoveTowards(_shown, Mathf.Min(RunCurve(k), cap), Time.unscaledDeltaTime * 1.4f);
+                Visuals();
+
+                tipTimer += Time.unscaledDeltaTime;
+                if (tipTimer > 3.2f)
+                {
+                    tipTimer = 0f;
+                    tipIndex = (tipIndex + 1) % Tips.Length;
+                    _tip.text = Tips[tipIndex];
+                }
+                if (_real >= 1f && _shown >= 0.999f && Time.unscaledTime - start >= MinSeconds) break;
+                yield return null;
+            }
+
+            // 결승선: 마왕이 몸짓을 하고 막대 끝이 번쩍인다
+            if (_portrait != null) { _portrait.Gesture(); _portrait.Play(PlayerState.ATTACK); }
+            _glow.color = new Color(1f, 0.95f, 0.7f, 1f);
+            yield return new WaitForSecondsRealtime(0.5f);
+            op.allowSceneActivation = true;
+            while (!op.isDone) yield return null;
+            yield return null;
+            // 인게임은 씬이 열린 뒤에도 스테이지를 준비하는 시간이 있다 — 준비될 때까지(최대 4초) 로딩 화면을 유지한다
+            _label.text = "준비 중...";
+            InGamePrototypeBootstrap bootstrap = null;
+            for (float wait = 0f; wait < 4f; wait += Time.unscaledDeltaTime)
+            {
+                if (bootstrap == null) bootstrap = FindFirstObjectByType<InGamePrototypeBootstrap>();   // 한 번 찾으면 기억한다
+                if (bootstrap == null) break;
+                var stage = bootstrap.Stage;
+                if (stage != null && stage.State != eStageState.IDLE && stage.State != eStageState.INITIALIZING) break;
+                yield return null;
+            }
+            yield return new WaitForSecondsRealtime(0.1f);
+
+            // 새 씬이 열린 뒤 로딩 화면을 서서히 걷는다
+            _done = true;
+            for (float t = 0f; t < 0.6f; t += Time.unscaledDeltaTime)
+            {
+                float k = Mathf.SmoothStep(0f, 1f, t / 0.6f);
+                _group.alpha = 1f - k;
+                _bg.color = new Color(0.02f, 0.01f, 0.04f, 1f - k);
+                yield return null;
+            }
+            _busy = false;
+            Destroy(gameObject);
+        }
+
+        private void OnDisable() { if (_done) _busy = false; }
+
+        /// <summary>0→1 을 달리기처럼 보이게: 처음엔 빠르게 치고 나가고 중간에 두 번 살짝 늦춰지며 끝에서 마무리한다. 항상 늘기만 한다.</summary>
+        private static float RunCurve(float k)
+        {
+            float basis = Mathf.Lerp(k, Mathf.SmoothStep(0f, 1f, k), 0.35f);
+            return Mathf.Clamp01(basis + 0.028f * Mathf.Sin(6f * Mathf.PI * k) * (1f - k));
+        }
+
+        private void Update()
+        {
+            if (_label == null || _done) return;
+            if (_shown >= 0.999f && _real >= 1f) return;      // 다 불러온 뒤에는 「준비 중...」 글자를 그대로 둔다
+            int dots = Mathf.FloorToInt(Time.unscaledTime * 2.5f) % 4;
+            if (dots == _lastDots) return;
+            _lastDots = dots;
+            _label.text = "불러오는 중" + new string('.', dots) + "   ";
+        }
+
+        private void Visuals()
+        {
+            float w = BarWidth * Mathf.Clamp01(_shown);
+            _fillRt.sizeDelta = new Vector2(w, _fillRt.sizeDelta.y);
+            // 잔상: 채움보다 살짝 앞서 밝게 번졌다가 따라온다
+            _trailRt.sizeDelta = new Vector2(Mathf.Min(BarWidth, w + 26f), _trailRt.sizeDelta.y);
+            _glowRt.anchoredPosition = new Vector2(w, 0f);
+            _glow.color = new Color(1f, 0.85f, 0.45f, (_shown > 0.01f && _shown < 0.995f ? 0.8f : 0f));
+            // 마왕은 막대를 따라 0%에서 100%까지 달린다. 머리 위 숫자가 함께 오른다
+            float kx = -BarWidth * 0.5f + w;
+            // 그림의 발 위치(FeetFraction)를 막대 윗면에 맞춰 마왕이 로딩 바로 위를 달리게 한다
+            float kingY = BarHeight * 0.5f + 6f + (0.5f - _king01) * _kingSize + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 10f)) * 7f;
+            if (_king != null) _king.anchoredPosition = new Vector2(kx - _kingDx, kingY);
+            if (_pctRt != null)
+            {
+                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingHeight + 56f);
+                int pct = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f);
+                if (pct != _lastPct) { _lastPct = pct; _pct.text = pct + "<size=55%>%</size>"; }   // 매 프레임 글자를 새로 만들지 않는다
+            }
+            // 달리는 동안 발밑에서 먼지가 인다
+            if (_king != null && _shown > 0.005f && _shown < 0.999f && Time.unscaledTime >= _nextDust)
+            {
+                _nextDust = Time.unscaledTime + 0.09f;
+                Image d;
+                if (_dustPool.Count > 0) { d = _dustPool.Pop(); d.gameObject.SetActive(true); }   // 먼지는 만들고 지우지 않고 돌려 쓴다(쓰레기 수거로 끊기지 않게)
+                else
+                {
+                    d = NewImage("Dust", _fillRt.parent, _soft, new Color(0.8f, 0.7f, 0.6f, 0f));
+                    d.rectTransform.anchorMin = d.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                    d.rectTransform.SetSiblingIndex(_king.GetSiblingIndex());
+                }
+                d.rectTransform.sizeDelta = new Vector2(34f, 34f);
+                d.rectTransform.anchoredPosition = new Vector2(kx - 40f, BarHeight * 0.5f + 12f);
+                _dust.Add((d.rectTransform, d, Time.unscaledTime));
+            }
+            for (int i = _dust.Count - 1; i >= 0; i--)
+            {
+                var (drt, dimg, born) = _dust[i];
+                float k = (Time.unscaledTime - born) / 0.6f;
+                if (drt == null || k >= 1f) { if (drt != null) { dimg.gameObject.SetActive(false); _dustPool.Push(dimg); } _dust.RemoveAt(i); continue; }
+                dimg.color = new Color(0.85f, 0.75f, 0.65f, Mathf.Sin(k * Mathf.PI) * 0.4f);
+                drt.sizeDelta = Vector2.one * (34f + 40f * k);
+                drt.anchoredPosition += new Vector2(-30f * Time.unscaledDeltaTime, 22f * Time.unscaledDeltaTime);
+            }
+        }
+
+        // ───────────── 화면 만들기
+
+        private void Build()
+        {
+            var go = new GameObject("Canvas", typeof(RectTransform));
+            go.transform.SetParent(transform, false);
+            _canvas = go.AddComponent<Canvas>();
+            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _canvas.sortingOrder = 9500;
+            var scaler = go.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 0.5f;
+            _root = (RectTransform)go.transform;
+            _pill = MakePill(); _soft = MakeSoft(); _vignette = MakeVignette();
+
+            _bg = NewImage("Bg", _root, null, new Color(0.02f, 0.01f, 0.04f, 1f));
+            Stretch(_bg.rectTransform);
+
+            var content = NewRect("Content", _root);
+            Stretch(content);
+            _group = content.gameObject.AddComponent<CanvasGroup>();
+            _group.alpha = 0f;
+
+            // 가운데에서 번지는 붉은 빛 + 가장자리 어둠
+            var glow = NewImage("Aura", content, _soft, new Color(0.55f, 0.1f, 0.2f, 0.42f));
+            glow.rectTransform.anchorMin = glow.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            glow.rectTransform.sizeDelta = new Vector2(1700f, 1000f);
+            var vig = NewImage("Vignette", content, _vignette, new Color(0f, 0f, 0f, 0.7f));
+            Stretch(vig.rectTransform);
+
+            // 로고
+            if (_logo != null)
+            {
+                var logo = NewImage("Logo", content, _logo, Color.white);
+                logo.preserveAspect = true;
+                logo.rectTransform.anchorMin = logo.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                logo.rectTransform.sizeDelta = new Vector2(980f, 482f);
+                logo.rectTransform.anchoredPosition = new Vector2(0f, 190f);
+            }
+
+            // 진행 막대: 어두운 외곽선 → 금빛 테두리 → 홈 → 잔상 → 채움 → 윗면 광택
+            var barRoot = NewRect("Bar", content);
+            barRoot.anchorMin = barRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            barRoot.sizeDelta = new Vector2(BarWidth, BarHeight);
+            barRoot.anchoredPosition = new Vector2(0f, -170f);
+            Slice("Outline", barRoot, new Color(0.02f, 0.01f, 0.03f, 0.95f), 10f);
+            Slice("Frame", barRoot, new Color(0.88f, 0.68f, 0.36f, 1f), 5f);
+            Slice("Groove", barRoot, new Color(0.1f, 0.05f, 0.09f, 1f), 0f);
+            _trail = BarPart("Trail", barRoot, new Color(1f, 0.93f, 0.55f, 0.55f), out _trailRt);
+            _fill = BarPart("Fill", barRoot, new Color(0.86f, 0.18f, 0.22f, 1f), out _fillRt);
+            var shine = NewImage("Shine", _fillRt, _pill, new Color(1f, 1f, 1f, 0.28f));
+            shine.type = Image.Type.Sliced; shine.pixelsPerUnitMultiplier = 3f; shine.raycastTarget = false;
+            shine.rectTransform.anchorMin = new Vector2(0f, 0.5f); shine.rectTransform.anchorMax = Vector2.one;
+            shine.rectTransform.offsetMin = new Vector2(3f, 0f); shine.rectTransform.offsetMax = new Vector2(-3f, -3f);
+            // 채움 끝의 번지는 빛
+            _glow = NewImage("EdgeGlow", barRoot, _soft, new Color(1f, 0.85f, 0.45f, 0f));
+            _glowRt = _glow.rectTransform;
+            _glowRt.anchorMin = _glowRt.anchorMax = new Vector2(0f, 0.5f);
+            _glowRt.sizeDelta = new Vector2(90f, 90f);
+            // 바 이름은 위치 기준으로만 쓴다
+
+            // 막대 위를 달리는 마왕
+            _barRoot = barRoot;   // 마왕은 화면이 덮인 뒤에 만든다(무거운 프리팹 생성이 덮이는 연출을 끊지 않게)
+
+            // 글자
+            _label = NewText("Label", content, 40f, Gold, TextAlignmentOptions.Left);
+            _label.rectTransform.anchorMin = _label.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            _label.rectTransform.pivot = new Vector2(0f, 0.5f);
+            _label.rectTransform.sizeDelta = new Vector2(500f, 56f);
+            _label.rectTransform.anchoredPosition = new Vector2(-BarWidth * 0.5f, -232f);
+            _label.text = "불러오는 중";
+            _pct = NewText("Percent", barRoot, 84f, Gold, TextAlignmentOptions.Center);
+            _pctRt = _pct.rectTransform;
+            _pctRt.anchorMin = _pctRt.anchorMax = new Vector2(0.5f, 0.5f);
+            _pctRt.sizeDelta = new Vector2(300f, 110f);
+            StylePercent(_pct);
+            _tip = NewText("Tip", content, 36f, Cream, TextAlignmentOptions.Center);
+            _tip.rectTransform.anchorMin = _tip.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            _tip.rectTransform.sizeDelta = new Vector2(1500f, 60f);
+            _tip.rectTransform.anchoredPosition = new Vector2(0f, -330f);
+            Visuals();
+        }
+
+        /// <summary>
+        /// 퍼센트 숫자 꾸미기: 결과창 제목과 같은 글꼴(빛의 계승자 Bold), 위는 밝고 아래는 짙은 금빛 그라데이션, 두꺼운 어두운 외곽선, 아래로 번지는 그림자.
+        /// 「%」는 숫자보다 작게 붙인다.
+        /// </summary>
+        private void StylePercent(TMP_Text text)
+        {
+            var art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
+            if (art != null && art.titleFont != null)
+            {
+                FontWarmup.Warm(art.titleFont, "0123456789%");   // 숫자를 보이기 전에 글꼴 그림판에 미리 그려 둔다(처음 쓸 때 색 네모로 번쩍이던 것 방지)
+                text.font = art.titleFont;
+            }
+            text.fontStyle = FontStyles.Normal;
+            text.enableVertexGradient = true;
+            text.colorGradient = new VertexGradient(new Color(1f, 0.98f, 0.8f), new Color(1f, 0.98f, 0.8f), new Color(1f, 0.6f, 0.18f), new Color(1f, 0.6f, 0.18f));
+            text.color = Color.white;
+            text.outlineWidth = 0.34f;
+            text.outlineColor = new Color32(40, 8, 14, 255);
+            var m = text.fontMaterial;
+            if (m == null) return;
+            m.EnableKeyword("UNDERLAY_ON");
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.85f));
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.8f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.8f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.4f);
+        }
+
+        private void BuildKing(RectTransform barRoot)
+        {
+            var cast = Resources.Load<StoryCast>("Story/StoryCast");
+            var prefab = cast != null ? cast.Get("king") : null;
+            if (prefab == null) return;
+            var pgo = new GameObject("LoadingKing");
+            pgo.transform.SetParent(transform, false);
+            _portrait = pgo.AddComponent<DemonKingPortrait>();
+            _portrait.Configure(new Vector3(9000f, 9000f, 0f), 384);
+            _portrait.Build(prefab);
+            if (!_portrait.IsReady) { Destroy(pgo); _portrait = null; return; }
+            _king01 = _portrait.FeetFraction;
+            _portrait.SetShown(true);
+            _portrait.Play(PlayerState.MOVE);
+            // 실제로 그려진 캐릭터의 영역을 재서, 발을 막대 위에 정확히 얹고 몸 높이를 맞춘다
+            if (_portrait.MeasureContent(out var content))
+            {
+                _kingSize = Mathf.Clamp(KingHeight / Mathf.Max(0.05f, content.height), 160f, 900f);
+                _king01 = content.y;
+                _kingDx = (1f - (content.x + content.width * 0.5f) - 0.5f) * _kingSize;   // 좌우를 뒤집어 보여 주므로 가운데도 뒤집어 계산
+            }
+
+            var raw = new GameObject("King", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage)).GetComponent<RawImage>();
+            raw.transform.SetParent(barRoot, false);
+            raw.texture = _portrait.Texture;
+            raw.raycastTarget = false;
+            raw.uvRect = new Rect(1f, 0f, -1f, 1f);                 // 프리팹은 왼쪽을 보므로 뒤집어 오른쪽(막대가 차는 쪽)으로 달리게
+            _king = raw.rectTransform;
+            _king.anchorMin = _king.anchorMax = new Vector2(0.5f, 0.5f);
+            _king.sizeDelta = new Vector2(_kingSize, _kingSize);
+        }
+
+        private Image BarPart(string name, RectTransform parent, Color color, out RectTransform rt)
+        {
+            var img = NewImage(name, parent, _pill, color);
+            img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = 3f;
+            rt = img.rectTransform;
+            rt.anchorMin = new Vector2(0f, 0f); rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 0.5f);
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            rt.sizeDelta = new Vector2(0f, 0f);
+            return img;
+        }
+
+        private void Slice(string name, RectTransform parent, Color color, float grow)
+        {
+            var img = NewImage(name, parent, _pill, color);
+            img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = 3f;
+            var rt = img.rectTransform;
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(-grow, -grow); rt.offsetMax = new Vector2(grow, grow);
+        }
+
+        private void OnDestroy()
+        {
+            if (_portrait != null) Destroy(_portrait.gameObject);
+        }
+
+        // ───────────── 도우미
+
+        private static RectTransform NewRect(string name, Transform parent)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            return (RectTransform)go.transform;
+        }
+
+        private static Image NewImage(string name, Transform parent, Sprite sprite, Color color)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var img = go.GetComponent<Image>();
+            img.sprite = sprite; img.color = color; img.raycastTarget = false;
+            return img;
+        }
+
+        private TMP_Text NewText(string name, Transform parent, float size, Color color, TextAlignmentOptions align)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var t = go.AddComponent<TextMeshProUGUI>();
+            if (_font != null) t.font = _font;
+            t.fontSize = size; t.color = color; t.alignment = align;
+            t.raycastTarget = false;
+            t.textWrappingMode = TextWrappingModes.NoWrap;
+            t.outlineWidth = 0.22f; t.outlineColor = new Color32(20, 6, 12, 255);
+            return t;
+        }
+
+        private static void Stretch(RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+        }
+
+        private static TMP_FontAsset FindFont()
+        {
+            foreach (var font in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
+                if (font != null && font.HasCharacters("불러오는중합성증강", out _, true, true)) return font;
+            return null;
+        }
+
+        private static Sprite MakePill()
+        {
+            const int n = 64, radius = 28;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = Mathf.Max(radius - (x + 0.5f), (x + 0.5f) - (n - radius), 0f);
+                    float dy = Mathf.Max(radius - (y + 0.5f), (y + 0.5f) - (n - radius), 0f);
+                    float dist = radius - Mathf.Sqrt(dx * dx + dy * dy);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(dist + 0.5f)));
+                }
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(radius, radius, radius, radius));
+        }
+
+        private static Sprite MakeSoft()
+        {
+            const int n = 64;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = (x - (n - 1) * 0.5f) / (n * 0.5f), dy = (y - (n - 1) * 0.5f) / (n * 0.5f);
+                    float a = Mathf.Clamp01(1f - Mathf.Sqrt(dx * dx + dy * dy));
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, a * a));
+                }
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+        }
+
+        private static Sprite MakeVignette()
+        {
+            const int n = 64;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = (x - (n - 1) * 0.5f) / (n * 0.5f), dy = (y - (n - 1) * 0.5f) / (n * 0.5f);
+                    float d = Mathf.Sqrt(dx * dx * 0.85f + dy * dy * 1.1f);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((d - 0.55f) / 0.6f))));
+                }
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+        }
+    }
+}

@@ -166,7 +166,7 @@ namespace OZGL2.UIFlow
 
         private static void SetText(TMP_Text target, string text)
         {
-            if (target != null) target.text = text ?? string.Empty;
+            if (target != null) { OZGL2.UIBridge.FontWarmup.Ensure(target, text); target.text = text ?? string.Empty; }   // 글자를 넣기 전에 글꼴에 미리 그려 둔다
         }
     }
 }

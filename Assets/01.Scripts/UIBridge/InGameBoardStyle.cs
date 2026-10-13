@@ -97,13 +97,29 @@ namespace OZGL2.UIBridge
             if (_followRoot != null) Destroy(_followRoot.gameObject);
         }
 
+        private bool _tilesDirty = true;
+        private float _nextTileRefresh, _nextPrepFind;
+
         private void OnLayoutChanged()
         {
+            _tilesDirty = true;
             _next = 0f;
             HideOriginalTiles();   // 그리드가 칸을 다시 그린 같은 프레임에 바로 다시 가린다
         }
 
-        private void OnGridChanged() => ShrinkPlacementOverlays();
+        private void OnGridChanged() { _tilesDirty = true; ShrinkPlacementOverlays(); }
+
+        /// <summary>PreparationVisuals 루트. 이름으로 찾는 일(GameObject.Find)은 비싸서 한 번 찾으면 기억하고, 못 찾으면 1초에 한 번만 다시 찾는다.</summary>
+        private Transform PrepRoot()
+        {
+            if (_prepRoot == null && Time.unscaledTime >= _nextPrepFind)
+            {
+                _nextPrepFind = Time.unscaledTime + 1f;
+                var go = GameObject.Find("PreparationVisuals");
+                if (go != null) _prepRoot = go.transform;
+            }
+            return _prepRoot;
+        }
 
         private void LateUpdate()
         {
@@ -129,7 +145,13 @@ namespace OZGL2.UIBridge
                 _plates = null; _shadowsUnder = null; _boardRoot = null;
             }
             EnsureSprites();
-            if (_cellTiles && _grid != null) RefreshTiles();
+            // 칸 타일은 그리드가 바뀌었을 때(또는 안전하게 1.5초마다)만 다시 칠한다 — 칸마다 색을 매번 쓰면 수백 개가 계속 더러워진다
+            if (_cellTiles && _grid != null && (_tilesDirty || _plates == null || Time.unscaledTime >= _nextTileRefresh))
+            {
+                _tilesDirty = false;
+                _nextTileRefresh = Time.unscaledTime + 1.5f;
+                RefreshTiles();
+            }
             ScanPreviewActors();
             ShrinkPlacementOverlays();
             ScanCombatUnits();
@@ -199,12 +221,7 @@ namespace OZGL2.UIBridge
         /// </summary>
         private void ShrinkPlacementOverlays()
         {
-            if (_prepRoot == null)
-            {
-                var go = GameObject.Find("PreparationVisuals");
-                if (go == null) return;
-                _prepRoot = go.transform;
-            }
+            if (PrepRoot() == null) return;
             // 칸 가장자리까지 채워 그리던 반투명 사각형만 타일 크기로 줄인다. 테두리선은 건드리지 않는다(원래 모양 그대로).
             float limit = _cell * _tileFill;
             foreach (Transform child in _prepRoot)
@@ -219,9 +236,9 @@ namespace OZGL2.UIBridge
 
         private void ScanPreviewActors()
         {
-            var root = GameObject.Find("PreparationVisuals");
+            var root = PrepRoot();
             if (root == null) return;
-            foreach (Transform actor in root.transform)
+            foreach (Transform actor in root)
             {
                 bool preview = actor.name.StartsWith(PreviewPrefix), dragged = actor.name == DraggedName;
                 if (!preview && !dragged) continue;

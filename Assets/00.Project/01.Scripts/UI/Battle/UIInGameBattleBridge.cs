@@ -231,6 +231,8 @@ namespace OZGL2.UIFlow
                 ? _bootstrap.Stage.State
                 : eStageState.IDLE;
             if (_hasShownStageState && _shownStageState == state) return;
+            // 웨이브 클리어 배너가 보이는 동안에는 내 카드(손패)가 있는 배치 화면으로 넘어가지 않는다 — 배너가 끝나면 이 줄을 지나 바뀐다.
+            if (OZGL2.UIBridge.InGameBattleFx.HoldingForClearBanner && (state == eStageState.GENERAL_REWARD || state == eStageState.AUGMENT)) return;
 
             _shownStageState = state;
             _hasShownStageState = true;

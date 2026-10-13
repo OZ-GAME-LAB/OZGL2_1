@@ -7,6 +7,7 @@ using OZGL2.InGame;
 using OZGL2.Skill;
 using OZGL2.Stage;
 using OZGL2.Synergy;
+using OZGL2.UIFlow;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -69,6 +70,7 @@ namespace OZGL2.UIBridge
 
         private InGamePrototypeBootstrap _bootstrap;
         private RealSynergySync _sync;
+        private float _nextSyncFind;
         private SkillManager _hooked;
         private eStageState _lastState = eStageState.IDLE;
         private int _clearedAtStart, _kills, _combatTotal;
@@ -84,7 +86,7 @@ namespace OZGL2.UIBridge
         private readonly List<(RectTransform rt, Image img, Vector2 vel, float life, float born, float size)> _sparks = new List<(RectTransform, Image, Vector2, float, float, float)>();
         // 웨이브 클리어 배너가 끝나기 전에는 결과창·보상 카드가 뜨지 않게 기다리게 한다(WaitForClearBannerAsync)
         private bool _combatSeen;
-        private TaskCompletionSource<bool> _clearTcs;
+        private TaskCompletionSource<bool> _clearTcs, _waveTcs;   // _waveTcs: 웨이브 시작 배너가 끝날 때까지 용사 출현을 미룬다
         private int _lastWaveLine = -1, _lastClearLine = -1;
 
         private static readonly string[] WaveLines = { "용사들이 성문 앞에 도착했다!", "마왕성을 지켜라!", "마왕군, 전투 태세!", "또 한 무리의 용사들이 몰려온다!", "한 놈도 성 안에 들이지 마라!" };
@@ -133,6 +135,7 @@ namespace OZGL2.UIBridge
         {
             if (Instance == this) Instance = null;
             _clearTcs?.TrySetResult(true);
+            _waveTcs?.TrySetResult(true);
             if (_root != null) Destroy(_root.gameObject);
         }
 
@@ -142,14 +145,56 @@ namespace OZGL2.UIBridge
         {
             EnsureAssets();
             HookCast();
+            if (!_bannerPrepared && _bootstrap != null && _bootstrap.Stage != null) { _bannerPrepared = true; EnsureBannerUi(); }   // 첫 배너 전에 미리 만들어 글자를 준비해 둔다
             WatchStage();
+            HoldHandDuringClearBanner();
             if (_damageNumbers || _hitSparks || _deathPoof) PollUnits();
             TickFx(Time.unscaledDeltaTime);
         }
 
+        // ───────────── 클리어 배너 동안 손패 가리기
+        private CanvasGroup _handGroup;
+        private float _nextHandFind;
+        private bool _handHeld, _handSavedBlocks, _bannerPrepared;
+
+        /// <summary>
+        /// 웨이브 클리어 배너가 보이는 동안 화면 아래 손패(내가 가진 카드 · 보상 카드)를 가린다. 어떤 이유로 손패가 먼저 채워져도 배너 위에 뜨지 않게 하고,
+        /// 배너가 끝나면 부드럽게 나타난다. 손패 화면 자체는 건드리지 않고 투명도만 쓴다.
+        /// </summary>
+        private void HoldHandDuringClearBanner()
+        {
+            bool hold = HoldingForClearBanner;
+            if (!hold && !_handHeld) return;
+            if (_handGroup == null)
+            {
+                if (Time.unscaledTime < _nextHandFind) return;
+                _nextHandFind = Time.unscaledTime + 0.5f;
+                var view = FindFirstObjectByType<UIBattleCardHandView>(FindObjectsInactive.Include);
+                if (view == null) return;
+                _handGroup = view.GetComponent<CanvasGroup>();
+                if (_handGroup == null) _handGroup = view.gameObject.AddComponent<CanvasGroup>();
+            }
+            if (hold)
+            {
+                if (!_handHeld) _handSavedBlocks = _handGroup.blocksRaycasts;   // 원래 값을 기억해 두었다가 돌려 준다
+                _handHeld = true;
+                _handGroup.alpha = 0f;
+                _handGroup.blocksRaycasts = false;
+                return;
+            }
+            // 배너가 끝났다: 서서히 다시 보인다
+            _handGroup.alpha = Mathf.MoveTowards(_handGroup.alpha, 1f, Time.unscaledDeltaTime * 4f);
+            if (_handGroup.alpha >= 1f) { _handGroup.blocksRaycasts = _handSavedBlocks; _handHeld = false; }
+        }
+
         private void HookCast()
         {
-            if (_sync == null) _sync = FindFirstObjectByType<RealSynergySync>();
+            if (_sync == null)
+            {
+                if (Time.unscaledTime < _nextSyncFind) return;   // 없을 때 매 프레임 씬을 뒤지지 않는다
+                _nextSyncFind = Time.unscaledTime + 1f;
+                _sync = FindFirstObjectByType<RealSynergySync>();
+            }
             var manager = _sync != null ? _sync.SkillManager : null;
             if (manager == _hooked) return;
             if (_hooked != null) _hooked.CastRequested -= OnCast;
@@ -173,24 +218,49 @@ namespace OZGL2.UIBridge
             var previous = _lastState;
             _lastState = state;
 
-            if (state == eStageState.COMBAT)
-            {
-                _combatSeen = true;
-                _clearTcs?.TrySetResult(true);   // 지난 웨이브의 대기가 남아 있었다면 풀어 준다
-                _clearTcs = null;
-                _kills = 0;
-                _clearedAtStart = stage.ClearedRoundCount;
-                var round = _bootstrap.CurrentRoundDefinition;
-                _combatTotal = 0;
-                if (round != null) foreach (var spawn in round.Spawns) _combatTotal += spawn.Count;
-                bool boss = round != null && round.IsBossRound;
-                if (_waveBanner) ShowBanner("WAVE " + stage.CurrentRoundNumber, PickLine(boss ? BossLines : WaveLines, ref _lastWaveLine, stage.CurrentRoundNumber == 1 && !boss ? "첫 번째 전투가 시작된다!" : null), boss ? BannerKind.Boss : BannerKind.Wave, stage.CurrentRoundNumber);
-            }
+            if (state == eStageState.COMBAT) BeginCombat(stage);
             else if (previous == eStageState.COMBAT)
             {
                 EndSlowMo(false);
                 RequestClearBanner();
             }
+        }
+
+        /// <summary>전투가 시작될 때 한 번: 기록을 비우고 웨이브 시작 배너를 띄운다. 배너가 끝날 때까지 용사 출현을 미루도록 _waveTcs 를 만든다.</summary>
+        private void BeginCombat(StageManager stage)
+        {
+            _lastState = eStageState.COMBAT;
+            _combatSeen = true;
+            _clearTcs?.TrySetResult(true);   // 지난 웨이브의 대기가 남아 있었다면 풀어 준다
+            _clearTcs = null;
+            _waveTcs?.TrySetResult(true);
+            _waveTcs = null;
+            _kills = 0;
+            _clearedAtStart = stage.ClearedRoundCount;
+            var round = _bootstrap.CurrentRoundDefinition;
+            _combatTotal = 0;
+            if (round != null) foreach (var spawn in round.Spawns) _combatTotal += spawn.Count;
+            bool boss = round != null && round.IsBossRound;
+            if (!_waveBanner) return;
+            _waveTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            ShowBanner("WAVE " + stage.CurrentRoundNumber, PickLine(boss ? BossLines : WaveLines, ref _lastWaveLine, stage.CurrentRoundNumber == 1 && !boss ? "첫 번째 전투가 시작된다!" : null), boss ? BannerKind.Boss : BannerKind.Wave, stage.CurrentRoundNumber);
+        }
+
+        /// <summary>
+        /// 전투가 시작되고 용사를 내보내기 직전에 부른다. 웨이브 시작 배너가 나오는 중이면 배너가 끝날 때까지 기다려서, 배너가 끝난 뒤에 용사들이 등장한다.
+        /// 배너가 꺼져 있거나 없으면 바로 끝난다.
+        /// </summary>
+        public static async Task WaitForWaveBannerAsync(CancellationToken token)
+        {
+            var fx = Instance;
+            if (fx == null) return;
+            var stage = fx._bootstrap != null ? fx._bootstrap.Stage : null;
+            if (stage != null && stage.State == eStageState.COMBAT && fx._lastState != eStageState.COMBAT) fx.BeginCombat(stage);   // 감시 루프보다 먼저 불렸을 때도 배너를 먼저 시작한다
+            var wait = fx._waveTcs != null ? fx._waveTcs.Task : Task.CompletedTask;
+            if (wait.IsCompleted) return;
+            var cancelled = new TaskCompletionSource<bool>();
+            using (token.Register(() => cancelled.TrySetCanceled()))
+                await await Task.WhenAny(wait, cancelled.Task);
         }
 
         private static string PickLine(string[] pool, ref int last, string forced)
@@ -218,6 +288,12 @@ namespace OZGL2.UIBridge
             _clearTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             ShowBanner("WAVE CLEAR", PickLine(ClearLines, ref _lastClearLine, null), BannerKind.Clear, 0);
             return _clearTcs.Task;
+        }
+
+        /// <summary>웨이브 클리어 배너가 보이는 동안 true. 배치 화면(내 카드 손패)이 배너 위로 먼저 뜨지 않게 화면 전환이 이것을 본다.</summary>
+        public static bool HoldingForClearBanner
+        {
+            get { var fx = Instance; return fx != null && fx._clearTcs != null && !fx._clearTcs.Task.IsCompleted; }
         }
 
         /// <summary>
@@ -540,7 +616,8 @@ namespace OZGL2.UIBridge
         private void ShowBanner(string title, string sub, BannerKind kind, int number)
         {
             EnsureBannerUi();
-            if (kind != BannerKind.Clear) _clearTcs?.TrySetResult(true);   // 다른 배너가 끼어들어 클리어 배너가 끊겨도 기다리던 쪽이 멈추지 않게
+            if (kind != BannerKind.Clear) _clearTcs?.TrySetResult(true);
+            if (kind == BannerKind.Clear) _waveTcs?.TrySetResult(true);   // 시작 배너가 끊기면 용사 출현을 막지 않는다   // 다른 배너가 끼어들어 클리어 배너가 끊겨도 기다리던 쪽이 멈추지 않게
             if (_bannerRoutine != null) StopCoroutine(_bannerRoutine);
             _bannerRoutine = StartCoroutine(BannerRoutine(title, sub, kind, number));
         }
@@ -698,7 +775,8 @@ namespace OZGL2.UIBridge
                 UpdateSparks(a > 0.01f ? 1f : 0f);
 
                 // 클리어 배너가 사라지기 시작하면 기다리던 결과창·보상 카드가 뜬다
-                if (clear && !released && t >= releaseAt) { released = true; _clearTcs?.TrySetResult(true); }
+                // 클리어 배너는 사라지기 시작할 때(결과창·보상), 시작 배너는 거의 끝날 때(용사 출현) 기다리던 쪽을 풀어 준다
+                if (!released && t >= (clear ? releaseAt : total - 0.3f)) { released = true; if (clear) _clearTcs?.TrySetResult(true); else _waveTcs?.TrySetResult(true); }
 
                 if (boss)
                 {
@@ -722,13 +800,19 @@ namespace OZGL2.UIBridge
             ClearSparks();
             _canvas.enabled = false;
             _bannerRoutine = null;
-            if (clear) _clearTcs?.TrySetResult(true);
+            if (clear) _clearTcs?.TrySetResult(true); else _waveTcs?.TrySetResult(true);
         }
 
         private void EnsureBannerUi()
         {
             if (_canvas != null) return;
             _art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
+            // 배너에 쓸 글자를 보이기 전에 글꼴에 미리 넣어 둔다(처음 뜰 때 글자가 색 네모로 번쩍였다가 나오던 것 방지)
+            if (_art != null)
+            {
+                FontWarmup.Warm(_art.titleFont, "WAVECLEAR 0123456789");
+                FontWarmup.Warm(_art.bodyFont, string.Join("", WaveLines) + string.Join("", BossLines) + string.Join("", ClearLines) + "첫 번째 전투가 시작된다!DANGER");
+            }
             if (_art == null) Debug.LogWarning("[전투 연출] Resources/BattleBanner/BattleBannerArt 를 찾지 못해 글자만 보여 줍니다.");
             var go = new GameObject("WaveBannerCanvas", typeof(RectTransform));
             go.transform.SetParent(transform, false);
