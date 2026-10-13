@@ -646,7 +646,10 @@ namespace OZGL2.UIBridge
             if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, shadow);
             if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -shadow);
             if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, soft);
+            // 외곽선·그림자 값을 재질에 직접 넣었으면 TMP 의 비율 값도 다시 계산해야 한다. 안 하면 그림자·외곽선이 글자 그림판의 엉뚱한 곳(옆 글자)을 읽어 조각처럼 깨진다
+            ShaderUtilities.UpdateShaderRatios(m);
             text.fontSharedMaterial = m;
+            text.UpdateMeshPadding();   // 늘어난 외곽선·그림자만큼 글자 사각형을 넓힌다(잘리지 않게)
         }
 
         private void SpawnSpark(Vector2 at, Vector2 vel, float life, float size, Color color)
