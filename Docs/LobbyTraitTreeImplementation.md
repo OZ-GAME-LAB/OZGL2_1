@@ -87,12 +87,12 @@ Unity 6000.3.22f1에서 확인했다.
 - `UITraitOverlayView`: Reset Button/Label, Reset Confirmation/Message, Confirm/Cancel Reset Button 연결. 확인창은 시작 시 비활성이며 배분 0이면 초기화 버튼이 비활성이다.
 - `TraitTreeViewport`: 가로/세로 스크롤, RectMask2D, Content, 외부 클릭 처리, UITraitTreeZoom 연결. Scroll Sensitivity=0, Min Zoom=0.25, Max Zoom=1.6.
 - `SelectedTraitDetail`: 내부 클릭을 막는 배경 Graphic 유지. 시작 시 비활성.
-- 폰트는 `01.Font`의 공유 파일과 **원래 `.meta`를 함께** 복원해야 한다. SDF Git 제외/Drive 공유 정책은 유지한다. 자세한 복원 방법은 `FontAssetSharing.md` 참고.
+- 폰트는 `Assets/06.UI/01.Font/`의 파일과 **원래 `.meta`를 함께** Git으로 공유한다. 이전 로컬 폴더는 pull 전에 Assets 밖으로 백업해 중복 GUID를 방지한다. 새 폴더 밖의 SDF 제외/별도 공유 정책은 유지하며, 자세한 이전 방법은 [FontAssetSharing.md](FontAssetSharing.md)를 참고한다.
 - LayerMask/Tag, Collider/Rigidbody/IsTrigger, Animator, Input System Action 추가 설정은 없다. 기존 EventSystem을 사용한다.
 
 ## 남겨둔 수동 플레이 확인
 
-- 팀원 PC에서도 폰트 공유 파일을 복원한 뒤 한글/테두리와 설명창을 확인한다.
+- 팀원 PC에서도 폰트 이전 절차와 Git 반영 후 한글/테두리와 설명창을 확인한다.
 - 실제 마우스로 긴 드래그 후 노드 클릭, 여러 해상도에서 설명 가독성을 확인한다.
 - 만렙 직전→만렙→레벨 다운 시 일반/특화 모두 금테와 내부 채움이 나타났다가 기본 프레임으로 복귀하는지 확인한다.
 - 1 LP 차감/환급, 만렙 계열색↔중간 밝은색↔미해금 어두운색, 초기화 취소/확정 후 LP/잠금/버튼 상태를 확인한다.
@@ -141,7 +141,7 @@ Unity 6000.3.22f1에서 확인했다.
 - `SelectedTraitDetail/NextDescription` → `UITraitOverlayView._detailNextDescription` 연결 완료. 기존 Description, Divider, +/- 참조 및 클릭 동작 유지.
 - 뒤로/하단 2개/확인창 2개/+/-의 전용 Sprite, `Simple`, `Preserve Aspect`를 확인한다. PNG 크기와 버튼 비율은 검증 완료다.
 - 다른 화면/씬, Input System, LayerMask/Tag, Collider/Rigidbody, Animator, ProjectSettings, Packages 변경 없음. 추가 수동 연결은 필요 없다.
-- 공유 폰트 복원 후 팀원 PC와 다른 해상도에서 가독성을 확인한다. 특성 0→1→2→만렙과 다운 시 효과/색상/버튼 갱신, 초기화 확인·취소를 수동 플레이로도 확인한다.
+- 공유 폰트 반영 후 팀원 PC와 다른 해상도에서 가독성을 확인한다. 특성 0→1→2→만렙과 다운 시 효과/색상/버튼 갱신, 초기화 확인·취소를 수동 플레이로도 확인한다.
 - 코드/문서 `git diff --check` 통과. Prefab의 Unity 자동 직렬화 빈 문자열 뒤 공백은 남겨 두었으며 YAML을 직접 편집하지 않았다.
 - 충돌 주의 대상은 공유 `Canvas_LobbyOverlays.prefab`. 기존 폰트 복구/이전 특성 작업과 구분해 커밋 범위를 검토한다. Scene 디스크 변경 없음, Prefab 변경 있음, 신규 Meta 있음. 원본 아트 변경 없음. 새 원본 6종 합계 약 4.2MB, 단일 50MB 초과 파일 없음.
 - `imagegen` 스킬은 내장 이미지 생성과 원본 보존/프로젝트 안 최종 저장에 사용했다. Scene Change Plan / Unity Editor Tool / AI Review Log 절차에 따라 승인 범위와 Undo, 검증 내역을 기록했다. 커밋/push는 실행하지 않았다.

@@ -17,7 +17,7 @@ public static class LobbySkillSettingsPreviewBuilder
     private const string SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
     private const string OVERLAYS = "Assets/06.UI/LobbyMutedPreview/Overlays";
     private const string LOBBY_BACKGROUND = "Assets/06.UI/LobbyMutedPreview/Sprites/Lobby_Background.png";
-    private const string FONT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSMyungjo Overlay Pixel.asset";
+    private const string FONT = "Assets/06.UI/01.Font/DOSMyungjo Overlay Pixel.asset";
     private static readonly Color IVORY = new Color32(248, 242, 235, 255);
     private static TMP_FontAsset _font;
     private static Material _material;

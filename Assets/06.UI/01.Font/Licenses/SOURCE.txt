@@ -1,0 +1,20 @@
+폰트 라이선스 원문 출처
+확인일: 2026-10-13
+
+Paperlogy-OFL.txt
+대상: Paperlogy
+제작자 안내: https://freesentation.blog/paperlogyfont
+원문: https://www.designptn.com/wp-content/uploads/2024/08/OFL-license.txt
+
+DOS-Fonts-LICENSE.txt
+대상: DOSGothic, DOSMyungjo
+제작자 저장소: https://github.com/hurss/fonts
+원문: https://raw.githubusercontent.com/hurss/fonts/master/LICENSE.txt
+
+Terrarum-LICENSE.md
+대상: Terrarum Sans Bitmap
+제작자 저장소: https://github.com/curioustorvald/Terrarum-sans-bitmap
+원문: https://raw.githubusercontent.com/curioustorvald/Terrarum-sans-bitmap/master/LICENSE.md
+
+위 세 원문 파일은 출처에서 내려받은 내용을 그대로 보존했습니다.
+이 폴더의 라이선스는 표시된 대상 폰트에 해당하며 다른 폰트의 조건을 대신하지 않습니다.

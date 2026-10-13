@@ -53,7 +53,7 @@ RecordHoverHitArea의 UILobbyDifficultyRecordPanel:
 - 작은 라벨/설명: NotoSansCJKkr 원본으로 만든 전용 `LobbyRecordText SDF.asset`. 90pt, padding 9, 2048 atlas, SDFAA, 필요한 문자를 사전 등록한 Static SDF다.
 - 난이도명/기록 수치: DOSMyungjo 원본을 별도 `LobbyRecordEmphasis Pixel.asset`으로 생성했다. 90pt, padding 2, 1024 atlas, RASTER/Point/Static이다. 공유 Dynamic 명조 폰트의 atlas는 수정하지 않는다. 낮은 해상도 DOS 원본에 SDF를 적용할 때 생기는 획 아래 아티팩트를 피하고 원래 도트 획을 보존한다.
 - 기본 TMP Mobile 재질을 사용하며 공유 폰트/재질은 바꾸지 않는다. 기록 라벨 17, 값 24, 이름 26, 설명 19에 아트 공통 배율 `560/524`를 곱한다.
-- 전용 폰트 2종은 `Assets/98.ExternalAssets/00.LocalStaging/01.Font`에 저장한다. 기존 Git 제외 정책을 유지하며 두 에셋과 원래 `.meta`를 함께 Drive로 공유해야 한다. 팀원이 새 GUID로 생성하면 씬 폰트 참조가 끊어진다.
+- 전용 폰트 2종은 `Assets/06.UI/01.Font/`에 저장하며, 두 에셋과 원래 `.meta`를 함께 Git으로 공유한다. 기존 로컬 폴더가 있는 팀원은 [폰트 이전 절차](../FontAssetSharing.md)에 따라 중복 GUID를 방지한다. 팀원이 새 GUID로 생성하면 씬 폰트 참조가 끊어진다.
 - 카탈로그 설명에 새 문자를 추가한 경우 아래 적용 메뉴가 기존 GUID를 유지하면서 필요한 글리프를 추가하고 Static으로 되돌린다.
 
 ## 기록 API

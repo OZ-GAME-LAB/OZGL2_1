@@ -86,7 +86,7 @@ public static class LobbyCollectionsPreviewBuilder
         if (host.transform.Find("Canvas_UnitCodex") != null || host.transform.Find("Canvas_Achievements") != null ||
             AssetDatabase.LoadAssetAtPath<GameObject>(CODEX_PREFAB) != null || AssetDatabase.LoadAssetAtPath<GameObject>(ACHIEVEMENTS_PREFAB) != null)
             throw new InvalidOperationException("기존 도감/업적 화면을 덮어쓰지 않습니다.");
-        _font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSMyungjo Overlay Pixel.asset");
+        _font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/06.UI/01.Font/DOSMyungjo Overlay Pixel.asset");
         _textMaterial = AssetDatabase.LoadAssetAtPath<Material>(OVERLAYS + "/Fonts/DOSMyungjo Trait Outline.mat");
         if (_font == null || _textMaterial == null) throw new InvalidOperationException("01.Font의 공유 SDF와 .meta가 필요합니다.");
         EnsureFolder(ROOT + "/Prefabs");

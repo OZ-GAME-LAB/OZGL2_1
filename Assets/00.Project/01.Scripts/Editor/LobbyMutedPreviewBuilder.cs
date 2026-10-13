@@ -16,7 +16,7 @@ internal static class LobbyMutedPreviewBuilder
     private const string SOURCE = ROOT + "/Source/";
     private const string SPRITES = ROOT + "/Sprites/";
     private const string PREVIEW_SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
-    private const string FALLBACK_FONT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.otf";
+    private const string FALLBACK_FONT = "Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf";
 
     private struct Slice
     {

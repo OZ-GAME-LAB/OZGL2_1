@@ -235,7 +235,7 @@ Cost와 리롤은 원본부터 동작 없는 비활성 자리표시자다. 이�
 - 후처리는 승인된 배경 정리·분할·여백/중심 정렬만 수행한다. 생성 원본과 기존 로비 이미지는 변경하지 않는다.
 - 재생성 시 스프라이트 import는 Unity Editor에서 수행하며 .meta를 직접 편집하지 않는다.
 
-글꼴은 기존 `Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSGothic.ttf`를 사용한다. 해당 로컬 공유 폴더가 없는 팀원은 기존 Drive 공유 폰트를 먼저 준비해야 한다. 이번 작업에서 SDF 생성·Git 추적 정책 변경은 하지 않았다.
+글꼴은 `Assets/06.UI/01.Font/DOSGothic.ttf`를 사용한다. 2026-10-13부터 이 폴더의 원본 폰트와 SDF/Pixel 에셋은 원래 `.meta`와 함께 Git 공유 대상이다. 기존 로컬 폰트가 있는 팀원은 pull 전 [폰트 이전 절차](../FontAssetSharing.md)에 따라 이전 폴더와 `.meta`를 Assets 밖으로 백업해 중복 GUID를 방지한다. 이 폴더 밖의 제외된 SDF는 별도 공유 대상이다.
 
 ## Editor 도구
 
@@ -291,7 +291,7 @@ Cost와 리롤은 원본부터 동작 없는 비활성 자리표시자다. 이�
 - 배경의 양쪽 끝 장식과 왼쪽 골의 장식만 생성 단계에서 제거했다. 나머지 봉우리·중앙 다리 장식·하단 장식은 유지했다.
 - 현재 사용자가 조정한 Cost 루트 위치와 배경 RectTransform/색상을 먼저 저장한 후 그대로 보존했다. 배경의 어두운 0.55 tint도 유지했다.
 - 리롤은 138→168 크기로 확대하고 Cost와 같은 중심 높이, 작은 배경 봉우리의 중심축에 맞췄다. 가격표는 180×56이며 리롤 아래 4 간격이다.
-- 숫자는 기존 `UnityEngine.UI.Text`를 유지하고 이미지에 넣지 않았다. 숫자 가독성/굵기 구분에 기존 로컬 `NotoSansCJKkr-Regular.otf`를 사용한다(Cost 56 Bold, 리롤 비용 40 Normal). 해당 폰트 공유 파일이 없는 팀원은 기존 로컬 폰트 준비가 필요하다.
+- 숫자는 기존 `UnityEngine.UI.Text`를 유지하고 이미지에 넣지 않았다. 숫자 가독성/굵기 구분에 `Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf`를 사용한다(Cost 56 Bold, 리롤 비용 40 Normal). 원본 폰트와 원래 `.meta`를 Git에서 함께 받는다.
 - 모든 새 Sprite는 실제 투명 배경, 중심 pivot, Point, FullRect, 무압축, Mipmap 없음으로 Unity에서 임포트했다. 원본 PNG는 보존했다.
 
 ### 다시 적용하는 Editor 도구

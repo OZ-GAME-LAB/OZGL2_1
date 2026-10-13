@@ -22,7 +22,7 @@ public static class BattleOverlayPrefabBuilder
     public const string SCENE = "Assets/00.Scenes/UI_Flow/UI_Battle_MutedPreview.unity";
     private const string LOBBY_SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
     private const string SPRITES = "Assets/06.UI/BattleMutedPreview/Sprites/";
-    private const string FONT_SOURCE = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSMyungjo.ttf";
+    private const string FONT_SOURCE = "Assets/06.UI/01.Font/DOSMyungjo.ttf";
     private const string WHITE = "Assets/06.UI/BattleMutedPreview/Reference_v2/Experience_White.png";
     private const string UNDO = "전투 결과/증강 프리팹 적용";
     private static readonly Color IVORY = new Color32(235, 225, 207, 255);
@@ -342,7 +342,7 @@ public static class BattleOverlayPrefabBuilder
             if (isNewFallback)
             {
                 fallback = TMP_FontAsset.CreateFontAsset(Require<Font>(
-                    "Assets/98.ExternalAssets/00.LocalStaging/01.Font/NotoSansCJKkr-Regular.otf"),
+                    "Assets/06.UI/01.Font/NotoSansCJKkr-Regular.otf"),
                     90, 8, GlyphRenderMode.SDFAA, 1024, 1024, AtlasPopulationMode.Dynamic, true);
                 if (fallback == null) throw new InvalidOperationException("보조 SDF 폰트 생성 실패");
                 fallback.name = "BattleOverlay Symbols SDF";

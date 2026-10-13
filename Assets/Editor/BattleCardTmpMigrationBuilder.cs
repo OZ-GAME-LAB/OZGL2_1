@@ -18,7 +18,7 @@ public static class BattleCardTmpMigrationBuilder
     public const string FONT_ROOT = BattleCardRedesignBuilder.ART_ROOT + "/Fonts";
     public const string TITLE_FONT_PATH = FONT_ROOT + "/BattleCardTitle SDF.asset";
     public const string BODY_FONT_PATH = FONT_ROOT + "/BattleCardBody SDF.asset";
-    private const string SOURCE_ROOT = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/00.otf_ttf_file/";
+    private const string SOURCE_ROOT = "Assets/06.UI/01.Font/00.otf_ttf_file/";
     private const string TITLE_SOURCE = SOURCE_ROOT + "heiroflight_fonts/빛의 계승자 Bold/TTF(Window용)/HeirofLightBold.ttf";
     private const string BODY_SOURCE = SOURCE_ROOT + "NEXON_Lv2_Gothic/TTF/NEXON Lv2 Gothic.ttf";
     private const string SHADER_NAME = "TextMeshPro/Mobile/Distance Field";

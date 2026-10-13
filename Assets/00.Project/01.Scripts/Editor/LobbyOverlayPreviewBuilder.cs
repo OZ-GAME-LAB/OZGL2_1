@@ -16,7 +16,7 @@ internal static class LobbyOverlayPreviewBuilder
 {
     private const string ROOT = "Assets/06.UI/LobbyMutedPreview/Overlays";
     private const string BASE = "Assets/06.UI/LobbyMutedPreview";
-    private const string FONT_FOLDER = "Assets/98.ExternalAssets/00.LocalStaging/01.Font";
+    private const string FONT_FOLDER = "Assets/06.UI/01.Font";
     private const string SCENE = "Assets/00.Scenes/UI_Flow/UI_Lobby_MutedPreview.unity";
     private const string CANVAS_NAME = "Canvas_LobbyOverlays";
     private static readonly string[] NAMES = { "Panel_Frame", "Button_Frame", "Header_Ornament", "Points_Frame", "Trait_Frame_Normal", "Trait_Frame_Specialized" };

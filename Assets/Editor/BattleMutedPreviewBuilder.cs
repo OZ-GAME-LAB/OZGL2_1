@@ -15,7 +15,7 @@ public static class BattleMutedPreviewBuilder
     public const string SOURCE_SCENE = "Assets/00.Scenes/UI_Flow/UI_Battle.unity";
     public const string PREVIEW_SCENE = "Assets/00.Scenes/UI_Flow/UI_Battle_MutedPreview.unity";
     public const string SPRITES = "Assets/06.UI/BattleMutedPreview/Sprites/";
-    private const string FONT_PATH = "Assets/98.ExternalAssets/00.LocalStaging/01.Font/DOSGothic.ttf";
+    private const string FONT_PATH = "Assets/06.UI/01.Font/DOSGothic.ttf";
     private static readonly Color INK = new Color(0.018f, 0.017f, 0.022f, 0.97f);
     private static readonly Color IVORY = new Color(0.95f, 0.92f, 0.84f);
     private static Font _font;

@@ -345,14 +345,14 @@ private void HandleAugmentSelected(OZGL2.Augment.AugmentData selected)
 
 ## 8. 폰트와 아트 공유
 
-**Git clone만으로 모든 폰트 참조가 완성되지 않는다.** 기존 폰트 공유 정책은 [FontAssetSharing.md](../FontAssetSharing.md)를 따른다.
+**`Assets/06.UI/01.Font/`는 Git 공유 대상이며, 이 폴더 밖의 제외된 SDF에는 별도 공유 의존성이 남는다.** 2026-10-13 폴더 이동을 받기 전에 기존 로컬 `01.Font`와 원래 `.meta`를 Assets 밖으로 백업해야 한다. 자세한 이전 순서는 [FontAssetSharing.md](../FontAssetSharing.md)를 따른다.
 
 - 결과 전용 SDF 배포 묶음: [BattleResultFonts_20260928.unitypackage](../../Tools/Art/Exports/BattleResultFonts_20260928.unitypackage).
 - 결과 제목: HS봄바람체 기반 `Assets/06.UI/BattleMutedPreview/ResultRefinement_v2/Fonts/BattleResultTitle SDF.asset`.
 - 결과 본문/숫자: KMU Sungkok Serif 기반 같은 폴더의 `BattleResultBody SDF.asset`.
 - 두 결과 폰트는 Static SDF다. 새 한글 문구가 필요하면 `Assets/Editor/BattleResultTypography.cs`의 `BODY_CHARACTERS` 등 해당 문자 목록을 확장하고 기존 GUID를 유지해 재생성해야 한다.
 - 결과 폰트 패키지에는 원본 TTF/OTF를 재배포하지 않았다. 재생성할 때는 팀이 가진 원본과 라이선스 조건을 확인한다.
-- 기존 HUD/카드의 DOSGothic·NotoSansCJKkr, 증강의 BattleOverlay Pixel/Symbols 등은 별도 공유 의존성이 남는다. 결과 폰트 패키지 하나가 모든 UI 폰트를 대신하지 않는다.
+- DOSGothic·NotoSansCJKkr 원본과 새 `Assets/06.UI/01.Font/` 내부의 SDF/Pixel 에셋은 Git에서 원래 `.meta`와 함께 받는다. 이 폴더 밖의 SDF는 계속 별도 공유 대상이며, 결과 폰트 패키지 하나가 모든 UI 폰트를 대신하지 않는다.
 - 원래 경로와 `.meta` GUID를 함께 복원한다. 같은 GUID의 사본을 여러 경로에 중복 배치하지 않는다.
 - 새로운 이미지/폰트로 교체할 때 기존 외부 원본을 덮어쓰지 않는다. 공유 범위와 재배포 가능 여부를 확인한다.
 

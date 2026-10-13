@@ -1,0 +1,6 @@
+Noto Sans CJK KR Regular — 한글 UI 표시용 원본 폰트
+
+Source: https://github.com/notofonts/noto-cjk
+File: Sans/OTF/Korean/NotoSansCJKkr-Regular.otf
+License: SIL Open Font License 1.1 (OFL.txt)
+폰트 원본은 수정하지 않았습니다.
