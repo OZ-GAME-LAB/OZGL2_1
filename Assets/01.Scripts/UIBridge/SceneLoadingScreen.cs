@@ -85,6 +85,9 @@ namespace OZGL2.UIBridge
             float start = Time.unscaledTime;
             var tipTimer = 0f;
             _tip.text = Tips[Random.Range(0, Tips.Length)];
+            // 마왕은 처음부터 막대 왼쪽 끝에 서 있도록 덮이기 전에 먼저 만든다(이 순간 화면이 아주 잠깐 멈출 수 있다)
+            BuildKing(_barRoot);
+            Visuals();
             // 지금 보이는 화면 위로 어둡게 덮이면서 그림들이 서서히 켜진다
             _bg.color = new Color(0.02f, 0.01f, 0.04f, 0f);
             for (float t = 0f; t < 0.22f; t += Time.unscaledDeltaTime)
@@ -96,9 +99,6 @@ namespace OZGL2.UIBridge
             }
             _bg.color = new Color(0.02f, 0.01f, 0.04f, 1f);
             _group.alpha = 1f;
-            yield return null;
-            BuildKing(_barRoot);   // 한 프레임 쉬고 만든다
-            Visuals();
 
             var op = SceneManager.LoadSceneAsync(_target);
             if (op == null) { _busy = false; SceneManager.LoadScene(_target); yield break; }
@@ -193,9 +193,9 @@ namespace OZGL2.UIBridge
             if (_king != null) _king.anchoredPosition = new Vector2(kx - _kingDx, kingY);
             if (_pctRt != null)
             {
-                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingHeight + 40f);
+                _pctRt.anchoredPosition = new Vector2(Mathf.Clamp(kx, -BarWidth * 0.5f + 20f, BarWidth * 0.5f - 20f), BarHeight * 0.5f + KingHeight + 56f);
                 int pct = Mathf.RoundToInt(Mathf.Clamp01(_shown) * 100f);
-                if (pct != _lastPct) { _lastPct = pct; _pct.text = pct + "%"; }   // 매 프레임 글자를 새로 만들지 않는다
+                if (pct != _lastPct) { _lastPct = pct; _pct.text = pct + "<size=55%>%</size>"; }   // 매 프레임 글자를 새로 만들지 않는다
             }
             // 달리는 동안 발밑에서 먼지가 인다
             if (_king != null && _shown > 0.005f && _shown < 0.999f && Time.unscaledTime >= _nextDust)
@@ -297,16 +297,39 @@ namespace OZGL2.UIBridge
             _label.rectTransform.sizeDelta = new Vector2(500f, 56f);
             _label.rectTransform.anchoredPosition = new Vector2(-BarWidth * 0.5f, -232f);
             _label.text = "불러오는 중";
-            _pct = NewText("Percent", barRoot, 54f, Gold, TextAlignmentOptions.Center);
-            _pct.fontStyle = FontStyles.Bold;
+            _pct = NewText("Percent", barRoot, 84f, Gold, TextAlignmentOptions.Center);
             _pctRt = _pct.rectTransform;
             _pctRt.anchorMin = _pctRt.anchorMax = new Vector2(0.5f, 0.5f);
-            _pctRt.sizeDelta = new Vector2(220f, 70f);
+            _pctRt.sizeDelta = new Vector2(300f, 110f);
+            StylePercent(_pct);
             _tip = NewText("Tip", content, 36f, Cream, TextAlignmentOptions.Center);
             _tip.rectTransform.anchorMin = _tip.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             _tip.rectTransform.sizeDelta = new Vector2(1500f, 60f);
             _tip.rectTransform.anchoredPosition = new Vector2(0f, -330f);
             Visuals();
+        }
+
+        /// <summary>
+        /// 퍼센트 숫자 꾸미기: 결과창 제목과 같은 글꼴(빛의 계승자 Bold), 위는 밝고 아래는 짙은 금빛 그라데이션, 두꺼운 어두운 외곽선, 아래로 번지는 그림자.
+        /// 「%」는 숫자보다 작게 붙인다.
+        /// </summary>
+        private void StylePercent(TMP_Text text)
+        {
+            var art = Resources.Load<BattleBannerArt>("BattleBanner/BattleBannerArt");
+            if (art != null && art.titleFont != null) text.font = art.titleFont;
+            text.fontStyle = FontStyles.Normal;
+            text.enableVertexGradient = true;
+            text.colorGradient = new VertexGradient(new Color(1f, 0.98f, 0.8f), new Color(1f, 0.98f, 0.8f), new Color(1f, 0.6f, 0.18f), new Color(1f, 0.6f, 0.18f));
+            text.color = Color.white;
+            text.outlineWidth = 0.34f;
+            text.outlineColor = new Color32(40, 8, 14, 255);
+            var m = text.fontMaterial;
+            if (m == null) return;
+            m.EnableKeyword("UNDERLAY_ON");
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayColor)) m.SetColor(ShaderUtilities.ID_UnderlayColor, new Color(0f, 0f, 0f, 0.85f));
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetX)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.8f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlayOffsetY)) m.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.8f);
+            if (m.HasProperty(ShaderUtilities.ID_UnderlaySoftness)) m.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0.4f);
         }
 
         private void BuildKing(RectTransform barRoot)
