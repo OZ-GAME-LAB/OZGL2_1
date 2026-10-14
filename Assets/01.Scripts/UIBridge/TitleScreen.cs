@@ -51,6 +51,8 @@ namespace OZGL2.UIBridge
         private float _dragonNext;
         private RectTransform _paintRoot;     // 그려 둔 배경(그림 크기에 맞춰 화면을 덮는다)
         private Image _paintSun;
+        private readonly List<(RectTransform rt, float phase)> _hangings = new List<(RectTransform, float)>();     // 탑 벽에 걸린 깃발(위가 고정, 아주 살짝 흔들림)
+        private readonly List<(RectTransform rt, Image img, float baseX, float baseY, float phase, float speed)> _mist = new List<(RectTransform, Image, float, float, float, float)>();
         private readonly List<(RectTransform rt, float phase)> _flames = new List<(RectTransform, float)>();
         private readonly List<(RectTransform rt, Image img, float phase, float speed)> _sparkles = new List<(RectTransform, Image, float, float)>();
         private readonly List<(RectTransform rt, float phase, float baseX, float baseY, float speed)> _birds = new List<(RectTransform, float, float, float, float)>();
@@ -1201,6 +1203,19 @@ namespace OZGL2.UIBridge
             }
             if (_logoGlow != null) _logoGlow.color = new Color(1f, 0.70f, 0.38f, 0.34f + 0.08f * Mathf.Sin(t * 1.3f));
             if (_sun != null) _sun.localScale = Vector3.one * (1f + Mathf.Sin(t * 0.7f) * 0.025f);
+            for (int i = 0; i < _hangings.Count; i++)
+            {
+                var h = _hangings[i];
+                h.rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 1.3f + h.phase) * 0.9f);
+                h.rt.localScale = new Vector3(1f + Mathf.Sin(t * 2.1f + h.phase) * 0.018f, 1f, 1f);
+            }
+            for (int i = 0; i < _mist.Count; i++)
+            {
+                var m = _mist[i];
+                float drift = Mathf.Sin(t * 0.05f * (m.speed / 20f) + m.phase) * m.speed * 6f;   // 느리게 오가며 흐른다
+                m.rt.anchorMin = m.rt.anchorMax = new Vector2((m.baseX + drift) / PaintW, 1f - m.baseY / PaintH);
+                m.img.color = new Color(0.78f, 0.56f, 0.70f, 0.07f + 0.04f * (0.5f + 0.5f * Mathf.Sin(t * 0.3f + m.phase)));
+            }
             if (_paintSun != null)
             {
                 float pulse = 0.5f + 0.5f * Mathf.Sin(t * 0.8f);
@@ -1213,23 +1228,26 @@ namespace OZGL2.UIBridge
 
         private const float PaintW = 1672f, PaintH = 941f;   // 배경 그림 크기(픽셀). 아래 좌표는 모두 이 그림 기준이다.
 
-        /// <summary>움직이는 조각(깃발·문장 깃발)의 그림 속 위치(왼쪽·위·오른쪽·아래 픽셀)와 걸린 쪽(피벗).</summary>
+        /// <summary>움직이는 조각(성탑 문장 깃발·꼭대기 깃발)의 그림 속 위치(왼쪽·위·오른쪽·아래 픽셀)와 걸린 쪽(피벗).</summary>
         private static readonly (float x0, float y0, float x1, float y1, Vector2 pivot, bool banner, float phase)[] PaintPieces =
         {
-            (60f, 36f, 232f, 486f, new Vector2(0.5f, 1f), true, 0f),            // 왼쪽 문장 깃발
-            (1440f, 36f, 1612f, 520f, new Vector2(0.5f, 1f), true, 1.7f),       // 오른쪽 문장 깃발
-            (772f, 546f, 826f, 572f, new Vector2(0f, 0.5f), false, 0.4f),       // 성탑 깃발들(깃대 쪽이 왼쪽)
-            (997f, 536f, 1100f, 580f, new Vector2(0f, 0.5f), false, 2.1f),
-            (1164f, 576f, 1243f, 611f, new Vector2(0f, 0.5f), false, 3.7f),
-            (1326f, 628f, 1381f, 654f, new Vector2(0f, 0.5f), false, 5.2f),
+            (996f, 632f, 1034f, 756f, new Vector2(0.5f, 1f), true, 0.3f),       // 왼쪽 탑 벽에 걸린 붉은 문장 깃발(위가 고정)
+            (1169f, 622f, 1208f, 754f, new Vector2(0.5f, 1f), true, 1.9f),      // 오른쪽 탑 벽의 문장 깃발
+            (1024f, 570f, 1092f, 602f, new Vector2(0f, 0.5f), false, 0.4f),     // 탑 꼭대기 깃발(깃대 쪽이 왼쪽)
+            (1184f, 555f, 1252f, 584f, new Vector2(0f, 0.5f), false, 2.3f),
+            (900f, 684f, 926f, 700f, new Vector2(0f, 0.5f), false, 4.1f),       // 멀리 있는 작은 깃발
         };
 
-        /// <summary>일렁이는 불빛(횃불·창문·성문·마을)의 그림 속 가운데 픽셀과 크기(화면 단위).</summary>
+        /// <summary>일렁이는 불빛(횃불·성문·창문·마을)의 그림 속 가운데 픽셀과 크기(화면 단위).</summary>
         private static readonly (float x, float y, float size)[] PaintLights =
         {
-            (45f, 455f, 230f), (1612f, 462f, 230f),                                     // 양쪽 횃불
-            (1086f, 746f, 110f), (899f, 717f, 70f), (949f, 715f, 70f), (1013f, 680f, 70f),   // 성문·성 창문
-            (480f, 776f, 90f), (288f, 854f, 80f), (138f, 846f, 80f), (349f, 822f, 70f), (1539f, 846f, 80f), (81f, 779f, 70f),   // 마을·풍차
+            (45f, 462f, 240f), (1612f, 462f, 240f),                                                   // 양쪽 횃불
+            (1098f, 765f, 150f),                                                                       // 성문
+            (1061f, 722f, 56f), (1137f, 722f, 56f), (929f, 761f, 64f), (830f, 730f, 50f),              // 성 창문
+            (1270f, 741f, 44f), (1295f, 744f, 44f), (1328f, 716f, 48f), (1446f, 736f, 44f), (1386f, 759f, 44f),
+            (390f, 773f, 52f), (326f, 796f, 56f), (334f, 817f, 56f), (374f, 825f, 44f),               // 풍차 마을
+            (477f, 838f, 50f), (506f, 838f, 50f), (523f, 837f, 46f), (569f, 826f, 50f), (576f, 844f, 50f),
+            (543f, 867f, 46f), (427f, 821f, 44f), (459f, 821f, 44f), (516f, 820f, 44f), (618f, 849f, 44f),
         };
 
         /// <summary>
@@ -1259,7 +1277,18 @@ namespace OZGL2.UIBridge
             // 해 빛(수평선의 해 자리에서 은은히 맥동)
             _paintSun = NewImage("SunPulse", _paintRoot, _glow, new Color(1f, 0.72f, 0.38f, 0.28f));
             _paintSun.raycastTarget = false;
-            PlaceOnPaint(_paintSun.rectTransform, 690f, 525f, 520f);
+            PlaceOnPaint(_paintSun.rectTransform, 805f, 545f, 640f);
+
+            // 골짜기 위로 천천히 흘러가는 옅은 안개(자연스러운 공기감)
+            for (int i = 0; i < 4; i++)
+            {
+                var mist = NewImage("Mist", _paintRoot, _glow, new Color(0.78f, 0.56f, 0.70f, 0.10f));
+                mist.raycastTarget = false;
+                float y = 640f + i * 55f;
+                PlaceOnPaint(mist.rectTransform, 700f + i * 180f, y, 100f);
+                mist.rectTransform.sizeDelta = new Vector2(900f, 130f);
+                _mist.Add((mist.rectTransform, mist, 700f + i * 180f, y, Random.Range(0f, 6.28f), 18f + i * 7f));
+            }
 
             // 불빛 일렁임
             foreach (var l in PaintLights)
@@ -1283,7 +1312,7 @@ namespace OZGL2.UIBridge
                     rt.anchorMax = new Vector2(piece.x1 / PaintW, 1f - piece.y0 / PaintH);
                     rt.offsetMin = rt.offsetMax = Vector2.zero;
                     rt.pivot = piece.pivot;
-                    if (piece.banner) _banners.Add((rt, piece.phase)); else _flags.Add((rt, piece.phase));
+                    if (piece.banner) _hangings.Add((rt, piece.phase)); else _flags.Add((rt, piece.phase));
                 }
             return true;
         }
