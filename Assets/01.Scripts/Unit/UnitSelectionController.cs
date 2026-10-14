@@ -25,6 +25,7 @@ public class UnitSelectionController : MonoBehaviour
 
     private void Update()
     {
+        if (OZGL2.UIFlow.UICardRewardPresentation.IsRewardActive) { Deselect(); return; }
         // 선택된 유닛이 죽거나 사라지면 표시도 같이 정리한다.
         // 배치 화면처럼 전투 유닛이 숨겨진 상태(forceRenderingOff)가 되면 선택도 같이 풀어준다.
         if (_selected != null &&

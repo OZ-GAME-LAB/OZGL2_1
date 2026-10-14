@@ -229,6 +229,7 @@ namespace OZGL2.UIBridge
 
         private void HandleInput(Mouse mouse)
         {
+            if (OZGL2.UIFlow.UICardRewardPresentation.IsRewardActive) { _dragging = false; return; }
             var keyboard = Keyboard.current;
             if (keyboard != null && keyboard.homeKey.wasPressedThisFrame) { _targetXY = _baseXY; _targetDist = _baseDist; _manualUntil = 0f; _autoActive = false; AutoEnabled = true; }   // Home: 원래 구도로, 자동 카메라도 다시 켠다
 

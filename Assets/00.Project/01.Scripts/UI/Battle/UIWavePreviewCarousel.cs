@@ -173,6 +173,7 @@ namespace OZGL2.UIFlow
 
         private bool CanAcceptNavigation()
         {
+            if (UICardRewardPresentation.IsRewardActive) return false;
             if (!isActiveAndEnabled || !gameObject.activeInHierarchy || _bootstrap == null ||
                 _bootstrap.IsUiInputBlocked || (_transition != null && _transition.IsActive())) return false;
             if (_disclosure != null && (!_disclosure.IsExpanded || _disclosure.IsTransitioning)) return false;

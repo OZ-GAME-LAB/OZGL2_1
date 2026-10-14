@@ -17,6 +17,7 @@ namespace OZGL2.UIFlow
         private RectTransform _visualRoot;
         private Image _hitArea;
         private Canvas _visualCanvas;
+        private Canvas _handCanvas;
         private CanvasGroup _visualCanvasGroup;
         private UIBattlePreparationCardView _cardView;
         private Sprite _defaultArtwork;
@@ -66,6 +67,7 @@ namespace OZGL2.UIFlow
             int hoverVisualSortingOrder)
         {
             _owner = owner;
+            _handCanvas = owner != null ? owner.GetComponent<Canvas>() : null;
             _slotRoot = slotRoot;
             _hitAreaRoot = hitAreaRoot;
             _visualRoot = visualRoot;
@@ -316,7 +318,9 @@ namespace OZGL2.UIFlow
         {
             if (_visualCanvas == null) return;
             _visualCanvas.overrideSorting = hovered;
-            if (hovered) _visualCanvas.sortingOrder = _hoverVisualSortingOrder;
+            // 보상 화면 진입/복귀로 손패의 정렬이 바뀌어도 호버 카드는 항상 바로 앞에 둔다.
+            if (hovered) _visualCanvas.sortingOrder = _handCanvas != null
+                ? _handCanvas.sortingOrder + 1 : _hoverVisualSortingOrder;
         }
 
         private void ResetVisualSorting()

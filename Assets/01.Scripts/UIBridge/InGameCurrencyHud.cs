@@ -316,8 +316,12 @@ namespace OZGL2.UIBridge
             }
         }
 
+        public IReadOnlyList<Button> RerollButtons => _rerollButtons;
+        public bool IsRerollInProgress => _rerollFx != null && _rerollFx.Busy;
+
         private void OnRerollClicked()
         {
+            if (!UICardRewardPresentation.CanSelectReward || (_bootstrap != null && _bootstrap.IsUiInputBlocked)) return;
             Vector2 at = _rerollButtons.Count > 0 && _rerollButtons[0] != null ? ScreenCenter(_rerollButtons[0].transform as RectTransform) : new Vector2(Screen.width * 0.2f, Screen.height * 0.12f);
             if (!IsChoosingReward(out var run))
             {
@@ -645,11 +649,11 @@ namespace OZGL2.UIBridge
         private GameObject _bannerGo;
         private Coroutine _bannerRoutine;
 
-        /// <summary>라운드를 클리어해 새 마왕군이 해금됐을 때 화면 위쪽에 잠깐 알려 준다(유닛 그림 + 이름).</summary>
         /// <summary>화면 위쪽 가운데에 짧은 안내 문구(예: 「도감 등록: 용사 전사」)를 띄운다.</summary>
         public void AnnounceCodex(string message) =>
             SpawnFloating(new Vector2(Screen.width * 0.5f, Screen.height * 0.74f), message, new Color(1f, 0.88f, 0.55f));
 
+        /// <summary>라운드를 클리어해 새 마왕군이 해금됐을 때 화면 위쪽에 잠깐 알려 준다(유닛 그림 + 이름).</summary>
         public void AnnounceUnitUnlock(string unitId)
         {
             if (_bannerRoutine != null) StopCoroutine(_bannerRoutine);
@@ -659,77 +663,12 @@ namespace OZGL2.UIBridge
 
         private System.Collections.IEnumerator BannerRoutine(string unitId)
         {
-            EnsureCanvas();
-            float s = Mathf.Max(0.8f, Screen.height / 1080f);
-            var go = new GameObject("UnitUnlockBanner", typeof(RectTransform), typeof(CanvasGroup));
-            go.transform.SetParent(_canvas.transform, false);
-            _bannerGo = go;
+            RectTransform rect = BuildUnitUnlockBanner(unitId);
+            var go = rect.gameObject;
             var group = go.GetComponent<CanvasGroup>();
-            group.alpha = 0f;
-            group.blocksRaycasts = false;
-            var rect = (RectTransform)go.transform;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
+            float s = rect.localScale.x;
 
-            var bgGo = new GameObject("Bg", typeof(RectTransform), typeof(Image));
-            bgGo.transform.SetParent(go.transform, false);
-            var bgRect = (RectTransform)bgGo.transform;
-            bgRect.anchorMin = Vector2.zero; bgRect.anchorMax = Vector2.one; bgRect.offsetMin = bgRect.offsetMax = Vector2.zero;
-            var bg = bgGo.GetComponent<Image>();
-            bg.color = new Color(0.06f, 0.03f, 0.05f, 0.94f);
-            bg.raycastTarget = false;
-            if (_frameSprite != null)
-            {
-                var frameGo = new GameObject("Frame", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-                frameGo.transform.SetParent(go.transform, false);
-                var fr = (RectTransform)frameGo.transform;
-                fr.anchorMin = Vector2.zero; fr.anchorMax = Vector2.one; fr.offsetMin = fr.offsetMax = Vector2.zero;
-                var frame = frameGo.GetComponent<Image>();
-                frame.sprite = _frameSprite;
-                frame.type = Image.Type.Sliced;
-                frame.pixelsPerUnitMultiplier = 2.6f;
-                frame.raycastTarget = false;
-            }
-
-            float portraitSize = 92f * s, padX = 34f * s, gap = 16f * s;
-            var portrait = UnitPortrait(unitId);
-            var title = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
-            title.transform.SetParent(go.transform, false);
-            if (_font != null) title.font = _font;
-            title.fontSize = 26f * s;
-            title.richText = true;
-            title.alignment = TextAlignmentOptions.Left;
-            title.textWrappingMode = TextWrappingModes.NoWrap;
-            title.raycastTarget = false;
-            title.text = "<b><color=#FFD27A>새 마왕군 해금!</color></b>\n<size=130%><b><color=#F5F2E8>" + UnitUnlockStore.DisplayName(unitId) + "</color></b></size>";
-            title.ForceMeshUpdate();
-            Vector2 textSize = title.GetPreferredValues();
-
-            float width = padX * 2f + (portrait != null ? portraitSize + gap : 0f) + textSize.x;
-            float height = Mathf.Max(portraitSize, textSize.y) + 2f * 26f * s;
-            rect.sizeDelta = new Vector2(width, height);
-            float x = padX;
-            if (portrait != null)
-            {
-                var pgo = new GameObject("Portrait", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
-                pgo.transform.SetParent(go.transform, false);
-                var pr = (RectTransform)pgo.transform;
-                pr.anchorMin = pr.anchorMax = new Vector2(0f, 0.5f);
-                pr.pivot = new Vector2(0f, 0.5f);
-                pr.sizeDelta = new Vector2(portraitSize, portraitSize);
-                pr.anchoredPosition = new Vector2(x, 0f);
-                var raw = pgo.GetComponent<RawImage>();
-                raw.texture = portrait;
-                raw.raycastTarget = false;
-                x += portraitSize + gap;
-            }
-            var tr = (RectTransform)title.transform;
-            tr.anchorMin = tr.anchorMax = new Vector2(0f, 0.5f);
-            tr.pivot = new Vector2(0f, 0.5f);
-            tr.sizeDelta = textSize;
-            tr.anchoredPosition = new Vector2(x, 0f);
-
-            // 위에서 내려오며 나타나고, 잠시 머문 뒤 사라진다
+            // 위에서 내려오며 나타나고, 잠시 머문 뒤 사라진다. 기존 알림 타이밍을 유지합니다.
             float top = -Screen.height * 0.12f;
             for (float t0 = 0f; t0 < 0.35f; t0 += Time.unscaledDeltaTime)
             {
@@ -750,6 +689,169 @@ namespace OZGL2.UIBridge
             Destroy(go);
             _bannerGo = null;
             _bannerRoutine = null;
+        }
+
+        // 표시 구성만 담당합니다. 해금 판정·저장과 분리해 실제 알림을 미리보기할 수 있습니다.
+        private RectTransform BuildUnitUnlockBanner(string unitId)
+        {
+            EnsureCanvas();
+            const float width = 520f;
+            const float textLeft = 158f;
+            const float textWidth = width - textLeft - 30f;
+            var go = new GameObject("UnitUnlockBanner", typeof(RectTransform), typeof(CanvasGroup));
+            go.transform.SetParent(_canvas.transform, false);
+            _bannerGo = go;
+            var group = go.GetComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.blocksRaycasts = false;
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+
+            var bgGo = new GameObject("Bg", typeof(RectTransform), typeof(Image));
+            bgGo.transform.SetParent(go.transform, false);
+            var bgRect = (RectTransform)bgGo.transform;
+            bgRect.anchorMin = Vector2.zero; bgRect.anchorMax = Vector2.one; bgRect.offsetMin = bgRect.offsetMax = Vector2.zero;
+            var bg = bgGo.GetComponent<Image>();
+            bg.color = new Color(0.06f, 0.03f, 0.05f, 0.94f);
+            bg.raycastTarget = false;
+            // 배경과 테두리를 같은 스프라이트로 그려 투명한 모서리 밖에 사각 배경이 남지 않게 합니다.
+            if (!UIHeraldrySupplement.ApplyPanel(bg) && _frameSprite != null)
+            {
+                var frameGo = new GameObject("Frame", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                frameGo.transform.SetParent(go.transform, false);
+                var fr = (RectTransform)frameGo.transform;
+                fr.anchorMin = Vector2.zero; fr.anchorMax = Vector2.one; fr.offsetMin = fr.offsetMax = Vector2.zero;
+                var frame = frameGo.GetComponent<Image>();
+                frame.sprite = _frameSprite;
+                frame.type = Image.Type.Sliced;
+                frame.pixelsPerUnitMultiplier = 2.6f;
+                frame.raycastTarget = false;
+            }
+
+            var style = UIHeraldrySupplement.Style;
+            if (style != null && style.MedallionSprite != null)
+            {
+                var medallion = UIHeraldrySupplement.CreateImage(rect, "Medallion", style.MedallionSprite);
+                medallion.preserveAspect = true;
+                var mr = medallion.rectTransform;
+                mr.anchorMin = mr.anchorMax = new Vector2(0f, 0.5f);
+                mr.pivot = new Vector2(0.5f, 0.5f);
+                mr.anchoredPosition = new Vector2(80f, 0f);
+                mr.sizeDelta = new Vector2(122f, 122f);
+            }
+
+            var title = NewUnlockText(rect, "Title", "새 마왕군 해금!", 23f, new Color32(255, 210, 122, 255), false);
+            var name = NewUnlockText(rect, "UnitName", UnitUnlockStore.DisplayName(unitId), 34f, new Color32(245, 242, 232, 255), true);
+            float titleHeight = title.GetPreferredValues(title.text, textWidth, 0f).y;
+            float nameHeight = name.GetPreferredValues(name.text, textWidth, 0f).y;
+            const float lineGap = 5f;
+            float textHeight = titleHeight + lineGap + nameHeight;
+            float height = Mathf.Max(152f, textHeight + 44f);
+            rect.sizeDelta = new Vector2(width, height);
+            float s = Mathf.Max(0.01f, Mathf.Min(Screen.height / 1080f, (Screen.width - 24f) / width));
+            s = Mathf.Min(s, Mathf.Max(0.01f, (Screen.height * 0.76f) / height));
+            rect.localScale = Vector3.one * s;
+
+            var tr = title.rectTransform;
+            tr.anchorMin = tr.anchorMax = new Vector2(0f, 0.5f);
+            tr.pivot = new Vector2(0f, 1f);
+            tr.anchoredPosition = new Vector2(textLeft, textHeight * 0.5f);
+            tr.sizeDelta = new Vector2(textWidth, titleHeight);
+            var nr = name.rectTransform;
+            nr.anchorMin = nr.anchorMax = new Vector2(0f, 0.5f);
+            nr.pivot = new Vector2(0f, 1f);
+            nr.anchoredPosition = new Vector2(textLeft, textHeight * 0.5f - titleHeight - lineGap);
+            nr.sizeDelta = new Vector2(textWidth, nameHeight);
+
+            // 보상 카드와 같은 완성된 1성 초상을 우선 사용합니다. 파츠를 즉석 촬영하면
+            // 원본 유닛 재질/렌더 환경에 따라 몸통이 빠진 그림이 캐시될 수 있습니다.
+            Sprite portraitSprite = FindUnlockPortrait(unitId);
+            var portrait = portraitSprite == null ? UnitPortrait(unitId) : null;
+            if (portraitSprite != null)
+            {
+                var icon = UIHeraldrySupplement.CreateImage(rect, "Portrait", portraitSprite);
+                icon.preserveAspect = true;
+                var ir = icon.rectTransform;
+                ir.anchorMin = ir.anchorMax = new Vector2(0f, 0.5f);
+                ir.pivot = new Vector2(0.5f, 0.5f);
+                ir.anchoredPosition = new Vector2(80f, 0f);
+                ir.sizeDelta = new Vector2(80f, 80f);
+            }
+            else if (portrait != null)
+            {
+                var pgo = new GameObject("Portrait", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+                pgo.transform.SetParent(go.transform, false);
+                var pr = (RectTransform)pgo.transform;
+                pr.anchorMin = pr.anchorMax = new Vector2(0f, 0.5f);
+                pr.pivot = new Vector2(0.5f, 0.5f);
+                pr.sizeDelta = new Vector2(80f, 80f);
+                pr.anchoredPosition = new Vector2(80f, 0f);
+                var raw = pgo.GetComponent<RawImage>();
+                raw.texture = portrait;
+                raw.raycastTarget = false;
+            }
+            else
+            {
+                Sprite fallback = _unlockIcon != null ? _unlockIcon : _cardIcon;
+                if (fallback == null && style != null) fallback = style.CrestSprite;
+                if (fallback != null)
+                {
+                    var icon = UIHeraldrySupplement.CreateImage(rect, "UnlockIcon", fallback);
+                    icon.preserveAspect = true;
+                    var ir = icon.rectTransform;
+                    ir.anchorMin = ir.anchorMax = new Vector2(0f, 0.5f);
+                    ir.pivot = new Vector2(0.5f, 0.5f);
+                    ir.anchoredPosition = new Vector2(80f, 0f);
+                    ir.sizeDelta = new Vector2(64f, 64f);
+                }
+            }
+            return rect;
+        }
+
+        private Sprite FindUnlockPortrait(string unitId)
+        {
+            if (string.IsNullOrEmpty(unitId)) return null;
+            if (_handAdapter == null) _handAdapter = FindFirstObjectByType<UIGridStorageHandAdapter>(FindObjectsInactive.Include);
+            var catalog = _handAdapter != null
+                ? typeof(UIGridStorageHandAdapter).GetField("_unitCatalog", Private)?.GetValue(_handAdapter) as UIUnitCatalogSO
+                : null;
+            Sprite portrait = FindCatalogPortrait(catalog, unitId);
+            if (portrait != null) return portrait;
+            foreach (var loaded in Resources.FindObjectsOfTypeAll<UIUnitCatalogSO>())
+            {
+                portrait = FindCatalogPortrait(loaded, unitId);
+                if (portrait != null) return portrait;
+            }
+            return null;
+        }
+
+        private static Sprite FindCatalogPortrait(UIUnitCatalogSO catalog, string unitId)
+        {
+            if (catalog == null) return null;
+            string entryId = "unit." + unitId;
+            foreach (var entry in catalog.Entries)
+                if (entry != null && entry.Id == entryId) return entry.GetPortrait(0);
+            return null;
+        }
+
+        private TMP_Text NewUnlockText(Transform parent, string name, string value, float size, Color color, bool isTitle)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var text = go.AddComponent<TextMeshProUGUI>();
+            if (_font != null) text.font = _font;
+            if (isTitle) UIHeraldrySupplement.ApplyTitle(text);
+            else UIHeraldrySupplement.ApplyBody(text);
+            text.fontSize = size;
+            text.color = color;
+            text.alignment = TextAlignmentOptions.TopLeft;
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Overflow;
+            text.richText = false;
+            text.raycastTarget = false;
+            text.text = value;
+            return text;
         }
 
         private struct RewardRow

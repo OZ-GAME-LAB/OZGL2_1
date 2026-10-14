@@ -231,6 +231,12 @@ namespace OZGL2.UIBridge
         /// </summary>
         private void WatchToggleClick()
         {
+            if (UICardRewardPresentation.IsRewardActive)
+            {
+                _pendingToggleAt = -1f;
+                _pendingDisclosure = null;
+                return;
+            }
             var mouse = Mouse.current;
             if (mouse == null || FToggle == null) return;
 

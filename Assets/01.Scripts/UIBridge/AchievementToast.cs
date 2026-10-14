@@ -19,6 +19,7 @@ namespace OZGL2.UIBridge
         [SerializeField, Tooltip("업적 목록(AchievementCatalog)")] private UIAchievementCatalogSO _catalog;
         [SerializeField, Min(1f)] private float _holdSeconds = 3.2f;
         [SerializeField, Range(0.05f, 0.4f), Tooltip("화면 위에서 팝업 가운데까지의 위치(화면 높이 비율)")] private float _topRatio = 0.2f;
+        [SerializeField, Min(0f), Tooltip("1080p 기준 왼쪽 여백. 전투 웨이브/증강 목록과 겹치지 않도록 미리보기에서 확인합니다.")] private float _leftInset = 32f;
 
         private readonly Queue<UIAchievementCatalogSO.Entry> _queue = new Queue<UIAchievementCatalogSO.Entry>();
         private readonly HashSet<string> _queued = new HashSet<string>();
@@ -73,13 +74,15 @@ namespace OZGL2.UIBridge
             _desc.text = entry.Description;
             _icon.sprite = entry.Icon;
             _icon.enabled = entry.Icon != null;
+            LayoutContent();
             _canvas.enabled = true;
             Sfx.Play(SfxId.LevelUp);
         }
 
         private void Animate()
         {
-            float s = Mathf.Max(0.8f, Screen.height / 1080f);
+            float s = Mathf.Max(0.01f, Mathf.Min(Screen.height / 1080f, (Screen.width - 24f) / _panel.rect.width));
+            s = Mathf.Min(s, Mathf.Max(0.01f, (Screen.height - 24f) / _panel.rect.height));
             float t = Time.unscaledTime - _shownAt;
             const float slide = 0.4f;
             float total = slide + _holdSeconds + slide;
@@ -91,18 +94,18 @@ namespace OZGL2.UIBridge
             }
             float k = t < slide ? t / slide : t > slide + _holdSeconds ? 1f - (t - slide - _holdSeconds) / slide : 1f;
             float ease = 1f - (1f - k) * (1f - k) * (1f - k);
-            float height = _panel.rect.height;
-            float shownY = Screen.height * (1f - _topRatio);
+            float height = _panel.rect.height * s;
+            float shownY = Mathf.Clamp(Screen.height * (1f - _topRatio), height * 0.5f + 8f, Screen.height - height * 0.5f - 8f);
             float hiddenY = Screen.height + height;
-            _panel.anchoredPosition = new Vector2(Screen.width * 0.5f, Mathf.Lerp(hiddenY, shownY, ease));
-            float pulse = 1f + 0.03f * Mathf.Sin(t * 6f);
-            _panel.localScale = Vector3.one * (s * pulse);
+            float halfWidth = _panel.rect.width * s * 0.5f;
+            float x = Mathf.Clamp(_leftInset * s + halfWidth, halfWidth + 8f, Screen.width - halfWidth - 8f);
+            _panel.anchoredPosition = new Vector2(x, Mathf.Lerp(hiddenY, shownY, ease));
+            _panel.localScale = Vector3.one * s;
         }
 
         private void EnsureUi()
         {
             if (_canvas != null) return;
-            _glow = MakeGlow();
             var go = new GameObject("AchievementToast", typeof(RectTransform));
             go.transform.SetParent(transform, false);
             _canvas = go.AddComponent<Canvas>();
@@ -114,50 +117,65 @@ namespace OZGL2.UIBridge
             _panel = (RectTransform)panelGo.transform;
             _panel.anchorMin = _panel.anchorMax = Vector2.zero;
             _panel.pivot = new Vector2(0.5f, 0.5f);
-            _panel.sizeDelta = new Vector2(620f, 132f);
+            _panel.sizeDelta = new Vector2(520f, 148f);
             var bg = panelGo.GetComponent<Image>();
             bg.color = new Color(0.075f, 0.035f, 0.05f, 0.96f);
             bg.raycastTarget = false;
-            var outline = panelGo.AddComponent<Outline>();
-            outline.effectColor = new Color(0.95f, 0.76f, 0.32f, 1f);
-            outline.effectDistance = new Vector2(3f, -3f);
+            var style = UIHeraldrySupplement.Style;
+            if (style != null) bg.color = style.BackgroundColor;
+            if (!UIHeraldrySupplement.ApplyPanel(bg) && UIHeraldrySupplement.AddFrame(_panel) == null)
+            {
+                var outline = panelGo.AddComponent<Outline>();
+                outline.effectColor = new Color(0.95f, 0.76f, 0.32f, 1f);
+                outline.effectDistance = new Vector2(3f, -3f);
+                _glow = MakeGlow();
+                var glow = NewImage(_panel, "Glow", _glow, new Color(1f, 0.76f, 0.3f, 0.32f));
+                glow.rectTransform.anchorMin = new Vector2(-0.08f, -0.5f); glow.rectTransform.anchorMax = new Vector2(1.08f, 1.5f);
+                glow.rectTransform.offsetMin = glow.rectTransform.offsetMax = Vector2.zero;
+                glow.transform.SetAsFirstSibling();
+            }
 
-            // 금빛 번짐
-            var glow = NewImage(_panel, "Glow", _glow, new Color(1f, 0.76f, 0.3f, 0.32f));
-            glow.rectTransform.anchorMin = new Vector2(-0.08f, -0.5f); glow.rectTransform.anchorMax = new Vector2(1.08f, 1.5f);
-            glow.rectTransform.offsetMin = glow.rectTransform.offsetMax = Vector2.zero;
-            glow.transform.SetAsFirstSibling();
-            // 안쪽 얇은 선
-            var inner = NewImage(_panel, "Inner", null, new Color(0.9f, 0.45f, 0.35f, 0.5f));
-            inner.rectTransform.anchorMin = Vector2.zero; inner.rectTransform.anchorMax = Vector2.one;
-            inner.rectTransform.offsetMin = new Vector2(9f, 9f); inner.rectTransform.offsetMax = new Vector2(-9f, -9f);
-            inner.gameObject.AddComponent<Outline>().effectColor = new Color(0.9f, 0.45f, 0.35f, 0.55f);
-            inner.color = new Color(0f, 0f, 0f, 0f);
-
-            var frame = NewImage(_panel, "IconFrame", _glow, new Color(0.16f, 0.07f, 0.09f, 1f));
+            var medallion = style != null ? style.MedallionSprite : null;
+            var frame = NewImage(_panel, "IconFrame", medallion != null ? medallion : _glow, medallion != null ? Color.white : new Color(0.16f, 0.07f, 0.09f, 1f));
+            frame.preserveAspect = true;
             var fr = frame.rectTransform;
             fr.anchorMin = fr.anchorMax = new Vector2(0f, 0.5f);
             fr.pivot = new Vector2(0f, 0.5f);
-            fr.sizeDelta = new Vector2(96f, 96f); fr.anchoredPosition = new Vector2(20f, 0f);
+            fr.sizeDelta = new Vector2(106f, 106f); fr.anchoredPosition = new Vector2(18f, 0f);
             _icon = NewImage(frame.rectTransform, "Icon", null, Color.white);
             _icon.preserveAspect = true;
             var ir = _icon.rectTransform;
-            ir.anchorMin = Vector2.zero; ir.anchorMax = Vector2.one; ir.offsetMin = new Vector2(10f, 10f); ir.offsetMax = new Vector2(-10f, -10f);
+            ir.anchorMin = Vector2.zero; ir.anchorMax = Vector2.one; ir.offsetMin = new Vector2(23f, 23f); ir.offsetMax = new Vector2(-23f, -23f);
 
-            _title = NewText(_panel, "Title", 26f, new Color(1f, 0.82f, 0.36f), TextAlignmentOptions.Left);
-            Place(_title.rectTransform, 132f, 40f, 30f);
-            _name = NewText(_panel, "Name", 38f, new Color(1f, 0.97f, 0.88f), TextAlignmentOptions.Left);
-            Place(_name.rectTransform, 132f, 70f, 46f);
-            _desc = NewText(_panel, "Desc", 24f, new Color(0.84f, 0.8f, 0.72f), TextAlignmentOptions.Left);
-            Place(_desc.rectTransform, 132f, 112f, 30f);
+            _title = NewText(_panel, "Title", 23f, new Color(1f, 0.82f, 0.36f), TextAlignmentOptions.TopLeft);
+            _name = NewText(_panel, "Name", 32f, new Color(1f, 0.97f, 0.88f), TextAlignmentOptions.TopLeft);
+            _desc = NewText(_panel, "Desc", 22f, new Color(0.84f, 0.8f, 0.72f), TextAlignmentOptions.TopLeft);
+            UIHeraldrySupplement.ApplyTitle(_name);
+            _name.textWrappingMode = TextWrappingModes.Normal;
+            _desc.textWrappingMode = TextWrappingModes.Normal;
+            LayoutContent();
             _canvas.enabled = false;
         }
 
-        /// <summary>패널 왼쪽 위 기준으로 글자 칸을 놓는다(left·top 은 패널 안쪽 위치, 높이는 글자 칸 높이).</summary>
-        private static void Place(RectTransform rt, float left, float top, float height)
+        private void LayoutContent()
         {
-            rt.anchorMin = new Vector2(0f, 1f); rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(0f, 1f);
-            rt.offsetMin = new Vector2(left, -top - height * 0.5f); rt.offsetMax = new Vector2(-24f, -top + height * 0.5f);
+            const float left = 140f, width = 348f;
+            float top = 20f;
+            Place(_title, left, width, ref top);
+            top += 2f;
+            Place(_name, left, width, ref top);
+            top += 4f;
+            Place(_desc, left, width, ref top);
+            _panel.sizeDelta = new Vector2(520f, Mathf.Max(148f, top + 22f));
+        }
+
+        private static void Place(TMP_Text text, float left, float width, ref float top)
+        {
+            float height = text.GetPreferredValues(text.text, width, 0f).y;
+            var rt = text.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f); rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(left, -top); rt.sizeDelta = new Vector2(width, height);
+            top += height;
         }
 
         private static TMP_Text NewText(Transform parent, string name, float size, Color color, TextAlignmentOptions align)
@@ -166,6 +184,7 @@ namespace OZGL2.UIBridge
             go.transform.SetParent(parent, false);
             var text = go.AddComponent<TextMeshProUGUI>();
             if (UiFontOverride.Current != null) text.font = UiFontOverride.Current;
+            UIHeraldrySupplement.ApplyBody(text);
             text.fontSize = size; text.color = color; text.alignment = align;
             text.raycastTarget = false;
             text.textWrappingMode = TextWrappingModes.NoWrap;

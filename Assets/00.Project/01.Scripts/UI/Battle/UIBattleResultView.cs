@@ -264,8 +264,54 @@ namespace OZGL2.UIFlow
 
         private void OnEnable()
         {
+            if (Application.IsPlaying(gameObject))
+            {
+                PrepareTypography();
+                ApplyResultArt();
+            }
             SyncButtonSubscription();
             _needsRefresh = true;
+        }
+
+        private void PrepareTypography()
+        {
+            // 현재 TMP의 Extra Padding은 8px atlas 여백보다 큰 10.25px를 샘플링한다.
+            // 숫자 옆에 이웃 글리프 조각이 보이지 않게 결과창의 불필요한 추가 여백만 끈다.
+            foreach (TMP_Text text in GetComponentsInChildren<TMP_Text>(true))
+            {
+                if (text == null || !text.extraPadding) continue;
+                text.extraPadding = false;
+                text.UpdateMeshPadding();
+            }
+        }
+
+        private void ApplyResultArt()
+        {
+            UIHeraldrySupplementStyleSO style = UIHeraldrySupplement.Style;
+            if (style == null) return;
+
+            ApplyResultImage(transform.Find("ResultPanel/HeraldryFrame"), style.ResultPanelSprite, false);
+            if (_experience == null) return;
+            ApplyResultImage(_experience.transform.Find("Track"), style.ResultTrackSprite, true);
+            ApplyResultImage(_experience.fillRect, style.ResultFillSprite, true);
+            if (_experience.fillRect != null && _experience.fillRect.parent != null)
+                ApplyResultImage(_experience.fillRect.parent.Find("Fill_Reward"), style.ResultFillSprite, true);
+        }
+
+        private static void ApplyResultImage(Transform target, Sprite sprite, bool sliced)
+        {
+            if (target == null || sprite == null || !target.TryGetComponent(out Image image)) return;
+            image.sprite = sprite;
+            image.type = sliced ? Image.Type.Sliced : Image.Type.Simple;
+            image.useSpriteMesh = !sliced;
+            image.preserveAspect = false;
+            image.fillCenter = true;
+            if (!sliced) return;
+
+            // 짧은 경험치 막대에서도 좌우 끝단을 늘이지 않고 현재 높이에 맞춰 표시한다.
+            float height = Mathf.Max(1f, image.rectTransform.rect.height);
+            image.pixelsPerUnitMultiplier = Mathf.Max(0.01f,
+                sprite.rect.height / (height * Mathf.Max(0.01f, image.pixelsPerUnit)));
         }
 
         private void OnDisable()

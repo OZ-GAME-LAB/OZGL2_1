@@ -1,0 +1,52 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-10-13",
+  "transparentBackground": true,
+  "prompts": [
+    {
+      "name": "panel_frame",
+      "prompt": "Use case: ui-mockup. Production game UI sprite asset, NOT a screenshot. Image 1 is STYLE REFERENCE of our approved storage UI. Create ONLY ONE empty square gold frame for a Unity 9-sliced resizable panel. Front view, exactly square, symmetric straight parallel edges and 4 compact clipped diamond corner joints. Warm antique gold with pale gold highlights and dark brown bevel shadows, same restrained hand-painted vector-like style as reference frame. Sharp heavy silhouette. NO crest, no ribbons, no icons, no words, no background panel. BOTH entire inside opening AND outside frame must be genuinely transparent alpha. Almost all gold located in a thin ring: outer square occupies 94% of canvas, straight rail thickness 2% of canvas, corner joints fit within 9% of each corner. Absolutely straight plain middle 75% of every rail for 9-slicing, identical thickness all 4 edges. No curved flourishes, no glow, no perspective, no drop shadow outside silhouette. 1024x1024 square canvas. Separate sprite used above flat near-black UI background.",
+      "refs": [
+        "D:/GitHub/OZGL2_1/Builds/UIReferences_20261013/01_StorageDiscard.png"
+      ],
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a13391-766a-7980-878b-89771a62cee4\\exec-35a9cec1-f1e4-474f-b5ef-131dce160685.png",
+      "target": "D:/GitHub/OZGL2_1/Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/panel_frame.png"
+    },
+    {
+      "name": "header_crest",
+      "prompt": "Use case: ui-mockup. Production transparent game UI ornament sprite. Image 1 STYLE REFERENCE for the small horned golden demon emblem at the TOP CENTER of storage panel. Recreate ONLY that emblem as a clean independent asset: a compact symmetrical gold horned demon helmet/skull with two short deep-burgundy split pennant banners hanging on either side. Gold horizontal rod and tiny diamond tips. Gold face feature is simple angular shieldlike silhouette with two dark eye cuts, no realistic bones or teeth. Same warm gold and muted burgundy hand-painted flat fantasy interface rendering. One small ornament centered and filling 85% canvas, balanced 1.4:1 width to height silhouette. Genuinely transparent alpha outside. No panel frame, no screen, no lettering, no circular badge, no huge wings, no filigree, no glow. 1024x1024 canvas, crisp at actual display size 100x75.",
+      "refs": [
+        "D:/GitHub/OZGL2_1/Builds/UIReferences_20261013/01_StorageDiscard.png"
+      ],
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a13391-766a-7980-878b-89771a62cee4\\exec-9fabbaef-c312-458a-abb8-70dc0e85bfb6.png",
+      "target": "D:/GitHub/OZGL2_1/Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/header_crest.png"
+    },
+    {
+      "name": "speaker_plate",
+      "prompt": "Use case: ui-mockup. Production game UI sprite: ONE EMPTY horizontal speaker nameplate. Image 1 is only style reference for nameplate of approved tutorial bubble. Create only the burgundy rectangular plate, WITHOUT lettering, WITHOUT horned crest, WITHOUT speech bubble, WITHOUT other UI. Front-facing 3:1 horizontal rectangular plate, deeply dark burgundy opaque center, thin beveled warm antique gold border, four compact angled diamond corner guards. Straight horizontal middle edge for Unity 9-slicing. No ribbons/embossing in center. Real transparent alpha OUTSIDE plate. Entire interior must be opaque burgundy. Clean handpainted vector-like sharp silhouette. No shadow, perspective, glow or watermark. Canvas 1536x512, plate fills 94% width and 84% height, ample empty central text area.",
+      "refs": [
+        "D:/GitHub/OZGL2_1/Builds/UIReferences_20261013/06_TutorialBubble.png"
+      ],
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a13391-766a-7980-878b-89771a62cee4\\exec-6e687ecb-47b5-4f7c-9a16-9d7178bf5a1d.png",
+      "target": "D:/GitHub/OZGL2_1/Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/speaker_plate.png"
+    },
+    {
+      "name": "achievement_medallion",
+      "prompt": "Use case: ui-mockup. Standalone production game UI sprite. Image 1 STYLE REFERENCE for achievement notification. Draw ONLY an EMPTY round medal with narrow warm antique gold bevel ring and dark near-black opaque circular face; two short burgundy ribbon tabs peek sideways behind the circle, one on left and one on right. No icon in circle: real achievement icon will be layered by Unity. The circular face must be flat near-black and empty. Gold ring with small diamond joint top and bottom, no laurels, no typography. Compact front view, symmetrical, warm handpainted vector-like illustration, sharp outline, no glow. Outside silhouette genuinely transparent alpha. Centered square1024x1024 canvas, art fills90%, ring diameterabout70%canvaswidth and ribbonspan90%. NO whole toast banner, no screenshot, no numbers, no words, no gold star in center.",
+      "refs": [
+        "D:/GitHub/OZGL2_1/Builds/UIReferences_20261013/04_AchievementToast.png"
+      ],
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a13391-766a-7980-878b-89771a62cee4\\exec-f60f75eb-df2d-43b3-b8db-7a2cd19c836d.png",
+      "target": "D:/GitHub/OZGL2_1/Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/achievement_medallion.png"
+    },
+    {
+      "name": "bubble_tail",
+      "prompt": "Use case: ui-mockup. One small production game UI speech-bubble tail SPRITE for Unity. Image 1 STYLE REFERENCE only: the gold-edged pointer attached to its tutorial bubble. Generate ONLY a DOWNWARD-pointing isosceles triangle speech tail, width twice height, dark near-black opaque inner fill and a clean warm gold double-bevel rim ALONG THE TWO DIAGONAL SIDES. TOP horizontal base is OPEN without a gold rim, so it can overlap and join the flat black panel. Bottom apex slightly angular clipped, strongly simple silhouette. Transparent alpha around shape, no rectangle, no panel, no text, no shadow, no glow. Front view, flat game interface sprite, warm gold exactly like reference. Use square1024canvas with triangle centered width85% ofcanvas and height43% ofcanvas. Top base black fill horizontally straight, gold only on diagonal left/right edges. Intended displayed size44x24px rotated90degrees later.",
+      "refs": [
+        "D:/GitHub/OZGL2_1/Builds/UIReferences_20261013/06_TutorialBubble.png"
+      ],
+      "source": "C:\\Users\\sudea\\.codex\\generated_images\\01a13391-766a-7980-878b-89771a62cee4\\exec-b94b6ccb-7490-42ca-93c2-4fe41bb56c5f.png",
+      "target": "D:/GitHub/OZGL2_1/Assets/06.UI/SharedUI/Heraldry_Supplement_v1/Textures/bubble_tail.png"
+    }
+  ]
+}
