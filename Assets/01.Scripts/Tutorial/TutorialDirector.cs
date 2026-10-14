@@ -222,7 +222,7 @@ namespace OZGL2.Tutorial
                 float semitone = BabbleSteps[(c * 7 + 3) % BabbleSteps.Length] - 3f; // 마왕답게 전체를 낮춘다
                 char next = i + 1 < info.characterCount ? info.characterInfo[i + 1].character : ' ';
                 if (next == '?' || next == '!') semitone += 3f;
-                Sfx.Play(SfxId.TutorialVoice, Mathf.Pow(2f, semitone / 12f));
+                OZGL2.UIBridge.MawangVoice.Play(Mathf.Pow(2f, semitone / 12f));
             }
         }
 

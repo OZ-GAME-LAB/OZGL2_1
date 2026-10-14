@@ -340,11 +340,9 @@ namespace OZGL2.UIBridge
             for (int i = 0; i < 30; i++) SpawnEmber(root);
 
             // 7) 양옆에 늘어진 문장 깃발
-            if (!painted)
-            {
-                SpawnBanner(root, -1f);
-                SpawnBanner(root, 1f);
-            }
+            // 양옆에 늘어진 문장 깃발은 그려 둔 배경 위에서도 그대로 흔들린다
+            SpawnBanner(root, -1f);
+            SpawnBanner(root, 1f);
 
             // 8) 로고(가운데, 통통 튀며 나타난다) + 뒤의 빛
             _logoGlow = NewImage("LogoGlow", root, _glow, new Color(1f, 0.70f, 0.38f, 0.40f));
@@ -415,11 +413,14 @@ namespace OZGL2.UIBridge
             RegisterIntro(ButtonRect(MakeTitleMenuButton(root, "나가기", new Vector2(utilityX, utilityY), new Vector2(utilityW, utilityH), 34f, false, _titleExitIcon, QuitGame)), 0.85f);
 
             // 10) 돌담 테두리 + 가장자리를 어둡게 하는 비네팅
-            BuildFrame(root);
+            if (!painted) BuildFrame(root);   // 그려 둔 배경에는 기둥이 이미 있어서, 돌벽돌 띠·금빛 테두리·모서리 장식은 넣지 않는다
             var vignette = NewImage("Vignette", root, MakeVignette(), Color.white);
             Stretch(vignette.rectTransform); vignette.raycastTarget = false;
-            SpawnWallTorch(root, -1f);
-            SpawnWallTorch(root, 1f);
+            if (!painted)
+            {
+                SpawnWallTorch(root, -1f);
+                SpawnWallTorch(root, 1f);
+            }
 
             // 11) 설정 창(맨 위) + 화면 전환용 검은 막
             BuildSettings(root);

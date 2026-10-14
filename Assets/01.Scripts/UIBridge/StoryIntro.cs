@@ -347,7 +347,7 @@ namespace OZGL2.UIBridge
                 if (!string.IsNullOrEmpty(Slides[_index].Speaker) && want - _lastVoice >= 2)
                 {
                     _lastVoice = want;
-                    Sfx.Play(SfxId.TutorialVoice, UnityEngine.Random.Range(0.92f, 1.14f));
+                    MawangVoice.Play(UnityEngine.Random.Range(0.92f, 1.14f));
                 }
             }
             if (want >= total) { _typing = false; OnTypingDone(); }
