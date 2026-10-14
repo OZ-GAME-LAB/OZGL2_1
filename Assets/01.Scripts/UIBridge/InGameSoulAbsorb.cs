@@ -9,7 +9,7 @@ namespace OZGL2.UIBridge
 {
     /// <summary>
     /// 용사가 죽으면 그 자리에서 영혼(빛 덩어리)이 떠올라 화면 위 경험치바로 날아가 흡수되는 연출.
-    /// 도착하면 경험치바가 반짝이며 살짝 부푼다. 경험치 수치 자체는 기존 시스템이 그대로 올린다(연출만 얹는다).
+    /// 도착하면 경험치바가 반짝인다. 경험치 수치 자체는 기존 시스템이 그대로 올린다(연출만 얹는다).
     /// 보스처럼 경험치가 큰 용사는 영혼이 여러 개로 갈라져 날아간다.
     /// </summary>
     [DefaultExecutionOrder(1000)]
@@ -284,7 +284,7 @@ namespace OZGL2.UIBridge
             _pool.Push(o);
         }
 
-        // ───────────── 흡수 효과 (경험치바가 반짝 + 부푼다)
+        // ───────────── 흡수 효과 (경험치바 반짝임 + 흡수 링)
 
         private void Absorb(Vector2 target)
         {
@@ -316,7 +316,7 @@ namespace OZGL2.UIBridge
             if (_fill == null) return;
             if (_punch > 0f) _punch = Mathf.Max(0f, _punch - dt);
             float k = _punch > 0f ? Mathf.Sin(_punch / 0.22f * Mathf.PI) : 0f;
-            _fill.rectTransform.localScale = new Vector3(1f, 1f + 0.35f * k, 1f);
+            // 채움의 크기·배율은 원본 배치를 유지하고 색상만 반짝인다.
             Color baseColor = _orig != null ? _orig.color : Color.white;
             _fill.color = Color.Lerp(baseColor, new Color(1.5f, 1.5f, 1.8f, baseColor.a), k);
         }

@@ -293,12 +293,17 @@ namespace OZGL2.UIFlow
             ApplyResultImage(transform.Find("ResultPanel/HeraldryFrame"), style.ResultPanelSprite, false);
             if (_experience == null) return;
             ApplyResultImage(_experience.transform.Find("Track"), style.ResultTrackSprite, true);
-            ApplyResultImage(_experience.fillRect, style.ResultFillSprite, true);
+            // Slider가 활성화되기 전에는 직렬화된 driven anchor 때문에 Fill 높이가 0일 수 있다.
+            // Slider가 세로 Stretch를 복구한 뒤의 높이로 끝단 크기를 계산한다.
+            RectTransform fill = _experience.fillRect;
+            float fillHeight = fill != null && fill.parent is RectTransform area
+                ? area.rect.height + fill.sizeDelta.y : 0f;
+            ApplyResultImage(fill, style.ResultFillSprite, true, fillHeight);
             if (_experience.fillRect != null && _experience.fillRect.parent != null)
                 ApplyResultImage(_experience.fillRect.parent.Find("Fill_Reward"), style.ResultFillSprite, true);
         }
 
-        private static void ApplyResultImage(Transform target, Sprite sprite, bool sliced)
+        private static void ApplyResultImage(Transform target, Sprite sprite, bool sliced, float referenceHeight = 0f)
         {
             if (target == null || sprite == null || !target.TryGetComponent(out Image image)) return;
             image.sprite = sprite;
@@ -309,7 +314,7 @@ namespace OZGL2.UIFlow
             if (!sliced) return;
 
             // 짧은 경험치 막대에서도 좌우 끝단을 늘이지 않고 현재 높이에 맞춰 표시한다.
-            float height = Mathf.Max(1f, image.rectTransform.rect.height);
+            float height = Mathf.Max(1f, referenceHeight > 0f ? referenceHeight : image.rectTransform.rect.height);
             image.pixelsPerUnitMultiplier = Mathf.Max(0.01f,
                 sprite.rect.height / (height * Mathf.Max(0.01f, image.pixelsPerUnit)));
         }

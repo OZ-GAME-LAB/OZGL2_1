@@ -185,18 +185,23 @@ namespace OZGL2.UIBridge
             // 설명: 「N의 피해」의 N도 같은 배율로 올리고, 아래에 마왕 레벨 보너스를 한 줄 덧붙인다(레벨 1이어도 「+0%」로 보인다)
             var description = FDetailDescription != null ? FDetailDescription.GetValue(_preview) as TMP_Text : null;
             if (description == null) return;
-            string body = entry.Description;
+            var mawang = MawangXpBridge.Mawang;
+            int level = mawang != null ? mawang.Level : 1;
+            _preview.SetDetailDescription(BuildDetailDescription(entry.Description, mult, level));
+        }
+
+        private static string BuildDetailDescription(string source, float mult, int level)
+        {
+            string body = source ?? string.Empty;
             if (mult > 1.004f)
                 body = System.Text.RegularExpressions.Regex.Replace(body, @"(\d+(?:\.\d+)?)(?=의 피해)", m =>
                 {
                     float v = float.Parse(m.Value, System.Globalization.CultureInfo.InvariantCulture) * mult;
                     return v >= 10f ? Mathf.RoundToInt(v).ToString() : v.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
                 });
-            var mawang = MawangXpBridge.Mawang;
-            int level = mawang != null ? mawang.Level : 1;
             float levelBonus = (SkillLevelScaling.PowerMult(level) - 1f) * 100f;
             body += "\n<color=#FFD27A>마왕 Lv " + level + " · 스킬 피해 +" + Mathf.RoundToInt(levelBonus) + "% (레벨당 +" + Mathf.RoundToInt(SkillLevelScaling.PerLevel * 100f) + "%)</color>";
-            if (description.text != body) description.text = body;
+            return body;
         }
         private bool _applying;
         private bool _isUnlocking;
