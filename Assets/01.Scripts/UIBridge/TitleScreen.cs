@@ -51,6 +51,7 @@ namespace OZGL2.UIBridge
         private float _dragonNext;
         private RectTransform _paintRoot;     // 그려 둔 배경(그림 크기에 맞춰 화면을 덮는다)
         private Image _paintSun;
+        private readonly List<(RectTransform rt, float along, float phase, float amp)> _waveStrips = new List<(RectTransform, float, float, float)>();   // 깃발 띠(along: 0=깃대 쪽, 1=끝)
         private readonly List<(RectTransform rt, float phase)> _hangings = new List<(RectTransform, float)>();     // 탑 벽에 걸린 깃발(위가 고정, 아주 살짝 흔들림)
         private readonly List<(RectTransform rt, Image img, float baseX, float baseY, float phase, float speed)> _mist = new List<(RectTransform, Image, float, float, float, float)>();
         private readonly List<(RectTransform rt, float phase)> _flames = new List<(RectTransform, float)>();
@@ -1203,6 +1204,15 @@ namespace OZGL2.UIBridge
             }
             if (_logoGlow != null) _logoGlow.color = new Color(1f, 0.70f, 0.38f, 0.34f + 0.08f * Mathf.Sin(t * 1.3f));
             if (_sun != null) _sun.localScale = Vector3.one * (1f + Mathf.Sin(t * 0.7f) * 0.025f);
+            for (int i = 0; i < _waveStrips.Count; i++)
+            {
+                var w = _waveStrips[i];
+                // 바람이 깃대에서 끝으로 지나가는 물결: 끝으로 갈수록 크게(along^1.3), 시간에 따라 앞으로 나아간다
+                float wave = Mathf.Sin(t * 5.4f - w.along * 6.5f + w.phase) + 0.35f * Mathf.Sin(t * 9.3f - w.along * 11f + w.phase * 1.7f);
+                float amp = w.amp * Mathf.Pow(w.along, 1.3f);
+                w.rt.anchoredPosition = new Vector2(0f, wave * amp);
+                w.rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Cos(t * 5.4f - w.along * 6.5f + w.phase) * 7f * w.along);
+            }
             for (int i = 0; i < _hangings.Count; i++)
             {
                 var h = _hangings[i];
@@ -1228,20 +1238,21 @@ namespace OZGL2.UIBridge
 
         private const float PaintW = 1672f, PaintH = 941f;   // 배경 그림 크기(픽셀). 아래 좌표는 모두 이 그림 기준이다.
 
-        /// <summary>움직이는 조각(성탑 문장 깃발·꼭대기 깃발)의 그림 속 위치(왼쪽·위·오른쪽·아래 픽셀)와 걸린 쪽(피벗).</summary>
-        private static readonly (float x0, float y0, float x1, float y1, Vector2 pivot, bool banner, float phase)[] PaintPieces =
+        /// <summary>움직이는 조각(탑 벽의 문장 깃발·꼭대기 깃발)의 그림 속 위치(왼쪽·위·오른쪽·아래 픽셀)와 걸린 쪽(피벗), 깃발의 파도 크기(amp).</summary>
+        private static readonly (float x0, float y0, float x1, float y1, Vector2 pivot, bool banner, float phase, float amp)[] PaintPieces =
         {
-            (996f, 632f, 1034f, 756f, new Vector2(0.5f, 1f), true, 0.3f),       // 왼쪽 탑 벽에 걸린 붉은 문장 깃발(위가 고정)
-            (1169f, 622f, 1208f, 754f, new Vector2(0.5f, 1f), true, 1.9f),      // 오른쪽 탑 벽의 문장 깃발
-            (1024f, 570f, 1092f, 602f, new Vector2(0f, 0.5f), false, 0.4f),     // 탑 꼭대기 깃발(깃대 쪽이 왼쪽)
-            (1184f, 555f, 1252f, 584f, new Vector2(0f, 0.5f), false, 2.3f),
-            (900f, 684f, 926f, 700f, new Vector2(0f, 0.5f), false, 4.1f),       // 멀리 있는 작은 깃발
+            (996f, 632f, 1034f, 756f, new Vector2(0.5f, 1f), true, 0.3f, 0f),     // 왼쪽 탑 벽에 걸린 붉은 문장 깃발(위가 고정)
+            (1169f, 622f, 1208f, 754f, new Vector2(0.5f, 1f), true, 1.9f, 0f),    // 오른쪽 탑 벽의 문장 깃발
+            (1024f, 562f, 1090f, 599f, new Vector2(0f, 0.5f), false, 0.4f, 9f),   // 탑 꼭대기 깃발(깃대 쪽이 왼쪽, 끝으로 갈수록 크게 물결친다)
+            (1184f, 555f, 1246f, 583f, new Vector2(0f, 0.5f), false, 2.3f, 8f),
+            (898f, 683f, 922f, 699f, new Vector2(0f, 0.5f), false, 4.1f, 3.5f),   // 멀리 있는 작은 깃발
         };
 
-        /// <summary>일렁이는 불빛(횃불·성문·창문·마을)의 그림 속 가운데 픽셀과 크기(화면 단위).</summary>
+        private const int FlagStrips = 12;   // 깃발을 가로로 이만큼 잘라 각각 위아래로 흔들어 천이 물결치는 모양을 만든다
+
+        /// <summary>일렁이는 불빛(성문·창문·마을)의 그림 속 가운데 픽셀과 크기(화면 단위).</summary>
         private static readonly (float x, float y, float size)[] PaintLights =
         {
-            (45f, 462f, 240f), (1612f, 462f, 240f),                                                   // 양쪽 횃불
             (1098f, 765f, 150f),                                                                       // 성문
             (1061f, 722f, 56f), (1137f, 722f, 56f), (929f, 761f, 64f), (830f, 730f, 50f),              // 성 창문
             (1270f, 741f, 44f), (1295f, 744f, 44f), (1328f, 716f, 48f), (1446f, 736f, 44f), (1386f, 759f, 44f),
@@ -1312,7 +1323,24 @@ namespace OZGL2.UIBridge
                     rt.anchorMax = new Vector2(piece.x1 / PaintW, 1f - piece.y0 / PaintH);
                     rt.offsetMin = rt.offsetMax = Vector2.zero;
                     rt.pivot = piece.pivot;
-                    if (piece.banner) _hangings.Add((rt, piece.phase)); else _flags.Add((rt, piece.phase));
+                    if (piece.banner) { _hangings.Add((rt, piece.phase)); continue; }
+
+                    // 깃발: 조각 하나를 세로 띠 여러 개로 나눠 띠마다 따로 위아래로 흔든다(깃대 쪽은 거의 고정, 끝으로 갈수록 크게)
+                    var baseUv = raw.uvRect;
+                    raw.enabled = false;                                    // 통짜 조각은 쓰지 않고 띠만 보인다
+                    for (int i = 0; i < FlagStrips; i++)
+                    {
+                        var strip = new GameObject("Strip" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage)).GetComponent<RawImage>();
+                        strip.transform.SetParent(rt, false);
+                        strip.texture = overlay; strip.raycastTarget = false;
+                        float a = i / (float)FlagStrips, b = (i + 1) / (float)FlagStrips;
+                        strip.uvRect = new Rect(baseUv.x + baseUv.width * a, baseUv.y, baseUv.width * (b - a) + 0.00002f, baseUv.height);
+                        var sr = strip.rectTransform;
+                        sr.anchorMin = new Vector2(a, 0f); sr.anchorMax = new Vector2(b + 0.004f, 1f);   // 띠 사이가 벌어져 보이지 않게 아주 조금 겹친다
+                        sr.offsetMin = sr.offsetMax = Vector2.zero;
+                        sr.pivot = new Vector2(0f, 0.5f);
+                        _waveStrips.Add((sr, a, piece.phase, piece.amp));
+                    }
                 }
             return true;
         }
