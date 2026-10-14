@@ -128,10 +128,11 @@ public static class Sfx
         _lastPlayedTime[(int)id] = now;
         float pitch = UnityEngine.Random.Range(entry.pitchRange.x, entry.pitchRange.y) * pitchScale;
         float volume = entry.volume * catalog.masterVolume * MasterVolume * SfxVolume;
-        SfxPlayer.Play(clip, volume, pitch);
+        bool stinger = IsStinger(id);
+        SfxPlayer.Play(clip, volume, pitch, stinger);
 
         // 웨이브 클리어·승패처럼 "들려야 하는" 알림음은 BGM에 묻히기 쉬워서, 재생되는 동안 BGM을 줄여준다.
-        if (IsStinger(id))
+        if (stinger)
         {
             Bgm.Duck(Mathf.Min(clip.length, MaxDuckSeconds), DuckedBgmFactor);
         }
@@ -150,7 +151,7 @@ public static class Sfx
 
         SfxCatalogSO catalog = Catalog;
         float master = (catalog != null ? catalog.masterVolume : 1f) * MasterVolume * SfxVolume;
-        SfxPlayer.Play(clip, volume * master, pitch);
+        SfxPlayer.Play(clip, volume * master, pitch, duckBgm);
 
         if (duckBgm)
         {
@@ -193,13 +194,17 @@ public static class Sfx
 internal sealed class SfxPlayer : MonoBehaviour
 {
     private const int VoiceCount = 16;
+    // 알림음(업적·레벨업·승패 등) 전용 보이스 — 난전에서 일반 보이스가 전부 차도 알림음이 가로채여 끊기지 않게 따로 둔다.
+    private const int ImportantVoiceCount = 4;
 
     private static SfxPlayer _instance;
 
     private AudioSource[] _voices;
+    private AudioSource[] _importantVoices;
     private int _next;
+    private int _nextImportant;
 
-    internal static void Play(AudioClip clip, float volume, float pitch)
+    internal static void Play(AudioClip clip, float volume, float pitch, bool important = false)
     {
         if (_instance == null)
         {
@@ -214,13 +219,27 @@ internal sealed class SfxPlayer : MonoBehaviour
                 source.spatialBlend = 0f; // 2D 게임이라 위치 감쇠 없이 그대로 재생
                 _instance._voices[i] = source;
             }
+            _instance._importantVoices = new AudioSource[ImportantVoiceCount];
+            for (int i = 0; i < ImportantVoiceCount; i++)
+            {
+                var source = go.AddComponent<AudioSource>();
+                source.playOnAwake = false;
+                source.spatialBlend = 0f;
+                _instance._importantVoices[i] = source;
+            }
         }
 
-        _instance.PlayOnVoice(clip, volume, pitch);
+        _instance.PlayOnVoice(clip, volume, pitch, important);
     }
 
-    private void PlayOnVoice(AudioClip clip, float volume, float pitch)
+    private void PlayOnVoice(AudioClip clip, float volume, float pitch, bool important)
     {
+        if (important)
+        {
+            PlayImportant(clip, volume, pitch);
+            return;
+        }
+
         // 놀고 있는 보이스를 우선 쓰고, 전부 재생 중이면 가장 오래된 순서(라운드 로빈)로 가로챈다.
         AudioSource voice = null;
         for (int i = 0; i < VoiceCount; i++)
@@ -238,6 +257,32 @@ internal sealed class SfxPlayer : MonoBehaviour
         {
             voice = _voices[_next];
             _next = (_next + 1) % VoiceCount;
+        }
+
+        voice.clip = clip;
+        voice.volume = Mathf.Clamp01(volume);
+        voice.pitch = pitch;
+        voice.Play();
+    }
+
+    private void PlayImportant(AudioClip clip, float volume, float pitch)
+    {
+        AudioSource voice = null;
+        for (int i = 0; i < ImportantVoiceCount; i++)
+        {
+            AudioSource candidate = _importantVoices[(_nextImportant + i) % ImportantVoiceCount];
+            if (!candidate.isPlaying)
+            {
+                voice = candidate;
+                _nextImportant = (_nextImportant + i + 1) % ImportantVoiceCount;
+                break;
+            }
+        }
+
+        if (voice == null)
+        {
+            voice = _importantVoices[_nextImportant];
+            _nextImportant = (_nextImportant + 1) % ImportantVoiceCount;
         }
 
         voice.clip = clip;
