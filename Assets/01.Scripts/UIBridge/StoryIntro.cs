@@ -731,7 +731,7 @@ namespace OZGL2.UIBridge
                 inner.raycastTarget = false;
             }
 
-            _text = NewText("Text", _panel, 46f, Cream, TextAlignmentOptions.TopLeft);
+            _text = NewText("Text", _panel, 46f, Cream, TextAlignmentOptions.Center);   // 대사·해설은 가운데 정렬
             UIHeraldrySupplement.ApplyBody(_text);
             _text.rectTransform.anchorMin = Vector2.zero; _text.rectTransform.anchorMax = Vector2.one;
             _text.rectTransform.offsetMin = new Vector2(52f, 24f); _text.rectTransform.offsetMax = new Vector2(-52f, hasFrame ? -44f : -26f);
@@ -770,7 +770,7 @@ namespace OZGL2.UIBridge
             _name = NewText("Name", _namePlate, 40f, new Color(1f, 0.9f, 0.6f), TextAlignmentOptions.Center);
             UIHeraldrySupplement.ApplyTitle(_name);
             Stretch(_name.rectTransform);
-            if (hasNameplate) _name.rectTransform.offsetMin = new Vector2(28f, 0f);
+            if (hasNameplate) { _name.rectTransform.offsetMin = new Vector2(24f, 0f); _name.rectTransform.offsetMax = new Vector2(-24f, 0f); }   // 좌우를 같게 해 이름이 이름표 가운데에 서게
             _name.fontStyle = FontStyles.Bold;
 
             // 다음으로 넘기라는 화살표

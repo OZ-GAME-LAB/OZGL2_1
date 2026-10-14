@@ -926,12 +926,13 @@ namespace OZGL2.Tutorial
             var nameText = NewText("Name", _nameTag, 34f * S, new Color(1f, 0.9f, 0.55f), TextAlignmentOptions.Center);
             UIHeraldrySupplement.ApplyTitle(nameText);
             nameText.text = "마왕";
-            nameText.alignment = hasNameplate ? TextAlignmentOptions.Midline : TextAlignmentOptions.MidlineLeft;
+            nameText.alignment = TextAlignmentOptions.Center;   // 이름은 이름표 한가운데(가로·세로)
             AddShadowTo(nameText);
             tagImage.enabled = hasNameplate;
             nameText.enableAutoSizing = true; nameText.fontSizeMin = 16f * S; nameText.fontSizeMax = 34f * S;
             Stretch(nameText.rectTransform);
-            nameText.rectTransform.offsetMin = new Vector2((hasNameplate ? 34f : 14f) * S, 6f * S); nameText.rectTransform.offsetMax = new Vector2(-14f * S, -6f * S);
+            float nameInset = (hasNameplate ? 24f : 14f) * S;   // 좌우 여백을 같게 해야 글자가 이름표 가운데에 선다(예전에는 왼쪽만 34로 넓어 오른쪽으로 쏠렸다)
+            nameText.rectTransform.offsetMin = new Vector2(nameInset, 6f * S); nameText.rectTransform.offsetMax = new Vector2(-nameInset, -6f * S);
 
             _counter = NewText("Counter", _bubble, 22f, new Color(0.7f, 0.66f, 0.6f), TextAlignmentOptions.Right);
             _counter.gameObject.SetActive(false); // 남은 쪽 수(n / N)는 보이지 않게 한다
