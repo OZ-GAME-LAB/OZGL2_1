@@ -47,12 +47,17 @@ public static class BattleResultPresentationValidation
             foreach (GraphicRaycaster raycaster in instance.GetComponentsInChildren<GraphicRaycaster>(true)) raycaster.enabled = false;
             var fixture = new Fixture(instance);
             ValidateReferences(fixture);
+            PrepareCollapsedFill(fixture);
             container.SetActive(true);
             instance.SetActive(true);
+            Need(Near(fixture.Slider.fillRect.rect.height, 0f), "Slider 활성화 전 높이 0 재현 실패");
+            AssertFillArt(fixture, "최초 OnEnable");
+            fixture.Slider.enabled = true;
             fixture.View.ConfigureReturnToLobby(() => { fixture.ReturnCount++; return true; });
             fixture.View.SetState(eBattleResultState.VICTORY);
             await NextFrame();
 
+            await ValidateFillGeometry(fixture);
             await ValidateGlowStates(fixture);
             await ValidateNaturalCompletion(fixture);
             await ValidateSkips(fixture);
@@ -61,6 +66,7 @@ public static class BattleResultPresentationValidation
             await ValidatePointerInput(fixture);
             LastResult = "결과 연출 Play Mode 검증 통과\n" +
                 "- Prefab 참조·노란 Fill 겹침 순서 및 Raycast 설정\n" +
+                "- 높이 0에서 최초 활성화·0/1/50/99/100% 스킵/재오픈의 빨강·노랑 Fill 끝단 메시 일치\n" +
                 "- 승리/패배 글로우 색상·제목 알파 동기화·겹침 순서\n" +
                 "- 경험치 입자 시작/흡수/정리·획득량 0 미출력·원본 TMP 표시 유지\n" +
                 "- timeScale 0 자연 재생·최종 표시·로비 이동 차단/허용\n" +
@@ -83,6 +89,95 @@ public static class BattleResultPresentationValidation
             Application.runInBackground = previousRunInBackground;
             _isRunning = false;
         }
+    }
+
+    private static void PrepareCollapsedFill(Fixture f)
+    {
+        Need(!f.Instance.activeInHierarchy && f.Slider.enabled, "비활성 결과 Prefab 검증 준비 상태");
+        // 부모 View.OnEnable이 자식 Slider.OnEnable보다 먼저 실행되는 상태를 재현한다.
+        // 비활성 복제본만 조정하며, 실제 OnEnable이 끝난 다음 Slider를 다시 활성화한다.
+        f.Slider.enabled = false;
+        RectTransform red = f.Slider.fillRect;
+        red.anchorMin = new Vector2(red.anchorMin.x, 0f);
+        red.anchorMax = new Vector2(red.anchorMax.x, 0f);
+        red.sizeDelta = new Vector2(red.sizeDelta.x, 0f);
+        Need(Near(red.rect.height, 0f) && Near(f.Yellow.rect.height, 17f), "빨강 높이 0/노랑 높이 17 재현 실패");
+    }
+
+    private static async Task ValidateFillGeometry(Fixture f)
+    {
+        foreach (float normalized in new[] { 0f, .01f, .5f, .99f, 1f })
+        {
+            BattleResultDisplayData data = Data(100, 3, normalized, 2, .9f);
+            Begin(f, data);
+            CurrentSequence(f).Pause().GotoWithCallbacks(.1f, false);
+            f.Presentation.Skip();
+            AssertFinal(f, data);
+            AssertFillGeometry(f, normalized, "스킵");
+            await WaitUntil(() => !f.Presentation.IsPlaying, 3d);
+
+            f.Instance.SetActive(false);
+            f.Instance.SetActive(true);
+            await NextFrame();
+            f.View.PlayPresentation();
+            Need(!f.Presentation.IsPlaying, "Fill 재오픈 검사에서 동일 결과가 재생됨");
+            AssertFinal(f, data);
+            AssertFillGeometry(f, normalized, "재오픈");
+        }
+    }
+
+    private static void AssertFillArt(Fixture f, string context)
+    {
+        Image red = f.Slider.fillRect.GetComponent<Image>();
+        Image yellow = f.Yellow.GetComponent<Image>();
+        Need(red != null && yellow != null && red.sprite != null && red.sprite == yellow.sprite,
+            context + ": 빨강/노랑 Fill Sprite 불일치");
+        Need(red.type == Image.Type.Sliced && yellow.type == Image.Type.Sliced &&
+            red.fillCenter && yellow.fillCenter && red.sprite.border.sqrMagnitude > 0f,
+            context + ": 둥근 끝단의 Sliced 설정 누락");
+        Need(Near(red.pixelsPerUnitMultiplier, yellow.pixelsPerUnitMultiplier),
+            context + ": 빨강/노랑 Fill의 끝단 배율 불일치");
+        Need(Near(red.sprite.rect.height / (red.pixelsPerUnit * red.pixelsPerUnitMultiplier), 17f),
+            context + ": Fill 끝단의 원본 높이가 17px로 표시되지 않음");
+    }
+
+    private static void AssertFillGeometry(Fixture f, float normalized, string context)
+    {
+        context += " " + normalized.ToString("P0", CultureInfo.InvariantCulture);
+        AssertFillArt(f, context);
+        Canvas.ForceUpdateCanvases();
+        RectTransform red = f.Slider.fillRect;
+        RectTransform area = red.parent as RectTransform;
+        Need(area != null && Near(red.rect.height, 17f) && Near(f.Yellow.rect.height, 17f),
+            context + ": 빨강/노랑 Fill 높이 불일치");
+        Need(Near(red.rect.width, area.rect.width * normalized) && Near(red.rect.width, f.Yellow.rect.width) &&
+            (red.localPosition - f.Yellow.localPosition).sqrMagnitude <= TOLERANCE * TOLERANCE,
+            context + ": 빨강/노랑 Fill 폭 또는 위치 불일치");
+        if (normalized <= 0f) return;
+
+        // 설정값뿐 아니라 Canvas가 생성한 끝단 정점과 UV를 비교한다. 두 Fill의 색 차이는 의도한 값이다.
+        Mesh redMesh = GetFillMesh(red.GetComponent<Image>());
+        Mesh yellowMesh = GetFillMesh(f.Yellow.GetComponent<Image>());
+        Need(redMesh != null && yellowMesh != null && redMesh.vertexCount > 0 &&
+            redMesh.vertexCount == yellowMesh.vertexCount, context + ": Fill 메시 정점 수 불일치");
+        Vector3[] redVertices = redMesh.vertices;
+        Vector3[] yellowVertices = yellowMesh.vertices;
+        Vector2[] redUv = redMesh.uv;
+        Vector2[] yellowUv = yellowMesh.uv;
+        Need(redUv.Length == redVertices.Length && yellowUv.Length == redVertices.Length,
+            context + ": Fill 메시 UV 누락");
+        for (int i = 0; i < redVertices.Length; i++)
+            Need((redVertices[i] - yellowVertices[i]).sqrMagnitude <= TOLERANCE * TOLERANCE &&
+                (redUv[i] - yellowUv[i]).sqrMagnitude <= TOLERANCE * TOLERANCE,
+                context + ": 빨강/노랑 Fill 끝단 정점 또는 UV 불일치 (" + i + ")");
+    }
+
+    private static Mesh GetFillMesh(Image image)
+    {
+        image.SetVerticesDirty();
+        image.canvasRenderer.cull = false;
+        image.Rebuild(CanvasUpdate.PreRender);
+        return image.canvasRenderer.GetMesh();
     }
 
     private static void ValidateReferences(Fixture f)

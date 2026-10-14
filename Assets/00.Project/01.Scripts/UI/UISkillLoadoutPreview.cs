@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +14,9 @@ namespace OZGL2.UIFlow
     {
         private const int SLOT_COUNT = 3;
         private const int MAX_SLOT_COUNT = 5;
+        private static readonly Regex _descriptionQuantityRegex = new Regex(
+            @"(?<![\p{L}\p{N}_.])(?:반경[ \t]*\d+(?:\.\d+)?(?:[ \t]+안(?:에서|의|에)?)?|Lv\.?[ \t]+\d+|\d+(?:\.\d+)?[ \t]+(?:%|％|인|명|초|분|시간|회|체|기|배|cm|mm|m|SP|XP|EXP)[가-힣]*)",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         [SerializeField] private UISkillPreviewCatalogSO _catalog;
         [SerializeField] private UILobbyCollectionState _unlockState;
         [SerializeField] private Material _lockedIconMaterial;
@@ -37,6 +42,7 @@ namespace OZGL2.UIFlow
         [SerializeField] private Sprite _redFrame;
         [SerializeField] private TMP_Text _detailName;
         [SerializeField] private TMP_Text _detailDescription;
+        [SerializeField, Min(1f)] private float _detailDescriptionMinimumFontSize = 20f;
         [SerializeField] private TMP_Text _detailMetadata;
         [SerializeField] private Image _detailIcon;
         [SerializeField] private Image _detailUltimateFrame;
@@ -79,6 +85,9 @@ namespace OZGL2.UIFlow
         private bool _hasAccountState;
         private bool _isUnlockPending;
         private string _pendingUnlockId = string.Empty;
+        private TMP_Text _formattedDescriptionTarget;
+        private string _descriptionSource;
+        private string _formattedDescription;
 
         public bool UsesHeraldryLayout => _useHeraldryLayout;
         public int SlotCapacity => _useHeraldryLayout ? _slotCapacity : SLOT_COUNT;
@@ -91,6 +100,123 @@ namespace OZGL2.UIFlow
         // 바인더가 실제 계정에 장착 구성을 저장한다. UI는 디스크 저장을 직접 호출하지 않는다.
         public event Action<IReadOnlyList<string>> SaveRequested;
         public event Action<string> UnlockRequested;
+
+        // 카탈로그와 계정 보정 설명이 같은 어절 줄바꿈/자동 크기 규칙을 사용한다.
+        public void SetDetailDescription(string description)
+        {
+            if (_detailDescription == null) return;
+            description = description ?? string.Empty;
+            if (_formattedDescriptionTarget != _detailDescription)
+            {
+                _formattedDescriptionTarget = _detailDescription;
+                float maximumSize = _detailDescription.enableAutoSizing && _detailDescription.fontSizeMax > 0f
+                    ? _detailDescription.fontSizeMax : _detailDescription.fontSize;
+                _detailDescription.fontSizeMax = maximumSize;
+                _detailDescription.fontSizeMin = Mathf.Min(maximumSize, Mathf.Max(1f, _detailDescriptionMinimumFontSize));
+                _detailDescription.enableAutoSizing = true;
+                _detailDescription.textWrappingMode = TextWrappingModes.Normal;
+                _descriptionSource = null;
+            }
+            if (_descriptionSource == description && _detailDescription.text == _formattedDescription) return;
+            _descriptionSource = description;
+            _formattedDescription = WrapDescriptionWords(description);
+            _detailDescription.text = _formattedDescription;
+        }
+
+        private static string WrapDescriptionWords(string description)
+        {
+            if (string.IsNullOrEmpty(description)) return string.Empty;
+            var result = new StringBuilder(description.Length * 2);
+            bool[] quantitySpaces = FindDescriptionQuantitySpaces(description);
+            bool isWordOpen = false;
+            bool hasExplicitNoBreak = false;
+            for (int i = 0; i < description.Length; i++)
+            {
+                // 태그 속성 안의 공백은 단어 경계가 아니다. 색/크기 태그와 명시적 줄바꿈을 유지한다.
+                if (description[i] == '<' && TryReadDescriptionTag(description, i, out int end))
+                {
+                    string tag = description.Substring(i, end - i + 1);
+                    bool isLineBreak = string.Equals(tag, "<br>", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(tag, "<br/>", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(tag, "<br />", StringComparison.OrdinalIgnoreCase);
+                    bool isNoBreakStart = string.Equals(tag, "<nobr>", StringComparison.OrdinalIgnoreCase);
+                    bool isNoBreakEnd = string.Equals(tag, "</nobr>", StringComparison.OrdinalIgnoreCase);
+                    if (isWordOpen && (isLineBreak || isNoBreakStart || isNoBreakEnd))
+                    {
+                        result.Append("</nobr>");
+                        isWordOpen = false;
+                    }
+                    if (isNoBreakStart) hasExplicitNoBreak = true;
+                    if (isNoBreakEnd) hasExplicitNoBreak = false;
+                    result.Append(tag);
+                    i = end;
+                    continue;
+                }
+                if (char.IsWhiteSpace(description[i]))
+                {
+                    if (quantitySpaces[i])
+                    {
+                        if (!isWordOpen && !hasExplicitNoBreak) { result.Append("<nobr>"); isWordOpen = true; }
+                    }
+                    else if (isWordOpen) { result.Append("</nobr>"); isWordOpen = false; }
+                }
+                else if (!isWordOpen && !hasExplicitNoBreak)
+                {
+                    result.Append("<nobr>");
+                    isWordOpen = true;
+                }
+                result.Append(description[i]);
+            }
+            if (isWordOpen) result.Append("</nobr>");
+            return result.ToString();
+        }
+
+        private static bool[] FindDescriptionQuantitySpaces(string description)
+        {
+            // 숫자와 단위, 범위/Lv 표현만 묶는다. 태그 속성은 제외하고 원문 공백 위치를 보존한다.
+            var visible = new StringBuilder(description.Length);
+            var sourceIndices = new List<int>(description.Length);
+            for (int i = 0; i < description.Length; i++)
+            {
+                if (description[i] == '<' && TryReadDescriptionTag(description, i, out int end))
+                {
+                    string tag = description.Substring(i, end - i + 1);
+                    if (string.Equals(tag, "<br>", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(tag, "<br/>", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(tag, "<br />", StringComparison.OrdinalIgnoreCase))
+                    {
+                        visible.Append('\n');
+                        sourceIndices.Add(-1);
+                    }
+                    i = end;
+                    continue;
+                }
+                visible.Append(description[i]);
+                sourceIndices.Add(i);
+            }
+            var joinedSpaces = new bool[description.Length];
+            string plainText = visible.ToString();
+            foreach (Match match in _descriptionQuantityRegex.Matches(plainText))
+                for (int i = match.Index; i < match.Index + match.Length; i++)
+                    if (sourceIndices[i] >= 0 && (plainText[i] == ' ' || plainText[i] == '\t'))
+                        joinedSpaces[sourceIndices[i]] = true;
+            return joinedSpaces;
+        }
+
+        private static bool TryReadDescriptionTag(string text, int start, out int end)
+        {
+            char quote = '\0';
+            for (int i = start + 1; i < text.Length; i++)
+            {
+                char current = text[i];
+                if (quote != '\0') { if (current == quote) quote = '\0'; continue; }
+                if (current == '\"' || current == '\'') { quote = current; continue; }
+                if (current == '>') { end = i; return true; }
+                if (current == '<' || current == '\n' || current == '\r') break;
+            }
+            end = start;
+            return false;
+        }
 
         // 비용은 UI 카탈로그가 아니라 실제 스킬 원천을 읽은 바인더가 전달한다.
         public void SetAccountState(int skillPoints, int slotCapacity, IReadOnlyDictionary<string, int> unlockCosts)
@@ -446,7 +572,7 @@ namespace OZGL2.UIFlow
             bool isUnlocked = IsSkillUnlocked(_selected);
             bool showInformation = valid && (isUnlocked || _useHeraldryLayout);
             if (_detailName != null) _detailName.text = !valid ? "스킬 선택" : showInformation ? _catalog.Entries[_selected].DisplayName : "미발견";
-            if (_detailDescription != null) _detailDescription.text = !valid ? string.Empty : showInformation ? _catalog.Entries[_selected].Description : "해금 후 정보 확인 가능";
+            SetDetailDescription(!valid ? string.Empty : showInformation ? _catalog.Entries[_selected].Description : "해금 후 정보 확인 가능");
             if (_detailMetadata != null)
             {
                 UISkillPreviewCatalogSO.Entry entry = showInformation ? _catalog.Entries[_selected] : null;
