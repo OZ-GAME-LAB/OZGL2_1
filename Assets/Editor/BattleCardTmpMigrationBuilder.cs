@@ -16,8 +16,8 @@ using Object = UnityEngine.Object;
 public static class BattleCardTmpMigrationBuilder
 {
     public const string FONT_ROOT = BattleCardRedesignBuilder.ART_ROOT + "/Fonts";
-    public const string TITLE_FONT_PATH = FONT_ROOT + "/BattleCardTitle SDF.asset";
-    public const string BODY_FONT_PATH = FONT_ROOT + "/BattleCardBody SDF.asset";
+    public const string TITLE_FONT_PATH = "Assets/06.UI/01.Font/BattleCardTitle SDF.asset";   // 글꼴은 06.UI/01.Font 에서 Git 으로 공유한다
+    public const string BODY_FONT_PATH = "Assets/06.UI/01.Font/BattleCardBody SDF.asset";
     private const string SOURCE_ROOT = "Assets/06.UI/01.Font/00.otf_ttf_file/";
     private const string TITLE_SOURCE = SOURCE_ROOT + "heiroflight_fonts/빛의 계승자 Bold/TTF(Window용)/HeirofLightBold.ttf";
     private const string BODY_SOURCE = SOURCE_ROOT + "NEXON_Lv2_Gothic/TTF/NEXON Lv2 Gothic.ttf";

@@ -19,7 +19,7 @@ public static class WavePreviewCarouselPrefabBuilder
     public const string UNIT_DIVIDER_SPRITE_PATH = "Assets/06.UI/BattleMutedPreview/FlatReference_v1/Sprites/Divider_WaveUnit_Flat.png";
     private const string PORTRAIT_ROOT = "Assets/06.UI/BattleMutedPreview/WaveCarousel_v1/Portraits";
     private const string BOSS_PREFAB_ROOT = "Assets/02.Prefabs/Hero_Unit/Boss/";
-    private const string FONT_PATH = "Assets/06.UI/BattleMutedPreview/Heraldry_Cards_v2/Fonts/BattleCardBody SDF.asset";
+    private const string FONT_PATH = "Assets/06.UI/01.Font/BattleCardBody SDF.asset";
     private const string UNIT_CATALOG_PATH = "Assets/06.UI/LobbyMutedPreview/Heraldry_Codex_v1/UnitCatalog.asset";
     private const string UNDO_NAME = "웨이브 미리보기 캐러셀 배치";
     private const string ART_UNDO_NAME = "웨이브 미리보기 화살표·구분선 적용";
