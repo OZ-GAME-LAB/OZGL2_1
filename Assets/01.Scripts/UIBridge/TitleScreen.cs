@@ -49,6 +49,8 @@ namespace OZGL2.UIBridge
         private RectTransform _logoRect, _sun, _mountains, _hillsFar, _forestFar, _castleNear, _village, _hillsNear, _forestNear;
         private RectTransform _windmill, _rays, _dragon, _dragonNear, _dragonFar;
         private float _dragonNext;
+        private RectTransform _paintRoot;     // 그려 둔 배경(그림 크기에 맞춰 화면을 덮는다)
+        private Image _paintSun;
         private readonly List<(RectTransform rt, float phase)> _flames = new List<(RectTransform, float)>();
         private readonly List<(RectTransform rt, Image img, float phase, float speed)> _sparkles = new List<(RectTransform, Image, float, float)>();
         private readonly List<(RectTransform rt, float phase, float baseX, float baseY, float speed)> _birds = new List<(RectTransform, float, float, float, float)>();
@@ -271,6 +273,10 @@ namespace OZGL2.UIBridge
             _dot = MakeDot(); _glow = MakeGlow(128); _round = MakeRound(true); _roundFlat = MakeRound(false); _roundRing = MakeRoundRing(2.4f); _chevron = MakeChevron();
             AudioListener.volume = PlayerPrefs.GetFloat(VolumeKey, 1f);
 
+            // 그려 둔 타이틀 배경(Resources/Title)이 있으면 그것을 쓰고, 깃발·횃불·창문 불빛만 그 위에서 움직인다. 없으면 아래 코드로 만든 풍경을 쓴다.
+            bool painted = TryBuildPaintedBackdrop(root);
+            if (!painted)
+            {
             // 1) 노을 하늘: 위는 짙은 남색, 아래로 갈수록 보랏빛을 거쳐 지평선은 호박색
             var sky = NewImage("Sky", root, MakeSky(), Color.white);
             Stretch(sky.rectTransform); sky.raycastTarget = false;
@@ -325,13 +331,17 @@ namespace OZGL2.UIBridge
             _forestNear = MakeLayer(root, "ForestNear", MakeForest(9, new Color(0.07f, 0.045f, 0.10f), 28, 62, 0.34f), 2300f, 420f, -40f);
             for (int i = 0; i < 6; i++) SpawnBird(root, i);
             SpawnDragon(root);
+            }
 
             // 6) 떠오르는 불씨(횃불에서 날아오르는 느낌)
             for (int i = 0; i < 30; i++) SpawnEmber(root);
 
             // 7) 양옆에 늘어진 문장 깃발
-            SpawnBanner(root, -1f);
-            SpawnBanner(root, 1f);
+            if (!painted)
+            {
+                SpawnBanner(root, -1f);
+                SpawnBanner(root, 1f);
+            }
 
             // 8) 로고(가운데, 통통 튀며 나타난다) + 뒤의 빛
             _logoGlow = NewImage("LogoGlow", root, _glow, new Color(1f, 0.70f, 0.38f, 0.40f));
@@ -1191,6 +1201,100 @@ namespace OZGL2.UIBridge
             }
             if (_logoGlow != null) _logoGlow.color = new Color(1f, 0.70f, 0.38f, 0.34f + 0.08f * Mathf.Sin(t * 1.3f));
             if (_sun != null) _sun.localScale = Vector3.one * (1f + Mathf.Sin(t * 0.7f) * 0.025f);
+            if (_paintSun != null)
+            {
+                float pulse = 0.5f + 0.5f * Mathf.Sin(t * 0.8f);
+                _paintSun.color = new Color(1f, 0.72f, 0.38f, 0.22f + 0.12f * pulse);
+                _paintSun.rectTransform.localScale = Vector3.one * (0.95f + 0.1f * pulse);
+            }
+        }
+
+        // ───────────── 그려 둔 타이틀 배경
+
+        private const float PaintW = 1672f, PaintH = 941f;   // 배경 그림 크기(픽셀). 아래 좌표는 모두 이 그림 기준이다.
+
+        /// <summary>움직이는 조각(깃발·문장 깃발)의 그림 속 위치(왼쪽·위·오른쪽·아래 픽셀)와 걸린 쪽(피벗).</summary>
+        private static readonly (float x0, float y0, float x1, float y1, Vector2 pivot, bool banner, float phase)[] PaintPieces =
+        {
+            (60f, 36f, 232f, 486f, new Vector2(0.5f, 1f), true, 0f),            // 왼쪽 문장 깃발
+            (1440f, 36f, 1612f, 520f, new Vector2(0.5f, 1f), true, 1.7f),       // 오른쪽 문장 깃발
+            (772f, 546f, 826f, 572f, new Vector2(0f, 0.5f), false, 0.4f),       // 성탑 깃발들(깃대 쪽이 왼쪽)
+            (997f, 536f, 1100f, 580f, new Vector2(0f, 0.5f), false, 2.1f),
+            (1164f, 576f, 1243f, 611f, new Vector2(0f, 0.5f), false, 3.7f),
+            (1326f, 628f, 1381f, 654f, new Vector2(0f, 0.5f), false, 5.2f),
+        };
+
+        /// <summary>일렁이는 불빛(횃불·창문·성문·마을)의 그림 속 가운데 픽셀과 크기(화면 단위).</summary>
+        private static readonly (float x, float y, float size)[] PaintLights =
+        {
+            (45f, 455f, 230f), (1612f, 462f, 230f),                                     // 양쪽 횃불
+            (1086f, 746f, 110f), (899f, 717f, 70f), (949f, 715f, 70f), (1013f, 680f, 70f),   // 성문·성 창문
+            (480f, 776f, 90f), (288f, 854f, 80f), (138f, 846f, 80f), (349f, 822f, 70f), (1539f, 846f, 80f), (81f, 779f, 70f),   // 마을·풍차
+        };
+
+        /// <summary>
+        /// 그려 둔 배경(Resources/Title/TitleBackground)을 화면 가득 깔고 그 위에서 움직이는 조각만 얹는다 — 문장 깃발 흔들림, 성탑 깃발 펄럭임,
+        /// 횃불·창문 불빛 일렁임, 해 빛 맥동, 마우스에 따른 시차. 조각은 배경과 같은 그림에서 오려 낸 것(TitleOverlay)이라 움직여도 이음매가 보이지 않는다.
+        /// 그림이 없으면 false 를 돌려주고 기존 코드 풍경을 쓴다.
+        /// </summary>
+        private bool TryBuildPaintedBackdrop(RectTransform root)
+        {
+            var back = Resources.Load<Texture2D>("Title/TitleBackground");
+            var overlay = Resources.Load<Texture2D>("Title/TitleOverlay");
+            if (back == null) return false;
+
+            _paintRoot = NewRect("PaintedBackdrop", root);
+            _paintRoot.anchorMin = _paintRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            _paintRoot.pivot = new Vector2(0.5f, 0.5f);
+            var fitter = _paintRoot.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;   // 화면 비율이 달라도 빈틈 없이 덮는다
+            fitter.aspectRatio = PaintW / PaintH;
+            _paintRoot.localScale = Vector3.one * 1.05f;                       // 시차로 움직여도 가장자리가 보이지 않을 여유
+
+            var bg = new GameObject("Background", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage)).GetComponent<RawImage>();
+            bg.transform.SetParent(_paintRoot, false);
+            bg.texture = back; bg.raycastTarget = false;
+            Stretch(bg.rectTransform);
+
+            // 해 빛(수평선의 해 자리에서 은은히 맥동)
+            _paintSun = NewImage("SunPulse", _paintRoot, _glow, new Color(1f, 0.72f, 0.38f, 0.28f));
+            _paintSun.raycastTarget = false;
+            PlaceOnPaint(_paintSun.rectTransform, 690f, 525f, 520f);
+
+            // 불빛 일렁임
+            foreach (var l in PaintLights)
+            {
+                var glow = NewImage("Light", _paintRoot, _glow, new Color(1f, 0.62f, 0.25f, 0.6f));
+                glow.raycastTarget = false;
+                PlaceOnPaint(glow.rectTransform, l.x, l.y, l.size);
+                _torches.Add((glow.rectTransform, glow, Random.Range(0f, 6.28f)));
+            }
+
+            // 흔들리는 조각
+            if (overlay != null)
+                foreach (var piece in PaintPieces)
+                {
+                    var raw = new GameObject(piece.banner ? "Banner" : "Pennant", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage)).GetComponent<RawImage>();
+                    raw.transform.SetParent(_paintRoot, false);
+                    raw.texture = overlay; raw.raycastTarget = false;
+                    raw.uvRect = new Rect(piece.x0 / PaintW, 1f - piece.y1 / PaintH, (piece.x1 - piece.x0) / PaintW, (piece.y1 - piece.y0) / PaintH);
+                    var rt = raw.rectTransform;
+                    rt.anchorMin = new Vector2(piece.x0 / PaintW, 1f - piece.y1 / PaintH);
+                    rt.anchorMax = new Vector2(piece.x1 / PaintW, 1f - piece.y0 / PaintH);
+                    rt.offsetMin = rt.offsetMax = Vector2.zero;
+                    rt.pivot = piece.pivot;
+                    if (piece.banner) _banners.Add((rt, piece.phase)); else _flags.Add((rt, piece.phase));
+                }
+            return true;
+        }
+
+        /// <summary>배경 그림 속 (x, y) 픽셀 자리에 정사각형(size 화면 단위)을 놓는다.</summary>
+        private static void PlaceOnPaint(RectTransform rt, float x, float y, float size)
+        {
+            rt.anchorMin = rt.anchorMax = new Vector2(x / PaintW, 1f - y / PaintH);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(size, size);
+            rt.anchoredPosition = Vector2.zero;
         }
 
         /// <summary>위에서 늘어진 붉은 문장 깃발(끝이 제비꼬리 모양, 금빛 테두리와 방패 무늬).</summary>
@@ -1239,6 +1343,7 @@ namespace OZGL2.UIBridge
             Vector2 m = mouse != null ? mouse.position.ReadValue() : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             Vector2 n = new Vector2(m.x / Mathf.Max(1f, Screen.width) - 0.5f, m.y / Mathf.Max(1f, Screen.height) - 0.5f);
             float k = 1f - Mathf.Exp(-4f * dt);
+            Move(_paintRoot, new Vector2(-n.x * _parallax * 0.5f, -n.y * _parallax * 0.3f), k);
             Move(_sun, new Vector2(-n.x * _parallax * 0.2f, 430f - n.y * _parallax * 0.15f), k);
             Move(_mountains, new Vector2(-n.x * _parallax * 0.3f, 120f - n.y * _parallax * 0.1f), k);
             Move(_hillsFar, new Vector2(-n.x * _parallax * 0.5f, -n.y * _parallax * 0.15f), k);
